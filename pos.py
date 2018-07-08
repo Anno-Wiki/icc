@@ -6,7 +6,7 @@ with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
     i = 0
     for line in fin:
         if '@' in line:
-            fout.write(f'{str(i)}@{book}@{line}')
+            fout.write(str(book) + '@' + str(i) + '@' + line[:-1] + '\n')
         else:
-            fout.write(f'{str(i)}@{book}@{line}@0')
+            fout.write(str(book) + '@' + str(i) + '@' + line[:-1] + '@0' + '\n')
         i += 1
