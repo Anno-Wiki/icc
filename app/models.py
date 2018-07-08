@@ -66,8 +66,8 @@ class Author(db.Model):
     name = db.Column(db.String(128), index = True)
     first_name = db.Column(db.String(128), index = True)
     last_name = db.Column(db.String(128), index = True)
-    birth_year = db.Column(db.Date, index = True)
     birth_date = db.Column(db.Date, index = True)
+    death_date = db.Column(db.Date, index = True)
     ts_added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     # Relationships
