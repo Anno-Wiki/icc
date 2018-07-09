@@ -27,7 +27,7 @@ def load_user(id):
 class Word(db.Model):
     # Columns
     id = db.Column(db.Integer, primary_key = True)
-    word = db.Column(db.String(128), unique=True, index = True)
+    word = db.Column(db.VARCHAR(128, collation='utf8mb4_bin'), unique=True, index = True)
 
     # Relationships
     positions = db.relationship('Position', backref = 'word', lazy = 'dynamic')
