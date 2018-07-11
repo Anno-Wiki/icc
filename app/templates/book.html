@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>BOOK</h1>
-    {% for pos in typesetting %}
-    <span id ='{{ pos.position }}'>{{ pos.word.word|safe }}</span>
-    {% endfor %}
+    {% for word in typesetting -%}
+        {% include "_word.html" %}
+    {%- endfor %}
 {% endblock %}
