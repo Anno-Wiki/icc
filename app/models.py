@@ -30,7 +30,7 @@ class Word(db.Model):
     word = db.Column(db.VARCHAR(128, collation='utf8mb4_bin'), unique=True, index = True)
 
     # Relationships
-    positions = db.relationship('Position', backref = 'word', lazy = 'dynamic')
+    typesetting = db.relationship('Position', backref = 'neverquery', lazy = 'dynamic')
 
     def __repr__(self):
         return '<Word {}>'.format(self.word)
@@ -55,7 +55,7 @@ class Book(db.Model):
     ts_added = db.Column(db.DateTime, default = datetime.utcnow)
 
     # Relationships
-    positions = db.relationship('Position', backref = 'book', lazy = 'dynamic')
+    positions = db.relationship('Position', backref = 'typesetting', lazy = 'dynamic')
 
     def __repr__(self):
         return f'<Book: {self.title} by {self.author}>'
@@ -71,7 +71,7 @@ class Author(db.Model):
     ts_added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     # Relationships
-    books = db.relationship('Book', backref = 'author', lazy = 'dynamic')
+    books = db.relationship('Book', backref = 'books', lazy = 'dynamic')
 
     def __repr__(self):
         return f'<Author: {self.name}>'
