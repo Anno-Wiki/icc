@@ -1,14 +1,13 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, Markup
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.models import User, Book, Author, Word, Position
 
 
 @app.route('/')
 @app.route('/index')
-@login_required
 def index():
     posts = [
         {
@@ -60,3 +59,10 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/book/')
+def book():
+    book = Book.query.filter_by(title = 'Hamlet').first()
+    typesetting = Position.query.filter_by(book_id = book.id)
+    results = typesetting.paginate(1,500).items
+    return render_template('book.html', typesetting = results)
