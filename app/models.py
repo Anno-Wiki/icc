@@ -83,3 +83,16 @@ class Author(db.Model):
 
     def __repr__(self):
         return f"<Author: {self.name}>"
+
+class Page(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    book_id = db.ForeignKey("book.id", index = True)
+    book = db.relationship("Book", backref = "pages")
+
+    page_number = db.Column(db.Integer, index = True)
+    
+    start = db.ForeignKey("position.id")
+    stop = db.ForeignKey("position.id")
+
+    ident = db.Column(db.String(20), index = True)
+    ident_number = db.Column(db.Integer)
