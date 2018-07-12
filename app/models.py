@@ -56,6 +56,7 @@ class Book(db.Model):
     # Columns
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(128))
+    url = db.Column(db.String(128))
 
     author_id = db.Column(db.Integer, db.ForeignKey("author.id"), index = True)
     author = db.relationship("Author", backref="books")

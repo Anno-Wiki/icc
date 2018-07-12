@@ -9,17 +9,8 @@ from app.models import User, Book, Author, Word, Position
 @app.route('/')
 @app.route('/index/')
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+    books = Book.query.all()
+    return render_template('index.html', title='Home', books = books)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -60,9 +51,9 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/book/')
-def book():
-    book = Book.query.filter_by(title = 'Hamlet').first()
+@app.route('/book/<title>')
+def book(title):
+    book = Book.query.filter_by(url = title).first()
     typesetting = Position.query.filter_by(book_id = book.id)
     results = typesetting.paginate(1, 5000).items
     return render_template('book.html', typesetting = results, book =
