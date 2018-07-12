@@ -1,5 +1,6 @@
 {%- if "<" in word.word.word -%}
 
+
 {%- if "<bang>" in word.word.word -%}
 <span id='{{ word.position }}'>!</span>
 
@@ -26,8 +27,12 @@
 
 {%- elif "<ellipsis>" in word.word.word -%}
 <span id='{{ word.position }}'>...</span>
-{% endif %}
+
+{%- elif "<br>" in word.word.word or "p>" in word.word.word-%}
+<span id='{{ word.position }}'>{{ word.word.word|safe }}</span>
+
+{%- endif %}
 
 {%- else -%}
 <span id='{{ word.position }}'> {{ word.word.word|safe }}</span>
-{%- endif -%}
+{%- endif %}

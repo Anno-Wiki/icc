@@ -64,5 +64,5 @@ def register():
 def book():
     book = Book.query.filter_by(title = 'Hamlet').first()
     typesetting = Position.query.filter_by(book_id = book.id)
-    results = typesetting.paginate(1,500).items
+    results = typesetting.paginate(1, 2000).items
     return render_template('book.html', typesetting = results)
