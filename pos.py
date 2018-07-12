@@ -1,6 +1,8 @@
 import sys
 
-book = sys.argv[3]
+if '-b' in sys.argv:
+    flag = sys.argv.index('-b')
+    book = sys.argv[flag + 1]
 
 with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
     i = 0

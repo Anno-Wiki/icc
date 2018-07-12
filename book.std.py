@@ -13,6 +13,7 @@ with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
     chapter = False         # Flag for chapter tags
     chnum = 1               # Chapter counter                 
     prevwrite = 'begin'     # holder for previous fout.write()
+    chlinestoread = 1
 
 
 
@@ -25,17 +26,19 @@ with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
     linebased = False       # Flag for newline mode
 
     # regex mode flag activation
-    if len(sys.argv) > 3 and sys.argv[3] == '-r':
+    if '-r' in sys.argv:
+        flag = sys.argv.index('-r')
         regexbased = True
-        chkey = re.compile(sys.argv[4])
-        chlinestoread = int(sys.argv[5])
+        chkey = re.compile(sys.argv[flag + 1])
+#        chlinestoread = int(sys.argv[5])
         chlinesread = 0
 
     # newline mode flag activation
-    elif len(sys.argv) > 3 and sys.argv[3] == '-l':
+    elif '-l' in sys.argv:
+        flag = sys.argv.index('-l')
         linebased = True
-        leader = int(sys.argv[4])
-        chlinestoread = int(sys.argv[5])
+        leader = int(sys.argv[flag + 1])
+#        chlinestoread = int(sys.argv[5])
         chlinesread = 0
 
 
