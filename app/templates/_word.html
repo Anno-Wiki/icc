@@ -1,37 +1,65 @@
 {%- if "<" in word.word.word -%}
 
 
-{%- if "<bang>" in word.word.word -%}
-<span id='{{ word.position }}'>!</span>
+    {%- if "<bang>" in word.word.word -%}
+    <span id='{{ word.position }}'>!</span>
+    {% set nospace = True %}
 
-{%- elif "<colon>" in word.word.word -%}
-<span id='{{ word.position }}'>:</span>
+    {%- elif "<colon>" in word.word.word -%}
+    <span id='{{ word.position }}'>:</span>
 
-{%- elif "<period>" in word.word.word -%}
-<span id='{{ word.position }}'>.</span>
+    {%- elif "<period>" in word.word.word -%}
+    <span id='{{ word.position }}'>.</span>
 
-{%- elif "<query>" in word.word.word -%}
-<span id='{{ word.position }}'>?</span>
+    {%- elif "<query>" in word.word.word -%}
+    <span id='{{ word.position }}'>?</span>
 
-{%- elif "<semicolon>" in word.word.word -%}
-<span id='{{ word.position }}'>;</span>
+    {%- elif "<semicolon>" in word.word.word -%}
+    <span id='{{ word.position }}'>;</span>
 
-{%- elif "<comma>" in word.word.word -%}
-<span id='{{ word.position }}'>,</span>
+    {%- elif "<comma>" in word.word.word -%}
+    <span id='{{ word.position }}'>,</span>
 
-{%- elif "<emdash>" in word.word.word -%}
-<span id='{{ word.position }}'>&mdash;</span>
+    {%- elif "<emdash>" in word.word.word -%}
+    <span id='{{ word.position }}'>&mdash;</span>
 
-{%- elif "<emattrib>" in word.word.word -%}
-<span id='{{ word.position }}'>&mdash;</span>
+    {%- elif "<emattrib>" in word.word.word -%}
+    <span id='{{ word.position }}'>&mdash;</span>
 
-{%- elif "<ellipsis>" in word.word.word -%}
-<span id='{{ word.position }}'>...</span>
+    {%- elif "<ellipsis>" in word.word.word -%}
+    <span id='{{ word.position }}'>...</span>
 
-{%- elif "<br>" in word.word.word or "p>" in word.word.word-%}
-<span id='{{ word.position }}'>{{ word.word.word|safe }}</span>
+    {%- elif "<br>" in word.word.word or "p>" in word.word.word-%}
+    {{ word.word.word|safe }}
 
-{%- endif %}
+    {%- elif "<openbracket>" in word.word.word -%}
+    <span id='{{ word.position }}'>[</span>
+    
+    {%- elif "<openparen>" in word.word.word -%}
+    <span id='{{ word.position }}'>(</span>
+
+    {%- elif "<opensingle>" in word.word.word -%}
+    <span id='{{ word.position }}'>&lsquo;</span>
+
+    {%- elif "<opendouble>" in word.word.word -%}
+    <span id='{{ word.position }}'>&ldquo;</span>
+    
+    {%- elif "<closebracket>" in word.word.word -%}
+    <span id='{{ word.position }}'>]</span>
+
+    {%- elif "<closeparen>" in word.word.word -%}
+    <span id='{{ word.position }}'>)</span>
+
+    {%- elif "<closesingle>" in word.word.word -%}
+    <span id='{{ word.position }}'>&rsquo;</span>
+
+    {%- elif "<closedouble>" in word.word.word -%}
+    <span id='{{ word.position }}'>&rdquo;</span>
+
+    {%- elif "i>" in word.word.word -%}
+    {{ word.word.word|safe }}
+
+    {%- endif %}
 
 {%- else -%}
 <span id='{{ word.position }}'> {{ word.word.word|safe }}</span>
