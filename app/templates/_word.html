@@ -60,10 +60,10 @@
     {{ word.word.word|safe }}
     
     {%- elif "<act>" in word.word.word -%}
-    <span id='{{ word.position }}'>Act {{ word.number }}</span>
+    <h3 id='{{ word.position }}'>Act {{ word.number }}</h3>
 
     {%- elif "<scene>" in word.word.word -%}
-    <span id='{{ word.position }}'>Scene {{ word.number }}</span>
+    <h3 id='{{ word.position }}'>Scene {{ word.number }}</h3>
 
     {%- elif "<number>" in word.word.word -%}
     <span id='{{ word.position }}'>{{ word.number }}</span>

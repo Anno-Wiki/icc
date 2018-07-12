@@ -7,7 +7,7 @@ from app.models import User, Book, Author, Word, Position
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index/')
 def index():
     posts = [
         {
@@ -22,7 +22,7 @@ def index():
     return render_template('index.html', title='Home', posts=posts)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -40,13 +40,13 @@ def login():
     return render_template('login.html', title='Sign In', form=form)
 
 
-@app.route('/logout')
+@app.route('/logout/')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register/', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -64,5 +64,6 @@ def register():
 def book():
     book = Book.query.filter_by(title = 'Hamlet').first()
     typesetting = Position.query.filter_by(book_id = book.id)
-    results = typesetting.paginate(1, 2000).items
-    return render_template('book.html', typesetting = results)
+    results = typesetting.paginate(1, 5000).items
+    return render_template('book.html', typesetting = results, book =
+            book, author = book.author)
