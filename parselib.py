@@ -41,9 +41,9 @@ def parse(word):
     # close parenthese
     word = word.replace(')','\n<closeparen>\n')
     # open italic
-    word = re.sub(r"^_", '\n<ital>\n', word)
+    word = re.sub(r"^_", '\n<i>\n', word)
     # close italic
-    word = re.sub(r"_$", '\n</ital>\n', word)
+    word = re.sub(r"_$", '\n</i>\n', word)
 
     # enclose number in tags
     if '<' not in word:
