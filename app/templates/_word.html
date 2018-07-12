@@ -1,4 +1,4 @@
-{% if "<br>" in word.word.word -%}
+{% if "<" in word.word.word -%}
 <span id='{{ word.position }}'>{{ word.word.word }}</span>
 {%- else -%}
 <span id='{{ word.position }}'>{{ word.word.word|safe }}</span>
