@@ -1,5 +1,33 @@
-{% if "<" in word.word.word -%}
-<span id='{{ word.position }}'>{{ word.word.word }}</span>
+{%- if "<" in word.word.word -%}
+
+{%- if "<bang>" in word.word.word -%}
+<span id='{{ word.position }}'>!</span>
+
+{%- elif "<colon>" in word.word.word -%}
+<span id='{{ word.position }}'>:</span>
+
+{%- elif "<period>" in word.word.word -%}
+<span id='{{ word.position }}'>.</span>
+
+{%- elif "<query>" in word.word.word -%}
+<span id='{{ word.position }}'>?</span>
+
+{%- elif "<semicolon>" in word.word.word -%}
+<span id='{{ word.position }}'>;</span>
+
+{%- elif "<comma>" in word.word.word -%}
+<span id='{{ word.position }}'>,</span>
+
+{%- elif "<emdash>" in word.word.word -%}
+<span id='{{ word.position }}'>&mdash;</span>
+
+{%- elif "<emattrib>" in word.word.word -%}
+<span id='{{ word.position }}'>&mdash;</span>
+
+{%- elif "<ellipsis>" in word.word.word -%}
+<span id='{{ word.position }}'>...</span>
+{% endif %}
+
 {%- else -%}
-<span id='{{ word.position }}'>{{ word.word.word|safe }}</span>
-{%- endif %}
+<span id='{{ word.position }}'> {{ word.word.word|safe }}</span>
+{%- endif -%}
