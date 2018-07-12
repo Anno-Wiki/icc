@@ -40,10 +40,10 @@ def parse(word):
     word = word.replace('(','\n<openparen>\n')
     # close parenthese
     word = word.replace(')','\n<closeparen>\n')
+    # close italic often appears on line of itself
+    word = re.sub(r"(^_$|_$)", '\n</i>\n', word)
     # open italic
     word = re.sub(r"^_", '\n<i>\n', word)
-    # close italic
-    word = re.sub(r"_$", '\n</i>\n', word)
 
     # enclose number in tags
     if '<' not in word:
