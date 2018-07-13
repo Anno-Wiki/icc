@@ -10,17 +10,22 @@ p {
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
 }
+a {
+    text-decoration:none;
+}
 #prev_page {
-    text-align:left;
     font-size: 24pt;
     text-decoration:none;
 }
 #next_page {
-    text-align:right;
     font-size: 24pt;
     text-decoration:none;
 }
 #current_page {
-    text-align:center;
     font-size: 24pt;
+}
+#running_head {
+    text-align:right;
+    font-size:20pt;
+    margin-bottom:100px;
 }

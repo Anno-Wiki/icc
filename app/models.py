@@ -75,6 +75,7 @@ class Author(db.Model):
     name = db.Column(db.String(128), index = True)
     first_name = db.Column(db.String(128), index = True)
     last_name = db.Column(db.String(128), index = True)
+    url = db.Column(db.String(128), index = True)
 
     birth_date = db.Column(db.Date, index = True)
     death_date = db.Column(db.Date, index = True)

@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>{{ book.title }}</h1>
-<h2>by {{ author.name }}</h2>
+<h2>by <a href="{{ url_for("author", name = author.url) }}">{{ author.name }}</a></h2>
 <h4>Chapters</h4>
 <ul>
     {% for ch in chapters %}
@@ -10,11 +10,11 @@
     ch.page_number) }}">Chapter {{ ch.ident_number }}</a></li>
     {% endfor %}
 </ul>
-<h4>Pages</h4>
-<ul>
-    {% for page in pages %}
-    <li><a href="{{ url_for("book_page", title = book.url, page_num =
-            page.page_number) }}">Page {{ page.page_number }}</a></li>
+<h4>Pages:</h4>
+<p>
+    {% for page in pages -%}
+    <a href="{{ url_for("book_page", title = book.url, page_num =
+            page.page_number) }}">{{ page.page_number }}</a>,
     {% endfor %}
-</ul>
+</p>
 {% endblock %}

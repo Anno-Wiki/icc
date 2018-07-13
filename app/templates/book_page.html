@@ -2,8 +2,35 @@
 
 {% block content %}
 
-<h1>{{ book.title }}</h1>
-<h2>by {{ author.name }}</h2>
+{% if page.page_number == 1 %}
+
+<h1><a href="{{ url_for("book", title=book.url) }}">{{ book.title }}</a></h1>
+<h2>by 
+    <a href="{{ url_for("author", name = book.author.url) }}">
+    {{ author.name }}
+    </a>
+</h2>
+
+{% else %}
+{% if prev_page %}
+
+<div id="running_head">
+<a href="{{ url_for("book_page", title = book.url, page_num =
+    prev_page.page_number) }}">&larr;</a>
+{% endif %}
+
+{{ page.page_number }}
+
+{% if next_page %}
+<a href="{{ url_for("book_page", title = book.url, page_num =
+next_page.page_number) }}">&rarr;</a>
+{% endif %}
+    <a href="{{ url_for("book", title=book.url) }}">
+        {{ book.title }}</a> 
+     by <a href="{{ url_for("author", name=book.author.url) }}">
+        {{ book.author.name }} </a>
+</div>
+{% endif %}
 
 {% set ns = namespace(nospace=True) %}
 {% for word in typesetting -%}
@@ -15,7 +42,7 @@
     prev_page.page_number) }}" id="prev_page">&larr;</a>
 {% endif %}
 
-<span id="current_page">Page {{ page.page_number }}</span>
+<span id="current_page">p. {{ page.page_number }}</span>
 
 {% if next_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
