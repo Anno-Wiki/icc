@@ -98,6 +98,9 @@ class Page(db.Model):
     stop = db.relationship("Position", foreign_keys = 'Page.stop_id')
 
     ident = db.Column(db.String(20), index = True)
-    ident_number = db.Column(db.Integer)
+    ident_num_1 = db.Column(db.Integer)
+    ident_num_2 = db.Column(db.Integer)
+    ident_num_3 = db.Column(db.Integer)
+    ident_identifier = db.Column(db.String(128))
 
     page_number = db.Column(db.Integer, index = True)
