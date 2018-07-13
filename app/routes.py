@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Book, Author, Word, Position
+from app.models import User, Book, Author, Word, Position, Page
 
 
 @app.route('/')
@@ -51,14 +51,24 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/book/<title>')
+@app.route('/book/<title>/')
 def book(title):
     book = Book.query.filter_by(url = title).first()
-    start = 617
-    stop = 1464
-    typesetting = Position.query.filter(Position.book_id == book.id, 
-            Position.position >= start, Position.position <= stop)
-#    typesetting = Position.query.filter_by(book_id = book.id).all()
-#    results = typesetting.paginate(1,500).items
-    return render_template('book.html', typesetting = typesetting, book =
+    pages = Page.query.filter(Page.book_id == book.id, 
+            Page.ident == '<page>').all()
+    chapters = Page.query.filter(Page.book_id == book.id,
+            Page.ident == '<ch>').all()
+    return render_template('book.html', book = book, pages = pages,
+            chapters = chapters, author = book.author)
+
+@app.route('/book/<title>/page<page_num>/')
+def book_page(title, page_num):
+    book = Book.query.filter_by(url = title).first()
+    if page_num:
+        page = Page.query.filter(Page.page_number == page_num, 
+                Page.book_id == book.id, Page.ident == '<page>').first()
+    typesetting = Position.query.filter(Position.book_id == book.id,
+            Position.position >= page.start_id, 
+            Position.position <= page.stop_id)
+    return render_template('book_page.html', typesetting = typesetting, book =
             book, author = book.author, title = book.title)

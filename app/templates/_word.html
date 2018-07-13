@@ -126,10 +126,10 @@
 
 {%- else -%}
     {%- if ns.nospace -%}
-        <span id='{{ word.position }}'>{{ word.word.word|safe }}</span>
+        <span id='{{ word.position }}'>{{ word.word.word }}</span>
         {%- set ns.nospace = False -%}
     {%- else -%}
-        <span id='{{ word.position }}'> {{ word.word.word|safe }}</span>
+        <span id='{{ word.position }}'> {{ word.word.word }}</span>
         {%- set ns.nospace = False -%}
     {%- endif -%}
 {%- endif -%}

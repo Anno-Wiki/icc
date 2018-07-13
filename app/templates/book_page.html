@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ book.title }}</h1>
+<h2>by {{ author.name }}</h2>
+    {% set ns = namespace(nospace=True) %}
+    {% for word in typesetting -%}
+        {% include "_word.html" %}
+    {%- endfor %}
+{% endblock %}

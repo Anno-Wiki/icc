@@ -3,8 +3,18 @@
 {% block content %}
 <h1>{{ book.title }}</h1>
 <h2>by {{ author.name }}</h2>
-    {% set ns = namespace(nospace=True) %}
-    {% for word in typesetting -%}
-        {% include "_word.html" %}
-    {%- endfor %}
+<h4>Chapters</h4>
+<ul>
+    {% for ch in chapters %}
+    <li><a href="{{ url_for("book_page", title = book.url, page_num =
+    ch.page_number) }}">Chapter {{ ch.ident_number }}</a></li>
+    {% endfor %}
+</ul>
+<h4>Pages</h4>
+<ul>
+    {% for page in pages %}
+    <li><a href="{{ url_for("book_page", title = book.url, page_num =
+            page.page_number) }}">Page {{ page.page_number }}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}

@@ -90,10 +90,10 @@ class Page(db.Model):
     book_id = db.Column(db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book", backref = "pages")
     
-    start_id = db.Column(db.ForeignKey("position.id"))
+    start_id = db.Column(db.ForeignKey("position.position"))
     start = db.relationship("Position", foreign_keys = 'Page.start_id')
     
-    stop_id = db.Column(db.ForeignKey("position.id"))
+    stop_id = db.Column(db.ForeignKey("position.position"))
     stop = db.relationship("Position", foreign_keys = 'Page.stop_id')
 
     ident = db.Column(db.String(20), index = True)
