@@ -54,7 +54,11 @@ def register():
 @app.route('/book/<title>')
 def book(title):
     book = Book.query.filter_by(url = title).first()
-    typesetting = Position.query.filter_by(book_id = book.id)
-    results = typesetting.paginate(1, 2500).items
-    return render_template('book.html', typesetting = results, book =
+    start = 617
+    stop = 1464
+    typesetting = Position.query.filter(Position.book_id == book.id, 
+            Position.position >= start, Position.position <= stop)
+#    typesetting = Position.query.filter_by(book_id = book.id).all()
+#    results = typesetting.paginate(1,500).items
+    return render_template('book.html', typesetting = typesetting, book =
             book, author = book.author, title = book.title)

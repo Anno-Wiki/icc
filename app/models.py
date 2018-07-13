@@ -86,13 +86,17 @@ class Author(db.Model):
 
 class Page(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    book_id = db.ForeignKey("book.id", index = True)
-    book = db.relationship("Book", backref = "pages")
 
-    page_number = db.Column(db.Integer, index = True)
+    book_id = db.Column(db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book", backref = "pages")
     
-    start = db.ForeignKey("position.id")
-    stop = db.ForeignKey("position.id")
+    start_id = db.Column(db.ForeignKey("position.id"))
+    start = db.relationship("Position", foreign_keys = 'Page.start_id')
+    
+    stop_id = db.Column(db.ForeignKey("position.id"))
+    stop = db.relationship("Position", foreign_keys = 'Page.stop_id')
 
     ident = db.Column(db.String(20), index = True)
     ident_number = db.Column(db.Integer)
+
+    page_number = db.Column(db.Integer, index = True)

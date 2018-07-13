@@ -110,6 +110,14 @@
         <h3 id='{{ word.position }}'>Scene {{ word.number }}</h3>
         {%- set ns.nospace = True -%}
 
+    {%- elif "<ch>" in word.word.word -%}
+        <h3 id='{{ word.position }}'>
+        {%- set ns.nospace = True -%}
+
+    {%- elif "</ch>" in word.word.word -%}
+        </h3>
+        {%- set ns.nospace = True -%}
+
     {%- elif "<number>" in word.word.word -%}
         <span id='{{ word.position }}'>{{ word.number }}</span>
         {%- set ns.nospace = False -%}
