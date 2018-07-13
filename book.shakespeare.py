@@ -72,5 +72,5 @@ with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
                 # write word to file
                 fout.write(word + '\n')
 
-            if linepreservation:
+            if linepreservation and '<' not in line:
                 fout.write('<br>\n')

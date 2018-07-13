@@ -50,3 +50,9 @@ def parse(word):
         word = re.sub(r"([0-9]+)", r"\n<number>@\1\n", word)
 
     return word
+
+def isword(word):
+    if '<' in word:
+        return False
+    else:
+        return True

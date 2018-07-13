@@ -8,4 +8,5 @@ sort $2.04.icc | sed 's/@[0-9]*//g' | uniq > $2.dict
 python pos.py $2.04.icc $2.05.icc $3 $4 $5 $6 $7
 cp $2.04.icc $2.out.icc 
 cp $2.05.icc $2.icc 
+python paginate.py $2.out.icc $3 $4 $5 $6 $7 > $2.pages
 rm $2.0* 
