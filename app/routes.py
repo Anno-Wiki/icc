@@ -63,12 +63,21 @@ def book(title):
 
 @app.route('/book/<title>/page<page_num>/')
 def book_page(title, page_num):
-    book = Book.query.filter_by(url = title).first()
-    if page_num:
-        page = Page.query.filter(Page.page_number == page_num, 
-                Page.book_id == book.id, Page.ident == '<page>').first()
+    book = Book.query.filter_by(url = title).first_or_404()
+
+    page = Page.query.filter(Page.page_number == page_num, 
+            Page.book_id == book.id, Page.ident == '<page>').first_or_404()
+
+    next_page = Page.query.filter(Page.page_number == page.page_number+1, 
+            Page.book_id == book.id, Page.ident == '<page>').first()
+
+    prev_page = Page.query.filter(Page.page_number == page.page_number-1, 
+            Page.book_id == book.id, Page.ident == '<page>').first()
+
     typesetting = Position.query.filter(Position.book_id == book.id,
             Position.position >= page.start_id, 
             Position.position <= page.stop_id)
+
     return render_template('book_page.html', typesetting = typesetting, book =
-            book, author = book.author, title = book.title)
+            book, author = book.author, title = book.title, prev_page = prev_page,
+            next_page = next_page, page = page)

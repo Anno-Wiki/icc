@@ -1,10 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1>{{ book.title }}</h1>
 <h2>by {{ author.name }}</h2>
-    {% set ns = namespace(nospace=True) %}
-    {% for word in typesetting -%}
-        {% include "_word.html" %}
-    {%- endfor %}
+
+{% set ns = namespace(nospace=True) %}
+{% for word in typesetting -%}
+    {% include "_word.html" %}
+{%- endfor %}
+
+{% if prev_page %}
+<a href="{{ url_for("book_page", title = book.url, page_num =
+    prev_page.page_number) }}" id="prev_page">&larr;</a>
+{% endif %}
+
+<span id="current_page">Page {{ page.page_number }}</span>
+
+{% if next_page %}
+<a href="{{ url_for("book_page", title = book.url, page_num =
+next_page.page_number) }}" id="next_page">&rarr;</a>
+{% endif %}
+
 {% endblock %}

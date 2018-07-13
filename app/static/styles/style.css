@@ -1,5 +1,26 @@
 body {
-    width: 6in;
+    width: 6.5in;
     margin: auto;
     text-align: justify;
+    font-family: 'EB Garamond', serif;
+}
+p {
+    text-indent: 1em;
+    margin: 0;
+    font-family: 'EB Garamond', serif;
+    font-size: 14pt;
+}
+#prev_page {
+    text-align:left;
+    font-size: 24pt;
+    text-decoration:none;
+}
+#next_page {
+    text-align:right;
+    font-size: 24pt;
+    text-decoration:none;
+}
+#current_page {
+    text-align:center;
+    font-size: 24pt;
 }
