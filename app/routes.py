@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Book, Author, Word, Position, Page
+from app.models import User, Book, Author, Page
 
 
 @app.route('/')
@@ -70,11 +70,9 @@ def author(name):
 def book(title):
     book = Book.query.filter_by(url = title).first_or_404()
     pages = Page.query.filter(Page.book_id == book.id, 
-            Page.ident == '<page>').all()
-    chapters = Page.query.filter(Page.book_id == book.id,
-            Page.ident == '<ch>').all()
+            ).all()
     return render_template('book.html', book = book, pages = pages,
-            title = book.title, chapters = chapters, author = book.author)
+            title = book.title, author = book.author)
 
 
 
@@ -82,20 +80,15 @@ def book(title):
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
 
-    page = Page.query.filter(Page.page_number == page_num, 
-            Page.book_id == book.id, Page.ident == '<page>').first_or_404()
+    page = Page.query.filter(Page.page_num == page_num, 
+            Page.book_id == book.id).first_or_404()
 
-    next_page = Page.query.filter(Page.page_number == page.page_number+1, 
-            Page.book_id == book.id, Page.ident == '<page>').first()
+    next_page = Page.query.filter(Page.page_num == page.page_num+1, 
+            Page.book_id == book.id).first()
 
-    prev_page = Page.query.filter(Page.page_number == page.page_number-1, 
-            Page.book_id == book.id, Page.ident == '<page>').first()
+    prev_page = Page.query.filter(Page.page_num == page.page_num-1, 
+            Page.book_id == book.id).first()
 
-    typesetting = Position.query.filter(Position.book_id == book.id,
-            Position.position >= page.start_id, 
-            Position.position <= page.stop_id)
-
-    return render_template('book_page.html', typesetting = typesetting, 
-            book = book, author = book.author, 
-            title = book.title + f" p. {page.page_number}", 
+    return render_template('book_page.html', book = book, author = book.author,
+            title = book.title + f" p. {page.page_num}", 
             prev_page = prev_page, next_page = next_page, page = page)

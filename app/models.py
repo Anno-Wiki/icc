@@ -25,82 +25,42 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-
-
-class Word(db.Model):
-    # Columns
+class Page(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    word = db.Column(db.VARCHAR(128, collation="utf8mb4_bin"), unique=True, index = True)
-
-    def __repr__(self):
-        return "<Word {}>".format(self.word)
-
-class Position(db.Model):
-    # Columns
-    id = db.Column(db.Integer, primary_key = True)
-
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
-    book = db.relationship("Book", backref="typesetting")
-
-    position = db.Column(db.Integer, index = True)
-
-    word_id = db.Column(db.Integer, db.ForeignKey("word.id"), index = True)
-    word = db.relationship("Word")
-
-    number = db.Column(db.Integer, index = True)
+    book = db.relationship("Book", backref="pages")
+    page = db.Column(db.Text)
+    page_num = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"<Position {self.position} of {self.book.title}: {self.word.word}>"
+        return f"<p. {self.page_num} of {self.book.title} by {self.book.author.name}"
+
 
 class Book(db.Model):
     # Columns
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(128))
     url = db.Column(db.String(128))
-
     author_id = db.Column(db.Integer, db.ForeignKey("author.id"), index = True)
     author = db.relationship("Author", backref="books")
-
     published = db.Column(db.Date)
-
-    ts_added = db.Column(db.DateTime, default = datetime.utcnow)
+    ts_added = db.Column(db.DateTime)
 
     def __repr__(self):
         return f"<Book: {self.title} by {self.author}>"
 
+
 class Author(db.Model):
     # Columns
     id = db.Column(db.Integer, primary_key = True)
-
     name = db.Column(db.String(128), index = True)
     first_name = db.Column(db.String(128), index = True)
     last_name = db.Column(db.String(128), index = True)
     url = db.Column(db.String(128), index = True)
-
     birth_date = db.Column(db.Date, index = True)
     death_date = db.Column(db.Date, index = True)
-
     ts_added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     def __repr__(self):
         return f"<Author: {self.name}>"
 
-class Page(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-
-    book_id = db.Column(db.ForeignKey("book.id"), index = True)
-    book = db.relationship("Book", backref = "pages")
-    
-    start_id = db.Column(db.ForeignKey("position.position"))
-    start = db.relationship("Position", foreign_keys = 'Page.start_id')
-    
-    stop_id = db.Column(db.ForeignKey("position.position"))
-    stop = db.relationship("Position", foreign_keys = 'Page.stop_id')
-
-    ident = db.Column(db.String(20), index = True)
-    ident_num_1 = db.Column(db.Integer)
-    ident_num_2 = db.Column(db.Integer)
-    ident_num_3 = db.Column(db.Integer)
-    ident_identifier = db.Column(db.String(128))
-
-    page_number = db.Column(db.Integer, index = True)
