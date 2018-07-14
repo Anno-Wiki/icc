@@ -29,3 +29,25 @@ a {
     font-size:20pt;
     margin-bottom:100px;
 }
+
+ul.leaders {
+    max-width: 40em;
+    padding: 0;
+    overflow-x: hidden;
+    list-style: none}
+ul.leaders li:before {
+    float: left;
+    width: 0;
+    white-space: nowrap;
+    content:
+ ". . . . . . . . . . . . . . . . . . . . "
+ ". . . . . . . . . . . . . . . . . . . . "
+ ". . . . . . . . . . . . . . . . . . . . "
+ ". . . . . . . . . . . . . . . . . . . . "}
+ul.leaders span:first-child {
+    padding-right: 0.33em;
+    background: white}
+ul.leaders span + span {
+    float: right;
+    padding-left: 0.33em;
+    background: white}

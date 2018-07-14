@@ -3,11 +3,12 @@
 {% block content %}
 <h1>{{ book.title }}</h1>
 <h2>by <a href="{{ url_for("author", name = author.url) }}">{{ author.name }}</a></h2>
-<h4>Chapters</h4>
-<ul>
+<h4>Chapter</h4>
+<ul class="leaders">
     {% for ch in chapters %}
     <li><a href="{{ url_for("book_page", title = book.url, page_num =
-    ch.page_number) }}">Chapter {{ ch.ident_num_1 }}</a></li>
+    ch.page_number) }}"><span>Chapter {{ ch.ident_num_1
+    }}</span><span>{{ch.page_number}}</span></a></li>
     {% endfor %}
 </ul>
 <h4>Pages:</h4>
