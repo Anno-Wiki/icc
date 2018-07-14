@@ -7,6 +7,7 @@ linepreservation = False
 wordcounter = 0;
 linesperpage = 30
 linesonpage = 0
+last = 'beginning'
 
 
 # Flag processing
@@ -21,6 +22,16 @@ if '-l' in sys.argv:
 
 
 def stamp(word, wordcounter):
+    # em dash
+    word = re.sub(r'(--|—)', '&mdash;', word) 
+    # open single quote
+    #word = re.sub(r"^'", '&lsquo;', word)
+    ## close single quote
+    #word = re.sub(r"'$", '&rsquo;', word)
+    ## open double quote
+    #word = re.sub(r'^"', '&ldquo;', word)
+    ## close double quote
+    #word = re.sub(r'"$', '&rdquo;', word)
     word = f'<word id="{wordcounter}">{word}</word>'
     return word
 
@@ -30,16 +41,22 @@ page = 1
 for line in fin:
 
     if re.match(r'^$', line):
-        fout.write('\n</p>\n<p>\n')
-        continue
-
-    if '<ch' in line:
-        fout.write(f'@{page}{{}}')
-        linesonpage = 0
-        page += 1
-        fout.write(line)
-        continue
-    else:
+        if last == 'ch':
+            fout.write('\n<p>\n')
+            last = 'p'
+        elif last == 'text':
+            fout.write('\n</p>\n')
+            last = '/p'
+    elif '<ch' in line:
+        if last != 'beginning':
+            fout.write(f'\n@{page}{{}}\n')
+            linesonpage = 0
+            page += 1
+        fout.write(line + ' ')
+        last = 'ch'
+    elif line != '':
+        if last == '/p':
+            fout.write('\n<p>\n')
         words = line.split()
         newline = []
         for word in words:
@@ -47,16 +64,17 @@ for line in fin:
             word = stamp(word, wordcounter)
             newline.append(word)
         newline = ' '.join(newline)
-        fout.write(newline)
+        fout.write(newline + ' ')
         if linepreservation:
             fout.write('<br>')
         linecounter += 1
         linesonpage += 1
+        last = 'text'
 
-    if linesonpage >= linesperpage:
-        fout.write(f'@{page}{{}}')
-        linesonpage = 0
-        page += 1
+        if linesonpage >= linesperpage and last != 'beginning':
+            fout.write(f'\n@{page}{{}}\n')
+            linesonpage = 0
+            page += 1
 
 fout.write(f'@{page}{{}}')
 
