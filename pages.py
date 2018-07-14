@@ -18,7 +18,7 @@ if '-o' in sys.argv:
 if '-p' in sys.argv:
     linepreservation = True
 if '-l' in sys.argv:
-    linesperpage = sys.argv[sys.argv.index('-l')+1]
+    linesperpage = int(sys.argv[sys.argv.index('-l')+1])
 
 
 def stamp(word, wordcounter):
@@ -66,7 +66,7 @@ for line in fin:
         newline = ' '.join(newline)
         fout.write(newline + ' ')
         if linepreservation:
-            fout.write('<br>')
+            fout.write('\n<br>\n')
         linecounter += 1
         linesonpage += 1
         last = 'text'
