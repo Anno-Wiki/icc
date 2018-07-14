@@ -25,11 +25,18 @@ with open(sys.argv[1], 'rt') as fin:
             wordcount += 1
         
 
-        if wordcount >= 500 and '<p>' in line:
+        if wordcount >= 500 and '<p>' in line: 
             pages += 1
             # order: identifier@ident_num@book_id@startpos@endpos@page_num
             print(f'<page>@0@{book_id}@{prevpagepos}@{pos-1}@{str(pages)}')
             prevpagepos = pos
+            wordcount = 0
+
+        if wordcount >= 650 and '<period>' in line:
+            pages += 1
+            # order: identifier@ident_num@book_id@startpos@endpos@page_num
+            print(f'<page>@0@{book_id}@{prevpagepos}@{pos}@{str(pages)}')
+            prevpagepos = pos + 1
             wordcount = 0
 
         if chproc and '<ch>' in line:

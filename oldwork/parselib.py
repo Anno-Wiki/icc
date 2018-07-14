@@ -8,7 +8,7 @@ def parse(word):
     # 5+dots are a dotleader
     word = re.sub(r'\.\.\.\.\.+', '\n<dotleader>\n', word)
     # 4 or 3-dot ellipsis 
-    word =  re.sub(r'[^\.]\.\.\.\.?[^\.]', '\n<ellipsis>\n', word)
+    word =  re.sub(r'\.\.\.\.?[^\.]', '\n<ellipsis>\n', word)
 
     # period
     word = word.replace('.', '\n<period>\n')

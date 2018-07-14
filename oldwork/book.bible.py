@@ -22,7 +22,7 @@ with open(sys.argv[1], 'rt') as fin, open(sys.argv[2], 'wt') as fout:
     regexbased = False      # Flag for regex mode
 
     # regex mode flag activation
-    if len(sys.argv) > 3 and sys.argv[3] == '-r':
+    if '-r' in sys.argv:
         regexbased = True
         book_regex = re.compile(book_regex)
 
