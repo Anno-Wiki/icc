@@ -42,7 +42,7 @@ next_page.page_number) }}">&rarr;</a>
     prev_page.page_number) }}" id="prev_page">&larr;</a>
 {% endif %}
 
-<span id="current_page">p. {{ page.page_number }}</span>
+<span id="current_page">{{ page.page_number }}</span>
 
 {% if next_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
