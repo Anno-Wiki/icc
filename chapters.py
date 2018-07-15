@@ -14,7 +14,8 @@ if '-h' in sys.argv:
     h.append('-h                                            Help')
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
-    h.append('-r <regex to match chapter>')
+    h.append('-c <regex to match chapter>')
+    h.append('-d <regex to match stage direction>>')
     h.append('--bible                                       Bible mode')
     for l in h:
         print(l)
@@ -23,16 +24,19 @@ if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if not '-r' in sys.argv and not '--bible' in sys.argv:
-    sys.exit('Need regex to compile')
-elif '-r' in sys.argv:
-    regex = re.compile(sys.argv[sys.argv.index('-r')+1])
-elif '--bible' in sys.argv:
+if '-c' in sys.argv:
+    regex = re.compile(sys.argv[sys.argv.index('-c')+1])
+if '--bible' in sys.argv:
     regex = re.compile(bible_regex)
+if '-d' in sys.argv:
+    stagereg = re.compile(sys.argv[sys.argv.index('-d')+1])
 
 
-def stamp(word, chnum):
-    word = f'<ch id="ch{chnum}">{word}</ch>'
+def stamp(word, st, chnum):
+    if st == 'chapter':
+        word = f'<ch id="ch{chnum}">{word}</ch>'
+    elif st == 'stage':
+        word = f'<stage>{word}</stage>'
     return word
 
 
@@ -40,8 +44,10 @@ def stamp(word, chnum):
 for line in fin:
 
     if re.search(regex, line):
-        fout.write(f'{stamp(line[:-1], chnum)}\n')
+        fout.write(f'{stamp(line[:-1], "chapter", chnum)}\n')
         chnum +=1
+    elif re.search(stagereg, line):
+        fout.write(f'{stamp(line[:-1], "stage", 0)}\n')
     else:
         fout.write(line)
 

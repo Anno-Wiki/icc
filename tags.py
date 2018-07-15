@@ -6,6 +6,7 @@ fout = sys.stdout
 underscore = False
 emdash = False
 quotes = False
+spacepreservation = False
 
 
 # Flag processing
@@ -17,7 +18,8 @@ if '-h' in sys.argv:
     h.append('-r <regex>            (does nothing yet)')
     h.append('-_                    Process underscores')
     h.append('-e                    Process em dashes')
-    h.append('-_                    Process quote marks (still needs manual intervention')
+    h.append('-q                    Process quote marks (still needs manual intervention')
+    h.append('-s                    Space preservation')
     for l in h:
         print(l)
     sys.exit()
@@ -33,6 +35,8 @@ if '-e' in sys.argv:
     emdash = True
 if '-q' in sys.argv:
     quotes = True
+if '-s' in sys.argv:
+    spacepreservation = True
 
 
 def stamp(word, chnum):
@@ -43,13 +47,22 @@ def stamp(word, chnum):
 us = False
 
 for line in fin:
+    newline = line
+    if spacepreservation:
+        newline = re.sub(r"^      ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
+        newline = re.sub(r"^     ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
+        newline = re.sub(r"^    ", r'&nbsp;&nbsp;&nbsp;&nbsp;', newline)
+        newline = re.sub(r"^   ", r'&nbsp;&nbsp;&nbsp;', newline)
+        newline = re.sub(r"^  ", r'&nbsp;&nbsp;', newline)
+        newline = re.sub(r"^ ", r'&nbsp;', newline)
 
-    words = line.split()
+    words = newline.split()
 
     for i, word in enumerate(words):
         if emdash:
             # em dash
             words[i] = re.sub(r'(--)', '—', words[i]) 
+
 
         if quotes:
             # open single quote
