@@ -7,12 +7,18 @@ body {
 }
 p {
     text-indent: 1em;
-    margin: 0;
+    margin:0;
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
 }
 a {
     text-decoration:none;
+}
+ch {
+    font-family: 'Playfair Display', serif;
+    font-size: 18pt;
+    text-align:justify;
+    margin: 0px;
 }
 #prev_page {
     font-size: 24pt;
