@@ -10,7 +10,7 @@ chnum =1
 # Flag processing
 if '-h' in sys.argv:
     h = []
-    h.append('-h    Help')
+    h.append('-h                        Help')
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
     h.append('-r <regex to match chapter>')

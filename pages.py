@@ -9,17 +9,19 @@ linesperpage = 30
 linesonpage = 0
 last = 'beginning'
 minchlines = 0
+breakonp = False
 
 
 # Flag processing
 if '-h' in sys.argv:
     h = []
-    h.append('-h    Help')
+    h.append('-h                                            Help')
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
-    h.append('-p Activate line preservation')
-    h.append('-p <lines per page> (Default = 30)')
-    h.append('-p <minimum lines on page before new page for chapter> (Default = 0')
+    h.append('-pl                                           Activate line preservation')
+    h.append('-l <lines per page>                           (Default = 30)')
+    h.append('-m <min lines before new page for ch>         (Default = 0')
+    h.append('-bp                                           Break on p')
     for l in h:
         print(l)
     sys.exit()
@@ -27,12 +29,14 @@ if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if '-p' in sys.argv:
+if '-pl' in sys.argv:
     linepreservation = True
 if '-l' in sys.argv:
     linesperpage = int(sys.argv[sys.argv.index('-l')+1])
 if '-m' in sys.argv:
     minchlines = int(sys.argv[sys.argv.index('-m')+1])
+if '-bp'in sys.argv:
+    breakonp = True
 
 
 
@@ -54,12 +58,17 @@ for line in fin:
         elif last == 'text':
             fout.write('\n</p>\n')
             last = '/p'
+            if breakonp and linesonpage >= linesperpage and last != 'beginning':
+                fout.write(f'\n@{page}{{}}\n')
+                linesonpage = 0
+                page += 1
     elif '<ch' in line:
         if last != 'beginning' and linesonpage >= minchlines:
             fout.write(f'\n@{page}{{}}\n')
             linesonpage = 0
             page += 1
         fout.write(line + '\n')
+        linesonpage += 1
         last = 'ch'
     elif line != '':
         if last == '/p':
@@ -78,7 +87,7 @@ for line in fin:
         linesonpage += 1
         last = 'text'
 
-        if linesonpage >= linesperpage and last != 'beginning':
+        if not breakonp and linesonpage >= linesperpage and last != 'beginning':
             fout.write(f'\n@{page}{{}}\n')
             linesonpage = 0
             page += 1
