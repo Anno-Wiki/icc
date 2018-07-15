@@ -33,7 +33,7 @@ class Page(db.Model):
     page_num = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"<p. {self.page_num} of {self.book.title} by {self.book.author.name}"
+        return f"<p. {self.page_num} of {self.book.title} by {self.book.author.name}>"
 
 
 class Book(db.Model):
@@ -45,6 +45,7 @@ class Book(db.Model):
     author = db.relationship("Author", backref="books")
     published = db.Column(db.Date)
     ts_added = db.Column(db.DateTime)
+    meta_data = db.Column(db.Text)
 
     def __repr__(self):
         return f"<Book: {self.title} by {self.author}>"

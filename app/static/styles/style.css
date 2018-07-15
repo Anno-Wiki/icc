@@ -1,64 +1,32 @@
-body {
-    width: 6in;
-    margin: auto;
-    text-align: justify;
-    font-family: 'EB Garamond', serif;
-    font-size: 14pt;
-}
-p {
-    text-indent: 1em;
-    margin:0;
-    font-family: 'EB Garamond', serif;
-    font-size: 14pt;
-}
+
 a {
     text-decoration:none;
+    font-family: 'Playfair Display', serif;
 }
+h1 {
+    text-align:center;
+    font-size:20pt;
+    margin-bottom:25px;
+    font-family: 'Playfair Display', serif;
+} 
 ch {
     font-family: 'Playfair Display', serif;
-    font-size: 18pt;
-    text-align:justify;
+    font-size: 16pt;
+    text-align:center;
     margin: 0px;
 }
-#prev_page {
+stage {
+    font-family: 'Playfair Display', serif;
+    font-size: 100pt!important;
+    text-align:center;
+    margin: 0px;
+}
+.pages{
     font-size: 24pt;
     text-decoration:none;
-    font-family: 'Playfair Display', serif;
-}
-#next_page {
-    font-size: 24pt;
-    text-decoration:none;
-    font-family: 'Playfair Display', serif;
-}
-#current_page {
-    font-size: 24pt;
-    font-family: 'Playfair Display', serif;
-}
 #running_head {
     text-align:right;
     font-size:20pt;
     margin-bottom:50px;
     font-family: 'Playfair Display', serif;
 }
-
-ul.leaders {
-    max-width: 40em;
-    padding: 0;
-    overflow-x: hidden;
-    list-style: none}
-ul.leaders li:before {
-    float: left;
-    width: 0;
-    white-space: nowrap;
-    content:
- ". . . . . . . . . . . . . . . . . . . . "
- ". . . . . . . . . . . . . . . . . . . . "
- ". . . . . . . . . . . . . . . . . . . . "
- ". . . . . . . . . . . . . . . . . . . . "}
-ul.leaders span:first-child {
-    padding-right: 0.33em;
-    background: white}
-ul.leaders span + span {
-    float: right;
-    padding-left: 0.33em;
-    background: white}
