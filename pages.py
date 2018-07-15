@@ -11,7 +11,6 @@ last = 'beginning'
 minchlines = 0
 breakonp = False
 
-
 # Flag processing
 if '-h' in sys.argv:
     h = []
