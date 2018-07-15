@@ -10,6 +10,8 @@ linesonpage = 0
 last = 'beginning'
 minchlines = 0
 breakonp = False
+spacepreservation = False
+debug = False
 
 # Flag processing
 if '-h' in sys.argv:
@@ -21,6 +23,8 @@ if '-h' in sys.argv:
     h.append('-l <lines per page>                           (Default = 30)')
     h.append('-m <min lines before new page for ch>         (Default = 0')
     h.append('-bp                                           Break on p')
+    h.append('-ps                                           Space preservation')
+    h.append('-d                                            Debug Mode')
     for l in h:
         print(l)
     sys.exit()
@@ -36,14 +40,21 @@ if '-m' in sys.argv:
     minchlines = int(sys.argv[sys.argv.index('-m')+1])
 if '-bp'in sys.argv:
     breakonp = True
+if '-ps'in sys.argv:
+    spacepreservation = True
+if '-d' in sys.argv:
+    debug = True
 
 
 
-def stamp(word, wordcounter):
+
+def stamp(word, wordcounter, debug):
     # em dash
     word = re.sub(r'(--|—)', '&mdash;', word) 
-    word = f'<word id="{wordcounter}">{word}</word>'
+    if not debug:
+        word = f'<word id="{wordcounter}">{word}</word>'
     return word
+
 
 linecounter = 0
 page = 1
@@ -76,7 +87,7 @@ for line in fin:
         newline = []
         for word in words:
             wordcounter += 1
-            word = stamp(word, wordcounter)
+            word = stamp(word, wordcounter, debug)
             newline.append(word)
         newline = ' '.join(newline)
         fout.write(newline + '\n')

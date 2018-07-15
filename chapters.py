@@ -39,7 +39,7 @@ def stamp(word, chnum):
 
 for line in fin:
 
-    if re.match(regex, line):
+    if re.search(regex, line):
         fout.write(f'{stamp(line[:-1], chnum)}\n')
         chnum +=1
     else:
