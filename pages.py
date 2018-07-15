@@ -3,7 +3,6 @@ import sys
 
 fin = sys.stdin
 fout = sys.stdout
-linepreservation = False
 wordcounter = 0;
 linesperpage = 30
 linesonpage = 0
@@ -18,11 +17,11 @@ if '-h' in sys.argv:
     h.append('-h                                            Help')
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
-    h.append('-pl                                           Activate line preservation')
     h.append('-l <lines per page>                           (Default = 30)')
     h.append('-m <min lines before new page for ch>         (Default = 0')
     h.append('-bp                                           Break on p')
     h.append('-d                                            Debug Mode')
+    h.append('-r                                            Enable ragged right')
     for l in h:
         print(l)
     sys.exit()
@@ -30,8 +29,6 @@ if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if '-pl' in sys.argv:
-    linepreservation = True
 if '-l' in sys.argv:
     linesperpage = int(sys.argv[sys.argv.index('-l')+1])
 if '-m' in sys.argv:
@@ -75,7 +72,7 @@ for line in fin:
             page += 1
         fout.write(line + '\n')
         linesonpage += 1
-        last = 'ch'
+        last == 'ch'
     elif line != '':
         if last == '/p':
             fout.write('\n<p>\n')
@@ -86,15 +83,16 @@ for line in fin:
             word = stamp(word, wordcounter)
             newline.append(word)
         newline = ' '.join(newline)
-        fout.write(newline + '\n')
-        if linepreservation:
-            fout.write('\n<br>\n')
+        if raggedright:
+            fout.write(f'\n<span class="line" id="l{linesonpage}">{newline}</span>\n<br>')
+        else:
+            fout.write(f'\n<span class="line" id="l{linesonpage}">{newline}</span>\n<span class="break"></span>')
         linecounter += 1
         linesonpage += 1
         last = 'text'
 
         if not breakonp and linesonpage >= linesperpage and last != 'beginning':
-            fout.write(f'\n@{page}{{}}\n')
+            fout.write(f'</p>\n@{page}{{}}\n<p>')
             linesonpage = 0
             page += 1
 

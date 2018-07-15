@@ -6,6 +6,8 @@ fout = sys.stdout
 linepreservation = False
 chnum =1
 bible_regex = '(^(The Gospel According|The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Lamentations|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)|(Book|Epistle))'
+regex = None
+stagereg = None
 
 
 # Flag processing
@@ -43,10 +45,10 @@ def stamp(word, st, chnum):
 
 for line in fin:
 
-    if re.search(regex, line):
+    if regex and re.search(regex, line):
         fout.write(f'{stamp(line[:-1], "chapter", chnum)}\n')
         chnum +=1
-    elif re.search(stagereg, line):
+    elif stagereg and re.search(stagereg, line):
         fout.write(f'{stamp(line[:-1], "stage", 0)}\n')
     else:
         fout.write(line)
