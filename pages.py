@@ -52,7 +52,7 @@ for line in fin:
             fout.write(f'\n@{page}{{}}\n')
             linesonpage = 0
             page += 1
-        fout.write(line + ' ')
+        fout.write(line + '\n')
         last = 'ch'
     elif line != '':
         if last == '/p':
@@ -64,7 +64,7 @@ for line in fin:
             word = stamp(word, wordcounter)
             newline.append(word)
         newline = ' '.join(newline)
-        fout.write(newline + ' ')
+        fout.write(newline + '\n')
         if linepreservation:
             fout.write('\n<br>\n')
         linecounter += 1
