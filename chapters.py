@@ -8,6 +8,15 @@ chnum =1
 
 
 # Flag processing
+if '-h' in sys.argv:
+    h = []
+    h.append('-h    Help')
+    h.append('-i <inputfile>')
+    h.append('-o <outputfile>')
+    h.append('-r <regex to match chapter>')
+    for l in h:
+        print(l)
+    sys.exit()
 if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:

@@ -8,9 +8,21 @@ wordcounter = 0;
 linesperpage = 30
 linesonpage = 0
 last = 'beginning'
+minchlines = 0
 
 
 # Flag processing
+if '-h' in sys.argv:
+    h = []
+    h.append('-h    Help')
+    h.append('-i <inputfile>')
+    h.append('-o <outputfile>')
+    h.append('-p Activate line preservation')
+    h.append('-p <lines per page> (Default = 30)')
+    h.append('-p <minimum lines on page before new page for chapter> (Default = 0')
+    for l in h:
+        print(l)
+    sys.exit()
 if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:
@@ -19,19 +31,14 @@ if '-p' in sys.argv:
     linepreservation = True
 if '-l' in sys.argv:
     linesperpage = int(sys.argv[sys.argv.index('-l')+1])
+if '-m' in sys.argv:
+    minchlines = int(sys.argv[sys.argv.index('-m')+1])
+
 
 
 def stamp(word, wordcounter):
     # em dash
     word = re.sub(r'(--|—)', '&mdash;', word) 
-    # open single quote
-    #word = re.sub(r"^'", '&lsquo;', word)
-    ## close single quote
-    #word = re.sub(r"'$", '&rsquo;', word)
-    ## open double quote
-    #word = re.sub(r'^"', '&ldquo;', word)
-    ## close double quote
-    #word = re.sub(r'"$', '&rdquo;', word)
     word = f'<word id="{wordcounter}">{word}</word>'
     return word
 
@@ -48,7 +55,7 @@ for line in fin:
             fout.write('\n</p>\n')
             last = '/p'
     elif '<ch' in line:
-        if last != 'beginning':
+        if last != 'beginning' and linesonpage >= minchlines:
             fout.write(f'\n@{page}{{}}\n')
             linesonpage = 0
             page += 1
