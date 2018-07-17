@@ -10,6 +10,7 @@ last = 'beginning'
 minchlines = 0
 breakonp = False
 debug = False
+raggedright = False
 
 # Flag processing
 if '-h' in sys.argv:
@@ -37,6 +38,8 @@ if '-bp'in sys.argv:
     breakonp = True
 if '-d' in sys.argv:
     debug = True
+if '-r' in sys.argv:
+    raggedright = True
 
 
 
@@ -51,7 +54,8 @@ def stamp(word, wordcounter):
 
 linecounter = 0
 page = 1
-
+    
+i = 0
 for line in fin:
 
     if re.match(r'^$', line):
@@ -85,6 +89,8 @@ for line in fin:
         newline = ' '.join(newline)
         if raggedright:
             fout.write(f'\n<span class="line" id="l{linesonpage}">{newline}</span>\n<br>')
+        elif i in lastlines:
+            fout.write(f'\n<span class="lastline" id="l{linesonpage}">{newline}</span>\n<span class="break"></span>')
         else:
             fout.write(f'\n<span class="line" id="l{linesonpage}">{newline}</span>\n<span class="break"></span>')
         linecounter += 1
@@ -95,6 +101,7 @@ for line in fin:
             fout.write(f'</p>\n@{page}{{}}\n<p>')
             linesonpage = 0
             page += 1
+    i += 1
 
 fout.write(f'@{page}')
 
