@@ -64,7 +64,7 @@ for line in fin:
             popen = False
 
     # if it's a chapter line
-    elif '<ch' in line:
+    elif '<div class="chapter"' in line:
         lines.append(['ch', line])
     
     # For everything else
@@ -132,18 +132,18 @@ for line in lines:
         out = ''
         if raggedright:
             if lines[i+1][0] != 'text':
-                out = f'<div id="{textlines}" class="lastline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n'
             elif lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="firstline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n'
             else:
-                out = f'<div id="{textlines}" class="line">{lines[i][1]}<br></div>\n'
+                out = f'<div id="{textlines}" class="rrline">{lines[i][1]}<br></div>\n'
         else:
             if lines[i+1][0] != 'text':
-                out = f'<div id="{textlines}" class="lastline">{lines[i][1]}<div class="break"></div></>\n'
+                out = f'<div id="{textlines}" class="lastline">{lines[i][1]}</div>\n'
             elif lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="firstline">{lines[i][1]}<div class="break"></div></div>\n'
+                out = f'<div id="{textlines}" class="firstline">{lines[i][1]}</div>\n'
             else:
-                out = f'<div id="{textlines}" class="line">{lines[i][1]}<div class="break"></div></div>\n'
+                out = f'<div id="{textlines}" class="line">{lines[i][1]}</div>\n'
 
         textlines += 1
         fout.write(out)

@@ -36,9 +36,9 @@ if '-d' in sys.argv:
 
 def stamp(word, st, chnum):
     if st == 'chapter':
-        word = f'<ch id="ch{chnum}">{word}</ch>'
+        word = f'<div class="chapter" id="ch{chnum}">{word}</div>'
     elif st == 'stage':
-        word = f'<stage>{word}</stage>'
+        word = f'<div class="stage">{word}</div>'
     return word
 
 
