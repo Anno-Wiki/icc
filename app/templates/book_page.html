@@ -19,36 +19,47 @@
         {{ book.author.name }} </a>
 </div>
 {% endif %}
-
 <!--------Page Counter------------------>
 <div class="pages">
 {% if prev_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
     prev_page.page_num) }}" id="prev_page">&larr;</a>
+{% else %}
+<a href="{{ url_for("book", title = book.url) }}">&larr;</a>
 {% endif %}
-<span id="current_page">{{ page.page_num }}</span>
+
+{{ page.page_num }}
+
 {% if next_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
 next_page.page_num) }}" id="next_page">&rarr;</a>
-</div>
+{% else %}
+<a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
 {% endif %}
+
+</div>
+<hr>
 
 <!--------Content------------------>
 {{ page.page|safe }}
 
 <!--------Page Counter------------------>
-<br>
+<hr>
 <div class="pages">
 {% if prev_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
     prev_page.page_num) }}" id="prev_page">&larr;</a>
+{% else %}
+<a href="{{ url_for("book", title = book.url) }}">&larr;</a>
 {% endif %}
 
-<span id="current_page">{{ page.page_num }}</span>
+{{ page.page_num }}
 
 {% if next_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
 next_page.page_num) }}" id="next_page">&rarr;</a>
+{% else %}
+<a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
 {% endif %}
 </div>
 

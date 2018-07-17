@@ -6,10 +6,9 @@ body {
 p {
     font-style: 'EB Garamond', serif;
     font-size:14pt;
-    line-height:1.5em;
-    width:30em;
     margin: 0px;
     text-align:justify;
+    text-indent:2em;
 }
 a {
     text-decoration:none;
@@ -26,10 +25,10 @@ h2 {
     font-family: 'Playfair Display', serif;
     font-weight:normal;
 } 
-ch {
+.chapter {
     font-family: 'Playfair Display', serif;
     font-size: 15pt;
-    text-align:center!important;
+    text-align:center;
     margin: 10px;
 }
 stage {
@@ -38,22 +37,57 @@ stage {
     text-align:center;
     margin: 0px;
 }
+
+
+/* Page numbers on book pages */
 .pages{
     font-size: 16pt;
     font-style: 'Playfair Display', serif;
-    text-align:right;
+    text-align:center;
 }
+
+
 #running_head {
     text-align:right;
     font-size:20pt;
     margin-bottom:20px;
     font-family: 'Playfair Display', serif;
 }
-.break{
+
+
+/* Handling lines of actual book text */
+.firstline{
+    font-style: 'EB Garamond', serif;
+    font-size:14pt;
+    line-height:1.5em;
+    width:30em;
+    margin: 0px;
+    text-align:justify;
+    text-indent:2em;
+}
+.firstline:after {
+    content: "";
     display: inline-block;
-    width:100%;
+    width: 100%;
+}
+.line{
+    font-style: 'EB Garamond', serif;
+    font-size:14pt;
+    line-height:1.5em;
+    width:30em;
+    margin: 0px;
+    text-align:justify;
+}
+.line:after {
+    content: "";
+    display: inline-block;
+    width: 100%;
 }
 .lastline{
-    text-align:left!important;
+    font-style: 'EB Garamond', serif;
+    font-size:14pt;
+    line-height:1.5em;
+    width:30em;
+    margin: 0px;
+    text-align:left;
 }
-
