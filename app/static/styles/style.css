@@ -8,6 +8,7 @@ p {
     font-size:14pt;
     line-height:1.5em;
     width:30em;
+    margin: 0px;
     text-align:justify;
 }
 a {
@@ -51,5 +52,8 @@ stage {
 .break{
     display: inline-block;
     width:100%;
+}
+.lastline{
+    text-align:left!important;
 }
 
