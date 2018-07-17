@@ -61,7 +61,7 @@ for line in fin:
     for i, word in enumerate(words):
         if emdash:
             # em dash
-            words[i] = re.sub(r'(--)', '—', words[i]) 
+            words[i] = re.sub(r'(--)', r'—', words[i]) 
 
 
         if quotes:
