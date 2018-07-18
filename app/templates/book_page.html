@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <script>
+
+$(document).ready(function(){
+    
+    var startid = -1;
+    var stopid = -1;
+    $('word').mousedown(function(){
+        startid = $(this).attr('id');
+    });
+    $('word').mouseup(function(){
+        stopid = $(this).attr('id');
+        console.log('(' + startid + ', ' + stopid + ')');
+    });
+    
+});
+    </script>
 
 <!-------Header/Running head-------->
 {% if page.page_num == 1 %}
@@ -36,13 +52,13 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 {% else %}
 <a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
 {% endif %}
-
 </div>
 <hr>
 
 <!--------Content------------------>
+<content id="content">
 {{ page.page|safe }}
-
+</content>
 <!--------Page Counter------------------>
 <hr>
 <div class="pages">
