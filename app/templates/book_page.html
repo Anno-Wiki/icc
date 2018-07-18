@@ -1,32 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script>
-
-
-/*$(document).ready(function(){
-    
-    var startid = -1;
-    var stopid = -1;
-    $('content').mousedown(function(){
-        startid = $(this).attr('id');
-    });
-    $('content').mouseup(function(){
-        stopid = $(this).attr('id');
-        var highlightedText = "";
-        if (window.getSelection) {
-            highlightedText = window.getSelection().toString();
-        } 
-        else if (document.selection && document.selection.type != "Control") {
-            highlightedText = document.selection.createRange().text;
-        }
-
-        if(highlightedText != "")
-        console.log('(' + startid + ', ' + stopid + ')');
-    });
-    
-});*/
-    </script>
 
 <!-------Header/Running head-------->
 {% if page.page_num == 1 %}
@@ -46,7 +20,6 @@
 </div>
 {% endif %}
 
-<button id="getSelectedSpans">Select</button>
 
 <!--------Page Counter------------------>
 <div class="pages">

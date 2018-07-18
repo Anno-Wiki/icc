@@ -17,18 +17,20 @@ $(document).ready(function(){
         });         
         return collection; // Return Collection
     }
-    
+
     var get_selection = function (event){
         if (window.getSelection) { // non-IE
             userSelection = window.getSelection();
             rangeObject = userSelection.getRangeAt(0);
             if (rangeObject.startContainer == rangeObject.endContainer) {
-                alert(rangeObject.startContainer.parentNode.id);
+               // alert(rangeObject.startContainer.parentNode.id);
+                return rangeObject.startContainer.parentNode.id;
             } else {
-                alert(getAllBetween(
+                return getAllBetween(
                     rangeObject.startContainer.parentNode,
-                    rangeObject.endContainer.parentNode));
+                    rangeObject.endContainer.parentNode);
             }
+
         } else if (document.selection) { // IE lesser
             userSelection = document.selection.createRange();
             var ids = new Array();
@@ -37,14 +39,14 @@ $(document).ready(function(){
                 $(userSelection.htmlText).filter('span').each(function(index, span) {
                     ids.push(span.id);
                 });
-                alert(ids);
+                return ids;
             } else {
-                alert(userSelection.parentElement().id);
+                return userSelection.parentElement().id;
             }
         }
     }
+
     document.addEventListener('selectionchange', function() {
-        console.log("Changed!");
-        get_selection();
+        console.log(get_selection());
     });
 });
