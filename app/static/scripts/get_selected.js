@@ -18,7 +18,7 @@ $(document).ready(function(){
         return collection; // Return Collection
     }
     
-    $('#getSelectedSpans').click(function(event){
+    var get_selection = function (event){
         if (window.getSelection) { // non-IE
             userSelection = window.getSelection();
             rangeObject = userSelection.getRangeAt(0);
@@ -42,5 +42,9 @@ $(document).ready(function(){
                 alert(userSelection.parentElement().id);
             }
         }
+    }
+    document.addEventListener('selectionchange', function() {
+        console.log("Changed!");
+        get_selection();
     });
 });
