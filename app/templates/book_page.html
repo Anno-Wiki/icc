@@ -3,19 +3,28 @@
 {% block content %}
     <script>
 
-$(document).ready(function(){
+/*$(document).ready(function(){
     
     var startid = -1;
     var stopid = -1;
-    $('word').mousedown(function(){
+    $('content').mousedown(function(){
         startid = $(this).attr('id');
     });
-    $('word').mouseup(function(){
+    $('content').mouseup(function(){
         stopid = $(this).attr('id');
+        var highlightedText = "";
+        if (window.getSelection) {
+            highlightedText = window.getSelection().toString();
+        } 
+        else if (document.selection && document.selection.type != "Control") {
+            highlightedText = document.selection.createRange().text;
+        }
+
+        if(highlightedText != "")
         console.log('(' + startid + ', ' + stopid + ')');
     });
     
-});
+});*/
     </script>
 
 <!-------Header/Running head-------->
@@ -35,6 +44,9 @@ $(document).ready(function(){
         {{ book.author.name }} </a>
 </div>
 {% endif %}
+
+<button id="getSelectedSpans">Select</button>
+
 <!--------Page Counter------------------>
 <div class="pages">
 {% if prev_page %}
@@ -56,9 +68,11 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 <hr>
 
 <!--------Content------------------>
+
 <content id="content">
 {{ page.page|safe }}
 </content>
+
 <!--------Page Counter------------------>
 <hr>
 <div class="pages">
