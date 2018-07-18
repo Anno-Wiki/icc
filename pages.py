@@ -63,9 +63,11 @@ for line in fin:
             lines.append(['pclose', '</div>'])
             popen = False
 
-    # if it's a chapter line
+    # if it's a chapter line or stage line
     elif '<div class="chapter"' in line:
         lines.append(['ch', line])
+    elif '<div class="stage"' in line:
+        lines.append(['stage', line])
     
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
@@ -84,7 +86,7 @@ textlines = 0                   # Count number of lines printed in toto
 page = 0                        # Keep track of page number
 wordcount = 0                   # Keep track of words
 linesonpage = 0                 # Keep track of lines per page
-popen = False
+popen = False                   # paragraph open flag
 for line in lines:
 
     if i >= len(lines):
@@ -119,7 +121,10 @@ for line in lines:
         textlines += 1
         fout.write(lines[i][1])
         linesonpage += 1
-
+    elif lines[i][0] == 'stage':
+        textlines += 1
+        fout.write(lines[i][1])
+        linesonpage += 1
 
     elif lines[i][0] == 'text':
 
@@ -131,14 +136,18 @@ for line in lines:
 
         out = ''
         if raggedright:
-            if lines[i+1][0] != 'text':
+            if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
+                out = f'<div id="{textlines}" class="rrsingleline">{lines[i][1]}<br></div>\n'
+            elif lines[i+1][0] != 'text':
                 out = f'<div id="{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n'
             elif lines[i-1][0] != 'text':
                 out = f'<div id="{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n'
             else:
                 out = f'<div id="{textlines}" class="rrline">{lines[i][1]}<br></div>\n'
         else:
-            if lines[i+1][0] != 'text':
+            if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
+                out = f'<div id="{textlines}" class="singleline">{lines[i][1]}<br></div>\n'
+            elif lines[i+1][0] != 'text':
                 out = f'<div id="{textlines}" class="lastline">{lines[i][1]}</div>\n'
             elif lines[i-1][0] != 'text':
                 out = f'<div id="{textlines}" class="firstline">{lines[i][1]}</div>\n'
@@ -149,7 +158,7 @@ for line in lines:
         fout.write(out)
         linesonpage += 1
 
-    if linesonpage >= linesperpage:
+    if linesonpage >= linesperpage and not breakonp:
         page += 1
         linesonpage = 0
         if popen:
