@@ -57,10 +57,10 @@ for line in fin:
     # Blank lines
     if re.match(r'^$', line):
         if not popen:
-            lines.append(['popen', '<div class="paragraph">'])
+            lines.append(['popen', '<paragraph class="paragraph">'])
             popen = True
         else:
-            lines.append(['pclose', '</div>'])
+            lines.append(['pclose', '</paragraph>'])
             popen = False
 
     # if it's a chapter line or stage line
@@ -72,7 +72,7 @@ for line in fin:
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
         if not popen:
-            lines.append(['blank', '<div class="paragraph">'])
+            lines.append(['blank', '<paragraph class="paragraph">'])
             popen = True
             i += 1
         lines.append(['text', line])
@@ -112,9 +112,9 @@ for line in lines:
             page += 1
             linesonpage = 0
             if popen:
-                fout.write('</div>')
+                fout.write('\n</paragraph>\n')
                 fout.write(f'@{page}{{}}')
-                fout.write('<div class="paragraph">')
+                fout.write('\n<paragraph class="paragraph">\n')
             else:
                 fout.write(f'@{page}{{}}')
 
@@ -137,22 +137,22 @@ for line in lines:
         out = ''
         if raggedright:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="rrsingleline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="l{textlines}" class="rrsingleline">{lines[i][1]}<br></div>\n'
             elif lines[i+1][0] != 'text':
-                out = f'<div id="{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="l{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n'
             elif lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="l{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n'
             else:
-                out = f'<div id="{textlines}" class="rrline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="l{textlines}" class="rrline">{lines[i][1]}<br></div>\n'
         else:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="singleline">{lines[i][1]}<br></div>\n'
+                out = f'<div id="l{textlines}" class="singleline">{lines[i][1]}</div>\n'
             elif lines[i+1][0] != 'text':
-                out = f'<div id="{textlines}" class="lastline">{lines[i][1]}</div>\n'
+                out = f'<div id="l{textlines}" class="lastline">{lines[i][1]}</div>\n'
             elif lines[i-1][0] != 'text':
-                out = f'<div id="{textlines}" class="firstline">{lines[i][1]}</div>\n'
+                out = f'<div id="l{textlines}" class="firstline">{lines[i][1]}</div>\n'
             else:
-                out = f'<div id="{textlines}" class="line">{lines[i][1]}</div>\n'
+                out = f'<div id="l{textlines}" class="line">{lines[i][1]}</div>\n'
 
         textlines += 1
         fout.write(out)
@@ -162,9 +162,9 @@ for line in lines:
         page += 1
         linesonpage = 0
         if popen:
-            fout.write('<div class="paragraph">')
+            fout.write('<paragraph class="paragraph">')
             fout.write(f'@{page}{{}}')
-            fout.write('</div>')
+            fout.write('</paragraph>')
         else:
             fout.write(f'@{page}{{}}')
 
