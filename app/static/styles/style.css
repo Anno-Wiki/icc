@@ -125,10 +125,11 @@ h2 {
     line-height: 1.5em;
     margin: 0px;
 }
-#connector{
-    background-color:grey;
-    border=10px;
-    display:inline;
-    float:right;
+.linker {
+    display: flex;
+    font-style: 'EB Garamond', serif;
+    font-size: 12pt;
+    margin: auto;
+    align-items: center;
+    visibility: hidden;
 }
-

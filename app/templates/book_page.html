@@ -40,6 +40,7 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 <a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
 {% endif %}
 </div>
+<button class="linker">Link/Annotate</button>
 <hr>
 
 <!--------Content------------------>
@@ -50,6 +51,7 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 
 <!--------Page Counter------------------>
 <hr>
+<button class="linker">Link/Annotate</button>
 <div class="pages">
 {% if prev_page %}
 <a href="{{ url_for("book_page", title = book.url, page_num =
@@ -68,7 +70,5 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 {% endif %}
 </div>
 
-</div>
-<div id="linker">
 </div>
 {% endblock %}

@@ -47,7 +47,13 @@ $(document).ready(function(){
     }
 
     document.addEventListener('selectionchange', function() {
-        console.log(get_selection());
-        $("#linker").html(window.getSelection().toString());
+        if(window.getSelection().toString() != ''){
+            $(".linker").css('visibility', 'visible');
+        }
+        else{
+            $(".linker").css('visibility', 'hidden');
+        }
+
     });
+
 });
