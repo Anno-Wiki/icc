@@ -51,17 +51,19 @@ def stamp(word, wordcounter):
 
 lines = [['beginning', 'beginning']] # Prepend initial value
 i = 1   # Must index from one to avoid out of bounds for checking previous
-popen = False
+#popen = False
 for line in fin:
 
     # Blank lines
     if re.match(r'^$', line):
-        if not popen:
-            lines.append(['popen', '<paragraph class="paragraph">'])
-            popen = True
-        else:
-            lines.append(['pclose', '</paragraph>'])
-            popen = False
+        lines.append(['blank', 'blank'])
+
+#        if not popen:
+#            lines.append(['popen', '<paragraph class="paragraph">'])
+#            popen = True
+#        else:
+#            lines.append(['pclose', '</paragraph>'])
+#            popen = False
 
     # if it's a chapter line or stage line
     elif '<div class="chapter"' in line:
@@ -71,10 +73,10 @@ for line in fin:
     
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
-        if not popen:
-            lines.append(['blank', '<paragraph class="paragraph">'])
-            popen = True
-            i += 1
+#        if not popen:
+#            lines.append(['blank', '<paragraph class="paragraph">'])
+#            popen = True
+#            i += 1
         lines.append(['text', line])
     i += 1
     
@@ -92,19 +94,27 @@ for line in lines:
     if i >= len(lines):
         break
 
-    if lines[i][0] == 'popen':
-        fout.write(lines[i][1])
-        popen = True
-    elif lines[i][0] == 'pclose':
-        fout.write(lines[i][1])
-        popen = False
-
+    if lines[i][0] == 'blank':
+        fout.write('\n\n')
         # Breakonp
-        if breakonp and lines[i][0] == 'pclose' and linesonpage >= linesperpage:
+        if linesonpage >= linesperpage and breakonp and lines[i][0] == 'blank':
             page += 1
             fout.write(f'@{page}{{}}')
             linesonpage = 0
-            popen = False
+
+#    if lines[i][0] == 'popen':
+#        fout.write(lines[i][1])
+#        popen = True
+#    elif lines[i][0] == 'pclose':
+#        fout.write(lines[i][1])
+#        popen = False
+#
+#        # Breakonp
+#        if breakonp and lines[i][0] == 'pclose' and linesonpage >= linesperpage:
+#            page += 1
+#            fout.write(f'@{page}{{}}')
+#            linesonpage = 0
+#            popen = False
 
 
     elif lines[i][0] == 'ch':
@@ -113,14 +123,20 @@ for line in lines:
             linesonpage = 0
             if popen:
                 fout.write('\n</paragraph>\n')
-                fout.write(f'@{page}{{}}')
+            fout.write(f'@{page}{{}}')
+            if popen:
                 fout.write('\n<paragraph class="paragraph">\n')
-            else:
-                fout.write(f'@{page}{{}}')
+#            if popen:
+#                fout.write('\n</paragraph>\n')
+#                fout.write(f'@{page}{{}}')
+#                fout.write('\n<paragraph class="paragraph">\n')
+#            else:
+#                fout.write(f'@{page}{{}}')
 
         textlines += 1
         fout.write(lines[i][1])
         linesonpage += 1
+
     elif lines[i][0] == 'stage':
         textlines += 1
         fout.write(lines[i][1])
@@ -131,42 +147,61 @@ for line in lines:
         words = lines[i][1].split()
         for j, word in enumerate(words):
                 wordcount += 1
-                words[j] = f'<word id="{wordcount}">{word}</word>'
+                words[j] = stamp(word, wordcount)
+#                words[j] = f'<word id="{wordcount}">{word}</word>'
         lines[i][1] = ' '.join(words)
 
-        out = ''
         if raggedright:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                out = f'<div id="l{textlines}" class="rrsingleline">{lines[i][1]}<br></div>\n'
+#                fout.write(f'<div id="l{textlines}" class="rrsingleline">{lines[i][1]}<br></div>\n')
+                fout.write('\n<paragraph class="paragraph">\n')
+                fout.write(f'\n<div class="rrsingleline">{lines[i][1]}<br></div>\n')
+                fout.write('\n</paragraph>\n')
             elif lines[i+1][0] != 'text':
-                out = f'<div id="l{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n'
+#                fout.write(f'<div id="l{textlines}" class="rrlastline">{lines[i][1]}<br></div>\n')
+                fout.write(f'\n<div class="rrlastline">{lines[i][1]}<br></div>\n')
+                fout.write('\n</paragraph>\n')
+                popen = False
             elif lines[i-1][0] != 'text':
-                out = f'<div id="l{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n'
+#                fout.write(f'<div id="l{textlines}" class="rrfirstline">{lines[i][1]}<br></div>\n')
+                fout.write(f'\n<paragraph class="paragraph">\n')
+                popen = True
+                fout.write(f'\n<div class="rrfirstline">{lines[i][1]}<br></div>\n')
             else:
-                out = f'<div id="l{textlines}" class="rrline">{lines[i][1]}<br></div>\n'
+#                fout.write(f'<div id="l{textlines}" class="rrline">{lines[i][1]}<br></div>\n')
+                fout.write(f'\n<div class="rrline">{lines[i][1]}<br></div>\n')
         else:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                out = f'<div id="l{textlines}" class="singleline">{lines[i][1]}</div>\n'
+#                out = f'<div id="l{textlines}" class="singleline">{lines[i][1]}</div>\n'
+                fout.write('\n<paragraph class="paragraph">\n')
+                fout.write(f'\n<div class="singleline">{lines[i][1]}</div>\n')
+                fout.write('\n</paragraph>\n')
             elif lines[i+1][0] != 'text':
-                out = f'<div id="l{textlines}" class="lastline">{lines[i][1]}</div>\n'
+#                out = f'<div id="l{textlines}" class="lastline">{lines[i][1]}</div>\n'
+                fout.write(f'\n<div class="lastline">{lines[i][1]}</div>\n')
+                fout.write('\n</paragraph>\n')
+                popen = False
             elif lines[i-1][0] != 'text':
-                out = f'<div id="l{textlines}" class="firstline">{lines[i][1]}</div>\n'
+#                out = f'<div id="l{textlines}" class="firstline">{lines[i][1]}</div>\n'
+                fout.write('\n<paragraph class="paragraph">\n')
+                fout.write(f'\n<div class="firstline">{lines[i][1]}</div>\n')
+                popen = True
             else:
-                out = f'<div id="l{textlines}" class="line">{lines[i][1]}</div>\n'
+#                out = f'<div id="l{textlines}" class="line">{lines[i][1]}</div>\n'
+                fout.write(f'\n<div class="line">{lines[i][1]}</div>\n')
 
         textlines += 1
-        fout.write(out)
         linesonpage += 1
+#        fout.write(out)
 
     if linesonpage >= linesperpage and not breakonp:
         page += 1
         linesonpage = 0
         if popen:
-            fout.write('<paragraph class="paragraph">')
-            fout.write(f'@{page}{{}}')
-            fout.write('</paragraph>')
-        else:
-            fout.write(f'@{page}{{}}')
+            fout.write('\n</paragraph>\n')
+        fout.write(f'\n@{page}{{}}\n')
+        if popen:
+            fout.write('\n<paragraph class="paragraph">\n')
 
     i += 1
 
