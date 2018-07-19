@@ -87,6 +87,8 @@ for line in fin:
                     t.append(c)
             words[i] = ''.join(t)
 
+        words[i] = re.sub(r'&', r'&amp;')
+
 
 
     fout.write(' '.join(words) + '\n')
