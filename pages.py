@@ -87,7 +87,8 @@ for line in lines:
     if lines[i][0] == 'blank':
         fout.write('\n\n')
         # Breakonp
-        if linesonpage >= linesperpage and breakonp and lines[i][0] == 'blank':
+        if linesonpage >= linesperpage and breakonp and \
+                lines[i][0] == 'blank' and lines[i+1][0] != 'stage':
             page += 1
             fout.write(f'@{page}{{}}')
             linesonpage = 0
@@ -176,7 +177,7 @@ for line in lines:
     i += 1
 
 page += 1
-fout.write(f'\n@{page}{{}}\n')
+fout.write(f'\n@{page}\n')
 
 # cleanup
 if fin is not sys.stdin:
