@@ -40,7 +40,19 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 <a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
 {% endif %}
 </div>
+
 <button class="linker">Link/Annotate</button>
+
+<div id="linkerbox" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <br><br>
+        <p id='selection'></p>
+        <p id='tags'></p>
+        <p></p>
+    </div>
+</div>
+
 <hr>
 
 <!--------Content------------------>

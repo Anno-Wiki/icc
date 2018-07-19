@@ -56,4 +56,22 @@ $(document).ready(function(){
 
     });
 
+    var modal = $("#linkerbox");
+    var btn = $(".linker")[0];
+    var span = $(".close")[0];
+    btn.onclick = function() {
+        $('#selection').text(window.getSelection().toString());
+        console.log(get_selection());
+        $('#tags').text(get_selection());
+        modal.css('display','block');
+    }
+    span.onclick = function() {
+        modal.css('display','none');
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.css('display','none');
+        }
+    }
+
 });
