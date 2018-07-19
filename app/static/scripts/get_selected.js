@@ -23,7 +23,6 @@ $(document).ready(function(){
             userSelection = window.getSelection();
             rangeObject = userSelection.getRangeAt(0);
             if (rangeObject.startContainer == rangeObject.endContainer) {
-               // alert(rangeObject.startContainer.parentNode.id);
                 return rangeObject.startContainer.parentNode.id;
             } else {
                 return getAllBetween(
@@ -32,6 +31,7 @@ $(document).ready(function(){
             }
 
         } else if (document.selection) { // IE lesser
+            console.log('document.selection')
             userSelection = document.selection.createRange();
             var ids = new Array();
             
@@ -48,5 +48,6 @@ $(document).ready(function(){
 
     document.addEventListener('selectionchange', function() {
         console.log(get_selection());
+        $("#linker").html(window.getSelection().toString());
     });
 });

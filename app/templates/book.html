@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="container">
 <h1><a href="{{ url_for("book_page", title = book.url, page_num = 1) }}">{{ book.title }}</a></h1>
 <h2>by <a href="{{ url_for("author", name = author.url) }}">{{ author.name }}</a></h2>
 
@@ -14,4 +15,5 @@
     <a href="{{ url_for("book_page", title = book.url, page_num = page.page_num) }}">{{ page.page_num }}</a>,
     {% endfor %}
 </p>
+</div>
 {% endblock %}

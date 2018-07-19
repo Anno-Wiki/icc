@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="container">
 
 <!-------Header/Running head-------->
 {% if page.page_num == 1 %}
@@ -67,5 +68,7 @@ next_page.page_num) }}" id="next_page">&rarr;</a>
 {% endif %}
 </div>
 
-
+</div>
+<div id="linker">
+</div>
 {% endblock %}

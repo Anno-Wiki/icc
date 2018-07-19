@@ -1,7 +1,9 @@
 body {
+    font-family: 'EB Garamond', serif;
+}
+#container {
     width: 5.5in;
     margin: auto;
-    font-family: 'EB Garamond', serif;
 }
 p {
     font-style: 'EB Garamond', serif;
@@ -34,7 +36,7 @@ h2 {
 .stage {
     font-family: 'Playfair Display', serif;
     font-size: 12pt;
-    text-indent: 3em;
+    text-indent: 0;
     margin: 10px;
 }
 
@@ -123,3 +125,10 @@ h2 {
     line-height: 1.5em;
     margin: 0px;
 }
+#connector{
+    background-color:grey;
+    border=10px;
+    display:inline;
+    float:right;
+}
+
