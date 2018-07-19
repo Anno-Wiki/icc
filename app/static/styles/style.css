@@ -166,3 +166,12 @@ h2 {
     text-decoration: none;
     cursor: pointer;
 }
+
+nav a {
+    font-style: 'Playfair Display', serif;
+    font-size: 14pt;
+    color:black;
+}
+nav a:hover {
+    color:grey;
+}

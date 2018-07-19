@@ -60,9 +60,23 @@ def register():
 @app.route('/author/<name>/')
 def author(name):
     author = Author.query.filter_by(url = name).first_or_404()
-    books = Book.query.filter_by(author_id = author.id)
+    books = Book.query.filter_by(author_id = author.id).order_by(Book.title)
     return render_template('author.html', books = books, author = author,
             title = author.name)
+
+@app.route('/author/')
+@app.route('/authors/')
+def author_index():
+    authors = Author.query.order_by(Author.last_name).all()
+    return render_template('author_index.html', authors=authors,
+            title='Authors')
+
+@app.route('/book/')
+@app.route('/books/')
+def book_index():
+    books = Book.query.order_by(Book.title).all()
+    return render_template('book_index.html', books=books, title='Books')
+
 
 
 

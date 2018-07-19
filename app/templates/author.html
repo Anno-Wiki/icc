@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="container">
 <h1>{{ author.name }}</h1>
 <h2>Books</h2>
 <ul>
@@ -9,4 +10,5 @@
     {% endfor %}
 </ul>
 
+</div>
 {% endblock %}
