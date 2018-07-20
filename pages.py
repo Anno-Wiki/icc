@@ -15,6 +15,7 @@ chregex = None      # Regex for tagging Chapters
 stageregex = None   # Regex for tagging Stage Directions
 meta = None         # File holder to which one should write meta information
 recordch = False    # Record chapter title
+pre = None          # Pre controller
 
 # Constants
 emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
@@ -36,6 +37,7 @@ if '-h' in sys.argv:
     h.append('-s <regex>            Regex for Stage Directions')
     h.append('--recordch            Record titles for chapters (e.g., if distinct')
     h.append('-p                    Break on p')
+    h.append('--pre <regex>         Enable pre on <regex>')
     h.append('-r                    Enable ragged right')
     h.append('--bible               Enable bible chapter detection mode')
     h.append('-d                    Debug Mode')
@@ -67,6 +69,8 @@ if '-b' in sys.argv:
     bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
+if '--pre' in sys.argv:
+    pre = re.compile(sys.argv[sys.argv.index('--pre')+1])
 if '-meta' in sys.argv:
     meta = open(sys.argv[sys.argv.index('-meta')+1], 'wt')
 if '--recordch' in sys.argv:
@@ -93,6 +97,8 @@ for line in fin:
         lines.append(['ch', line])
     elif stageregex and re.search(stageregex, line):
         lines.append(['stage', line])
+    elif pre and re.search(pre, line):
+        lines.append(['pre', line])
     
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
