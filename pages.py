@@ -126,7 +126,7 @@ def stampline(line):
 
 def stamppreline(line):
     global wordcount
-    words = re.findall(pre, line)
+    words = re.findall(wordboundary, line)
     for j, word in enumerate(words):
         if re.search('[A-Za-z]+', word):
             wordcount += 1
