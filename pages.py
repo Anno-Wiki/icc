@@ -15,7 +15,8 @@ chregex = None      # Regex for tagging Chapters
 stageregex = None   # Regex for tagging Stage Directions
 meta = None         # File holder to which one should write meta information
 recordch = False    # Record chapter title
-pre = None          # Pre controller
+wordboundary = re.compile('\w+|\W')          # Word boundary break for split
+pre = None
 
 # Constants
 emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
@@ -118,10 +119,21 @@ def stampline(line):
     global wordcount
     words = line.split()
     for j, word in enumerate(words):
-            wordcount += 1
-            words[j] = stamp(word, wordcount)
+        wordcount += 1
+        words[j] = stamp(word, wordcount)
     line = ' '.join(words)
     return line
+
+def stamppreline(line):
+    global wordcount
+    words = re.findall(pre, line)
+    for j, word in enumerate(words):
+        if re.search('[A-Za-z]+', word):
+            wordcount += 1
+            words[j] = stamp(word, wordcount)
+    line = ''.join(words)
+    return f'<pre>{line}</pre>'
+
 
 
 lines.append(['last', 'last'])
@@ -229,9 +241,14 @@ for line in lines:
         fout.write(f'<stage>{stampline(lines[i][1])}</stage>')
         linesonpage += 1
 
+    elif lines[i][0] == 'pre':
+        lines[i][1] = stamppreline(lines[i][1])
+        fout.write(lines[i][1])
+        textlines += 1
+        linesonpage += 1
 
     # Handling for everything else
-    elif lines[i][0] == 'text':
+    elif lines[i][0] == 'text' or lines[i][0] == 'pre':
 
         # Break up the line and stamp each word, rejoin them together on space
         lines[i][1] = stampline(lines[i][1])
