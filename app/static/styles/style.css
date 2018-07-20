@@ -2,9 +2,12 @@ body {
     font-family: 'EB Garamond', serif;
 }
 #container {
-    width: 5.5in;
+    width: 6in;
     margin: auto;
 }
+
+
+/* Generals */
 p {
     font-style: 'EB Garamond', serif;
     font-size: 14pt;
@@ -20,24 +23,27 @@ h1 {
     margin-bottom: 25px;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
+    font-size:30pt;
 } 
 h2 {
     text-align: center;
     margin-bottom: 25px;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
+    font-size:25pt;
 } 
-.chapter {
-    font-family: 'Playfair Display', serif;
-    font-size: 16pt;
-    text-align: center;
-    margin: 10px;
+ul {
+    font-size:16pt;
 }
-.stage {
-    font-family: 'Playfair Display', serif;
-    font-size: 12pt;
-    text-indent: 0;
-    margin: 10px;
+/* Nav bar */
+nav a {
+    font-style: 'Playfair Display', serif;
+    font-size: 16pt;
+    margin:10px;
+    color:darkslategray;
+}
+nav a:hover {
+    color:lightslategray;
 }
 
 
@@ -45,10 +51,9 @@ h2 {
 .pages {
     font-size: 16pt;
     font-style: 'Playfair Display', serif;
-    text-align:center;
+    text-align: center;
 }
-
-
+/* The running head for pages */
 #running_head {
     text-align:right;
     font-size:20pt;
@@ -57,13 +62,47 @@ h2 {
 }
 
 
-/* Handling lines of actual book text */
-.paragraph{
+/**************************************
+ * Handling lines of actual book text * 
+ **************************************/
+    /* Main tags */
+ch {
+    font-family: 'Playfair Display', serif;
+    font-size: 16pt;
+    text-align: center;
+    margin: 10px;
+    display:block;
+}
+part {
+    font-family: 'Playfair Display', serif;
+    font-size: 20pt;
+    text-align: center;
+    margin: 10px;
+    display:block;
+}
+book {
+    font-family: 'Playfair Display', serif;
+    font-size: 24pt;
+    text-align: center;
+    margin: 10px;
+    display:block;
+}
+stage {
+    font-family: 'Playfair Display', serif;
+    font-size: 12pt;
+    text-indent: 0;
+    margin: 10px;
+    display:block;
+}
+paragraph{
     font-style: 'EB Garamond', serif;
 }
+line { display:block;}
+
+    /* Justified lines */
 .firstline {
     line-height: 1.5em;
-    font-size: 13pt;
+    font-size: 14pt;
     margin: 0px;
     text-align: justify;
     text-indent: 2em;
@@ -74,65 +113,61 @@ h2 {
     width: 100%;
 }
 .singleline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-indent: 2em;
 }
 .line {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-align: justify;
 }
+
 .line:after {
     content: "";
     display: inline-block;
     width: 100%;
 }
 .lastline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-align: left;
 }
-
-/* Handling of ragged right text */
+    /* Handling of ragged right text */
 .rrfirstline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .rrline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .rrsingleline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .rrlastline {
-    font-style: 'EB Garamond', serif;
-    font-size: 13pt;
+    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .linker {
     display: flex;
-    font-style: 'EB Garamond', serif;
-    font-size: 12pt;
+    font-style: 'Playfair Display', serif;
     margin: auto;
     align-items: center;
     visibility: hidden;
 }
+
+/* * * * * * * *
+ * Modal Box!  *
+ * * * * * * * */
 
 .modal {
     display: none;
@@ -148,7 +183,7 @@ h2 {
 }
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 14% auto; /* 14% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
@@ -165,13 +200,4 @@ h2 {
     color: black;
     text-decoration: none;
     cursor: pointer;
-}
-
-nav a {
-    font-style: 'Playfair Display', serif;
-    font-size: 14pt;
-    color:black;
-}
-nav a:hover {
-    color:grey;
 }
