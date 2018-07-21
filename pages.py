@@ -13,7 +13,7 @@ partregex = None                            # Regex for tagging Parts
 chregex = None                              # Regex for tagging Chapters
 stageregex = None                           # Regex for tagging Stage Directions
 pre = None                                  # Regex for tagging <pre>'s
-breaks = None                                 # File holder to which one should write breaks information
+breaks = None                               # File holder to which one should write breaks information
 recordch = False                            # Record chapter title
 wordboundary = re.compile('\w+|\W')         # Word boundary break for split
 raggedright = False                         # Flag for raggedright
@@ -40,13 +40,13 @@ if '-h' in sys.argv:
     h.append('-p                    Break on p')
     h.append('-r                    Enable ragged right')
     h.append('-s <regex>            Regex for Stage Directions')
+    h.append('--aggchapters         Aggregate chapters, do not reset')
+    h.append('--aggparts            Aggregate parts, do not reset')
     h.append('--bible               Enable bible chapter detection mode')
-    h.append('--breaks <outfile>    Write breaksdata to a breaksfile')
+    h.append('--breaks <outfile>    Write breaksdata to a breaks file')
     h.append('--part <regex>        Regex for Parts (Heierarchical chapters lvl 2)')
     h.append('--pre <regex>         Enable pre on <regex>')
-    h.append('--preservechapters    Preserve chapters')
-    h.append('--preservebooks       Preserve books')
-    h.append('--recordch            Record titles for chapters (e.g., if distinct')
+    h.append('--recordch            Record titles for chapters (e.g., if distinct)')
     for l in h:
         print(l)
     sys.exit()
@@ -80,9 +80,9 @@ if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
     pre = re.compile(sys.argv[sys.argv.index('--pre')+1])
-if '--preservebooks' in sys.argv:
+if '--aggchapters' in sys.argv:
     chconst = True
-if '--preserveparts' in sys.argv:
+if '--aggparts' in sys.argv:
     partconst = True
 if '--recordch' in sys.argv:
     recordch = True
@@ -170,11 +170,14 @@ for line in lines:
     if lines[i][0] == 'blank':
         fout.write('\n\n')
         # Breakonp
-        if linesonpage >= linesperpage and breakonp and \
-                lines[i][0] == 'blank' and lines[i+1][0] != 'stage':
+        if linesonpage >= linesperpage and breakonp and lines[i+1][0] != 'stage':
             page += 1
-            fout.write(f'@{page}{{}}')
             linesonpage = 0
+            if popen:
+                fout.write('\n</paragraph>\n')
+            fout.write(f'\n@{page}{{}}\n')
+            if popen:
+                fout.write('\n<paragraph class="paragraph">\n')
 
 
     # Handling for ch, includes writing of open/close paragraphs
@@ -280,18 +283,18 @@ for line in lines:
         if raggedright:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
                 fout.write('\n<paragraph class="paragraph">\n')
-                fout.write(f'\n<line class="rrsingleline">{lines[i][1]}<br></line>\n')
+                fout.write(f'\n<line class="rrsingleline">{lines[i][1]}</line>\n')
                 fout.write('\n</paragraph>\n')
             elif lines[i+1][0] != 'text':
-                fout.write(f'\n<line class="rrlastline">{lines[i][1]}<br></line>\n')
+                fout.write(f'\n<line class="rrlastline">{lines[i][1]}</line>\n')
                 fout.write('\n</paragraph>\n')
                 popen = False
             elif lines[i-1][0] != 'text':
                 fout.write(f'\n<paragraph class="paragraph">\n')
+                fout.write(f'\n<line class="rrfirstline">{lines[i][1]}</line>\n')
                 popen = True
-                fout.write(f'\n<line class="rrfirstline">{lines[i][1]}<br></line>\n')
             else:
-                fout.write(f'\n<line class="rrline">{lines[i][1]}<br></line>\n')
+                fout.write(f'\n<line class="rrline">{lines[i][1]}</line>\n')
         else:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
                 fout.write('\n<paragraph class="paragraph">\n')

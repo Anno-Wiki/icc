@@ -7,6 +7,7 @@ underscore = False
 emdash = False
 quotes = False
 spacepreservation = False
+wordboundary = re.compile(r'\w+|\W')
 
 
 # Flag processing
@@ -45,6 +46,7 @@ def stamp(word, chnum):
 
 
 us = False
+doubleopen = False
 
 for line in fin:
     newline = line
@@ -56,23 +58,25 @@ for line in fin:
         newline = re.sub(r"^  ", r'&nbsp;&nbsp;', newline)
         newline = re.sub(r"^ ", r'&nbsp;', newline)
 
-    words = newline.split()
+    if emdash:
+        # em dash
+        newline = re.sub(r'(--)', r'—', newline) 
+
+    if quotes:
+        re.sub(r"'([a-zA-Z—])", r"‘\1", newline)
+        re.sub(r"([a-zA-Z—])'", r"\1’", newline)
+
+
+    words = re.findall(wordboundary, newline)
 
     for i, word in enumerate(words):
-        if emdash:
-            # em dash
-            words[i] = re.sub(r'(--)', r'—', words[i]) 
-
-
         if quotes:
-            # open single quote
-            words[i] = re.sub(r"(^|\")'", r'\1‘', words[i])
-            # close single quote
-            words[i] = re.sub(r"'", '’', words[i])
-            # open double quote
-            words[i] = re.sub(r'^"', r'“', words[i])
-            # close double quote
-            words[i] = re.sub(r'"$', r'”', words[i])
+            if doubleopen:
+                words[i] = re.sub(r'"', r'”', words[i])
+                doubleopen = False
+            else:
+                words[i] = re.sub(r'"', r'“', words[i])
+                doubleopen = True
         # underscore processing
         if underscore and '_' in words[i]:
             t = []
@@ -86,12 +90,10 @@ for line in fin:
                 else:
                     t.append(c)
             words[i] = ''.join(t)
-
         words[i] = re.sub(r'&', r'&amp;', words[i])
+    newline = ''.join(words)
 
-
-
-    fout.write(' '.join(words) + '\n')
+    fout.write(newline)
 
     
 
