@@ -5,6 +5,10 @@ body {
     width: 6in;
     margin: auto;
 }
+pre {
+    font-family: 'Playfair Display', serif;
+    margin:0px;
+}
 
 
 /* Generals */
@@ -62,7 +66,7 @@ a:hover {
 #running_head {
     text-align:right;
     font-size:20pt;
-    margin-bottom:20px;
+    margin:0 0 20px 0;
     font-family: 'Playfair Display', serif;
 }
 
@@ -144,7 +148,7 @@ line { display:block;}
     font-size: 14pt;
     margin: 0px;
     text-align: justify;
-    text-indent: 2em;
+    text-indent: 1em;
 }
 .firstline:after {
     content: "";
@@ -155,7 +159,7 @@ line { display:block;}
     font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
-    text-indent: 2em;
+    text-indent: 1em;
 }
 .line {
     font-size: 14pt;
