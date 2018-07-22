@@ -197,7 +197,7 @@ for line in lines:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}@{lines[i][1]}')
             else:
-                breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}')
+                breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
 
         textlines += 1
         fout.write(f'<ch>{stampline(lines[i][1])}</ch>')
@@ -222,7 +222,7 @@ for line in lines:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}@{lines[i][1]}')
             else:
-                breaks.write(f'{booknum}@{partnum}@0@{page + 1}')
+                breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
 
         textlines += 1
         fout.write(f'<part>{stampline(lines[i][1])}</part>')
@@ -247,7 +247,7 @@ for line in lines:
             if recordch:
                 breaks.write(f'{booknum}@0@0@{page + 1}@{lines[i][1]}')
             else:
-                breaks.write(f'{booknum}@0@0@{page + 1}')
+                breaks.write(f'{booknum}@0@0@{page + 1}\n')
 
         textlines += 1
         fout.write(f'<book>{stampline(lines[i][1])}</book>')
