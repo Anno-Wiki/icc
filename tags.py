@@ -50,7 +50,7 @@ doubleopen = False
 
 for line in fin:
     newline = line
-    if line == '':
+    if newline == '\n':
         doubleopen = False
 
     if spacepreservation:
@@ -62,7 +62,6 @@ for line in fin:
         newline = re.sub(r"^ ", r'&nbsp;', newline)
 
     if emdash:
-        # em dash
         newline = re.sub(r'(--)', r'—', newline) 
 
     if quotes:
