@@ -117,10 +117,10 @@ for line in fin:
         lines.append(['ch', line])
     elif stageregex and re.search(stageregex, line):
         lines.append(['stage', line])
-    elif pre and re.search(pre, line):
-        lines.append(['pre', line])
     elif hr_regex and re.search(hr_regex, line):
         lines.append(['hr', '<hr class="book_separator">'])
+    elif pre and re.search(pre, line):
+        lines.append(['pre', line])
     
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
@@ -226,6 +226,8 @@ for line in lines:
             if popen:
                 fout.write('\n<paragraph class="paragraph">\n')
 
+    elif lines[i][0] == 'hr':
+        fout.write('<hr class="bookseparator">')
 
     # Handling for ch, includes writing of open/close paragraphs
     elif lines[i][0] == 'ch':
@@ -312,8 +314,6 @@ for line in lines:
         textlines += 1
         linesonpage += 1
     
-    elif lines[i][0] == 'hr':
-        fout.write('<hr class="bookseparator">')
 
     # Handling for everything else
     elif lines[i][0] == 'text' or lines[i][0] == 'pre':
