@@ -63,14 +63,14 @@ for line in fin:
         newline = re.sub(r'(--)', r'—', newline) 
 
     if quotes:
-        re.sub(r"'([a-zA-Z—])", r"‘\1", newline)
-        re.sub(r"([a-zA-Z—])'", r"\1’", newline)
+        newline = re.sub(r"([^a-zA-Z])'([a-zA-Z—])", r"\1‘\2", newline)
+        newline = re.sub(r"'", r"’", newline)
 
 
     words = re.findall(wordboundary, newline)
 
     for i, word in enumerate(words):
-        if quotes:
+        if quotes and '"' in word:
             if doubleopen:
                 words[i] = re.sub(r'"', r'”', words[i])
                 doubleopen = False
