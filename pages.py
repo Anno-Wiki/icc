@@ -2,29 +2,30 @@ import re
 import sys
 
 # Global controllers
+bookregex = None                            # Regex for tagging Books
+breakonp = False                            # Flag for break on paragraphs
+breaks = None                               # File holder to which one should write breaks information
+chconst = False                             # Flag for presrving chnums across books and parts
+chregex = None                              # Regex for tagging Chapters
+debug = False                               # Flag for debugging
 fin = sys.stdin                             # Default to stdin
 fout = sys.stdout                           # Default to stdout
+hr_regex = None                             # hr regex
 linesperpage = 30                           # Default min lines before pgbreak (if no breakonp then max)
 minchlines = 5                              # Minimum lines before a chapter can pagebreak
-breakonp = False                            # Flag for break on paragraphs
-debug = False                               # Flag for debugging
-bookregex = None                            # Regex for tagging Books
-partregex = None                            # Regex for tagging Parts
-chregex = None                              # Regex for tagging Chapters
-stageregex = None                           # Regex for tagging Stage Directions
-pre = None                                  # Regex for tagging <pre>'s
-breaks = None                               # File holder to which one should write breaks information
-recordch = False                            # Record chapter title
-wordboundary = re.compile('\w+|\W')         # Word boundary break for split
-raggedright = False                         # Flag for raggedright
-chconst = False                             # Flag for presrving chnums across books and parts
 partconst = False                           # Flag for presrving partnum across books
+partregex = None                            # Regex for tagging Parts
+pre = None                                  # Regex for tagging <pre>'s
+raggedright = False                         # Flag for raggedright
+recordch = False                            # Record chapter title
+stageregex = None                           # Regex for tagging Stage Directions
+wordboundary = re.compile('\w+|\W')         # Word boundary break for split
 
 # Constants
-emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
-ellreg = re.compile('[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+')
 bible_book_regex = '(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))'
 bible_testament_regex = 'Testament'
+ellreg = re.compile('[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+')
+emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 
 # Flag processing
 if '-h' in sys.argv:
@@ -44,6 +45,7 @@ if '-h' in sys.argv:
     h.append('--aggparts            Aggregate parts, do not reset')
     h.append('--bible               Enable bible chapter detection mode')
     h.append('--breaks <outfile>    Write breaksdata to a breaks file')
+    h.append('--hr <regex           Regex for horizontal rule breaks')
     h.append('--part <regex>        Regex for Parts (Heierarchical chapters lvl 2)')
     h.append('--pre <regex>         Enable pre on <regex>')
     h.append('--recordch            Record titles for chapters (e.g., if distinct)')
@@ -86,6 +88,8 @@ if '--aggparts' in sys.argv:
     partconst = True
 if '--recordch' in sys.argv:
     recordch = True
+if '--hr' in sys.argv:
+    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 
 
 lines = [['beginning', 'beginning']] # Prepend initial value
@@ -110,6 +114,8 @@ for line in fin:
         lines.append(['stage', line])
     elif pre and re.search(pre, line):
         lines.append(['pre', line])
+    elif hr_regex and re.search(hr_regex, line):
+        lines.append(['hr', '<hr class="book_separator">'])
     
     # For everything else
     elif line != '':        # I may consider converting this to re.match or else
@@ -264,6 +270,9 @@ for line in lines:
         fout.write(lines[i][1])
         textlines += 1
         linesonpage += 1
+    
+    elif lines[i][0] == 'hr':
+        fout.write('<hr class="bookseparator">')
 
     # Handling for everything else
     elif lines[i][0] == 'text' or lines[i][0] == 'pre':

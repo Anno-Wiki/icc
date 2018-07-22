@@ -50,6 +50,9 @@ doubleopen = False
 
 for line in fin:
     newline = line
+    if line == '':
+        doubleopen = False
+
     if spacepreservation:
         newline = re.sub(r"^      ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
         newline = re.sub(r"^     ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
