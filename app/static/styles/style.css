@@ -9,14 +9,11 @@ body {
 
 /* Generals */
 p {
-    font-style: 'EB Garamond', serif;
+    font-family: 'EB Garamond', serif;
     font-size: 14pt;
     margin: 0px;
     text-align: justify;
     text-indent: 2em;
-}
-a {
-    text-decoration: none;
 }
 h1 {
     text-align: center;
@@ -33,16 +30,24 @@ h2 {
     font-size:25pt;
 } 
 ul {
+    font-family: 'Playfair Display', serif;
     font-size:16pt;
+    text-indent: 2em hanging;
 }
 /* Nav bar */
-nav a {
-    font-style: 'Playfair Display', serif;
+nav {
+    font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    margin:10px;
+    margin: 10px;
+}
+nav a {
+    margin: 10px;
+}
+a {
+    text-decoration: none;
     color:darkslategray;
 }
-nav a:hover {
+a:hover {
     color:lightslategray;
 }
 
@@ -50,7 +55,7 @@ nav a:hover {
 /* Page numbers on book pages */
 .pages {
     font-size: 16pt;
-    font-style: 'Playfair Display', serif;
+    font-family: 'Playfair Display', serif;
     text-align: center;
 }
 /* The running head for pages */
@@ -61,6 +66,40 @@ nav a:hover {
     font-family: 'Playfair Display', serif;
 }
 
+/* * * * * * * * * * * 
+ * Table of contents *
+ * * * * * * * * * * */
+
+.table_of_contents {
+    font-family: 'Playfair Display', serif;
+    font-size:16pt;
+}
+.page_num_field {
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    font-size: 20pt;
+    text-indent:0;
+}
+.chapter_contents {
+    font-size: 12pt;
+    padding-left:5em;
+    text-indent:-2em;
+}
+.part_contents {
+    font-size: 14pt;
+    padding-left:4em;
+    text-indent:-2em;
+}
+.book_contents {
+    font-size: 16pt;
+    padding-left:3em;
+    text-indent:-2em;
+}
+
+/* Meta data */
+#meta {
+    margin: 10px;
+}
 
 /**************************************
  * Handling lines of actual book text * 
@@ -95,7 +134,7 @@ stage {
     display:block;
 }
 paragraph{
-    font-style: 'EB Garamond', serif;
+    font-family: 'EB Garamond', serif;
 }
 line { display:block;}
 
@@ -150,16 +189,16 @@ line { display:block;}
 .rrsingleline {
     font-size: 14pt;
     line-height: 1.5em;
-    margin: 0px;
+    margin: 0 0 10 0px;
 }
 .rrlastline {
     font-size: 14pt;
     line-height: 1.5em;
-    margin: 0px;
+    margin: 0 0 10 0px;
 }
 .linker {
     display: flex;
-    font-style: 'Playfair Display', serif;
+    font-family: 'Playfair Display', serif;
     margin: auto;
     align-items: center;
     visibility: hidden;

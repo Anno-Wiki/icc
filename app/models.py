@@ -5,6 +5,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), index = True, unique = True)
@@ -20,10 +25,6 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-
 
 class Page(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -37,10 +38,9 @@ class Page(db.Model):
 
 
 class Book(db.Model):
-    # Columns
     id = db.Column(db.Integer, primary_key = True)
-    title = db.Column(db.String(128))
-    url = db.Column(db.String(128))
+    title = db.Column(db.String(128), index = True)
+    url = db.Column(db.String(128), index = True)
     author_id = db.Column(db.Integer, db.ForeignKey("author.id"), index = True)
     author = db.relationship("Author", backref="books")
     published = db.Column(db.Date)
@@ -52,7 +52,6 @@ class Book(db.Model):
 
 
 class Author(db.Model):
-    # Columns
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(128), index = True)
     first_name = db.Column(db.String(128), index = True)
@@ -65,3 +64,33 @@ class Author(db.Model):
     def __repr__(self):
         return f"<Author: {self.name}>"
 
+class Break(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book", backref="breaks")
+    book_num = db.Column(db.Integer, index = True)
+    part_num = db.Column(db.Integer, index = True)
+    ch_num = db.Column(db.Integer, index = True)
+    page_num = db.Column(db.Integer, index = True)
+    break_title = db.Column(db.Text)
+
+    def __repr__(self):
+        if book_num:
+            if part_num:
+                if ch_num:
+                    return f'<Book {book_num}, Part {part_num}, Ch {ch_num}>'
+                else:
+                    return f'<Book {book_num}, Part {part_num}>'
+            else:
+                if ch_num:
+                    return f'<Book {book_num}, Ch {ch_num}>'
+                else:
+                    return f'<Book {book_num}>'
+        else:
+            if part_num:
+                if ch_num:
+                    return f'<Part {part_num}, Ch {ch_num}>'
+                else:
+                    return f'<Part {part_num}>'
+            else:
+                return f'<Ch {ch_num}>'

@@ -2,18 +2,67 @@
 
 {% block content %}
 <div id="container">
-<h1><a href="{{ url_for("book_page", title = book.url, page_num = 1) }}">{{ book.title }}</a></h1>
-<h2>by <a href="{{ url_for("author", name = author.url) }}">{{ author.name }}</a></h2>
 
-<p>
+<h1><a href="{{ url_for("book_page", title = book.url, page_num = 1) }}">{{ book.title }}</a></h1>
+<h2>by <a href="{{ url_for("author", name = book.author.url) }}">{{ book.author.name }}</a></h2>
+
+<!--------------table of contents------>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p class="page_num_field">{{ form.page_num.label}}:&nbsp;
+    {{ form.page_num(size=1) }}&nbsp; of {{ last_page }}</p>
+</form>
+
+<!--------------table of contents------>
+<table class="table_of_contents">
+    {% for break in book.breaks %}
+        <tr>
+            <td class="left">
+                {% if break.ch_num %}
+                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
+                <div class="chapter_contents">
+                    {% if break.break_title != None %}
+                        {{ break.ch_num }}.
+                        {{ break.break_title }}
+                    {% else %}
+                        Ch. {{ break.ch_num }}
+                    {% endif %}
+                </div>
+                </a>
+                {% elif break.part_num %}
+                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
+                <div class="part_contents">
+                    {% if break.break_title != '' %}
+                        {{ break.part_num }}.
+                        {{ break.break_title }}
+                    {% else %}
+                        Pt. {{ break.part_num }}
+                    {% endif %}
+                </div>
+                </a>
+                {% elif break.book_num %}
+                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
+                <div class="book_contents">
+                    {% if break.break_title != '' %}
+                        {{ break.book_num }}.
+                        {{ break.break_title }}
+                    {% else %}
+                        Bk. {{ break.book_num }}
+                    {% endif %}
+                </div>
+                </a>
+                {% endif %}
+
+            </td>
+            <td class="right">
+                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">{{ break.page_num }}</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+<p id="meta">
 {{ book.meta_data|safe }}
 </p>
 
-<h4>Pages:</h4>
-<p>
-    {% for page in pages -%}
-    <a href="{{ url_for("book_page", title = book.url, page_num = page.page_num) }}">{{ page.page_num }}</a>,
-    {% endfor %}
-</p>
 </div>
 {% endblock %}

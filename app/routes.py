@@ -2,9 +2,9 @@ from flask import render_template, flash, redirect, url_for, request, Markup
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, PageNumberForm
 from app.models import User, Book, Author, Page
-
+from sqlalchemy import func
 
 @app.route('/')
 @app.route('/index/')
@@ -13,7 +13,6 @@ def index():
     authors = Author.query.all()
     return render_template('index.html', title='Home', books = books, 
             authors = authors)
-
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -32,14 +31,24 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
-
+@app.route('/book/<title>/', methods=['GET', 'POST'])
+@app.route('/books/<title>/', methods=['GET', 'POST'])
+def book(title):
+    book = Book.query.filter_by(url = title).first_or_404()
+    form = PageNumberForm()
+    last_page = db.session.query(func.max(Page.page_num)).filter_by(
+            book_id = book.id).scalar()
+    if form.validate_on_submit():
+        pg = form.page_num.data
+        if pg <= last_page and pg >= 1:
+            return redirect(url_for('book_page', title=book.url, page_num = pg))
+    return render_template('book.html', title = book.title, book = book,
+            form = form, last_page = last_page)
 
 @app.route('/logout/')
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -55,9 +64,8 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-
-
 @app.route('/author/<name>/')
+@app.route('/authors/<name>/')
 def author(name):
     author = Author.query.filter_by(url = name).first_or_404()
     books = Book.query.filter_by(author_id = author.id).order_by(Book.title)
@@ -74,22 +82,10 @@ def author_index():
 @app.route('/book/')
 @app.route('/books/')
 def book_index():
-    books = Book.query.order_by(Book.title).all()
+    books = Book.query.order_by(Book.url).all()
     return render_template('book_index.html', books=books, title='Books')
 
-
-
-
-@app.route('/book/<title>/')
-def book(title):
-    book = Book.query.filter_by(url = title).first_or_404()
-    pages = Page.query.filter(Page.book_id == book.id, 
-            ).all()
-    return render_template('book.html', book = book, pages = pages,
-            title = book.title, author = book.author)
-
-
-
+@app.route('/books/<title>/page<page_num>/')
 @app.route('/book/<title>/page<page_num>/')
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
