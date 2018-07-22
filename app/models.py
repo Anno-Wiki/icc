@@ -46,6 +46,7 @@ class Book(db.Model):
     published = db.Column(db.Date)
     ts_added = db.Column(db.DateTime)
     meta_data = db.Column(db.Text)
+    sort_name = db.Column(db.String(128), index = True)
 
     def __repr__(self):
         return f"<Book: {self.title} by {self.author}>"
