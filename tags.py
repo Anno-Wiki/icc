@@ -7,7 +7,7 @@ underscore = False
 emdash = False
 quotes = False
 spacepreservation = False
-wordboundary = re.compile(r'\w+|\W')
+wordboundary = re.compile(r'\w+|\W|_')
 
 
 # Flag processing
@@ -80,19 +80,15 @@ for line in fin:
                 words[i] = re.sub(r'"', r'“', words[i])
                 doubleopen = True
         # underscore processing
-        if underscore and '_' in words[i]:
-            t = []
-            for c in word:
-                if c == '_' and us:
-                    t.append('</i>')
-                    us = False
-                elif c == '_' and not us:
-                    t.append('<i>')
-                    us = True
-                else:
-                    t.append(c)
-            words[i] = ''.join(t)
+        if underscore:
+            if '_' in words[i]:
+                us = not us
+                words[i] = ''
+            elif us:
+                words[i] = '<i>' + words[i] + '</i>'
+            
         words[i] = re.sub(r'&', r'&amp;', words[i])
+
     newline = ''.join(words)
 
     fout.write(newline)

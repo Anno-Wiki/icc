@@ -16,9 +16,11 @@ minchlines = 5                              # Minimum lines before a chapter can
 partconst = False                           # Flag for presrving partnum across books
 partregex = None                            # Regex for tagging Parts
 pre = None                                  # Regex for tagging <pre>'s
+proc_ = False                               # Process underscores
 raggedright = False                         # Flag for raggedright
 recordch = False                            # Record chapter title
 stageregex = None                           # Regex for tagging Stage Directions
+us = False                                  # Flag for italicising lines
 wordboundary = re.compile('\w+|\W')         # Word boundary break for split
 
 # Constants
@@ -30,6 +32,7 @@ emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 # Flag processing
 if '-h' in sys.argv:
     h = []
+    h.append('-_                    Process underscores as italics')
     h.append('-b <regex>            Regex for Books (Heierarchical chapters lvl 1)')
     h.append('-c <regex>            Regex for Chapters (Heierarchical Chapters lvl 3')
     h.append('-d                    Debug Mode')
@@ -53,6 +56,8 @@ if '-h' in sys.argv:
         print(l)
     sys.exit()
 
+if '-_' in sys.argv:
+    proc_ = True
 if '-b' in sys.argv:
     bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
 if '-c' in sys.argv:
@@ -125,24 +130,60 @@ for line in fin:
 
 # Stamper for words
 def stamp(word, wordcounter):
-    if not debug:
+    if debug:
+        return word
+    if us and word != ' ':
+        word = f'<word id="{wordcounter}"><i>{word}</i></word>'
+    elif word != ' ':
         word = f'<word id="{wordcounter}">{word}</word>'
+    else:
+        word = f' '
     return word
 
+doubleunderscore = re.compile('_.*_')
 # Wrapper for stamp
 def stampline(line):
     global wordcount
-    words = line.split()
+    global us
+    altus = False
+    words = re.findall(wordboundary, line)
     for j, word in enumerate(words):
-        wordcount += 1
-        words[j] = stamp(word, wordcount)
-    line = ' '.join(words)
+        if proc_ and re.search(doubleunderscore, word):
+            t = []
+            for c in word:
+                if '_' in c:
+                    if altus:
+                        t.append('</i>')
+                        altus = False
+                    else:
+                        t.append('<i>')
+                        altus = True
+                else:
+                    t.append(c)
+            words[j] = ''.join(t)
+            wordcount += 1
+            words[j] = stamp(word, wordcount)
+        elif proc_ and '_' in word:
+            if us:
+                us = False
+                words[j] = ''
+            else:
+                us = True
+                words[j] = ''
+        else:
+            wordcount += 1
+            words[j] = stamp(word, wordcount)
+    line = ''.join(words)
     return line
 
 def stamppreline(line):
     global wordcount
+    global us
     words = re.findall(wordboundary, line)
     for j, word in enumerate(words):
+        if '_' in word:
+            words[j] = ''
+            us = not us
         if re.search('[A-Za-z]+', word):
             wordcount += 1
             words[j] = stamp(word, wordcount)
