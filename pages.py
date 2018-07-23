@@ -1,3 +1,4 @@
+import codecs
 import re
 import sys
 
@@ -8,7 +9,7 @@ breaks = None                               # File holder to which one should wr
 chconst = False                             # Flag for presrving chnums across books and parts
 chregex = None                              # Regex for tagging Chapters
 debug = False                               # Flag for debugging
-fin = sys.stdin                             # Default to stdin
+#fin = sys.stdin                             # Default to stdin
 fout = sys.stdout                           # Default to stdout
 hr_regex = None                             # hr regex
 linesperpage = 30                           # Default min lines before pgbreak (if no breakonp then max)
@@ -22,6 +23,9 @@ recordch = False                            # Record chapter title
 stageregex = None                           # Regex for tagging Stage Directions
 us = False                                  # Flag for italicising lines
 wordboundary = re.compile('\w+|\W')         # Word boundary break for split
+
+# Default to stdin but make sure you ignore BOM
+fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
 # Constants
 bible_book_regex = '(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))'
@@ -65,7 +69,8 @@ if '-c' in sys.argv:
 if '-d' in sys.argv:
     debug = True
 if '-i' in sys.argv:
-    fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
+    open(path, 'rt', encoding="UTF-8-SIG")
+    # fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-l' in sys.argv:
     linesperpage = int(sys.argv[sys.argv.index('-l')+1])
 if '-m' in sys.argv:
