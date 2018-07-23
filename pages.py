@@ -9,7 +9,6 @@ breaks = None                               # File holder to which one should wr
 chconst = False                             # Flag for presrving chnums across books and parts
 chregex = None                              # Regex for tagging Chapters
 debug = False                               # Flag for debugging
-#fin = sys.stdin                             # Default to stdin
 fout = sys.stdout                           # Default to stdout
 hr_regex = None                             # hr regex
 linesperpage = 30                           # Default min lines before pgbreak (if no breakonp then max)
@@ -69,8 +68,7 @@ if '-c' in sys.argv:
 if '-d' in sys.argv:
     debug = True
 if '-i' in sys.argv:
-    open(path, 'rt', encoding="UTF-8-SIG")
-    # fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
+    fin = open(path, 'rt', encoding="UTF-8-SIG")
 if '-l' in sys.argv:
     linesperpage = int(sys.argv[sys.argv.index('-l')+1])
 if '-m' in sys.argv:
