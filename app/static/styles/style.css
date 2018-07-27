@@ -1,6 +1,9 @@
+
 body {
     font-family: 'EB Garamond', serif;
+    background-color: #fdf6e3;
 }
+
 #container {
     width: 6in;
     margin: auto;
@@ -12,12 +15,16 @@ pre {
 
 
 /* Generals */
+ul {
+    color:#657b83;
+}
 p {
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
     margin: 0px;
     text-align: justify;
     text-indent: 2em;
+    color:#657b83;
 }
 h1 {
     text-align: center;
@@ -25,6 +32,7 @@ h1 {
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size:30pt;
+    color:#586e75;
 } 
 h2 {
     text-align: center;
@@ -32,6 +40,7 @@ h2 {
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size:25pt;
+    color:#839496;
 } 
 ul {
     font-family: 'Playfair Display', serif;
@@ -46,13 +55,14 @@ nav {
 }
 nav a {
     margin: 10px;
+    color: 
 }
 a {
     text-decoration: none;
-    color:darkslategray;
+    color:#268bd2;
 }
 a:hover {
-    color:lightslategray;
+    color:#6c71c4;
 }
 
 
@@ -243,4 +253,20 @@ line { display:block;}
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+line {
+    color:#657b83;
+}
+part {
+    color:#586e75;
+}
+book {
+    color:#586e75;
+}
+stage {
+    color:#586e75;
+}
+ch {
+    color:#586e75;
 }
