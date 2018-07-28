@@ -10,6 +10,7 @@ chconst = False                        # Flag - chnums across books and parts
 chregex = None                         # Regex - tag Chapters
 debug = False                          # Flag - debugging
 fout = sys.stdout                      # Default to stdout
+fullbook = None                        # Full book holder
 hr_regex = None                        # Regex - hr
 linesperpage = 30                      # Min ll before pgbrk (if !breakonp, max)
 minchlines = 5                         # Min ll before chapter can pgbrk
@@ -51,6 +52,7 @@ if '-h' in sys.argv:
     h.append('--aggparts            Aggregate parts, do not reset')
     h.append('--bible               Enable bible chapter detection mode')
     h.append('--breaks <outfile>    Write breaksdata to a breaks file')
+    h.append('--fullbook <outfile>  Write the full book to a book file')
     h.append('--hr <regex>          Regex for horizontal rule breaks')
     h.append('--part <regex>        Regex for Parts (Heierarchical chapters lvl 2)')
     h.append('--pre <regex>         Enable pre on <regex>')
@@ -86,6 +88,10 @@ if '--bible' in sys.argv:
     bookregex = re.compile(bible_testament_regex)
 if '--breaks' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
+if '--hr' in sys.argv:
+    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
+if '--fullbook' in sys.argv:
+    fullbook = open(sys.argv[sys.argv.index('--fullbook')+1], 'wt')
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
@@ -96,8 +102,6 @@ if '--aggparts' in sys.argv:
     partconst = True
 if '--recordch' in sys.argv:
     recordch = True
-if '--hr' in sys.argv:
-    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 
 
 lines = [['beginning', 'beginning']] # Prepend initial value
@@ -218,6 +222,8 @@ for line in lines:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
         textlines += 1
         fout.write(f'<ch>{stampline(lines[i][1], preline = False)}</ch>',)
+        if fullbook:
+            fullbook.write(f'<ch>\n{stampline(lines[i][1], preline = False)}</ch>',)
         linesonpage += 1
 
 
@@ -235,6 +241,9 @@ for line in lines:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
         textlines += 1
         fout.write(f'<part>{stampline(lines[i][1], preline = False)}</part>')
+        if fullbook:
+            fullbook.write(f'<part>\n{stampline(lines[i][1], preline = False)}</part>')
+        linesonpage += 1
 
 
     # Handling for book
@@ -253,27 +262,33 @@ for line in lines:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
         textlines += 1
         fout.write(f'<book>{stampline(lines[i][1], preline = False)}</book>')
+        if fullbook:
+            fullbook.write(f'<book>\n{stampline(lines[i][1], preline = False)}</book>')
+        linesonpage += 1
 
     
     # Handling for stage directions (if that's a thing)
     elif lines[i][0] == 'stage':
         textlines += 1
         fout.write(f'<stage>{stampline(lines[i][1], preline = False)}</stage>')
+        if fullbook:
+            fullbook.write(f'<stage>\n{stampline(lines[i][1], preline = False)}</stage>')
         linesonpage += 1
 
     elif lines[i][0] == 'pre':
         lines[i][1] = stampline(lines[i][1], preline = True)
-        fout.write(lines[i][1])
         textlines += 1
+        fout.write(lines[i][1])
+        if fullbook:
+            fullbook.write(lines[i][1])
         linesonpage += 1
     
 
     # Handling for everything else
     elif lines[i][0] == 'text' or lines[i][0] == 'pre':
 
-        # Break up the line and stamp each word, rejoin them together on space
+        # Stamp the line
         lines[i][1] = stampline(lines[i][1], preline = False)
-
 
         # Really long multi-branch statement. This provides two four-way
         # branches, the first to handle ragged right, the second to handle
@@ -284,35 +299,68 @@ for line in lines:
         # branch 3: the first line of a paragraph
         # branch 4: a normal line
         if raggedright:
+            # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                fout.write('\n<paragraph class="paragraph">\n')
+                if fullbook:
+                    fullbook.write('\n<paragraph class="raggedright">\n')
+                    fullbook.write(lines[i][1])
+                    fullbook.write('</paragraph>\n')
+                fout.write('\n<paragraph class="raggedright">\n')
                 fout.write(f'<line class="rrsingleline">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
+            # last line in a p
             elif lines[i+1][0] != 'text':
+                if fullbook:
+                    fullbook.write(lines[i][1])
+                    fullbook.write('</paragraph>\n')
                 fout.write(f'<line class="rrlastline">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
                 popen = False
+            # first line in a p
             elif lines[i-1][0] != 'text':
-                fout.write(f'\n<paragraph class="paragraph">\n')
+                if fullbook:
+                    fullbook.write(f'\n<paragraph class="raggedright">\n')
+                    fullbook.write(lines[i][1])
+                fout.write(f'\n<paragraph class="raggedright">\n')
                 fout.write(f'<line class="rrfirstline">\n{lines[i][1]}</line>\n')
                 popen = True
+            # regular line in middle of a p
             else:
+                if fullbook:
+                    fullbook.write(f'{lines[i][1]}')
                 fout.write(f'<line class="rrline">\n{lines[i][1]}</line>\n')
+
         else:
+            # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                fout.write('\n<paragraph class="paragraph">\n')
+                if fullbook:
+                    fullbook.write('\n<paragraph class="justified">\n')
+                    fullbook.write(lines[i][1])
+                    fullbook.write('</paragraph>\n')
+                fout.write('\n<paragraph class="justified">\n')
                 fout.write(f'<line class="singleline">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
+            # last line in a p
             elif lines[i+1][0] != 'text':
+                if fullbook:
+                    fullbook.write(lines[i][1])
+                    fullbook.write('</paragraph>\n')
                 fout.write(f'<line class="lastline">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
                 popen = False
+            # first line in a p
             elif lines[i-1][0] != 'text':
-                fout.write('\n<paragraph class="paragraph">\n')
+                if fullbook:
+                    fullbook.write('\n<paragraph class="justified">\n')
+                    fullbook.write(lines[i][1])
+                fout.write('\n<paragraph class="justified">\n')
                 fout.write(f'<line class="firstline">\n{lines[i][1]}</line>\n')
                 popen = True
+            # regular line
             else:
                 fout.write(f'<line class="line">\n{lines[i][1]}</line>\n')
+                if fullbook:
+                    fullbook.write(lines[i][1])
 
         textlines += 1
         linesonpage += 1
