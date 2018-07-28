@@ -105,7 +105,8 @@ i = 1   # Must index from one to avoid out of bounds for checking previous
 
 # In order to accomplish contextual tagging (i.e., based on previous and next
 # lines) we have to read the whole file into memory.
-for line in fin:
+for inline in fin:
+    line = re.sub('_', '|', inline)
 
     # Blank lines
     if re.match(r'^$', line):
@@ -160,6 +161,16 @@ def stampline(line, preline):
     else:
         return line
 
+def procpage():
+    global page
+    global linesonpage
+    page += 1
+    linesonpage = 0
+    if popen:
+        fout.write('\n</paragraph>\n')
+    fout.write(f'@{page}{{}}')
+    if popen:
+        fout.write('\n<paragraph>\n')
 
 
 lines.append(['last', 'last'])
@@ -184,40 +195,27 @@ for line in lines:
 
 
     # Blank lines should be preserved, and handling for breakonp
-    if lines[i][0] == 'blank':
+    elif lines[i][0] == 'blank':
         fout.write('\n\n')
         # Breakonp
         if linesonpage >= linesperpage and breakonp and lines[i+1][0] != 'stage':
-            page += 1
-            linesonpage = 0
-            if popen:
-                fout.write('\n</paragraph>\n')
-            fout.write(f'\n@{page}{{}}\n')
-            if popen:
-                fout.write('\n<paragraph class="paragraph">\n')
+            procpage()
+
 
     elif lines[i][0] == 'hr':
         fout.write('<hr class="bookseparator">')
 
+
     # Handling for ch, includes writing of open/close paragraphs
     elif lines[i][0] == 'ch':
         chnum += 1
-
         if linesonpage >= minchlines:
-            page += 1
-            linesonpage = 0
-            if popen:
-                fout.write('\n</paragraph>\n')
-            fout.write(f'@{page}{{}}')
-            if popen:
-                fout.write('\n<paragraph>\n')
-
+            procpage()
         if breaks:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}@{lines[i][1]}')
             else:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
-
         textlines += 1
         fout.write(f'<ch>{stampline(lines[i][1], preline = False)}</ch>',)
         linesonpage += 1
@@ -229,22 +227,15 @@ for line in lines:
         if not chconst:
             chnum = 0
         if linesonpage >= minchlines:
-            page += 1
-            linesonpage = 0
-            if popen:
-                fout.write('\n</paragraph>\n')
-            fout.write(f'@{page}{{}}')
-            if popen:
-                fout.write('\n<paragraph>\n')
-
+            procpage()
         if breaks:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}@{lines[i][1]}')
             else:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
-
         textlines += 1
         fout.write(f'<part>{stampline(lines[i][1], preline = False)}</part>')
+
 
     # Handling for book
     elif lines[i][0] == 'book':
@@ -254,20 +245,12 @@ for line in lines:
         if not chconst:
             chnum = 0
         if linesonpage >= minchlines:
-            page += 1
-            linesonpage = 0
-            if popen:
-                fout.write('\n</paragraph>\n')
-            fout.write(f'@{page}{{}}')
-            if popen:
-                fout.write('\n<paragraph>\n')
-
+            procpage()
         if breaks:
             if recordch:
                 breaks.write(f'{booknum}@0@0@{page + 1}@{lines[i][1]}')
             else:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
-
         textlines += 1
         fout.write(f'<book>{stampline(lines[i][1], preline = False)}</book>')
 
@@ -335,18 +318,14 @@ for line in lines:
         linesonpage += 1
 
     if linesonpage >= linesperpage and not breakonp:
-        page += 1
-        linesonpage = 0
-        if popen:
-            fout.write('\n</paragraph>\n')
-        fout.write(f'\n@{page}{{}}\n')
-        if popen:
-            fout.write('\n<paragraph class="paragraph">\n')
+        procpage()
 
     i += 1
 
 page += 1
 fout.write(f'\n@{page}\n')
+
+page = 0
 
 # cleanup
 if fin is not sys.stdin:
