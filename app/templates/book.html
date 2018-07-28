@@ -25,25 +25,25 @@
                         {{ break.ch_num }}.
                         {{ break.break_title }}
                     {% else %}
-                        Ch. {{ break.ch_num }}
+                        Chapter {{ break.ch_num }}
                     {% endif %}
                 </div>
                 {% elif break.part_num %}
                 <div class="part_contents">
-                    {% if break.break_title != '' %}
+                    {% if break.break_title != None %}
                         {{ break.part_num }}.
                         {{ break.break_title }}
                     {% else %}
-                        Pt. {{ break.part_num }}
+                        Part {{ break.part_num }}
                     {% endif %}
                 </div>
                 {% elif break.book_num %}
                 <div class="book_contents">
-                    {% if break.break_title != '' %}
+                    {% if break.break_title != None %}
                         {{ break.book_num }}.
                         {{ break.break_title }}
                     {% else %}
-                        Bk. {{ break.book_num }}
+                        Book {{ break.book_num }}
                     {% endif %}
                 </div>
                 {% endif %}
