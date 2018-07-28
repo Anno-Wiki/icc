@@ -3,25 +3,25 @@ import re
 import sys
 
 # Global controllers
-bookregex = None                            # Regex for tagging Books
-breakonp = False                            # Flag for break on paragraphs
-breaks = None                               # File holder to which one should write breaks information
-chconst = False                             # Flag for presrving chnums across books and parts
-chregex = None                              # Regex for tagging Chapters
-debug = False                               # Flag for debugging
-fout = sys.stdout                           # Default to stdout
-hr_regex = None                             # hr regex
-linesperpage = 30                           # Default min lines before pgbreak (if no breakonp then max)
-minchlines = 5                              # Minimum lines before a chapter can pagebreak
-partconst = False                           # Flag for presrving partnum across books
-partregex = None                            # Regex for tagging Parts
-pre = None                                  # Regex for tagging <pre>'s
-proc_ = False                               # Process underscores
-raggedright = False                         # Flag for raggedright
-recordch = False                            # Record chapter title
-stageregex = None                           # Regex for tagging Stage Directions
-us = False                                  # Flag for italicising lines
-wordboundary = re.compile('\w+|\W')         # Word boundary break for split
+bookregex = None                       # Regex - tagging Books
+breakonp = False                       # Flag - break on paragraphs
+breaks = None                          # File for breaks info 
+chconst = False                        # Flag - chnums across books and parts
+chregex = None                         # Regex - tag Chapters
+debug = False                          # Flag - debugging
+fout = sys.stdout                      # Default to stdout
+hr_regex = None                        # Regex - hr
+linesperpage = 30                      # Min ll before pgbrk (if !breakonp, max)
+minchlines = 5                         # Min ll before chapter can pgbrk
+partconst = False                      # Flag for preserving partnum across bks
+partregex = None                       # Regex - tag Parts
+pre = None                             # Regex - tag <pre>'s
+proc_ = False                          # Process underscores
+raggedright = False                    # Flag - raggedright
+recordch = False                       # Record chapter title
+stageregex = None                      # Regex - tagg Stage Directions
+us = False                             # Flag - italicising lines
+wordboundary = re.compile('\w+|\W')    # Word boundary break for split
 
 # Default to stdin but make sure you ignore BOM
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
