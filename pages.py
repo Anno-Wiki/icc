@@ -51,7 +51,7 @@ if '-h' in sys.argv:
     h.append('--aggparts            Aggregate parts, do not reset')
     h.append('--bible               Enable bible chapter detection mode')
     h.append('--breaks <outfile>    Write breaksdata to a breaks file')
-    h.append('--hr <regex           Regex for horizontal rule breaks')
+    h.append('--hr <regex>          Regex for horizontal rule breaks')
     h.append('--part <regex>        Regex for Parts (Heierarchical chapters lvl 2)')
     h.append('--pre <regex>         Enable pre on <regex>')
     h.append('--recordch            Record titles for chapters (e.g., if distinct)')
@@ -111,7 +111,9 @@ for line in fin:
     if re.match(r'^$', line):
         lines.append(['blank', 'blank'])
 
-    # if it's a heierarchical chapter line or stage line
+    # All special lines
+    elif hr_regex and re.search(hr_regex, line):
+        lines.append(['hr', '<hr class="book_separator">'])
     elif bookregex and re.search(bookregex, line):
         lines.append(['book', line])
     elif partregex and re.search(partregex, line):
@@ -120,8 +122,6 @@ for line in fin:
         lines.append(['ch', line])
     elif stageregex and re.search(stageregex, line):
         lines.append(['stage', line])
-    elif hr_regex and re.search(hr_regex, line):
-        lines.append(['hr', '<hr class="book_separator">'])
     elif pre and re.search(pre, line):
         lines.append(['pre', line])
     
