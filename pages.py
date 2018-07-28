@@ -112,8 +112,6 @@ for line in fin:
         lines.append(['blank', 'blank'])
 
     # All special lines
-    elif hr_regex and re.search(hr_regex, line):
-        lines.append(['hr', '<hr class="book_separator">'])
     elif bookregex and re.search(bookregex, line):
         lines.append(['book', line])
     elif partregex and re.search(partregex, line):
@@ -124,9 +122,11 @@ for line in fin:
         lines.append(['stage', line])
     elif pre and re.search(pre, line):
         lines.append(['pre', line])
+    elif hr_regex and re.search(hr_regex, line):
+        lines.append(['hr', '<hr class="book_separator">'])
     
     # For everything else
-    elif line != '':        # I may consider converting this to re.match or else
+    elif line != '':        # Possibly convert to `re.match` or `else`
         lines.append(['text', line])
     i += 1
     
@@ -143,55 +143,22 @@ def stamp(word, wordcounter):
         word = f' '
     return word
 
-doubleunderscore = re.compile('_.*_')
-# Wrapper for stamp
-def stampline(line):
-    global wordcount
-    global us
-    altus = False
-    words = re.findall(wordboundary, line)
-    for j, word in enumerate(words):
-        if proc_ and re.search(doubleunderscore, word):
-            t = []
-            for c in word:
-                if '_' in c:
-                    if altus:
-                        t.append('</i>')
-                        altus = False
-                    else:
-                        t.append('<i>')
-                        altus = True
-                else:
-                    t.append(c)
-            words[j] = ''.join(t)
-            wordcount += 1
-            words[j] = stamp(word, wordcount)
-        elif proc_ and '_' in word:
-            if us:
-                us = False
-                words[j] = ''
-            else:
-                us = True
-                words[j] = ''
-        else:
-            wordcount += 1
-            words[j] = stamp(word, wordcount)
-    line = ''.join(words)
-    return line
-
-def stamppreline(line):
+def stampline(line, preline):
     global wordcount
     global us
     words = re.findall(wordboundary, line)
     for j, word in enumerate(words):
-        if '_' in word:
+        if '|' in word:
             words[j] = ''
             us = not us
         if re.search('[A-Za-z]+', word):
             wordcount += 1
             words[j] = stamp(word, wordcount)
     line = ''.join(words)
-    return f'<pre>{line}</pre>'
+    if preline:
+        return f'<pre>\n{line}</pre>\n'
+    else:
+        return line
 
 
 
@@ -252,7 +219,7 @@ for line in lines:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
 
         textlines += 1
-        fout.write(f'<ch>{stampline(lines[i][1])}</ch>')
+        fout.write(f'<ch>{stampline(lines[i][1], preline = False)}</ch>',)
         linesonpage += 1
 
 
@@ -277,7 +244,7 @@ for line in lines:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
 
         textlines += 1
-        fout.write(f'<part>{stampline(lines[i][1])}</part>')
+        fout.write(f'<part>{stampline(lines[i][1], preline = False)}</part>')
 
     # Handling for book
     elif lines[i][0] == 'book':
@@ -302,17 +269,17 @@ for line in lines:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
 
         textlines += 1
-        fout.write(f'<book>{stampline(lines[i][1])}</book>')
+        fout.write(f'<book>{stampline(lines[i][1], preline = False)}</book>')
 
     
     # Handling for stage directions (if that's a thing)
     elif lines[i][0] == 'stage':
         textlines += 1
-        fout.write(f'<stage>{stampline(lines[i][1])}</stage>')
+        fout.write(f'<stage>{stampline(lines[i][1], preline = False)}</stage>')
         linesonpage += 1
 
     elif lines[i][0] == 'pre':
-        lines[i][1] = stamppreline(lines[i][1])
+        lines[i][1] = stampline(lines[i][1], preline = True)
         fout.write(lines[i][1])
         textlines += 1
         linesonpage += 1
@@ -322,7 +289,7 @@ for line in lines:
     elif lines[i][0] == 'text' or lines[i][0] == 'pre':
 
         # Break up the line and stamp each word, rejoin them together on space
-        lines[i][1] = stampline(lines[i][1])
+        lines[i][1] = stampline(lines[i][1], preline = False)
 
 
         # Really long multi-branch statement. This provides two four-way
@@ -336,33 +303,33 @@ for line in lines:
         if raggedright:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
                 fout.write('\n<paragraph class="paragraph">\n')
-                fout.write(f'\n<line class="rrsingleline">{lines[i][1]}</line>\n')
-                fout.write('\n</paragraph>\n')
+                fout.write(f'<line class="rrsingleline">\n{lines[i][1]}</line>\n')
+                fout.write('</paragraph>\n')
             elif lines[i+1][0] != 'text':
-                fout.write(f'\n<line class="rrlastline">{lines[i][1]}</line>\n')
-                fout.write('\n</paragraph>\n')
+                fout.write(f'<line class="rrlastline">\n{lines[i][1]}</line>\n')
+                fout.write('</paragraph>\n')
                 popen = False
             elif lines[i-1][0] != 'text':
                 fout.write(f'\n<paragraph class="paragraph">\n')
-                fout.write(f'\n<line class="rrfirstline">{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrfirstline">\n{lines[i][1]}</line>\n')
                 popen = True
             else:
-                fout.write(f'\n<line class="rrline">{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrline">\n{lines[i][1]}</line>\n')
         else:
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
                 fout.write('\n<paragraph class="paragraph">\n')
-                fout.write(f'\n<line class="singleline">{lines[i][1]}</line>\n')
-                fout.write('\n</paragraph>\n')
+                fout.write(f'<line class="singleline">\n{lines[i][1]}</line>\n')
+                fout.write('</paragraph>\n')
             elif lines[i+1][0] != 'text':
-                fout.write(f'\n<line class="lastline">{lines[i][1]}</line>\n')
-                fout.write('\n</paragraph>\n')
+                fout.write(f'<line class="lastline">\n{lines[i][1]}</line>\n')
+                fout.write('</paragraph>\n')
                 popen = False
             elif lines[i-1][0] != 'text':
                 fout.write('\n<paragraph class="paragraph">\n')
-                fout.write(f'\n<line class="firstline">{lines[i][1]}</line>\n')
+                fout.write(f'<line class="firstline">\n{lines[i][1]}</line>\n')
                 popen = True
             else:
-                fout.write(f'\n<line class="line">{lines[i][1]}</line>\n')
+                fout.write(f'<line class="line">\n{lines[i][1]}</line>\n')
 
         textlines += 1
         linesonpage += 1
