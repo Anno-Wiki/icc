@@ -27,11 +27,11 @@ $(document).ready(function(){
             } else {
                 return getAllBetween(
                     rangeObject.startContainer.parentNode,
-                    rangeObject.endContainer.parentNode);
+                    rangeObject.endContainer.parentNode
+                );
             }
 
         } else if (document.selection) { // IE lesser
-            console.log('document.selection')
             userSelection = document.selection.createRange();
             var ids = new Array();
             
@@ -45,6 +45,8 @@ $(document).ready(function(){
             }
         }
     }
+
+
 
     document.addEventListener('selectionchange', function() {
         if(window.getSelection().toString() != ''){
@@ -61,7 +63,6 @@ $(document).ready(function(){
     var span = $(".close")[0];
     btn.onclick = function() {
         $('#selection').text(window.getSelection().toString());
-        console.log(get_selection());
         $('#tags').text(get_selection());
         modal.css('display','block');
     }

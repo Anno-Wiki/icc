@@ -154,9 +154,18 @@ stage {
 }
 paragraph{
     font-family: 'EB Garamond', serif;
+    font-size: 14pt;
+    display:block;
+    margin: 0px;
 }
-line { display:block;}
-
+/*
+paragraph.justified {
+    text-indent: 1em;
+    text-align: justify;
+}
+*/
+    
+line { display:block; }
     /* Justified lines */
 .firstline {
     line-height: 1.5em;

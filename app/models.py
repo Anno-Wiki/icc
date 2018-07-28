@@ -4,7 +4,6 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -30,7 +29,7 @@ class Page(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book", backref="pages")
-    page = db.Column(db.Text)
+    page = db.Column(db.LONGTEXT)
     page_num = db.Column(db.Integer)
 
     def __repr__(self):
