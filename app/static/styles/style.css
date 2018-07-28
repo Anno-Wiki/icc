@@ -1,25 +1,28 @@
-
 body {
     font-family: 'EB Garamond', serif;
     background-color: #fdf6e3;
 }
-
 #container {
     width: 6in;
     margin: auto;
-}
-pre {
-    font-family: 'Playfair Display', serif;
-    margin:0px;
 }
 
 
 /* Generals */
 ul {
     color:#657b83;
+    font-family: 'Playfair Display', serif;
+    font-size:16pt;
+    text-indent: 2em hanging;
+}
+a {
+    text-decoration: none;
+    color:#268bd2;
+}
+a:hover {
+    color: #002b36;
 }
 p {
-    font-family: 'EB Garamond', serif;
     font-size: 14pt;
     margin: 0px;
     text-align: justify;
@@ -42,27 +45,28 @@ h2 {
     font-size:25pt;
     color:#839496;
 } 
-ul {
+pre {
     font-family: 'Playfair Display', serif;
-    font-size:16pt;
-    text-indent: 2em hanging;
+    margin:0px;
 }
+
+
+
 /* Nav bar */
 nav {
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
     margin: 10px;
+    color:#586e75;
 }
 nav a {
     margin: 10px;
-    color: 
+    color:#586e75;
 }
-a {
-    text-decoration: none;
-    color:#268bd2;
-}
-a:hover {
-    color:#6c71c4;
+nav a:hover {
+    color: #002b36;
+    border-bottom: 1px solid #000;
+    margin-bottom: 3px;
 }
 
 

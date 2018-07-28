@@ -18,8 +18,8 @@
     {% for break in book.breaks %}
         <tr>
             <td class="left">
+        <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
                 {% if break.ch_num %}
-                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
                 <div class="chapter_contents">
                     {% if break.break_title != None %}
                         {{ break.ch_num }}.
@@ -28,9 +28,7 @@
                         Ch. {{ break.ch_num }}
                     {% endif %}
                 </div>
-                </a>
                 {% elif break.part_num %}
-                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
                 <div class="part_contents">
                     {% if break.break_title != '' %}
                         {{ break.part_num }}.
@@ -39,9 +37,7 @@
                         Pt. {{ break.part_num }}
                     {% endif %}
                 </div>
-                </a>
                 {% elif break.book_num %}
-                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
                 <div class="book_contents">
                     {% if break.break_title != '' %}
                         {{ break.book_num }}.
@@ -50,14 +46,14 @@
                         Bk. {{ break.book_num }}
                     {% endif %}
                 </div>
-                </a>
                 {% endif %}
-
+        </a>
             </td>
             <td class="right">
-                <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">{{ break.page_num }}</a>
+                {{ break.page_num }}
             </td>
         </tr>
+        </a>
     {% endfor %}
 </table>
 <p id="meta">
