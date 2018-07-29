@@ -3,26 +3,26 @@ import re
 import sys
 
 # Global controllers
-bookregex = None                       # Regex - tagging Books
-breakonp = False                       # Flag - break on paragraphs
-breaks = None                          # File for breaks info 
-chconst = False                        # Flag - chnums across books and parts
-chregex = None                         # Regex - tag Chapters
-debug = False                          # Flag - debugging
-fout = sys.stdout                      # Default to stdout
-fullbook = None                        # Full book holder
-hr_regex = None                        # Regex - hr
-linesperpage = 30                      # Min ll before pgbrk (if !breakonp, max)
-minchlines = 5                         # Min ll before chapter can pgbrk
-partconst = False                      # Flag for preserving partnum across bks
-partregex = None                       # Regex - tag Parts
-pre = None                             # Regex - tag <pre>'s
-proc_ = False                          # Process underscores
-raggedright = False                    # Flag - raggedright
-recordch = False                       # Record chapter title
-stageregex = None                      # Regex - tagg Stage Directions
-us = False                             # Flag - italicising lines
-wordboundary = re.compile('\w+|\W')    # Word boundary break for split
+bookregex = None                        # Regex - tagging Books
+breakonp = False                        # Flag - break on paragraphs
+breaks = None                           # File for breaks info 
+chconst = False                         # Flag - chnums across books and parts
+chregex = None                          # Regex - tag Chapters
+debug = False                           # Flag - debugging
+fout = sys.stdout                       # Default to stdout
+fullbook = None                         # Full book holder
+hr_regex = None                         # Regex - hr
+linesperpage = 30                       # Min ll before pgbrk (if !breakonp, max)
+minchlines = 5                          # Min ll before chapter can pgbrk
+partconst = False                       # Flag for preserving partnum across bks
+partregex = None                        # Regex - tag Parts
+pre = None                              # Regex - tag <pre>'s
+proc_ = False                           # Process underscores
+raggedright = False                     # Flag - raggedright
+recordch = False                        # Record chapter title
+stageregex = None                       # Regex - tagg Stage Directions
+us = False                              # Flag - italicising lines
+wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
 # Default to stdin but make sure you ignore BOM
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
@@ -83,23 +83,23 @@ if '-r' in sys.argv:
     raggedright = True
 if '-s' in sys.argv:
     stageregex = re.compile(sys.argv[sys.argv.index('-s')+1])
+if '--aggchapters' in sys.argv:
+    chconst = True
+if '--aggparts' in sys.argv:
+    partconst = True
 if '--bible' in sys.argv:
     partregex = re.compile(bible_book_regex)
     bookregex = re.compile(bible_testament_regex)
 if '--breaks' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
-if '--hr' in sys.argv:
-    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 if '--fullbook' in sys.argv:
     fullbook = open(sys.argv[sys.argv.index('--fullbook')+1], 'wt')
+if '--hr' in sys.argv:
+    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
     pre = re.compile(sys.argv[sys.argv.index('--pre')+1])
-if '--aggchapters' in sys.argv:
-    chconst = True
-if '--aggparts' in sys.argv:
-    partconst = True
 if '--recordch' in sys.argv:
     recordch = True
 
@@ -140,12 +140,10 @@ for inline in fin:
 def stamp(word, wordcounter):
     if debug:
         return word
-    if us and word != ' ':
+    if us:
         word = f'<word id="{wordcounter}"><i>{word}</i></word>'
-    elif word != ' ':
-        word = f'<word id="{wordcounter}">{word}</word>'
     else:
-        word = f' '
+        word = f'<word id="{wordcounter}">{word}</word>'
     return word
 
 def stampline(line, preline):
@@ -156,7 +154,7 @@ def stampline(line, preline):
         if '|' in word:
             words[j] = ''
             us = not us
-        if re.search('[A-Za-z]+', word):
+        if '\n' not in word:
             wordcount += 1
             words[j] = stamp(word, wordcount)
     line = ''.join(words)
