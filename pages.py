@@ -174,6 +174,10 @@ def procpage():
     if popen:
         fout.write('\n<paragraph>\n')
 
+# Line hash
+def lhash():
+    return f'p{page}l{linesonpage+1}'
+
 
 lines.append(['last', 'last'])
 i = 1                           # Reset i to 1 to avoid first case of out of bounds
@@ -187,7 +191,6 @@ popen = False                   # paragraph open flag
 chnum = 0
 partnum = 0
 booknum = 0
-
 
 for line in lines:
 
@@ -219,9 +222,9 @@ for line in lines:
             else:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
         textlines += 1
-        fout.write(f'<ch>{stampline(lines[i][1], preline = False)}</ch>',)
+        fout.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>',)
         if fullbook:
-            fullbook.write(f'<ch>\n{stampline(lines[i][1], preline = False)}</ch>',)
+            fullbook.write(f'<ch id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</ch>',)
         linesonpage += 1
 
 
@@ -238,9 +241,9 @@ for line in lines:
             else:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
         textlines += 1
-        fout.write(f'<part>{stampline(lines[i][1], preline = False)}</part>')
+        fout.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
         if fullbook:
-            fullbook.write(f'<part>\n{stampline(lines[i][1], preline = False)}</part>')
+            fullbook.write(f'<part id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</part>')
         linesonpage += 1
 
 
@@ -259,18 +262,18 @@ for line in lines:
             else:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
         textlines += 1
-        fout.write(f'<book>{stampline(lines[i][1], preline = False)}</book>')
+        fout.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
         if fullbook:
-            fullbook.write(f'<book>\n{stampline(lines[i][1], preline = False)}</book>')
+            fullbook.write(f'<book id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</book>')
         linesonpage += 1
 
     
     # Handling for stage directions (if that's a thing)
     elif lines[i][0] == 'stage':
         textlines += 1
-        fout.write(f'<stage>{stampline(lines[i][1], preline = False)}</stage>')
+        fout.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
         if fullbook:
-            fullbook.write(f'<stage>\n{stampline(lines[i][1], preline = False)}</stage>')
+            fullbook.write(f'<stage id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</stage>')
         linesonpage += 1
 
     elif lines[i][0] == 'pre':
@@ -304,14 +307,14 @@ for line in lines:
                     fullbook.write(lines[i][1])
                     fullbook.write('</paragraph>\n')
                 fout.write('\n<paragraph class="raggedright">\n')
-                fout.write(f'<line class="rrsingleline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrsingleline" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
             # last line in a p
             elif lines[i+1][0] != 'text':
                 if fullbook:
                     fullbook.write(lines[i][1])
                     fullbook.write('</paragraph>\n')
-                fout.write(f'<line class="rrlastline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrlastline" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
                 popen = False
             # first line in a p
@@ -320,13 +323,13 @@ for line in lines:
                     fullbook.write(f'\n<paragraph class="raggedright">\n')
                     fullbook.write(lines[i][1])
                 fout.write(f'\n<paragraph class="raggedright">\n')
-                fout.write(f'<line class="rrfirstline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrfirstline" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 popen = True
             # regular line in middle of a p
             else:
                 if fullbook:
                     fullbook.write(f'{lines[i][1]}')
-                fout.write(f'<line class="rrline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="rrline" id="{lhash()}">\n{lines[i][1]}</line>\n')
 
         else:
             # single line
@@ -336,7 +339,7 @@ for line in lines:
                     fullbook.write(lines[i][1])
                     fullbook.write('</paragraph>\n')
                 fout.write('\n<paragraph class="justified">\n')
-                fout.write(f'<line class="singleline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="singleline" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 fout.write('</paragraph>\n')
             # last line in a p
             elif lines[i+1][0] != 'text':
@@ -352,11 +355,11 @@ for line in lines:
                     fullbook.write('\n<paragraph class="justified">\n')
                     fullbook.write(lines[i][1])
                 fout.write('\n<paragraph class="justified">\n')
-                fout.write(f'<line class="firstline">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="firstline" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 popen = True
             # regular line
             else:
-                fout.write(f'<line class="line">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="line" id="{lhash()}">\n{lines[i][1]}</line>\n')
                 if fullbook:
                     fullbook.write(lines[i][1])
 
