@@ -6,8 +6,6 @@ body {
     width: 6in;
     margin: auto;
 }
-
-
 /* Generals */
 ul {
     color:#657b83;
@@ -154,9 +152,9 @@ stage {
 }
 paragraph{
     font-family: 'EB Garamond', serif;
-    font-size: 14pt;
+    font-size: 12pt;
     display:block;
-    margin: 0px;
+    margin: 3 0 3 0px;
 }
 /*
 paragraph.justified {
@@ -169,7 +167,6 @@ line { display:block; }
     /* Justified lines */
 .firstline {
     line-height: 1.5em;
-    font-size: 14pt;
     margin: 0px;
     text-align: justify;
     text-indent: 1em;
@@ -180,13 +177,11 @@ line { display:block; }
     width: 100%;
 }
 .singleline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-indent: 1em;
 }
 .line {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-align: justify;
@@ -198,29 +193,24 @@ line { display:block; }
     width: 100%;
 }
 .lastline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
     text-align: left;
 }
     /* Handling of ragged right text */
 .rrfirstline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .rrline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0px;
 }
 .rrsingleline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0 0 10 0px;
 }
 .rrlastline {
-    font-size: 14pt;
     line-height: 1.5em;
     margin: 0 0 10 0px;
 }
