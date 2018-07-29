@@ -22,7 +22,6 @@
                 {% if break.ch_num %}
                 <div class="chapter_contents">
                     {% if break.break_title != None %}
-                        {{ break.ch_num }}.
                         {{ break.break_title }}
                     {% else %}
                         Chapter {{ break.ch_num }}
@@ -31,7 +30,6 @@
                 {% elif break.part_num %}
                 <div class="part_contents">
                     {% if break.break_title != None %}
-                        {{ break.part_num }}.
                         {{ break.break_title }}
                     {% else %}
                         Part {{ break.part_num }}
@@ -40,7 +38,6 @@
                 {% elif break.book_num %}
                 <div class="book_contents">
                     {% if break.break_title != None %}
-                        {{ break.book_num }}.
                         {{ break.break_title }}
                     {% else %}
                         Book {{ break.book_num }}
