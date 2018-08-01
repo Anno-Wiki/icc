@@ -150,13 +150,23 @@ def stampline(line, preline):
     global wordcount
     global us
     words = re.findall(wordboundary, line)
-    for j, word in enumerate(words):
-        if '|' in word:
-            words[j] = ''
+    i = len(words)
+    for i in range(0, i):
+        if '|' in words[i]:
+            words[i] = ''
             us = not us
-        if '\n' not in word:
+        if '\n' not in words[i]:
             wordcount += 1
-            words[j] = stamp(word, wordcount)
+            words[i] = stamp(words[i], wordcount)
+
+#    for j, word in enumerate(words):
+#        if '|' in word:
+#            words[j] = 'boogiewoogie'
+#            us = not us
+#        if '\n' not in word:
+#            wordcount += 1
+#            words[j] = stamp(word, wordcount)
+
     line = ''.join(words)
     if preline:
         return f'<pre>\n{line}</pre>\n'
