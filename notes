@@ -1,0 +1,8 @@
+ - Alright, we solved the basic problem in the javascript: we only need the
+   first and last id's from a highlight block. Really elementary solution to the
+   whole problem.
+ - Still need to implement incremental search on the texts. So my theory is that
+   I need to index the books on a line by line bases. Then when I get the result
+   from the line, I also pull the previous and next like 3 lines. This allows me
+   to have incremental search and get surrounding text in a simple way. This
+   would also eliminate need for beautifulsoup.
