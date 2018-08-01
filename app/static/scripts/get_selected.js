@@ -1,26 +1,5 @@
 $(document).ready(function(){
     
-    
-    var getAllBetween = function (firstEl,lastEl) {
-        var firstElement = $(firstEl); // First Element
-        var lastElement = $(lastEl); // Last Element
-        var collection = []; // Collection of Elements
-        collection.push(firstElement.attr('id')); // Add First Element to Collection
-
-        $(firstEl).nextAll().each(function(){ // Traverse all siblings
-            var siblingID  = $(this).attr('id'); // Get Sibling ID
-            if (siblingID !== $(lastElement).attr('id')) { // If Sib is not LastElement
-                collection.push($(this).attr('id')); // Add Sibling to Collection
-            } else { // Else, if Sib is LastElement
-                collection.push(lastElement.attr('id')); // Add Last Element to Collection
-                return false; // Break Loop
-            }
-        });
-
-        return collection; // Return Collection
-    };
-
-
     var get_selection = function (event){
         if (window.getSelection) { // non-IE
             var userSelection = window.getSelection();
@@ -28,10 +7,10 @@ $(document).ready(function(){
             if (rangeObject.startContainer == rangeObject.endContainer) {
                 return rangeObject.startContainer.parentNode.id;
             } else {
-                return getAllBetween(
-                    rangeObject.startContainer.parentNode,
-                    rangeObject.endContainer.parentNode
-                );
+                ids = []
+                ids.push(rangeObject.startContainer.parentNode.id);
+                ids.push(rangeObject.endContainer.parentNode.id);
+                return ids
             }
 
         } else if (document.selection) { // IE lesser
@@ -48,7 +27,6 @@ $(document).ready(function(){
             }
         }
     };
-
 
 
     document.addEventListener('selectionchange', function() {
