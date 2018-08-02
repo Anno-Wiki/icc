@@ -5,12 +5,10 @@ import sys
 # Global controllers
 bookregex = None                        # Regex - tagging Books
 breakonp = False                        # Flag - break on paragraphs
-breaks = None                           # File for breaks info 
 chconst = False                         # Flag - chnums across books and parts
 chregex = None                          # Regex - tag Chapters
 debug = False                           # Flag - debugging
-fout = sys.stdout                       # Default to stdout
-fullbook = None                         # Full book holder
+filename = ''                           # File name for all output files
 hr_regex = None                         # Regex - hr
 linesperpage = 30                       # Min ll before pgbrk (if !breakonp, max)
 minchlines = 5                          # Min ll before chapter can pgbrk
@@ -24,8 +22,15 @@ stageregex = None                       # Regex - tagg Stage Directions
 us = False                              # Flag - italicising lines
 wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
-# Default to stdin but make sure you ignore BOM
+
+# File holders
+breaks = None                           # File for breaks info 
+chapterbook = None                      # File for chapters
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
+fout = sys.stdout                       # Default to stdout
+fullbook = None                         # Full book holder
+mysqllines = None                       # File for mysql lines (incl html)
+elasticsearchlines = None               # File for elasticsearch lines (excl html)
 
 # Constants
 bible_book_regex = '(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))'
@@ -36,27 +41,35 @@ emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 # Flag processing
 if '-h' in sys.argv:
     h = []
-    h.append('-_                    Process underscores as italics')
-    h.append('-b <regex>            Regex for Books (Heierarchical chapters lvl 1)')
-    h.append('-c <regex>            Regex for Chapters (Heierarchical Chapters lvl 3')
-    h.append('-d                    Debug Mode')
-    h.append('-h                    Help')
+    h.append('Program reads form stdin and outputs to stdout by default. More than likely')
+    h.append('you're going to want to specify some special output files. More than likely')
+    h.append('you're going to want to specify all the special output files. Use -n for that')
+    h.append('but don't include a file extension.')
+    h.append('-_                              Process underscores as italics')
+    h.append('-b <regex>                      Regex for Books (Heierarchical chapters lvl 1)')
+    h.append('-c <regex>                      Regex for Chapters (Heierarchical Chapters lvl 3')
+    h.append('-d                              Debug Mode')
+    h.append('-h                              Help')
     h.append('-i <inputfile>')
-    h.append('-l <lines per page>   (Default = 30)')
-    h.append('-m <min lines>        Minimum # of ll before chapter break (Default = 5)')
+    h.append('-l <lines per page>             (Default = 30)')
+    h.append('-m <min lines>                  Minimum # of ll before chapter break (Default = 5)')
+    h.append('-n <filename>                   File name for all files (do not include extension)')
     h.append('-o <outputfile>')
-    h.append('-p                    Break on p')
-    h.append('-r                    Enable ragged right')
-    h.append('-s <regex>            Regex for Stage Directions')
-    h.append('--aggchapters         Aggregate chapters, do not reset')
-    h.append('--aggparts            Aggregate parts, do not reset')
-    h.append('--bible               Enable bible chapter detection mode')
-    h.append('--breaks <outfile>    Write breaksdata to a breaks file')
-    h.append('--fullbook <outfile>  Write the full book to a book file')
-    h.append('--hr <regex>          Regex for horizontal rule breaks')
-    h.append('--part <regex>        Regex for Parts (Heierarchical chapters lvl 2)')
-    h.append('--pre <regex>         Enable pre on <regex>')
-    h.append('--recordch            Record titles for chapters (e.g., if distinct)')
+    h.append('-p                              Break on p')
+    h.append('-r                              Enable ragged right')
+    h.append('-s <regex>                      Regex for Stage Directions')
+    h.append('--aggchapters                   Aggregate chapters, do not reset')
+    h.append('--aggparts                      Aggregate parts, do not reset')
+    h.append('--bible                         Enable bible chapter detection mode')
+    h.append('--breaks <outfile>              Write breaksdata to a breaks file')
+    h.append('--chapters <outfile>            Output chapter broken book')
+    h.append('--elasticsearch <outfile>       Output elasticsearch file')
+    h.append('--fullbook <outfile>            Write the full book to a book file')
+    h.append('--hr <regex>                    Regex for horizontal rule breaks')
+    h.append('--mysql <outfile>               Output mysql lines file')
+    h.append('--part <regex>                  Regex for Parts (Heierarchical chapters lvl 2)')
+    h.append('--pre <regex>                   Enable pre on <regex>')
+    h.append('--recordch                      Record titles for chapters (e.g., if distinct)')
     for l in h:
         print(l)
     sys.exit()
@@ -77,6 +90,12 @@ if '-m' in sys.argv:
     minchlines = int(sys.argv[sys.argv.index('-m')+1])
 if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
+if '-n' in sys.argv:
+    breaks = open(sys.argv[sys.argv.index('-n')+1] + '.breaks', 'wt')
+    elasticsearch = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
+    fout = open(sys.argv[sys.argv.index('-n')+1] + '.icc', 'wt')
+    fullbook = open(sys.argv[sys.argv.index('-n')+1] + '.book', 'wt')
+    mysqllines = open(sys.argv[sys.argv.index('-n')+1] + '.mysql', 'wt')
 if '-p'in sys.argv:
     breakonp = True
 if '-r' in sys.argv:
@@ -92,10 +111,16 @@ if '--bible' in sys.argv:
     bookregex = re.compile(bible_testament_regex)
 if '--breaks' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
+if '--chapters' in sys.argv:
+    chapterbook = open(sys.argv[sys.argv.index('--chapters')+1], 'wt')
+if '--elasticsearch' in sys.argv:
+    elasticsearchlines = open(sys.argv[sys.argv.index('--elasticsearch') + 1], 'wt')
 if '--fullbook' in sys.argv:
     fullbook = open(sys.argv[sys.argv.index('--fullbook')+1], 'wt')
 if '--hr' in sys.argv:
     hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
+if '--mysql' in sys.argv:
+    mysqllines = open(sys.argv[sys.argv.index('--mysql')+1], 'wt')
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
@@ -136,6 +161,8 @@ for inline in fin:
     i += 1
     
 
+lines.append(['last', 'last']) # Append a final value to avoid out of bounds
+
 # Stamper for words
 def stamp(word, wordcounter):
     if debug:
@@ -165,6 +192,7 @@ def stampline(line, preline):
     else:
         return line
 
+# Modularized page processor
 def procpage():
     global page
     global linesonpage
@@ -181,7 +209,6 @@ def lhash():
     return f'p{page}l{linesonpage+1}'
 
 
-lines.append(['last', 'last'])
 i = 1                           # Reset i to 1 to avoid first case of out of bounds
 wordcount = 0                   # Keep track of words
 textlines = 0                   # Count number of lines printed in toto
