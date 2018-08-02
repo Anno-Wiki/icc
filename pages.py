@@ -28,12 +28,11 @@ wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
 # File holders
 breaks = None                           # File for breaks info 
-chapterbook = None                      # File for chapters
+elasticsearchlines = None               # File for elasticsearch lines (excl html)
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 fout = sys.stdout                       # Default to stdout
 fullbook = None                         # Full book holder
 mysqllines = None                       # File for mysql lines (incl html)
-elasticsearchlines = None               # File for elasticsearch lines (excl html)
 
 # Constants
 bible_book_regex = '(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))'
@@ -45,9 +44,9 @@ emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 if '-h' in sys.argv:
     h = []
     h.append('Program reads form stdin and outputs to stdout by default. More than likely')
-    h.append('you're going to want to specify some special output files. More than likely')
-    h.append('you're going to want to specify all the special output files. Use -n for that')
-    h.append('but don't include a file extension.')
+    h.append("you're going to want to specify some special output files. More than likely")
+    h.append("you're going to want to specify all the special output files. Use -n for that")
+    h.append("but don't include a file extension.")
     h.append('-_                              Process underscores as italics')
     h.append('-b <regex>                      Regex for Books (Heierarchical chapters lvl 1)')
     h.append('-c <regex>                      Regex for Chapters (Heierarchical Chapters lvl 3')
@@ -65,7 +64,6 @@ if '-h' in sys.argv:
     h.append('--aggparts                      Aggregate parts, do not reset')
     h.append('--bible                         Enable bible chapter detection mode')
     h.append('--breaks <outfile>              Write breaksdata to a breaks file')
-    h.append('--chapters <outfile>            Output chapter broken book')
     h.append('--elasticsearch <outfile>       Output elasticsearch file')
     h.append('--fullbook <outfile>            Write the full book to a book file')
     h.append('--hr <regex>                    Regex for horizontal rule breaks')
@@ -96,7 +94,7 @@ if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
 if '-n' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('-n')+1] + '.breaks', 'wt')
-    elasticsearch = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
+    elasticsearchlines = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
     fout = open(sys.argv[sys.argv.index('-n')+1] + '.icc', 'wt')
     fullbook = open(sys.argv[sys.argv.index('-n')+1] + '.book', 'wt')
     mysqllines = open(sys.argv[sys.argv.index('-n')+1] + '.mysql', 'wt')
@@ -115,8 +113,6 @@ if '--bible' in sys.argv:
     bookregex = re.compile(bible_testament_regex)
 if '--breaks' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
-if '--chapters' in sys.argv:
-    chapterbook = open(sys.argv[sys.argv.index('--chapters')+1], 'wt')
 if '--elasticsearch' in sys.argv:
     elasticsearchlines = open(sys.argv[sys.argv.index('--elasticsearch') + 1], 'wt')
 if '--fullbook' in sys.argv:
@@ -128,7 +124,7 @@ if '--mysql' in sys.argv:
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
-    pre = re.compile(sys.argv[sys.argv.index('--pre')+1])
+    preline = re.compile(sys.argv[sys.argv.index('--pre')+1])
 if '--recordch' in sys.argv:
     recordch = True
 
@@ -270,48 +266,78 @@ for line in lines:
     # Blank lines should be preserved, and handling for breakonp
     elif lines[i][0] == 'blank':
         fout.write('\n\n')
+        if fullbook:
+            fullbook.write('\n\n')
+
         # Breakonp
         if linesonpage >= linesperpage and breakonp and lines[i+1][0] != 'stage':
             procpage()
 
 
+
+    # horizontal rule printer
     elif lines[i][0] == 'hr':
+        # We only need to write it to the pages and to
+        # files meant to be displayed in full
         fout.write('<hr class="bookseparator">')
+        if fullbook:
+            fullbook.write(f'<hr class="bookseparator">')
+
 
 
     # Handling for ch, includes writing of open/close paragraphs
     elif lines[i][0] == 'ch':
+
         chnum += 1
         if linesonpage >= minchlines:
             procpage()
+
+        # Process breaks file
         if breaks:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}@{lines[i][1]}')
             else:
                 breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
+
         textlines += 1
-        fout.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>',)
+
+        # Process everything
+        fout.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
+        if elasticsearchlines:
+            elasticsearchlines.write(lines[i][1])
         if fullbook:
-            fullbook.write(f'<ch id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</ch>',)
+            fullbook.write(f'<ch id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</ch>')
+        if mysqllines:
+            mysqllines.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
         linesonpage += 1
 
 
     # Handling for part
     elif lines[i][0] == 'part':
+        
         partnum += 1
         if not chconst:
             chnum = 0
         if linesonpage >= minchlines:
             procpage()
+
+        # Process breaks file
         if breaks:
             if recordch:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}@{lines[i][1]}')
             else:
                 breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
+                
         textlines += 1
+
+        # Process everything
         fout.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
+        if elasticsearchlines:
+            elasticsearchlines.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<part id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</part>')
+        if mysqllines:
+            mysqllines.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
         linesonpage += 1
 
 
@@ -331,8 +357,12 @@ for line in lines:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
         textlines += 1
         fout.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
+        if elasticsearchlines:
+            elasticsearchlines.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<book id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</book>')
+        if mysqllines:
+            mysqllines.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
         linesonpage += 1
 
     
@@ -340,24 +370,28 @@ for line in lines:
     elif lines[i][0] == 'stage':
         textlines += 1
         fout.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
+        if elasticsearchlines:
+            elasticsearchlines.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<stage id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</stage>')
+        if mysqllines:
+            mysqllines.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
         linesonpage += 1
 
     elif lines[i][0] == 'pre':
-        lines[i][1] = stampline(lines[i][1], preline = True)
         textlines += 1
-        fout.write(lines[i][1])
+        fout.write(stampline(lines[i][1], preline = True))
+        if elasticsearchlines:
+            elasticsearchlines.write(lines[i][1])
         if fullbook:
-            fullbook.write(lines[i][1])
+            fullbook.write(stampline(lines[i][1], preline = True))
+        if mysqllines:
+            mysqlllines.write(stampline(lines[i][1], preline = True))
         linesonpage += 1
     
 
     # Handling for everything else
-    elif lines[i][0] == 'text' or lines[i][0] == 'pre':
-
-        # Stamp the line
-        lines[i][1] = stampline(lines[i][1], preline = False)
+    elif lines[i][0] == 'text':
 
         # Really long multi-branch statement. This provides two four-way
         # branches, the first to handle ragged right, the second to handle
@@ -368,68 +402,146 @@ for line in lines:
         # branch 3: the first line of a paragraph
         # branch 4: a normal line
         if raggedright:
+
             # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
+                # p opener
+                fout.write('\n<paragraph class="raggedright">\n')
                 if fullbook:
                     fullbook.write('\n<paragraph class="raggedright">\n')
-                    fullbook.write(lines[i][1])
-                    fullbook.write('</paragraph>\n')
-                fout.write('\n<paragraph class="raggedright">\n')
-                fout.write(f'<line class="rrsingleline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+
+                # line
+                fout.write(f'<line class="rrsingleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
+                if fullbook:
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="rrsingleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                
+                # p closer
                 fout.write('</paragraph>\n')
+                if fullbook:
+                    fullbook.write('</paragraph>\n')
+
+
             # last line in a p
             elif lines[i+1][0] != 'text':
+                # line
+                fout.write(f'<line class="rrlastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
                 if fullbook:
-                    fullbook.write(lines[i][1])
-                    fullbook.write('</paragraph>\n')
-                fout.write(f'<line class="rrlastline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="rrlastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+
+                # p closer
                 fout.write('</paragraph>\n')
+                if fullbook:
+                    fullbook.write('</paragraph>\n')
+
                 popen = False
+
+
             # first line in a p
             elif lines[i-1][0] != 'text':
+                # p opener
+                fout.write(f'\n<paragraph class="raggedright">\n')
                 if fullbook:
                     fullbook.write(f'\n<paragraph class="raggedright">\n')
-                    fullbook.write(lines[i][1])
-                fout.write(f'\n<paragraph class="raggedright">\n')
-                fout.write(f'<line class="rrfirstline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+                
+                # line
+                fout.write(f'<line class="rrfirstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
+                if fullbook:
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="rrfirstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+
                 popen = True
+
+
             # regular line in middle of a p
             else:
+                fout.write(f'<line class="rrline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
                 if fullbook:
-                    fullbook.write(f'{lines[i][1]}')
-                fout.write(f'<line class="rrline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="rrline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
         else:
             # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
+                # p opener
+                fout.write('\n<paragraph class="justified">\n')
                 if fullbook:
                     fullbook.write('\n<paragraph class="justified">\n')
-                    fullbook.write(lines[i][1])
-                    fullbook.write('</paragraph>\n')
-                fout.write('\n<paragraph class="justified">\n')
-                fout.write(f'<line class="singleline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+
+                # line
+                fout.write(f'<line class="singleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
+                if fullbook:
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="singleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                
+                # p closer
                 fout.write('</paragraph>\n')
+                if fullbook:
+                    fullbook.write('</paragraph>\n')
+
+
             # last line in a p
             elif lines[i+1][0] != 'text':
+                # line
+                fout.write(f'<line class="lastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
                 if fullbook:
-                    fullbook.write(lines[i][1])
-                    fullbook.write('</paragraph>\n')
-                fout.write(f'<line class="lastline">\n{lines[i][1]}</line>\n')
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="lastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+
+                # p closer
                 fout.write('</paragraph>\n')
+                if fullbook:
+                    fullbook.write('</paragraph>\n')
+
                 popen = False
+
+
             # first line in a p
             elif lines[i-1][0] != 'text':
+                # p opener
+                fout.write(f'\n<paragraph class="justified">\n')
                 if fullbook:
-                    fullbook.write('\n<paragraph class="justified">\n')
-                    fullbook.write(lines[i][1])
-                fout.write('\n<paragraph class="justified">\n')
-                fout.write(f'<line class="firstline" id="{lhash()}">\n{lines[i][1]}</line>\n')
+                    fullbook.write(f'\n<paragraph class="justified">\n')
+                
+                # line
+                fout.write(f'<line class="firstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
+                if fullbook:
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="firstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+
                 popen = True
-            # regular line
+
+
             else:
-                fout.write(f'<line class="line" id="{lhash()}">\n{lines[i][1]}</line>\n')
+                fout.write(f'<line class="line" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
+                if elasticsearchlines:
+                    elasticsearchlines.write(lines[i][1])
                 if fullbook:
-                    fullbook.write(lines[i][1])
+                    fullbook.write(stampline(lines[i][1], preline = False))
+                if mysqllines:
+                    mysqllines.write(f'<line class="line" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
         textlines += 1
         linesonpage += 1
