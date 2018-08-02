@@ -2,6 +2,10 @@ import codecs
 import re
 import sys
 
+#########################
+## Variables and flags ##
+#########################
+
 # Global controllers
 bookregex = None                        # Regex - tagging Books
 breakonp = False                        # Flag - break on paragraphs
@@ -22,7 +26,6 @@ stageregex = None                       # Regex - tagg Stage Directions
 us = False                              # Flag - italicising lines
 wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
-
 # File holders
 breaks = None                           # File for breaks info 
 chapterbook = None                      # File for chapters
@@ -38,7 +41,7 @@ bible_testament_regex = 'Testament'
 ellreg = re.compile('[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+')
 emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 
-# Flag processing
+# Help menu
 if '-h' in sys.argv:
     h = []
     h.append('Program reads form stdin and outputs to stdout by default. More than likely')
@@ -74,6 +77,7 @@ if '-h' in sys.argv:
         print(l)
     sys.exit()
 
+# Flag processing (I seriously need to think about using getopts
 if '-_' in sys.argv:
     proc_ = True
 if '-b' in sys.argv:
@@ -129,39 +133,13 @@ if '--recordch' in sys.argv:
     recordch = True
 
 
-lines = [['beginning', 'beginning']] # Prepend initial value
-i = 1   # Must index from one to avoid out of bounds for checking previous
 
-# In order to accomplish contextual tagging (i.e., based on previous and next
-# lines) we have to read the whole file into memory.
-for inline in fin:
-    line = re.sub('_', '|', inline)
 
-    # Blank lines
-    if re.match(r'^$', line):
-        lines.append(['blank', 'blank'])
 
-    # All special lines
-    elif bookregex and re.search(bookregex, line):
-        lines.append(['book', line])
-    elif partregex and re.search(partregex, line):
-        lines.append(['part', line])
-    elif chregex and re.search(chregex, line):
-        lines.append(['ch', line])
-    elif stageregex and re.search(stageregex, line):
-        lines.append(['stage', line])
-    elif pre and re.search(pre, line):
-        lines.append(['pre', line])
-    elif hr_regex and re.search(hr_regex, line):
-        lines.append(['hr', '<hr class="book_separator">'])
-    
-    # For everything else
-    elif line != '':        # Possibly convert to `re.match` or `else`
-        lines.append(['text', line])
-    i += 1
-    
 
-lines.append(['last', 'last']) # Append a final value to avoid out of bounds
+###############
+## Functions ##
+###############
 
 # Stamper for words
 def stamp(word, wordcounter):
@@ -173,6 +151,7 @@ def stamp(word, wordcounter):
         word = f'<word id="{wordcounter}">{word}</word>'
     return word
 
+# Iterates through line calling the stamper
 def stampline(line, preline):
     global wordcount
     global us
@@ -209,6 +188,65 @@ def lhash():
     return f'p{page}l{linesonpage+1}'
 
 
+
+
+
+
+
+
+#######################
+## Initial file read ##
+#######################
+
+lines = [['beginning', 'beginning']] # Prepend initial value
+i = 1   # Must index from one to avoid out of bounds for checking previous
+
+# In order to accomplish contextual tagging 
+# (i.e., based on previous and next lines) 
+# we have to read the whole file into memory.
+for inline in fin:
+    # We replace underscores with bars for italics processing
+    # because '\w+|\W' does not break on _
+    line = re.sub('_', '|', inline)
+
+    # Blank lines
+    if re.match(r'^$', line):
+        lines.append(['blank', 'blank'])
+
+    # All special lines
+    elif bookregex and re.search(bookregex, line):
+        lines.append(['book', line])
+    elif partregex and re.search(partregex, line):
+        lines.append(['part', line])
+    elif chregex and re.search(chregex, line):
+        lines.append(['ch', line])
+    elif stageregex and re.search(stageregex, line):
+        lines.append(['stage', line])
+    elif pre and re.search(pre, line):
+        lines.append(['pre', line])
+    elif hr_regex and re.search(hr_regex, line):
+        lines.append(['hr', '<hr class="book_separator">'])
+    
+    # For everything else
+    elif line != '':        # Possibly convert to `re.match` or `else`
+        lines.append(['text', line])
+
+    i += 1
+
+lines.append(['last', 'last']) # Append a final value to avoid out of bounds
+
+
+
+
+
+
+
+
+###################
+## The Main Loop ##
+###################
+
+
 i = 1                           # Reset i to 1 to avoid first case of out of bounds
 wordcount = 0                   # Keep track of words
 textlines = 0                   # Count number of lines printed in toto
@@ -220,6 +258,7 @@ popen = False                   # paragraph open flag
 chnum = 0
 partnum = 0
 booknum = 0
+
 
 for line in lines:
 
