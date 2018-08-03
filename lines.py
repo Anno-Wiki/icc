@@ -2,6 +2,14 @@ import codecs
 import re
 import sys
 
+book_id = None
+
+if '-b' not in sys.argv:
+    sys.exit('-b <book_id> flag required')
+else:
+    book_id = int(sys.argv[sys.argv.index('-b') + 1])
+
+
 #########################
 ## Variables and flags ##
 #########################
@@ -26,10 +34,9 @@ emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
 wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
 # Flags
-breakonp = False                        # Flag - break on paragraphs
-chconst = False                         # Flag - chnums across books and parts
+aggch = False                           # Flag - chnums across books and parts
+aggpt = False                           # Flag - preserving ptnum across bks
 debug = False                           # Flag - debugging
-partconst = False                       # Flag - preserving partnum across bks
 proc_ = False                           # Flag - process underscores
 raggedright = False                     # Flag - raggedright
 recordch = False                        # Flag - record chapter title
@@ -41,26 +48,24 @@ linesperpage = 30                       # Min ll before pgbrk (if !breakonp, max
 minchlines = 5                          # Min ll before chapter can pgbrk
 
 # Files
-esll = None                             # File - elasticsearch lines (-html)
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
-msll = None                             # File - mysql lines (+html)
+fout = sys.stdout
 
 # Help menu
-if '-h' in sys.argv:
+def printhelp():
     h = []
-    h.append(f'python {sys.argv[0]} [options] <output file title>')
+    h.append(f'Usage: python {sys.argv[0]} -b <book_id> [options] [-i <input file>] [-o <output file>]')
 
     h.append('')
-    h.append('The <output file title> is a name that will be given to the')
-    h.append('files output by the progam. Do not include a file extension.')
-
-    h.append('')
-    h.append('      To specify an input file')
-    h.append('-i <inputfile>')
+    h.append('Defaults to stdin and stdout. To specify an input or output file')
+    h.append('use one or both of the following flags')
+    h.append('-i <input file>')
+    h.append('-o <output file>')
 
     h.append('')
     h.append('      Flags')
     h.append('-_                    Process underscores as italics')
+    h.append('-b <book_id>          Book id (required)')
     h.append('-d                    Debug Mode')
     h.append('-h                    Help')
     h.append('-r                    Enable ragged right')
@@ -86,61 +91,44 @@ if '-h' in sys.argv:
         print(l)
     sys.exit()
 
-# Flag processing (I seriously need to think about using getopts
-if '-_' in sys.argv:
-    proc_ = True
-if '-b' in sys.argv:
-    bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
-if '-c' in sys.argv:
-    chapterregex = re.compile(sys.argv[sys.argv.index('-c')+1])
-if '-d' in sys.argv:
-    debug = True
+# Input file override
 if '-i' in sys.argv:
     fin = open(path, 'rt', encoding="UTF-8-SIG")
-if '-l' in sys.argv:
-    linesperpage = int(sys.argv[sys.argv.index('-l')+1])
-if '-m' in sys.argv:
-    minchlines = int(sys.argv[sys.argv.index('-m')+1])
 if '-o' in sys.argv:
-    fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if '-n' in sys.argv:
-    breaks = open(sys.argv[sys.argv.index('-n')+1] + '.breaks', 'wt')
-    esll = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
-    fout = open(sys.argv[sys.argv.index('-n')+1] + '.icc', 'wt')
-    fullbook = open(sys.argv[sys.argv.index('-n')+1] + '.book', 'wt')
-    msll = open(sys.argv[sys.argv.index('-n')+1] + '.mysql', 'wt')
-if '-p'in sys.argv:
-    breakonp = True
+    fout = open(path, 'wt', encoding="UTF-8-SIG")
+
+# Flags
+if '-_' in sys.argv:
+    proc_ = True
+if '-d' in sys.argv:
+    debug = True
+if '-h' in sys.argv:
+    printhelp()
 if '-r' in sys.argv:
     raggedright = True
-if '-s' in sys.argv:
-    stageregex = re.compile(sys.argv[sys.argv.index('-s')+1])
-if '--aggchapters' in sys.argv:
-    chconst = True
-if '--aggparts' in sys.argv:
-    partconst = True
+
+# Aggregation flags
+if '--aggch' in sys.argv:
+    aggch = True
+if '--aggpt' in sys.argv:
+    aggpt = True
+
+# Regex
 if '--bible' in sys.argv:
     partregex = re.compile(bible_book_regex)
     bookregex = re.compile(bible_testament_regex)
-if '--breaks' in sys.argv:
-    breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
-if '--elasticsearch' in sys.argv:
-    esll = open(sys.argv[sys.argv.index('--elasticsearch') + 1], 'wt')
-if '--fullbook' in sys.argv:
-    fullbook = open(sys.argv[sys.argv.index('--fullbook')+1], 'wt')
+if '--bk' in sys.argv:
+    bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
+if '--pt' in sys.argv:
+    partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
+if '--ch' in sys.argv:
+    chapterregex = re.compile(sys.argv[sys.argv.index('-c')+1])
 if '--hr' in sys.argv:
     hrregex = re.compile(sys.argv[sys.argv.index('--hr')+1])
-if '--mysql' in sys.argv:
-    msll = open(sys.argv[sys.argv.index('--mysql')+1], 'wt')
-if '--part' in sys.argv:
-    partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
+if '--stg' in sys.argv:
+    stageregex = re.compile(sys.argv[sys.argv.index('-s')+1])
 if '--pre' in sys.argv:
     preline = re.compile(sys.argv[sys.argv.index('--pre')+1])
-if '--recordch' in sys.argv:
-    recordch = True
-
-
-
 
 
 
@@ -148,7 +136,6 @@ if '--recordch' in sys.argv:
 ## Functions ##
 ###############
 
-# Stamper for words
 def stamp(word, wordcounter):
     if debug:
         return word
@@ -193,7 +180,6 @@ def procpage():
 # Line hash
 def lhash():
     return f'p{page}l{linesonpage+1}'
-
 
 
 
@@ -257,14 +243,15 @@ lines.append(['last', 'last']) # Append a final value to avoid out of bounds
 i = 1                           # Reset i to 1 to avoid first case of out of bounds
 wordcount = 0                   # Keep track of words
 textlines = 0                   # Count number of lines printed in toto
-linesonpage = 0                 # Keep track of lines per page
-page = 0                        # Keep track of page number
-popen = False                   # paragraph open flag
 
 # Heierarchical chapter numbers
 chnum = 0
-partnum = 0
-booknum = 0
+ptnum = 0
+bknum = 0
+
+
+def lout(cls, l):
+    fout.write(f'{book_id}@{textlines}@{cls}@{bknum}@{ptnum}@{chnum}@{l}')
 
 
 for line in lines:
@@ -273,299 +260,88 @@ for line in lines:
     if i >= len(lines):
         break
 
-
-    # Blank lines should be preserved, and handling for breakonp
-    elif lines[i][0] == 'blank':
-        fout.write('\n\n')
-        if fullbook:
-            fullbook.write('\n\n')
-
-        # Breakonp
-        if linesonpage >= linesperpage and breakonp and lines[i+1][0] != 'stage':
-            procpage()
-
-
-
     # horizontal rule printer
     elif lines[i][0] == 'hr':
         # We only need to write it to the pages and to
         # files meant to be displayed in full
-        fout.write('<hr class="bookseparator">')
-        if fullbook:
-            fullbook.write(f'<hr class="bookseparator">')
-
-
+        textlines += 1
+        lout('hr', '')
 
     # Handling for ch, includes writing of open/close paragraphs
     elif lines[i][0] == 'ch':
-
         chnum += 1
-        if linesonpage >= minchlines:
-            procpage()
-
-        # Process breaks file
-        if breaks:
-            if recordch:
-                breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}@{lines[i][1]}')
-            else:
-                breaks.write(f'{booknum}@{partnum}@{chnum}@{page + 1}\n')
-
         textlines += 1
-
-        # Process everything
-        fout.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
-        if esll:
-            esll.write(lines[i][1])
-        if fullbook:
-            fullbook.write(f'<ch id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</ch>')
-        if msll:
-            msll.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
-        linesonpage += 1
-
+        lout('ch', lines[i][1])
 
     # Handling for part
     elif lines[i][0] == 'part':
-        
-        partnum += 1
-        if not chconst:
-            chnum = 0
-        if linesonpage >= minchlines:
-            procpage()
-
-        # Process breaks file
-        if breaks:
-            if recordch:
-                breaks.write(f'{booknum}@{partnum}@0@{page + 1}@{lines[i][1]}')
-            else:
-                breaks.write(f'{booknum}@{partnum}@0@{page + 1}\n')
-                
+        ptnum += 1
         textlines += 1
-
-        # Process everything
-        fout.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
-        if esll:
-            esll.write(lines[i][1])
-        if fullbook:
-            fullbook.write(f'<part id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</part>')
-        if msll:
-            msll.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
-        linesonpage += 1
-
+        if not aggch:
+            chnum = 0
+        lout('pt', lines[i][1])
 
     # Handling for book
     elif lines[i][0] == 'book':
-        booknum += 1
-        if not partconst:
-            partnum = 0
-        if not chconst:
-            chnum = 0
-        if linesonpage >= minchlines:
-            procpage()
-        if breaks:
-            if recordch:
-                breaks.write(f'{booknum}@0@0@{page + 1}@{lines[i][1]}')
-            else:
-                breaks.write(f'{booknum}@0@0@{page + 1}\n')
+        bknum += 1
         textlines += 1
-        fout.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
-        if esll:
-            esll.write(lines[i][1])
-        if fullbook:
-            fullbook.write(f'<book id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</book>')
-        if msll:
-            msll.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
-        linesonpage += 1
+        if not aggpt:
+            ptnum = 0
+        if not aggch:
+            chnum = 0
+        lout('bk', lines[i][1])
 
-    
     # Handling for stage directions (if that's a thing)
     elif lines[i][0] == 'stage':
         textlines += 1
-        fout.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
-        if esll:
-            esll.write(lines[i][1])
-        if fullbook:
-            fullbook.write(f'<stage id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</stage>')
-        if msll:
-            msll.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
-        linesonpage += 1
+        lout('stg', lines[i][1])
 
+    # Handling for pre lines
     elif lines[i][0] == 'pre':
         textlines += 1
-        fout.write(stampline(lines[i][1], preline = True))
-        if esll:
-            esll.write(lines[i][1])
-        if fullbook:
-            fullbook.write(stampline(lines[i][1], preline = True))
-        if msll:
-            mysqlllines.write(stampline(lines[i][1], preline = True))
-        linesonpage += 1
+        lout('pre', lines[i][1])
     
-
     # Handling for everything else
     elif lines[i][0] == 'text':
+        textlines += 1
 
-        # Really long multi-branch statement. This provides two four-way
-        # branches, the first to handle ragged right, the second to handle
-        # normal justify cases. The inner parts of the branches are broken out in
-        # the following way:
-        # branch 1: a single line paragraph case, to handle indent and justify
-        # branch 2: the last line of a paragraph
-        # branch 3: the first line of a paragraph
-        # branch 4: a normal line
         if raggedright:
 
             # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                # p opener
-                fout.write('\n<paragraph class="raggedright">\n')
-                if fullbook:
-                    fullbook.write('\n<paragraph class="raggedright">\n')
-
-                # line
-                fout.write(f'<line class="rrsingleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="rrsingleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-                
-                # p closer
-                fout.write('</paragraph>\n')
-                if fullbook:
-                    fullbook.write('</paragraph>\n')
-
+                lout('rsl', lines[i][1])
 
             # last line in a p
             elif lines[i+1][0] != 'text':
-                # line
-                fout.write(f'<line class="rrlastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="rrlastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-
-                # p closer
-                fout.write('</paragraph>\n')
-                if fullbook:
-                    fullbook.write('</paragraph>\n')
-
-                popen = False
-
+                lout('rll', lines[i][1])
 
             # first line in a p
             elif lines[i-1][0] != 'text':
-                # p opener
-                fout.write(f'\n<paragraph class="raggedright">\n')
-                if fullbook:
-                    fullbook.write(f'\n<paragraph class="raggedright">\n')
-                
-                # line
-                fout.write(f'<line class="rrfirstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="rrfirstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-
-                popen = True
-
+                lout('rfl', lines[i][1])
 
             # regular line in middle of a p
             else:
-                fout.write(f'<line class="rrline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="rrline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-
+                lout('rl', lines[i][1]
+                        
         else:
             # single line
             if lines[i+1][0] != 'text' and lines[i-1][0] != 'text':
-                # p opener
-                fout.write('\n<paragraph class="justified">\n')
-                if fullbook:
-                    fullbook.write('\n<paragraph class="justified">\n')
-
-                # line
-                fout.write(f'<line class="singleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="singleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-                
-                # p closer
-                fout.write('</paragraph>\n')
-                if fullbook:
-                    fullbook.write('</paragraph>\n')
-
+                lout('sl', lines[i][1])
 
             # last line in a p
             elif lines[i+1][0] != 'text':
-                # line
-                fout.write(f'<line class="lastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="lastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-
-                # p closer
-                fout.write('</paragraph>\n')
-                if fullbook:
-                    fullbook.write('</paragraph>\n')
-
-                popen = False
-
-
+                lout('ll', lines[i][1])
+                
             # first line in a p
             elif lines[i-1][0] != 'text':
-                # p opener
-                fout.write(f'\n<paragraph class="justified">\n')
-                if fullbook:
-                    fullbook.write(f'\n<paragraph class="justified">\n')
-                
-                # line
-                fout.write(f'<line class="firstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="firstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                lout('fl', lines[i][1])
 
-                popen = True
-
-
+            # regular line in middle of a p
             else:
-                fout.write(f'<line class="line" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if esll:
-                    esll.write(lines[i][1])
-                if fullbook:
-                    fullbook.write(stampline(lines[i][1], preline = False))
-                if msll:
-                    msll.write(f'<line class="line" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
-
-        textlines += 1
-        linesonpage += 1
-
-    if linesonpage >= linesperpage and not breakonp:
-        procpage()
+                lout('ll', lines[i][1])
 
     i += 1
 
-page += 1
-fout.write(f'\n@{page}\n')
-
-page = 0
 
 # cleanup
 if fin is not sys.stdin:
@@ -574,5 +350,3 @@ else:
     fout.flush()
 if fout is not sys.stdout:
     fout.close()
-if breaks:
-    breaks.close()
