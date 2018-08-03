@@ -6,71 +6,82 @@ import sys
 ## Variables and flags ##
 #########################
 
-# Global controllers
+######################
+# Global controllers #
+######################
+
+# Regex identifiers
 bookregex = None                        # Regex - tagging Books
-breakonp = False                        # Flag - break on paragraphs
-chconst = False                         # Flag - chnums across books and parts
-chregex = None                          # Regex - tag Chapters
-debug = False                           # Flag - debugging
-filename = ''                           # File name for all output files
-hr_regex = None                         # Regex - hr
-linesperpage = 30                       # Min ll before pgbrk (if !breakonp, max)
-minchlines = 5                          # Min ll before chapter can pgbrk
-partconst = False                       # Flag for preserving partnum across bks
+chapterregex = None                     # Regex - tag Chapters
 partregex = None                        # Regex - tag Parts
+hrregex = None                          # Regex - hr
 pre = None                              # Regex - tag <pre>'s
-proc_ = False                           # Process underscores
-raggedright = False                     # Flag - raggedright
-recordch = False                        # Record chapter title
 stageregex = None                       # Regex - tagg Stage Directions
-us = False                              # Flag - italicising lines
-wordboundary = re.compile('\w+|\W')     # Word boundary break for split
 
-# File holders
-breaks = None                           # File for breaks info 
-elasticsearchlines = None               # File for elasticsearch lines (excl html)
-fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
-fout = sys.stdout                       # Default to stdout
-fullbook = None                         # Full book holder
-mysqllines = None                       # File for mysql lines (incl html)
-
-# Constants
+# Constant regexes
 bible_book_regex = '(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))'
 bible_testament_regex = 'Testament'
 ellreg = re.compile('[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+')
 emreg = re.compile('[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
+wordboundary = re.compile('\w+|\W')     # Word boundary break for split
+
+# Flags
+breakonp = False                        # Flag - break on paragraphs
+chconst = False                         # Flag - chnums across books and parts
+debug = False                           # Flag - debugging
+partconst = False                       # Flag - preserving partnum across bks
+proc_ = False                           # Flag - process underscores
+raggedright = False                     # Flag - raggedright
+recordch = False                        # Flag - record chapter title
+us = False                              # Flag - italicising lines
+
+# Strings and numbers
+filename = ''                           # File name for all output files
+linesperpage = 30                       # Min ll before pgbrk (if !breakonp, max)
+minchlines = 5                          # Min ll before chapter can pgbrk
+
+# Files
+esll = None                             # File - elasticsearch lines (-html)
+fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
+msll = None                             # File - mysql lines (+html)
 
 # Help menu
 if '-h' in sys.argv:
     h = []
-    h.append('Program reads form stdin and outputs to stdout by default. More than likely')
-    h.append("you're going to want to specify some special output files. More than likely")
-    h.append("you're going to want to specify all the special output files. Use -n for that")
-    h.append("but don't include a file extension.")
-    h.append('-_                              Process underscores as italics')
-    h.append('-b <regex>                      Regex for Books (Heierarchical chapters lvl 1)')
-    h.append('-c <regex>                      Regex for Chapters (Heierarchical Chapters lvl 3')
-    h.append('-d                              Debug Mode')
-    h.append('-h                              Help')
+    h.append(f'python {sys.argv[0]} [options] <output file title>')
+
+    h.append('')
+    h.append('The <output file title> is a name that will be given to the')
+    h.append('files output by the progam. Do not include a file extension.')
+
+    h.append('')
+    h.append('      To specify an input file')
     h.append('-i <inputfile>')
-    h.append('-l <lines per page>             (Default = 30)')
-    h.append('-m <min lines>                  Minimum # of ll before chapter break (Default = 5)')
-    h.append('-n <filename>                   File name for all files (do not include extension)')
-    h.append('-o <outputfile>')
-    h.append('-p                              Break on p')
-    h.append('-r                              Enable ragged right')
-    h.append('-s <regex>                      Regex for Stage Directions')
-    h.append('--aggchapters                   Aggregate chapters, do not reset')
-    h.append('--aggparts                      Aggregate parts, do not reset')
-    h.append('--bible                         Enable bible chapter detection mode')
-    h.append('--breaks <outfile>              Write breaksdata to a breaks file')
-    h.append('--elasticsearch <outfile>       Output elasticsearch file')
-    h.append('--fullbook <outfile>            Write the full book to a book file')
-    h.append('--hr <regex>                    Regex for horizontal rule breaks')
-    h.append('--mysql <outfile>               Output mysql lines file')
-    h.append('--part <regex>                  Regex for Parts (Heierarchical chapters lvl 2)')
-    h.append('--pre <regex>                   Enable pre on <regex>')
-    h.append('--recordch                      Record titles for chapters (e.g., if distinct)')
+
+    h.append('')
+    h.append('      Flags')
+    h.append('-_                    Process underscores as italics')
+    h.append('-d                    Debug Mode')
+    h.append('-h                    Help')
+    h.append('-r                    Enable ragged right')
+
+    h.append('')
+    h.append('      Flags to prevent reset of ch and pt numbers in heierarchical')
+    h.append('      text organization processing')
+    h.append('--aggch               Aggregate chapters, do not reset')
+    h.append('--aggpt               Aggregate parts, do not reset')
+
+    
+    h.append('')
+    h.append('      Regexes for identifying subtitles')
+    h.append('--bible               Enable bible chapter detection mode')
+    h.append('--bk <regex>          Regex for Books (Heierarchical chapters lvl 1)')
+    h.append('--pt <regex>          Regex for Parts (Heierarchical chapters lvl 2)')
+    h.append('--ch <regex>          Regex for Chapters (Heierarchical Chapters lvl 3')
+    h.append('--hr <regex>          Regex for horizontal rule breaks')
+    h.append('--stg <regex>         Regex for Stage Directions')
+    h.append('--pre <regex>         Enable pre on <regex>')
+
     for l in h:
         print(l)
     sys.exit()
@@ -81,7 +92,7 @@ if '-_' in sys.argv:
 if '-b' in sys.argv:
     bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
 if '-c' in sys.argv:
-    chregex = re.compile(sys.argv[sys.argv.index('-c')+1])
+    chapterregex = re.compile(sys.argv[sys.argv.index('-c')+1])
 if '-d' in sys.argv:
     debug = True
 if '-i' in sys.argv:
@@ -94,10 +105,10 @@ if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
 if '-n' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('-n')+1] + '.breaks', 'wt')
-    elasticsearchlines = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
+    esll = open(sys.argv[sys.argv.index('-n')+1] + '.es', 'wt')
     fout = open(sys.argv[sys.argv.index('-n')+1] + '.icc', 'wt')
     fullbook = open(sys.argv[sys.argv.index('-n')+1] + '.book', 'wt')
-    mysqllines = open(sys.argv[sys.argv.index('-n')+1] + '.mysql', 'wt')
+    msll = open(sys.argv[sys.argv.index('-n')+1] + '.mysql', 'wt')
 if '-p'in sys.argv:
     breakonp = True
 if '-r' in sys.argv:
@@ -114,13 +125,13 @@ if '--bible' in sys.argv:
 if '--breaks' in sys.argv:
     breaks = open(sys.argv[sys.argv.index('--breaks')+1], 'wt')
 if '--elasticsearch' in sys.argv:
-    elasticsearchlines = open(sys.argv[sys.argv.index('--elasticsearch') + 1], 'wt')
+    esll = open(sys.argv[sys.argv.index('--elasticsearch') + 1], 'wt')
 if '--fullbook' in sys.argv:
     fullbook = open(sys.argv[sys.argv.index('--fullbook')+1], 'wt')
 if '--hr' in sys.argv:
-    hr_regex = re.compile(sys.argv[sys.argv.index('--hr')+1])
+    hrregex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 if '--mysql' in sys.argv:
-    mysqllines = open(sys.argv[sys.argv.index('--mysql')+1], 'wt')
+    msll = open(sys.argv[sys.argv.index('--mysql')+1], 'wt')
 if '--part' in sys.argv:
     partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
 if '--pre' in sys.argv:
@@ -214,13 +225,13 @@ for inline in fin:
         lines.append(['book', line])
     elif partregex and re.search(partregex, line):
         lines.append(['part', line])
-    elif chregex and re.search(chregex, line):
+    elif chapterregex and re.search(chapterregex, line):
         lines.append(['ch', line])
     elif stageregex and re.search(stageregex, line):
         lines.append(['stage', line])
     elif pre and re.search(pre, line):
         lines.append(['pre', line])
-    elif hr_regex and re.search(hr_regex, line):
+    elif hrregex and re.search(hrregex, line):
         lines.append(['hr', '<hr class="book_separator">'])
     
     # For everything else
@@ -303,12 +314,12 @@ for line in lines:
 
         # Process everything
         fout.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
-        if elasticsearchlines:
-            elasticsearchlines.write(lines[i][1])
+        if esll:
+            esll.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<ch id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</ch>')
-        if mysqllines:
-            mysqllines.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
+        if msll:
+            msll.write(f'<ch id="{lhash()}">{stampline(lines[i][1], preline = False)}</ch>')
         linesonpage += 1
 
 
@@ -332,12 +343,12 @@ for line in lines:
 
         # Process everything
         fout.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
-        if elasticsearchlines:
-            elasticsearchlines.write(lines[i][1])
+        if esll:
+            esll.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<part id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</part>')
-        if mysqllines:
-            mysqllines.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
+        if msll:
+            msll.write(f'<part id="{lhash()}">{stampline(lines[i][1], preline = False)}</part>')
         linesonpage += 1
 
 
@@ -357,12 +368,12 @@ for line in lines:
                 breaks.write(f'{booknum}@0@0@{page + 1}\n')
         textlines += 1
         fout.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
-        if elasticsearchlines:
-            elasticsearchlines.write(lines[i][1])
+        if esll:
+            esll.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<book id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</book>')
-        if mysqllines:
-            mysqllines.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
+        if msll:
+            msll.write(f'<book id="{lhash()}">{stampline(lines[i][1], preline = False)}</book>')
         linesonpage += 1
 
     
@@ -370,22 +381,22 @@ for line in lines:
     elif lines[i][0] == 'stage':
         textlines += 1
         fout.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
-        if elasticsearchlines:
-            elasticsearchlines.write(lines[i][1])
+        if esll:
+            esll.write(lines[i][1])
         if fullbook:
             fullbook.write(f'<stage id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</stage>')
-        if mysqllines:
-            mysqllines.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
+        if msll:
+            msll.write(f'<stage id="{lhash()}">{stampline(lines[i][1], preline = False)}</stage>')
         linesonpage += 1
 
     elif lines[i][0] == 'pre':
         textlines += 1
         fout.write(stampline(lines[i][1], preline = True))
-        if elasticsearchlines:
-            elasticsearchlines.write(lines[i][1])
+        if esll:
+            esll.write(lines[i][1])
         if fullbook:
             fullbook.write(stampline(lines[i][1], preline = True))
-        if mysqllines:
+        if msll:
             mysqlllines.write(stampline(lines[i][1], preline = True))
         linesonpage += 1
     
@@ -412,12 +423,12 @@ for line in lines:
 
                 # line
                 fout.write(f'<line class="rrsingleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="rrsingleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="rrsingleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
                 
                 # p closer
                 fout.write('</paragraph>\n')
@@ -429,12 +440,12 @@ for line in lines:
             elif lines[i+1][0] != 'text':
                 # line
                 fout.write(f'<line class="rrlastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="rrlastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="rrlastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
                 # p closer
                 fout.write('</paragraph>\n')
@@ -453,12 +464,12 @@ for line in lines:
                 
                 # line
                 fout.write(f'<line class="rrfirstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="rrfirstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="rrfirstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
                 popen = True
 
@@ -466,12 +477,12 @@ for line in lines:
             # regular line in middle of a p
             else:
                 fout.write(f'<line class="rrline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="rrline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="rrline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
         else:
             # single line
@@ -483,12 +494,12 @@ for line in lines:
 
                 # line
                 fout.write(f'<line class="singleline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="singleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="singleline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
                 
                 # p closer
                 fout.write('</paragraph>\n')
@@ -500,12 +511,12 @@ for line in lines:
             elif lines[i+1][0] != 'text':
                 # line
                 fout.write(f'<line class="lastline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="lastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="lastline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
                 # p closer
                 fout.write('</paragraph>\n')
@@ -524,24 +535,24 @@ for line in lines:
                 
                 # line
                 fout.write(f'<line class="firstline" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="firstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="firstline" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
                 popen = True
 
 
             else:
                 fout.write(f'<line class="line" id="{lhash()}">\n{stampline(lines[i][1], preline = False)}</line>\n')
-                if elasticsearchlines:
-                    elasticsearchlines.write(lines[i][1])
+                if esll:
+                    esll.write(lines[i][1])
                 if fullbook:
                     fullbook.write(stampline(lines[i][1], preline = False))
-                if mysqllines:
-                    mysqllines.write(f'<line class="line" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
+                if msll:
+                    msll.write(f'<line class="line" id="{lhash()}">{stampline(lines[i][1], preline = False)}</line>\n')
 
         textlines += 1
         linesonpage += 1
