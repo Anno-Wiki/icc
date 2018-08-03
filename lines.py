@@ -118,15 +118,15 @@ if '--bible' in sys.argv:
     partregex = re.compile(bible_book_regex)
     bookregex = re.compile(bible_testament_regex)
 if '--bk' in sys.argv:
-    bookregex = re.compile(sys.argv[sys.argv.index('-b')+1])
+    bookregex = re.compile(sys.argv[sys.argv.index('--bk')+1])
 if '--pt' in sys.argv:
-    partregex = re.compile(sys.argv[sys.argv.index('--part')+1])
+    partregex = re.compile(sys.argv[sys.argv.index('--pt')+1])
 if '--ch' in sys.argv:
-    chapterregex = re.compile(sys.argv[sys.argv.index('-c')+1])
+    chapterregex = re.compile(sys.argv[sys.argv.index('--ch')+1])
 if '--hr' in sys.argv:
     hrregex = re.compile(sys.argv[sys.argv.index('--hr')+1])
 if '--stg' in sys.argv:
-    stageregex = re.compile(sys.argv[sys.argv.index('-s')+1])
+    stageregex = re.compile(sys.argv[sys.argv.index('--stg')+1])
 if '--pre' in sys.argv:
     preline = re.compile(sys.argv[sys.argv.index('--pre')+1])
 
@@ -321,7 +321,7 @@ for line in lines:
 
             # regular line in middle of a p
             else:
-                lout('rl', lines[i][1]
+                lout('rl', lines[i][1])
                         
         else:
             # single line
@@ -338,7 +338,7 @@ for line in lines:
 
             # regular line in middle of a p
             else:
-                lout('ll', lines[i][1])
+                lout('l', lines[i][1])
 
     i += 1
 
