@@ -5,6 +5,7 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, PageNumberForm
 from app.models import User, Book, Author, Line
 from sqlalchemy import func
+import math
 
 @app.route('/')
 @app.route('/index/')
@@ -36,8 +37,7 @@ def login():
 def book(title):
     book = Book.query.filter_by(url = title).first_or_404()
     form = PageNumberForm()
-    last_page = db.session.query(func.max(Page.page_num)).filter_by(
-            book_id = book.id).scalar()
+    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(1, 30, True).total / 30)
     if form.validate_on_submit():
         pg = form.page_num.data
         if pg <= last_page and pg >= 1:

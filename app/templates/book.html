@@ -13,49 +13,13 @@
     {{ form.page_num(size=1) }}&nbsp; of {{ last_page }}</p>
 </form>
 
+<p id="meta">
+{{ book.summary }}
+</p>
+
 <!--------------table of contents------>
 <table class="table_of_contents">
-    {% for break in book.breaks %}
-        <tr>
-            <td class="left">
-        <a href="{{ url_for('book_page', title = book.url, page_num = break.page_num) }}">
-                {% if break.ch_num %}
-                <div class="chapter_contents">
-                    {% if break.break_title != None %}
-                        {{ break.break_title }}
-                    {% else %}
-                        Chapter {{ break.ch_num }}
-                    {% endif %}
-                </div>
-                {% elif break.part_num %}
-                <div class="part_contents">
-                    {% if break.break_title != None %}
-                        {{ break.break_title }}
-                    {% else %}
-                        Part {{ break.part_num }}
-                    {% endif %}
-                </div>
-                {% elif break.book_num %}
-                <div class="book_contents">
-                    {% if break.break_title != None %}
-                        {{ break.break_title }}
-                    {% else %}
-                        Book {{ break.book_num }}
-                    {% endif %}
-                </div>
-                {% endif %}
-        </a>
-            </td>
-            <td class="right">
-                {{ break.page_num }}
-            </td>
-        </tr>
-        </a>
-    {% endfor %}
 </table>
-<p id="meta">
-{{ book.meta_data|safe }}
-</p>
 
 </div>
 {% endblock %}
