@@ -37,7 +37,7 @@ class Author(db.Model):
     url = db.Column(db.String(128), index = True)
     birth_date = db.Column(db.Date, index = True)
     death_date = db.Column(db.Date, index = True)
-    ts_added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     def __repr__(self):
         return f"<Author: {self.name}>"
@@ -45,59 +45,43 @@ class Author(db.Model):
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(128), index = True)
+    sort_title = db.Column(db.String(128), index = True)
     url = db.Column(db.String(128), index = True)
     author_id = db.Column(db.Integer, db.ForeignKey("author.id"), index = True)
     author = db.relationship("Author", backref="books")
+    summary = db.Column(db.Text)
     published = db.Column(db.Date)
-    ts_added = db.Column(db.DateTime)
-    meta_data = db.Column(db.Text)
-    sort_name = db.Column(db.String(128), index = True)
+    added = db.Column(db.DateTime)
 
     def __repr__(self):
         return f"<Book: {self.title} by {self.author}>"
 
-class Break(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
-    book = db.relationship("Book", backref="breaks")
-    book_num = db.Column(db.Integer, index = True)
-    part_num = db.Column(db.Integer, index = True)
-    ch_num = db.Column(db.Integer, index = True)
-    page_num = db.Column(db.Integer, index = True)
-    break_title = db.Column(db.Text)
-
-    def __repr__(self):
-        if book_num:
-            if part_num:
-                if ch_num:
-                    return f'<Book {book_num}, Part {part_num}, Ch {ch_num}>'
-                else:
-                    return f'<Book {book_num}, Part {part_num}>'
-            else:
-                if ch_num:
-                    return f'<Book {book_num}, Ch {ch_num}>'
-                else:
-                    return f'<Book {book_num}>'
-        else:
-            if part_num:
-                if ch_num:
-                    return f'<Part {part_num}, Ch {ch_num}>'
-                else:
-                    return f'<Part {part_num}>'
-            else:
-                return f'<Ch {ch_num}>'
 
 ####################
 ## Content Models ##
 ####################
 
-class Page(db.Model):
+class Lclass(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
-    book = db.relationship("Book", backref="pages")
-    page = db.Column(db.LONGTEXT)
-    page_num = db.Column(db.Integer)
+    l_class = db.Column(db.String(12), index = True)
 
     def __repr__(self):
-        return f"<p. {self.page_num} of {self.book.title} by {self.book.author.name}>"
+        return f"<Line Class: {lclass}>"
+
+
+class Line(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book")
+    l_num = db.Column(db.Integer, index = True)
+    l_class_id = db.Column(db.Integer, db.ForeignKey("lclass.id"), index = True)
+    l_class = db.relationship("Lclass")
+    bk_num = db.Column(db.Integer, index = True)
+    pt_num = db.Column(db.Integer, index = True)
+    ch_num = db.Column(db.Integer, index = True)
+    line = db.Column(db.String(200))
+    
+    def __repr__(self):
+        return f"<Line: {self.id} of {self.book.title} [{self.lclass.lclass}]>"
+
 
