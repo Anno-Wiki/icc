@@ -1,18 +1,3 @@
- - We need to print out four files:
-    - lines with html
-    - lines without html
-    - pages with html
-    - chapters with html (problem: what level of chapterization?
-    - full book with html
-    - breaks file for pagination
-
-
-
-- files:
-    - breaks
-    - chapterbook
-    - elasticsearchlines
-    - fin
-    - fout
-    - fullbook
-    - mysqllines
+- The processor is now capable of doing line printing in the format I need for
+  entering into mysql.
+- I need to get argparse working.
