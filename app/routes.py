@@ -32,19 +32,6 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
-@app.route('/book/<title>/', methods=['GET', 'POST'])
-@app.route('/books/<title>/', methods=['GET', 'POST'])
-def book(title):
-    book = Book.query.filter_by(url = title).first_or_404()
-    form = PageNumberForm()
-    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(1, 30, True).total / 30)
-    if form.validate_on_submit():
-        pg = form.page_num.data
-        if pg <= last_page and pg >= 1:
-            return redirect(url_for('book_page', title=book.url, page_num = pg))
-    return render_template('book.html', title = book.title, book = book,
-            form = form, last_page = last_page)
-
 @app.route('/logout/')
 def logout():
     logout_user()
@@ -84,6 +71,22 @@ def author_index():
 def book_index():
     books = Book.query.order_by(Book.sort_title).all()
     return render_template('book_index.html', books=books, title='Books')
+
+
+@app.route('/book/<title>/', methods=['GET', 'POST'])
+@app.route('/books/<title>/', methods=['GET', 'POST'])
+def book(title):
+    book = Book.query.filter_by(url = title).first_or_404()
+    form = PageNumberForm()
+    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(1, 30, True).total / 30)
+    
+    if form.validate_on_submit():
+        pg = form.page_num.data
+        if pg <= last_page and pg >= 1:
+            return redirect(url_for('book_page', title=book.url, page_num = pg))
+    return render_template('book.html', title = book.title, book = book,
+            form = form, last_page = last_page)
+
 
 @app.route('/books/<title>/page<page_num>/')
 @app.route('/book/<title>/page<page_num>/')
