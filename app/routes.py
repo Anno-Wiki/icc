@@ -107,4 +107,5 @@ def book_page(title, page_num):
             book = book, author = book.author,
             title = book.title + f" p. {page_num}", 
             prev_page = prev_page, next_page = next_page, 
+            linesperpage = linesperpage,
             page_num = int(page_num), lines = lines.items)
