@@ -7,6 +7,8 @@ from app.models import User, Book, Author, Line
 from sqlalchemy import func
 import math
 
+linesperpage = 30;
+
 @app.route('/')
 @app.route('/index/')
 def index():
@@ -93,7 +95,7 @@ def book(title):
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
 
-    lines = Line.query.filter_by(book_id = book.id).paginate(int(page_num), 30, True)
+    lines = Line.query.filter_by(book_id = book.id).paginate(int(page_num), linesperpage, True)
 
     next_page = url_for('book_page', title = title, page_num = lines.next_num) \
             if lines.has_next else None
