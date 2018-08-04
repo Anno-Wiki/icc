@@ -1,1 +1,3 @@
-insert into lclass (l_class) values ('hr'), ('ch'), ('pt'), ('bk'), ('stg'), ('pre'), ('rsl'), ('rll'), ('rfl'), ('rl'), ('sl'), ('ll'), ('fl'), ('l');
+INSERT INTO lclass (l_class) VALUES 
+    ('hr'), ('ch'), ('pt'), ('bk'), ('stg'), ('pre'), ('lpre'), ('fpre'),
+    ('spre'), ('rsl'), ('rll'), ('rfl'), ('rl'), ('sl'), ('ll'), ('fl'), ('l');
