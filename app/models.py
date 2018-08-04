@@ -82,6 +82,6 @@ class Line(db.Model):
     line = db.Column(db.String(200))
     
     def __repr__(self):
-        return f"<Line: {self.id} of {self.book.title} [{self.lclass.lclass}]>"
+        return f"<Line: {self.id} of {self.book.title} [{self.l_class.l_class}]>"
 
 

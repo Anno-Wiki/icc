@@ -52,12 +52,32 @@
 
         <hr>
 
-        <!--Content-->
-
         <content id="content">
-            {% for line in lines %}
-                {% include "_line.html" %}
-            {% endfor %}
+            {% set ns = namespace(cont = false) %}
+            
+            {%- if lines[0].l_class.l_class == 'rl' -%}
+                <paragraph class="rfl">
+            {%- elif lines[0].l_class.l_class == 'l' -%}
+                <paragraph class="fl">
+            {%- endif -%}
+
+            {%- if lines[linesperpage - 1].l_class.l_class == 'l' or 
+                lines[linesperpage - 1].l_class.l_class == 'rl' -%}
+                {%- set ns.cont = true -%}
+            {%- endif -%}
+
+
+            {%- for line in lines -%}
+                {%- include "_line.html" -%}
+            {%- endfor -%}
+
+            {%- if lines[linesperpage - 1].l_class.l_class == 'l' or 
+                lines[linesperpage - 1].l_class.l_class == 'rl' -%}
+                </paragraph>
+            {%- elif lines[linesperpage - 1].l_class.l_class == 'pre' %}
+                </pre>
+            {%- endif -%}
+            
         </content>
 
 
