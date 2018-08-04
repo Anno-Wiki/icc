@@ -232,7 +232,21 @@ for line in lines:
     # Handling for pre lines
     elif lines[i][0] == 'pre':
         txtlines += 1
-        lout('pre', lines[i][1])
+        # single line
+        if lines[i+1][0] != 'pre' and lines[i-1][0] != 'pre':
+            lout('spre', lines[i][1])
+
+        # last line in a p
+        elif lines[i+1][0] != 'pre':
+            lout('lpre', lines[i][1])
+            
+        # first line in a p
+        elif lines[i-1][0] != 'pre':
+            lout('fpre', lines[i][1])
+
+        # regular line in middle of a p
+        else:
+            lout('pre', lines[i][1])
     
     # Handling for everything else
     elif lines[i][0] == 'text':
