@@ -50,7 +50,6 @@ pre {
 }
 
 
-
 /* Nav bar */
 nav {
     font-family: 'Playfair Display', serif;
@@ -122,21 +121,21 @@ nav a:hover {
  * Handling lines of actual book text * 
  **************************************/
     /* Main tags */
-ch {
+.ch {
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
     text-align: center;
     margin: 10px;
     display:block;
 }
-part {
+.pt {
     font-family: 'Playfair Display', serif;
     font-size: 20pt;
     text-align: center;
     margin: 10px;
     display:block;
 }
-book {
+.bk {
     font-family: 'Playfair Display', serif;
     font-size: 24pt;
     text-align: center;
@@ -155,15 +154,15 @@ paragraph{
     font-size: 12pt;
     display:block;
     margin: 3 0 3 0px;
+    text-indent: 2em;
+/*    text-align-last:justify; */
 }
-/*
-paragraph.justified {
+
+paragraph.fl {
     text-indent: 1em;
     text-align: justify;
 }
-*/
     
-line { display:block; }
     /* Justified lines */
 .firstline {
     line-height: 1.5em;
