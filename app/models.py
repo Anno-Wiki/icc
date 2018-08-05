@@ -66,7 +66,7 @@ class Lclass(db.Model):
     l_class = db.Column(db.String(12), index = True)
 
     def __repr__(self):
-        return f"<Line Class: {lclass}>"
+        return f"<Line Class: {self.l_class}>"
 
 
 class Line(db.Model):
