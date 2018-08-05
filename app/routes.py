@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, PageNumberForm
-from app.models import User, Book, Author, Line
+from app.models import User, Book, Author, Line, Lclass
 from sqlalchemy import func
 import math
 
@@ -80,7 +80,8 @@ def book_index():
 def book(title):
     book = Book.query.filter_by(url = title).first_or_404()
     form = PageNumberForm()
-    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(1, 30, True).total / 30)
+    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(
+        1, 30, True).total / 30)
     
     if form.validate_on_submit():
         pg = form.page_num.data
@@ -95,8 +96,13 @@ def book(title):
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
 
-    lines = Line.query.filter_by(book_id = book.id)
-    lines = lines.paginate(int(page_num), linesperpage, True)
+    lines = Line.query.filter_by(book_id = book.id).paginate(
+            int(page_num), linesperpage, True)
+    print(lines[0])
+#$    lastp = None
+#$    for line in lines:
+#$        if line.l_class.l_class == 'fl':
+#$            lastp = line
 
     next_page = url_for('book_page', title = title, page_num = lines.next_num) \
             if lines.has_next else None
