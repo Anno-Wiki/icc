@@ -98,11 +98,6 @@ def book_page(title, page_num):
 
     lines = Line.query.filter_by(book_id = book.id).paginate(
             int(page_num), linesperpage, True)
-    print(lines[0])
-#$    lastp = None
-#$    for line in lines:
-#$        if line.l_class.l_class == 'fl':
-#$            lastp = line
 
     next_page = url_for('book_page', title = title, page_num = lines.next_num) \
             if lines.has_next else None

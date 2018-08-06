@@ -51,14 +51,20 @@
         </div>
 
         <hr>
+        {% set ns = namespace(cont = false) %}
+        {%- set ns.lastp = None -%}
+        {%- for line in lines -%}
+            {%- if line.l_class.l_class == 'fl' -%}
+                {%- set ns.lastp = line -%}
+            {%- endif -%}
+        {%- endfor -%}
 
         <content id="content">
-            {% set ns = namespace(cont = false) %}
             
             {%- if lines[0].l_class.l_class == 'rl' -%}
-                <paragraph class="rfl">
+                <paragraph class="rcont">
             {%- elif lines[0].l_class.l_class == 'l' -%}
-                <paragraph class="fl">
+                <paragraph class="cont">
             {%- endif -%}
 
             {%- if lines[linesperpage - 1].l_class.l_class == 'l' or 

@@ -3,7 +3,7 @@ body {
     background-color: #fdf6e3;
 }
 #container {
-    width: 6in;
+    width: 6.5in;
     margin: auto;
 }
 /* Generals */
@@ -151,47 +151,52 @@ stage {
 }
 paragraph{
     font-family: 'EB Garamond', serif;
-    font-size: 12pt;
+    font-size: 14pt;
     display:block;
     margin: 3 0 3 0px;
-    text-indent: 2em;
-/*    text-align-last:justify; */
 }
-
 paragraph.fl {
     text-indent: 1em;
     text-align: justify;
 }
+paragraph.flcont {
+    text-indent: 1em;
+    text-align: justify;
+    text-align-last:justify;
+}
+paragraph.cont {
+    text-align: justify;
+}
     
     /* Justified lines */
-.firstline {
+line.fl {
     line-height: 1.5em;
     margin: 0px;
     text-align: justify;
     text-indent: 1em;
 }
-.firstline:after {
+line.fl:after {
     content: "";
     display: inline-block;
     width: 100%;
 }
-.singleline {
+line.sl {
     line-height: 1.5em;
     margin: 0px;
     text-indent: 1em;
 }
-.line {
+line.l {
     line-height: 1.5em;
     margin: 0px;
     text-align: justify;
 }
 
-.line:after {
+line.l:after {
     content: "";
     display: inline-block;
     width: 100%;
 }
-.lastline {
+line.ll {
     line-height: 1.5em;
     margin: 0px;
     text-align: left;
