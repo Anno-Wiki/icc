@@ -96,9 +96,9 @@ class Annotation(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
     first_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
-    first_line = db.relationship("Line", backref = "annotations")
+    first_line = db.relationship("Line", backref = "annotations", foreign_keys = [first_line_id])
     last_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
-    last_line = db.relationship("Line", backref = "annotations")
+    last_line = db.relationship("Line", foreign_keys = [last_line_id])
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
     weight = db.Column(db.Integer)
@@ -110,11 +110,11 @@ class Annotation(db.Model):
     tag_4_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
     tag_5_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
 
-    tag_1 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_1_id")
-    tag_2 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_2_id")
-    tag_3 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_3_id")
-    tag_4 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_4_id")
-    tag_5 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_5_id")
+    tag_1 = db.relationship("Tag", foreign_keys = [tag_1_id])
+    tag_2 = db.relationship("Tag", foreign_keys = [tag_2_id])
+    tag_3 = db.relationship("Tag", foreign_keys = [tag_3_id])
+    tag_4 = db.relationship("Tag", foreign_keys = [tag_4_id])
+    tag_5 = db.relationship("Tag", foreign_keys = [tag_5_id])
 
     def __repr__(self):
         return f"<Annotation {self.id}: {self.weight} lbs. on book {self.book.title}>"

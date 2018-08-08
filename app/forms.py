@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
+        IntegerField, TextAreaField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models import User
 
@@ -29,3 +30,17 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+class AnnotationForm(FlaskForm):
+    book_id = IntegerField('Book ID', validators=[DataRequired()])
+    first_line = IntegerField('First Line ID', validators=[DataRequired()])
+    last_line = IntegerField('Last Line ID', validators=[DataRequired()])
+    first_char_idx = IntegerField('Index of First Character', validators=[DataRequired()])
+    last_char_idx = IntegerField('Index of Last Character', validators=[DataRequired()])
+    annotation = TextAreaField('Annotation')
+    tag_1 = StringField('Tag 1')
+    tag_2 = StringField('Tag 2')
+    tag_3 = StringField('Tag 3')
+    tag_4 = StringField('Tag 4')
+    tag_5 = StringField('Tag 5')
+    submit = SubmitField('Annotate')

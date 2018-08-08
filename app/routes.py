@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request, Markup
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, PageNumberForm
+from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
 from app.models import User, Book, Author, Line, L_class
 from sqlalchemy import func
 import math
@@ -105,9 +105,12 @@ def book_page(title, page_num):
     prev_page = url_for('book_page', title = title, page_num = lines.prev_num) \
             if lines.has_prev else None
 
+    form = AnnotationForm()
+
     return render_template('book_page.html', 
             book = book, author = book.author,
             title = book.title + f" p. {page_num}", 
             prev_page = prev_page, next_page = next_page, 
-            linesperpage = linesperpage,
+            linesperpage = linesperpage, form = form,
             page_num = int(page_num), lines = lines.items)
+
