@@ -91,8 +91,8 @@ def book(title):
             form = form, last_page = last_page)
 
 
-@app.route('/books/<title>/page<page_num>/')
-@app.route('/book/<title>/page<page_num>/')
+@app.route('/books/<title>/page<page_num>/', methods=['GET', 'POST'])
+@app.route('/book/<title>/page<page_num>/', methods=['GET', 'POST'])
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
 
@@ -106,8 +106,13 @@ def book_page(title, page_num):
             if lines.has_prev else None
 
     form = AnnotationForm()
-    form.book_id.data = book.url
-    form.annotation.data = "Type your annotation here."
+    
+    if form.validate_on_submit():
+        pass
+    else:
+        form.book_id.data = book.url
+        form.annotation.data = "Type your annotation here."
+
 
     return render_template('book_page.html', 
             book = book, author = book.author,
@@ -115,4 +120,3 @@ def book_page(title, page_num):
             prev_page = prev_page, next_page = next_page, 
             linesperpage = linesperpage, form = form,
             page_num = int(page_num), lines = lines.items)
-
