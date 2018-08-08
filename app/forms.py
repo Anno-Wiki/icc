@@ -33,8 +33,8 @@ class RegistrationForm(FlaskForm):
 
 class AnnotationForm(FlaskForm):
     book_id = StringField('Book url', validators=[DataRequired()])
-    first_line = IntegerField('First Line ID', validators=[DataRequired()])
-    last_line = IntegerField('Last Line ID', validators=[DataRequired()])
+    first_line = IntegerField('First Line', validators=[DataRequired()])
+    last_line = IntegerField('Last Line', validators=[DataRequired()])
     first_char_idx = IntegerField('First Char', validators=[DataRequired()])
     last_char_idx = IntegerField('Last Char', validators=[DataRequired()])
     annotation = TextAreaField('Annotation')

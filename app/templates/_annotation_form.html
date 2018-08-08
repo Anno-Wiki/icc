@@ -40,28 +40,16 @@
         </tr>
         <tr>
             <td colspan=5>
-                {{ form.annotation(cols=50, rows=5) }}<br>
+                {{ form.annotation(cols=80, rows=5) }}<br>
             </td>
         </tr>
         <tr>
-            <td>
-                {{ form.tag_1.label }}<br>
+            <td colspan=5>
+                Tags: 
                 {{ form.tag_1(size=10) }}
-            </td>
-            <td>
-                {{ form.tag_2.label }}<br>
                 {{ form.tag_2(size=10) }}
-            </td>
-            <td>
-                {{ form.tag_3.label }}<br>
                 {{ form.tag_3(size=10) }}
-            </td>
-            <td>
-                {{ form.tag_4.label }}<br>
                 {{ form.tag_4(size=10) }}
-            </td>
-            <td>
-                {{ form.tag_5.label }}<br>
                 {{ form.tag_5(size=10) }}
             </td>
         </tr>
