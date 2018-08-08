@@ -101,7 +101,7 @@ class Annotation(db.Model):
     last_line = db.relationship("Line", foreign_keys = [last_line_id])
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
-    weight = db.Column(db.Integer)
+    weight = db.Column(db.Integer, default = 0)
     annotation = db.Column(db.Text)
 
     tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
