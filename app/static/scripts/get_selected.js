@@ -30,11 +30,11 @@ $(document).ready(function(){
 
         $('#selection').text(userSelection.toString());
 
-        $('#firstl').text(firstl);
-        $('#lastl').text(lastl);
+        $('#first_line').val(firstl);
+        $('#last_line').val(lastl);
 
-        $('#firstc').text(firstc);
-        $('#lastc').text(lastc);
+        $('#first_char_idx').val(firstc);
+        $('#last_char_idx').val(lastc);
 
         modal.css('display','block');
     });

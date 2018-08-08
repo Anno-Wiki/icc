@@ -106,6 +106,8 @@ def book_page(title, page_num):
             if lines.has_prev else None
 
     form = AnnotationForm()
+    form.book_id.data = book.url
+    form.annotation.data = "Type your annotation here."
 
     return render_template('book_page.html', 
             book = book, author = book.author,

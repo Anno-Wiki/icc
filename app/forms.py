@@ -32,11 +32,11 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class AnnotationForm(FlaskForm):
-    book_id = IntegerField('Book ID', validators=[DataRequired()])
+    book_id = StringField('Book url', validators=[DataRequired()])
     first_line = IntegerField('First Line ID', validators=[DataRequired()])
     last_line = IntegerField('Last Line ID', validators=[DataRequired()])
-    first_char_idx = IntegerField('Index of First Character', validators=[DataRequired()])
-    last_char_idx = IntegerField('Index of Last Character', validators=[DataRequired()])
+    first_char_idx = IntegerField('First Char', validators=[DataRequired()])
+    last_char_idx = IntegerField('Last Char', validators=[DataRequired()])
     annotation = TextAreaField('Annotation')
     tag_1 = StringField('Tag 1')
     tag_2 = StringField('Tag 2')

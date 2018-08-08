@@ -1,45 +1,45 @@
 <form action="" method="post" novalidate>
     {{form.hidden_tag() }}
-    <table>
+    <table style="text-align: center;">
         <tr>
             <th>
                 {{ form.book_id.label }}<br>
-                {{ form.book_id(size=3) }}<br>
+                {{ form.book_id(size=20) }}<br>
                 {% for error in form.book_id.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
             <th>
                 {{ form.first_line.label }}<br>
-                {{ form.first_line(size=3) }}<br>
+                {{ form.first_line(size=1) }}<br>
                 {% for error in form.first_line.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
             <th>
                 {{ form.last_line.label }}<br>
-                {{ form.last_line(size=3) }}<br>
+                {{ form.last_line(size=1) }}<br>
                 {% for error in form.last_line.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
             <th>
                 {{ form.first_char_idx.label }}<br>
-                {{ form.first_char_idx(size=3) }}<br>
+                {{ form.first_char_idx(size=1) }}<br>
                 {% for error in form.first_char_idx.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
             <th>
                 {{ form.last_char_idx.label }}<br>
-                {{ form.last_char_idx(size=3) }}<br>
+                {{ form.last_char_idx(size=1) }}<br>
                 {% for error in form.last_char_idx.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
         </tr>
         <tr>
-            <td colspan=6>
+            <td colspan=5>
                 {{ form.annotation(cols=50, rows=5) }}<br>
             </td>
         </tr>
@@ -63,6 +63,11 @@
             <td>
                 {{ form.tag_5.label }}<br>
                 {{ form.tag_5(size=10) }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan=5>
+                {{ form.submit }}
             </td>
         </tr>
     </table>

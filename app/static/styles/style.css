@@ -247,7 +247,7 @@ line.ll {
     margin: 14% auto; /* 14% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+    width: 6in; /* Could be more or less, depending on screen size */
 }
 .close {
     color: #aaa;
