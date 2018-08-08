@@ -1,33 +1,5 @@
 $(document).ready(function(){
     
-    var get_selection = function (event){
-        if (window.getSelection) { // non-IE
-            var userSelection = window.getSelection();
-            var rangeObject = userSelection.getRangeAt(0);
-            if (rangeObject.startContainer == rangeObject.endContainer) {
-                return rangeObject.startContainer.parentNode.id;
-            } else {
-                ids = []
-                ids.push(rangeObject.startContainer.parentNode.id);
-                ids.push(rangeObject.endContainer.parentNode.id);
-                return ids
-            }
-
-        } else if (document.selection) { // IE lesser
-            var userSelection = document.selection.createRange();
-            var ids = [];
-            
-            if (userSelection.htmlText.toLowerCase().indexOf('word') >= 0) {
-                $(userSelection.htmlText).filter('word').each(function(index, word) {
-                    ids.push(word.id);
-                });
-                return ids;
-            } else {
-                return userSelection.parentElement().id;
-            }
-        }
-    };
-
 
     document.addEventListener('selectionchange', function() {
         if(window.getSelection().toString() !== ''){
@@ -40,20 +12,43 @@ $(document).ready(function(){
     });
 
     var modal = $("#linkerbox");
-    var btn = $(".linker")[0];
-    var word = $(".close")[0];
-    btn.onclick = function() {
-        $('#selection').text(window.getSelection().toString());
-        $('#tags').text(get_selection());
+    var btn = $(".linker");
+    var close = $(".close");
+    btn.click(function() {
+        // The main vars
+        var userSelection = window.getSelection();
+        var rangeObject = userSelection.getRangeAt(0);
+
+        // The first and last containers
+        var firstl = rangeObject.startContainer.parentNode.id;
+        var lastl = rangeObject.endContainer.parentNode.id;
+
+        // The offets of the first and last chars
+        // These numbers are (inclusive, exclusive)
+        var firstc = rangeObject.startOffset;
+        var lastc = rangeObject.endOffset;
+
+        $('#selection').text(userSelection.toString());
+
+        $('#firstl').text(firstl);
+        $('#lastl').text(lastl);
+
+        $('#firstc').text(firstc);
+        $('#lastc').text(lastc);
+
         modal.css('display','block');
-    };
-    word.onclick = function() {
+    });
+
+    close.click(function() {
         modal.css('display','none');
-    };
-    window.onclick = function(event) {
+    });
+
+    // I don't know what this function does and I am going to leave it commented
+    // out until I find something broken.
+/*    window.onclick = function(event) {
         if (event.target == modal) {
             modal.css('display','none');
         }
-    };
+    };*/
 
 });
