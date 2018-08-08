@@ -54,19 +54,19 @@ class Book(db.Model):
     added = db.Column(db.DateTime)
 
     def __repr__(self):
-        return f"<Book: {self.title} by {self.author}>"
+        return f"<Book {self.id}: {self.title} by {self.author}>"
 
 
 ####################
 ## Content Models ##
 ####################
 
-class Lclass(db.Model):
+class L_class(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     l_class = db.Column(db.String(12), index = True)
 
     def __repr__(self):
-        return f"<Line Class: {self.l_class}>"
+        return f"<Line Class {self.id}: {self.l_class}>"
 
 
 class Line(db.Model):
@@ -74,14 +74,48 @@ class Line(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
     l_num = db.Column(db.Integer, index = True)
-    l_class_id = db.Column(db.Integer, db.ForeignKey("lclass.id"), index = True)
-    l_class = db.relationship("Lclass")
+    l_class_id = db.Column(db.Integer, db.ForeignKey("L_class.id"), index = True)
+    l_class = db.relationship("L_class")
     bk_num = db.Column(db.Integer, index = True)
     pt_num = db.Column(db.Integer, index = True)
     ch_num = db.Column(db.Integer, index = True)
     line = db.Column(db.String(200))
     
     def __repr__(self):
-        return f"<Line: {self.id} of {self.book.title} [{self.l_class.l_class}]>"
+        return f"<Line {self.id}: {self.l_num} of {self.book.title} [{self.l_class.l_class}]>"
 
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    tag = db.Column(db.String(128), index = True)
+    
+    def __repr__(self):
+        return f"<Tag {self.id}: {self.tag}>"
+
+class Annotation(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book")
+    first_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
+    first_line = db.relationship("Line", backref = "annotations")
+    last_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
+    last_line = db.relationship("Line", backref = "annotations")
+    first_char_idx = db.Column(db.Integer)
+    last_char_idx = db.Column(db.Integer)
+    weight = db.Column(db.Integer)
+    annotation = db.Column(db.Text)
+
+    tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
+    tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
+    tag_3_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
+    tag_4_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
+    tag_5_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
+
+    tag_1 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_1_id")
+    tag_2 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_2_id")
+    tag_3 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_3_id")
+    tag_4 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_4_id")
+    tag_5 = db.relationship("Tag", backref = "annotations", foreign_keys = "Annotation.tag_5_id")
+
+    def __repr__(self):
+        return f"<Annotation {self.id}: {self.weight} lbs. on book {self.book.title}>"
 

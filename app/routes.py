@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, PageNumberForm
-from app.models import User, Book, Author, Line, Lclass
+from app.models import User, Book, Author, Line, L_class
 from sqlalchemy import func
 import math
 
