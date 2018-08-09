@@ -104,4 +104,9 @@
             {% endif %}
         </div>
 
+        <!--Annotations-->
+            {% for anno in annotations %}
+                <annotation id="a{{ anno.id }}">{{ anno.annotation }}</annotation>
+            {% endfor %}
+
 {% endblock %}

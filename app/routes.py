@@ -123,11 +123,6 @@ def book_page(title, page_num):
 
     annotations = Annotation.query.filter_by(book_id = book.id).all()
 
-    for i, line in enumerate(lines.items):
-        for j, anno in enumerate(annotations):
-            if anno.last_line_id == line.id:
-                lines.items[i].line = line.line[:anno.last_char_idx] + f'[{j}]' + line.line[anno.last_char_idx:]
-
 
 
     return render_template('book_page.html', 
@@ -135,4 +130,5 @@ def book_page(title, page_num):
             title = book.title + f" p. {page_num}", 
             prev_page = prev_page, next_page = next_page, 
             linesperpage = linesperpage, form = form,
-            page_num = int(page_num), lines = lines.items)
+            page_num = int(page_num), lines = lines.items,
+            annotations = annotations)
