@@ -243,11 +243,12 @@ line.ll {
     background-color: rgba(0,0,0,0.4);
 }
 .modal-content {
-    background-color: #fefefe;
+/*    background-color: #fefefe;*/
+    background-color: #fdf6e3;
     margin: 14% auto; /* 14% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-/*    width: 6in;  Could be more or less, depending on screen size */
+    width: 50%;
 }
 .close {
     color: #aaa;
