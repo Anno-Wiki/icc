@@ -2,14 +2,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="container">
-
 <h1>Authors</h1>
-    <ul>
-        {% for author in authors %}
-        <li><a href="{{ url_for("author", name = author.url) }}">{{ author.name
-                }}</a></li>
-        {% endfor %}
-    </ul>
-</div>
+<ul>
+    {% for author in authors %}
+    <li><a href="{{ url_for("author", name = author.url) }}">{{ author.name
+            }}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}

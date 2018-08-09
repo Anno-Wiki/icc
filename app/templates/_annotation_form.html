@@ -1,5 +1,5 @@
-<form action="" method="post" novalidate>
-    {{form.hidden_tag() }}
+<form action="" method="POST" novalidate>
+    {{ form.hidden_tag() }}
     <table style="margin:auto;">
         <tr>
             <th>
@@ -33,7 +33,7 @@
         </tr>
         <tr>
             <td colspan=5>
-                {{ form.annotation(cols=80, rows=5) }}<br>
+                {{ form.annotation(rows=10, cols=65) }}<br>
             </td>
         </tr>
         <tr>

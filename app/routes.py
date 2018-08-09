@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
-from app.models import User, Book, Author, Line, L_class
+from app.models import User, Book, Author, Line, L_class, Annotation
 from sqlalchemy import func
 import math
 
@@ -91,7 +91,6 @@ def book(title):
             form = form, last_page = last_page)
 
 
-@app.route('/books/<title>/page<page_num>/', methods=['GET', 'POST'])
 @app.route('/book/<title>/page<page_num>/', methods=['GET', 'POST'])
 def book_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
@@ -108,9 +107,18 @@ def book_page(title, page_num):
     form = AnnotationForm()
     
     if form.validate_on_submit():
-        pass
+        anno = Annotation(
+                book_id = book.id, 
+                first_line_id = form.first_line.data,
+                last_line_id = form.last_line.data,
+                first_char_idx = form.first_char_idx.data,
+                last_char_idx = form.last_char_idx.data,
+                annotation = form.annotation.data)
+        db.session.add(anno)
+        db.session.commit()
+        flash('Annotation Submitted')
+        return redirect(url_for('book_page', title=book.url, page_num=page_num))
     else:
-        form.book_id.data = book.url
         form.annotation.data = "Type your annotation here."
 
 

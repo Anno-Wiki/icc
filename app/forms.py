@@ -1,24 +1,24 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
         IntegerField, TextAreaField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, Optional
 from app.models import User
 
 class PageNumberForm(FlaskForm):
-    page_num = IntegerField('Page Number', validators=[DataRequired()])
+    page_num = IntegerField('Page Number', validators=[InputRequired()])
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Username', validators=[InputRequired()])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('Password', validators=[InputRequired()])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+        'Repeat Password', validators=[InputRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -32,15 +32,14 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class AnnotationForm(FlaskForm):
-    book_id = StringField('Book url', validators=[DataRequired()])
-    first_line = IntegerField('First Line', validators=[DataRequired()])
-    last_line = IntegerField('Last Line', validators=[DataRequired()])
-    first_char_idx = IntegerField('First Char', validators=[DataRequired()])
-    last_char_idx = IntegerField('Last Char', validators=[DataRequired()])
-    annotation = TextAreaField('Annotation')
-    tag_1 = StringField('Tag 1')
-    tag_2 = StringField('Tag 2')
-    tag_3 = StringField('Tag 3')
-    tag_4 = StringField('Tag 4')
-    tag_5 = StringField('Tag 5')
+    first_line = IntegerField('First Line', validators=[InputRequired()])
+    last_line = IntegerField('Last Line', validators=[InputRequired()])
+    first_char_idx = IntegerField('First Char', validators=[InputRequired()])
+    last_char_idx = IntegerField('Last Char', validators=[InputRequired()])
+    annotation = TextAreaField('Annotation', validators=[InputRequired()])
+    tag_1 = StringField('Tag 1', validators=[Optional()])
+    tag_2 = StringField('Tag 2', validators=[Optional()])
+    tag_3 = StringField('Tag 3', validators=[Optional()])
+    tag_4 = StringField('Tag 4', validators=[Optional()])
+    tag_5 = StringField('Tag 5', validators=[Optional()])
     submit = SubmitField('Annotate')

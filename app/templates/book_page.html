@@ -2,7 +2,6 @@
 
 {% block content %}
     <script src="{{ url_for('static', filename='scripts/get_selected.js') }}"></script>
-    <div id="container">
 
         <!--Header/Running Head-->
         {% if page_num == 1 %}
@@ -105,5 +104,4 @@
             {% endif %}
         </div>
 
-    </div>
 {% endblock %}
