@@ -121,6 +121,14 @@ def book_page(title, page_num):
     else:
         form.annotation.data = "Type your annotation here."
 
+    annotations = Annotation.query.filter_by(book_id = book.id).all()
+
+    for i, line in enumerate(lines.items):
+        for j, anno in enumerate(annotations):
+            if anno.last_line_id == line.id:
+                lines.items[i].line = line.line[:anno.last_char_idx] + f'[{j}]' + line.line[anno.last_char_idx:]
+
+
 
     return render_template('book_page.html', 
             book = book, author = book.author,
