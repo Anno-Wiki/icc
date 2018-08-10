@@ -9,6 +9,23 @@ import math
 
 linesperpage = 30;
 
+# The line has is dangling with an open <em>, close it.
+def opened(line):
+    if line.count('<em>') > line.count('</em>'):
+        return True
+    else:
+        return False
+
+# The line
+def closed(line):
+    if line.count('</em>') > line.count('<em>'):
+        return True
+    else:
+        return False
+
+
+
+
 @app.route('/')
 @app.route('/index/')
 def index():
@@ -108,6 +125,7 @@ def read_page(title, page_num):
     annotations = Annotation.query.filter_by(book_id = book.id).all()
 
     us = False
+    lem = False
     for i, line in enumerate(lines.items):
         for anno in annotations:
             if anno.last_line_id == line.id:
@@ -127,6 +145,15 @@ def read_page(title, page_num):
                 else:
                     newline.append(c)
             lines.items[i].line = ''.join(newline)
+        
+        if opened(lines.items[i].line):
+            lines.items[i].line = lines.items[i].line + '</em>'
+            lem = True
+        elif closed(lines.items[i].line):
+            lines.items[i].line = '<em>' + lines.items[i].line
+            lem = False
+        elif lem:
+            lines.items[i].line = '<em>' + lines.items[i].line + '</em>'
 
 
 
@@ -181,3 +208,4 @@ def edit_page(title, page_num):
             linesperpage = linesperpage, form = form,
             page_num = int(page_num), lines = lines.items,
             annotations = annotations)
+
