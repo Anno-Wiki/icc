@@ -5,7 +5,11 @@
 {%- else -%}
 
     {% if line.l_class.l_class[-2:] == 'fl' or line.l_class.l_class[-2:] == 'sl' %}
-        <paragraph class="{{ line.l_class.l_class }}">
+        {% if ns.cont and line == ns.lastp %}
+            <paragraph class="flcont">
+        {% else %}
+            <paragraph class="{{ line.l_class.l_class }}">
+        {% endif %}
     {% elif line.l_class.l_class == 'fpre' %}
          <pre>
     {% endif %}

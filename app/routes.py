@@ -108,6 +108,54 @@ def book(title):
             form = form, last_page = last_page)
 
 
+@app.route('/book/<title>/read', methods=['GET', 'POST'])
+@app.route('/books/<title>/read', methods=['GET', 'POST'])
+def read(title):
+    book = Book.query.filter_by(url = title).first_or_404()
+
+    lines = Line.query.filter_by(book_id = book.id).all()
+
+    annotations = Annotation.query.filter_by(book_id = book.id).all()
+
+    us = False
+    lem = False
+    for i, line in enumerate(lines):
+        for anno in annotations:
+            if anno.last_line_id == line.id:
+                lines[i].line = line.line[:anno.last_char_idx] + \
+                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
+                    line.line[anno.last_char_idx:]
+        if '_' in line.line:
+            newline = []
+            for c in line.line:
+                if c == '_':
+                    if us:
+                        newline.append('</em>')
+                        us = False
+                    else:
+                        newline.append('<em>')
+                        us = True
+                else:
+                    newline.append(c)
+            lines[i].line = ''.join(newline)
+        
+        if opened(lines[i].line):
+            lines[i].line = lines[i].line + '</em>'
+            lem = True
+        elif closed(lines[i].line):
+            lines[i].line = '<em>' + lines[i].line
+            lem = False
+        elif lem:
+            lines[i].line = '<em>' + lines[i].line + '</em>'
+
+    return render_template('read.html', 
+            book = book, author = book.author,
+            title = book.title, 
+            linesperpage = linesperpage, 
+            lines = lines, page_num = 0,
+            annotations = annotations)
+
+
 @app.route('/book/<title>/page<page_num>/read', methods=['GET', 'POST'])
 @app.route('/books/<title>/page<page_num>/read', methods=['GET', 'POST'])
 def read_page(title, page_num):
@@ -155,8 +203,6 @@ def read_page(title, page_num):
         elif lem:
             lines.items[i].line = '<em>' + lines.items[i].line + '</em>'
 
-
-
     return render_template('read_page.html', 
             book = book, author = book.author,
             title = book.title + f" p. {page_num}", 
@@ -197,15 +243,11 @@ def edit_page(title, page_num):
     else:
         form.annotation.data = "Type your annotation here."
 
-    annotations = Annotation.query.filter_by(book_id = book.id).all()
-
-
 
     return render_template('book_page.html', 
             book = book, author = book.author,
             title = book.title + f" p. {page_num}", 
             prev_page = prev_page, next_page = next_page, 
             linesperpage = linesperpage, form = form,
-            page_num = int(page_num), lines = lines.items,
-            annotations = annotations)
+            page_num = int(page_num), lines = lines.items)
 

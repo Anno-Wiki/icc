@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <!--Header/Running Head-->
+    <div id="running_head">
+        <a href="{{ url_for("book", title=book.url) }}">{{ book.title }}</a> 
+
+         by <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }} </a>
+    </div>
+    <hr>
+    <content id="content">
+        {%- if lines[0].l_class.l_class == 'rl' -%}
+            <paragraph class="rcont">
+        {%- elif lines[0].l_class.l_class == 'l' -%}
+            <paragraph class="cont">
+        {%- endif -%}
+
+
+        {%- for line in lines %}
+            {%- include "_line.html" -%}
+        {% endfor -%}
+
+        {%- if lines[linesperpage - 1].l_class.l_class == 'l' or 
+            lines[linesperpage - 1].l_class.l_class == 'rl' -%}
+            </paragraph>
+        {%- elif lines[linesperpage - 1].l_class.l_class == 'pre' %}
+            </pre>
+        {%- endif -%}
+    </content>
+
+    <hr>
+
+    <!--Page Counter-->
+
+    {% if page_num  != 0 %}
+    <div class="pages">
+        {% if prev_page %}
+            <a href="{{ prev_page }}">&larr;</a>
+        {% endif %}
+
+        {{ page_num }}
+
+        {% if next_page %}
+            <a href="{{ next_page }}">&rarr;</a>
+        {% else %}
+            <a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
+        {% endif %}
+    </div>
+    {% else %}
+        <div id="running_foot">
+            <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
+
+             by <a href="{{ url_for("author", name=book.author.url) }}">
+                {{ book.author.name }} </a>
+        </div>
+    {% endif %}
+
+    <!--Annotations-->
+        {% for anno in annotations %}
+        {% if anno.last_line_id >= lines[0].id and anno.last_line_id <= lines[-1].id %}
+        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_id }}">[a{{ anno.id }}]</a></sup> {{ anno.annotation }}</annotation>
+        {% endif %}
+        {% endfor %}
+
+{% endblock %}

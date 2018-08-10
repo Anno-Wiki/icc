@@ -81,6 +81,12 @@ nav a: hover {
     margin: 0 0 20px 0;
     font-family: 'Playfair Display', serif;
 }
+#running_foot {
+    text-align: right;
+    font-size: 20pt;
+    margin: 0 0 20px 0;
+    font-family: 'Playfair Display', serif;
+}
 
 /* * * * * * * * * * * 
  * Table of contents *
@@ -128,6 +134,7 @@ nav a: hover {
     margin: 10px;
     display: block;
     color: #586e75;
+    color: #586e75;
 }
 .pt {
     font-family: 'Playfair Display', serif;
@@ -135,6 +142,7 @@ nav a: hover {
     text-align: center;
     margin: 10px;
     display: block;
+    color: #586e75;
 }
 .bk {
     font-family: 'Playfair Display', serif;
@@ -142,19 +150,22 @@ nav a: hover {
     text-align: center;
     margin: 10px;
     display: block;
+    color: #586e75;
 }
-stage {
+.stg {
     font-family: 'Playfair Display', serif;
     font-size: 12pt;
     text-indent: 0;
     margin: 10px;
     display: block;
+    color: #586e75;
 }
 paragraph{
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
     display: block;
     margin: 3 0 3 0px;
+    color: #657b83;
 }
 paragraph.fl {
     text-indent: 1em;
@@ -164,6 +175,9 @@ paragraph.flcont {
     text-indent: 1em;
     text-align: justify;
     text-align-last: justify;
+}
+paragraph.sl {
+    text-indent: 1em;
 }
 paragraph.cont {
     text-align: justify;
@@ -264,21 +278,7 @@ line.ll {
     text-decoration: none;
     cursor: pointer;
 }
-
-line {
-    color: #657b83;
-}
-part {
-    color: #586e75;
-}
-book {
-    color: #586e75;
-}
-stage {
-    color: #586e75;
-}
-ch {
-}
 annotation {
     display: block;
+    margin: 10px;
 }
