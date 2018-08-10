@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><a href="{{ url_for("book_page", title = book.url, page_num = 1) }}">{{ book.title|safe }}</a></h1>
+<h1><a href="{{ url_for("read_page", title = book.url, page_num = 1) }}">{{ book.title|safe }}</a></h1>
 <h2>by <a href="{{ url_for("author", name = book.author.url) }}">{{ book.author.name|safe }}</a></h2>
 
 <!--------------table of contents------>

@@ -91,8 +91,57 @@ def book(title):
             form = form, last_page = last_page)
 
 
-@app.route('/book/<title>/page<page_num>/', methods=['GET', 'POST'])
-def book_page(title, page_num):
+@app.route('/book/<title>/page<page_num>/read', methods=['GET', 'POST'])
+@app.route('/books/<title>/page<page_num>/read', methods=['GET', 'POST'])
+def read_page(title, page_num):
+    book = Book.query.filter_by(url = title).first_or_404()
+
+    lines = Line.query.filter_by(book_id = book.id).paginate(
+            int(page_num), linesperpage, True)
+
+    next_page = url_for('read_page', title = title, page_num = lines.next_num) \
+            if lines.has_next else None
+
+    prev_page = url_for('read_page', title = title, page_num = lines.prev_num) \
+            if lines.has_prev else None
+
+    annotations = Annotation.query.filter_by(book_id = book.id).all()
+
+    us = False
+    for i, line in enumerate(lines.items):
+        for anno in annotations:
+            if anno.last_line_id == line.id:
+                lines.items[i].line = line.line[:anno.last_char_idx] + \
+                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
+                    line.line[anno.last_char_idx:]
+        if '_' in line.line:
+            newline = []
+            for c in line.line:
+                if c == '_':
+                    if us:
+                        newline.append('</em>')
+                        us = False
+                    else:
+                        newline.append('<em>')
+                        us = True
+                else:
+                    newline.append(c)
+            lines.items[i].line = ''.join(newline)
+
+
+
+    return render_template('read_page.html', 
+            book = book, author = book.author,
+            title = book.title + f" p. {page_num}", 
+            prev_page = prev_page, next_page = next_page, 
+            linesperpage = linesperpage, 
+            page_num = int(page_num), lines = lines.items,
+            annotations = annotations)
+
+
+@app.route('/book/<title>/page<page_num>/edit', methods=['GET', 'POST'])
+@app.route('/books/<title>/page<page_num>/edit', methods=['GET', 'POST'])
+def edit_page(title, page_num):
     book = Book.query.filter_by(url = title).first_or_404()
 
     lines = Line.query.filter_by(book_id = book.id).paginate(

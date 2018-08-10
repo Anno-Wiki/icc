@@ -8,45 +8,45 @@ body {
 }
 /* Generals */
 ul {
-    color:#657b83;
+    color: #657b83;
     font-family: 'Playfair Display', serif;
-    font-size:16pt;
+    font-size: 16pt;
     text-indent: 2em hanging;
 }
 a {
     text-decoration: none;
-    color:#268bd2;
+    color: #268bd2;
 }
-a:hover {
+a: hover {
     color: #002b36;
 }
 p {
     font-size: 14pt;
     margin: 0px;
     text-align: justify;
+    color: #657b83;
     text-indent: 2em;
-    color:#657b83;
 }
 h1 {
     text-align: center;
     margin-bottom: 25px;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
-    font-size:30pt;
-    color:#586e75;
+    font-size: 30pt;
+    color: #586e75;
 } 
 h2 {
     text-align: center;
     margin-bottom: 25px;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
-    font-size:25pt;
-    color:#839496;
+    font-size: 25pt;
+    color: #839496;
 } 
 pre {
     font-family: 'Playfair Display', serif;
-    margin:5px;
-    color:#839496;
+    margin: 5px;
+    color: #839496;
 }
 
 
@@ -55,13 +55,13 @@ nav {
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
     margin: 10px;
-    color:#586e75;
+    color: #586e75;
 }
 nav a {
     margin: 10px;
-    color:#586e75;
+    color: #586e75;
 }
-nav a:hover {
+nav a: hover {
     color: #002b36;
     border-bottom: 1px solid #000;
     margin-bottom: 3px;
@@ -76,9 +76,9 @@ nav a:hover {
 }
 /* The running head for pages */
 #running_head {
-    text-align:right;
-    font-size:20pt;
-    margin:0 0 20px 0;
+    text-align: right;
+    font-size: 20pt;
+    margin: 0 0 20px 0;
     font-family: 'Playfair Display', serif;
 }
 
@@ -88,28 +88,28 @@ nav a:hover {
 
 .table_of_contents {
     font-family: 'Playfair Display', serif;
-    font-size:16pt;
+    font-size: 16pt;
 }
 .page_num_field {
     font-family: 'Playfair Display', serif;
     text-align: center;
     font-size: 20pt;
-    text-indent:0;
+    text-indent: 0;
 }
 .chapter_contents {
     font-size: 12pt;
-    padding-left:5em;
-    text-indent:-2em;
+    padding-left: 5em;
+    text-indent: -2em;
 }
 .part_contents {
     font-size: 14pt;
-    padding-left:4em;
-    text-indent:-2em;
+    padding-left: 4em;
+    text-indent: -2em;
 }
 .book_contents {
     font-size: 16pt;
-    padding-left:3em;
-    text-indent:-2em;
+    padding-left: 3em;
+    text-indent: -2em;
 }
 
 /* Meta data */
@@ -126,33 +126,34 @@ nav a:hover {
     font-size: 16pt;
     text-align: center;
     margin: 10px;
-    display:block;
+    display: block;
+    color: #586e75;
 }
 .pt {
     font-family: 'Playfair Display', serif;
     font-size: 20pt;
     text-align: center;
     margin: 10px;
-    display:block;
+    display: block;
 }
 .bk {
     font-family: 'Playfair Display', serif;
     font-size: 24pt;
     text-align: center;
     margin: 10px;
-    display:block;
+    display: block;
 }
 stage {
     font-family: 'Playfair Display', serif;
     font-size: 12pt;
     text-indent: 0;
     margin: 10px;
-    display:block;
+    display: block;
 }
 paragraph{
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
-    display:block;
+    display: block;
     margin: 3 0 3 0px;
 }
 paragraph.fl {
@@ -162,7 +163,7 @@ paragraph.fl {
 paragraph.flcont {
     text-indent: 1em;
     text-align: justify;
-    text-align-last:justify;
+    text-align-last: justify;
 }
 paragraph.cont {
     text-align: justify;
@@ -257,25 +258,27 @@ line.ll {
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.close: hover,
+.close: focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
 
 line {
-    color:#657b83;
+    color: #657b83;
 }
 part {
-    color:#586e75;
+    color: #586e75;
 }
 book {
-    color:#586e75;
+    color: #586e75;
 }
 stage {
-    color:#586e75;
+    color: #586e75;
 }
 ch {
-    color:#586e75;
+}
+annotation {
+    display: block;
 }
