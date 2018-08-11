@@ -138,17 +138,15 @@ def read(title):
     us = False
     lem = False
     for i, line in enumerate(lines):
-        # This fails. I need to convert it to char level iteration because the
-        # index changes and throws off multiple annotations.
 
-
+        # This annotation method works but it's excrucitingly slow. see
+        # /notes.md for more info.
         annotators = Annotation.query.filter(
                 Annotation.book_id == book.id,
                 Annotation.last_line_id == line.id
                 ).order_by(
                 Annotation.last_line_id.asc(),
                 Annotation.last_char_idx.asc())
-        
 
         for anno in annotators:
             if anno.first_char_idx == 0 and anno.last_char_idx == 0:
@@ -158,7 +156,6 @@ def read(title):
                 lines[i].line = lines[i].line[:anno.last_char_idx] + \
                     f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
                         lines[i].line[anno.last_char_idx:]
-
 
         if '_' in lines[i].line:
             newline = []
@@ -191,16 +188,17 @@ def read(title):
             annotations = annotations)
 
 # This route is fundamentally screwed up for the following reason: In order to
-# process underscores into <em> tags we have to iterate through every character
-# in every line with underscores in order to flip on and off us as to whether us
-# is running. Then we have to use a line level flag (I might be wrong about this
-# but it works) in order to ensure when a _..._ spans multiple lines we properly
-# close and open and buttress lines with <em> and </em> tags. But this only
-# works for one page. There's no way, to my mind, to keep track of em's past a
-# single page with my current data model. Therefore this code is commented out
-# until I can imporove it to track that. I might just need add a new "oem" and
-# "cem" field to my line model. Until then, this stays closed and we operate on
-# the book (and eventually heierarchical chapter) level
+# process underscores into `<em>` tags we have to iterate through every
+# character in every line with underscores in order to flip on and off `us` as
+# to whether `us` is running. Then we have to use a line level flag (I might be
+# wrong about this, I can't remember the thought process, but it works for now)
+# in order to ensure when a _..._ spans multiple lines we properly buttress
+# lines with <em> and </em> tags. But this only works for one page. There's no
+# way, to my mind, to keep track of `<em>`'s past a single page with my current
+# data model. Therefore this code is commented out until I can improve it to
+# track that. I might just need add a new field to my line model with the three
+# settings "oem", "em", and "cem". Until then, this stays closed and we operate
+# on the book (and eventually heierarchical chapter) level
     
 #@app.route('/book/<title>/page<page_num>/read', methods=['GET', 'POST'])
 #@app.route('/books/<title>/page<page_num>/read', methods=['GET', 'POST'])
