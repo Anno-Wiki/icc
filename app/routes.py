@@ -134,19 +134,35 @@ def read(title):
 
     annotations = Annotation.query.filter_by(book_id = book.id).all()
 
+
     us = False
     lem = False
     for i, line in enumerate(lines):
         # This fails. I need to convert it to char level iteration because the
         # index changes and throws off multiple annotations.
-        for anno in annotations:
-            if anno.last_line_id == line.id:
-                lines[i].line = line.line[:anno.last_char_idx] + \
+
+
+        annotators = Annotation.query.filter(
+                Annotation.book_id == book.id,
+                Annotation.last_line_id == line.id
+                ).order_by(
+                Annotation.last_line_id.asc(),
+                Annotation.last_char_idx.asc())
+        
+
+        for anno in annotators:
+            if anno.first_char_idx == 0 and anno.last_char_idx == 0:
+                lines[i].line = lines[i].line + \
+                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' 
+            else:
+                lines[i].line = lines[i].line[:anno.last_char_idx] + \
                     f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
-                    line.line[anno.last_char_idx:]
-        if '_' in line.line:
+                        lines[i].line[anno.last_char_idx:]
+
+
+        if '_' in lines[i].line:
             newline = []
-            for c in line.line:
+            for c in lines[i].line:
                 if c == '_':
                     if us:
                         newline.append('</em>')
@@ -250,11 +266,8 @@ def read(title):
 @app.route('/books/<title>/create', methods=['GET', 'POST'])
 def create(title):
 
-
     book = Book.query.filter_by(url = title).first_or_404()
-
     lines = Line.query.filter_by(book_id = book.id).all()
-
     form = AnnotationForm()
 
     if form.validate_on_submit():
@@ -275,4 +288,3 @@ def create(title):
 
     return render_template('create.html', title = book.title, form = form,
             book = book, author = book.author, lines = lines)
-

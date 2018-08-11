@@ -25,6 +25,9 @@
     </div>
     -->
 
+    <div class="links">
+        <a href="{{ url_for("read", title=book.url) }}">Read</a>
+    </div>
     <hr>
     <content id="content">
         {%- for line in lines -%}
