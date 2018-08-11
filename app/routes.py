@@ -133,6 +133,10 @@ def read(title):
     lines = Line.query.filter_by(book_id = book.id).all()
 
     annotations = Annotation.query.filter_by(book_id = book.id).all()
+    annotators = Annotation.query.filter(
+            Annotation.book_id == book.id).order_by(
+                    Annotation.last_line_id.asc(),
+                    Annotation.last_char_idx.asc()).all()
 
 
     us = False
@@ -141,21 +145,22 @@ def read(title):
 
         # This annotation method works but it's excrucitingly slow. see
         # /notes.md for more info.
-        annotators = Annotation.query.filter(
-                Annotation.book_id == book.id,
-                Annotation.last_line_id == line.id
-                ).order_by(
-                Annotation.last_line_id.asc(),
-                Annotation.last_char_idx.asc())
+#        annotators = Annotation.query.filter(
+#                Annotation.book_id == book.id,
+#                Annotation.last_line_id == line.id
+#                ).order_by(
+#                Annotation.last_line_id.asc(),
+#                Annotation.last_char_idx.asc()).all()
 
-        for anno in annotators:
-            if anno.first_char_idx == 0 and anno.last_char_idx == 0:
-                lines[i].line = lines[i].line + \
-                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' 
-            else:
-                lines[i].line = lines[i].line[:anno.last_char_idx] + \
-                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
-                        lines[i].line[anno.last_char_idx:]
+#        for j in range(0, r):
+#            pass
+#            if anno.first_char_idx == 0 and anno.last_char_idx == 0:
+#                lines[i].line = lines[i].line + \
+#                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' 
+#            else:
+#                lines[i].line = lines[i].line[:anno.last_char_idx] + \
+#                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
+#                        lines[i].line[anno.last_char_idx:]
 
         if '_' in lines[i].line:
             newline = []

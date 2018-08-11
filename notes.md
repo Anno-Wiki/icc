@@ -3,7 +3,7 @@
     - Relevant
     x No longer relevant
 
- x Alright, we solved the basic problem in the javascript: we only need the
+ - x Alright, we solved the basic problem in the javascript: we only need the
    first and last id's from a highlight block. Really elementary solution to the
    whole problem.
  + Still need to implement incremental search on the texts. So my theory is that
@@ -18,6 +18,17 @@
    concatenation is the cause. It only has to perform it for 7-8 annotations so
    far. I need to profile that fucker and figure out exactly what's causing the
    slow down.
+    - I _have_ discovered the problem. It is excessive mysql calls. The actual
+      query wasn't executed until I reached the for-each loop on the results of
+      an `Annotation.query.filter...order_by()` call. By trying to manually
+      index the `basequery` object I discovered I had to call `.all()` which
+      ended up being just as slow explicitly as it was implicitly in the
+      for-each loop.
+       - I need to somehow access a list of `Annotation`'s on an indexed basis.
+         That is I need to be able to say `WHERE last_line = i` so that I can
+         access those specific items. Then I have one mysql call and it will be
+         a ton faster. It looks like it _is_ possible per
+         [this SO question/answer](https://stackoverflow.com/questions/28620389/accessing-list-of-python-objects-by-object-attribute).
     - One possible solution is to implement the /bk/, /pt/, /ch/ read views
       which would limit the amount of lines for processing but this still runs
       into the problem on especially long chapters such as in Ulysses (plus bk's
