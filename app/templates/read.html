@@ -3,59 +3,33 @@
 {% block content %}
 
     <!--Header/Running Head-->
-    <div id="running_head">
+    <div class="running_head">
         <a href="{{ url_for("book", title=book.url) }}">{{ book.title }}</a> 
-
          by <a href="{{ url_for("author", name=book.author.url) }}">
             {{ book.author.name }} </a>
     </div>
+
+    <div class="links">
+        <a href="{{ url_for("create", title=book.url) }}">Annotate</a>
+    </div>
     <hr>
+
     <content id="content">
-        {%- if lines[0].l_class.l_class == 'rl' -%}
-            <paragraph class="rcont">
-        {%- elif lines[0].l_class.l_class == 'l' -%}
-            <paragraph class="cont">
-        {%- endif -%}
-
-
         {%- for line in lines %}
             {%- include "_line.html" -%}
         {% endfor -%}
-
-        {%- if lines[linesperpage - 1].l_class.l_class == 'l' or 
-            lines[linesperpage - 1].l_class.l_class == 'rl' -%}
-            </paragraph>
-        {%- elif lines[linesperpage - 1].l_class.l_class == 'pre' %}
-            </pre>
-        {%- endif -%}
     </content>
 
     <hr>
 
     <!--Page Counter-->
 
-    {% if page_num  != 0 %}
-    <div class="pages">
-        {% if prev_page %}
-            <a href="{{ prev_page }}">&larr;</a>
-        {% endif %}
+    <div class="running_head">
+        <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
 
-        {{ page_num }}
-
-        {% if next_page %}
-            <a href="{{ next_page }}">&rarr;</a>
-        {% else %}
-            <a href="{{ url_for("book", title = book.url) }}" id="next_page">&rarr;</a>
-        {% endif %}
+         by <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }} </a>
     </div>
-    {% else %}
-        <div id="running_foot">
-            <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
-
-             by <a href="{{ url_for("author", name=book.author.url) }}">
-                {{ book.author.name }} </a>
-        </div>
-    {% endif %}
 
     <!--Annotations-->
         {% for anno in annotations %}

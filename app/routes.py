@@ -267,9 +267,11 @@ def create(title):
         db.session.add(anno)
         db.session.commit()
         flash('Annotation Submitted')
-        return redirect(url_for('create', title=book.url))
+        return redirect(url_for('read', title=book.url))
     else:
         form.annotation.data = "Type your annotation here."
+        form.first_char_idx.data = 0
+        form.last_char_idx.data = 0
 
     return render_template('create.html', title = book.title, form = form,
             book = book, author = book.author, lines = lines)

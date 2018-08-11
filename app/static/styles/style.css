@@ -75,13 +75,7 @@ nav a: hover {
     text-align: center;
 }
 /* The running head for pages */
-#running_head {
-    text-align: right;
-    font-size: 20pt;
-    margin: 0 0 20px 0;
-    font-family: 'Playfair Display', serif;
-}
-#running_foot {
+.running_head {
     text-align: right;
     font-size: 20pt;
     margin: 0 0 20px 0;

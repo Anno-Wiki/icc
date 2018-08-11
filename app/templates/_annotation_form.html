@@ -1,32 +1,22 @@
 <form action="" method="POST" novalidate>
     {{ form.hidden_tag() }}
+    <span style="display:none;">
+    {{ form.first_char_idx(size=1) }}
+    {{ form.last_char_idx(size=1) }}
+    </span>
     <table style="margin:auto;">
         <tr>
             <th>
-                {{ form.first_line.label }}<br>
+                {{ form.first_line.label }}:
                 {{ form.first_line(size=1) }}<br>
                 {% for error in form.first_line.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
             <th>
-                {{ form.last_line.label }}<br>
+                {{ form.last_line.label }}: 
                 {{ form.last_line(size=1) }}<br>
                 {% for error in form.last_line.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </th>
-            <th>
-                {{ form.first_char_idx.label }}<br>
-                {{ form.first_char_idx(size=1) }}<br>
-                {% for error in form.first_char_idx.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </th>
-            <th>
-                {{ form.last_char_idx.label }}<br>
-                {{ form.last_char_idx(size=1) }}<br>
-                {% for error in form.last_char_idx.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
@@ -37,19 +27,19 @@
             </td>
         </tr>
         <tr>
-            <td colspan=5>
+            <th colspan=5>
                 Tags: 
                 {{ form.tag_1(size=10) }}
                 {{ form.tag_2(size=10) }}
                 {{ form.tag_3(size=10) }}
                 {{ form.tag_4(size=10) }}
                 {{ form.tag_5(size=10) }}
-            </td>
+            </th>
         </tr>
         <tr>
-            <td colspan=5>
+            <th colspan=5>
                 {{ form.submit }}
-            </td>
+            </th>
         </tr>
     </table>
 </form>

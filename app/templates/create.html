@@ -3,36 +3,40 @@
 {% block content %}
     <script src="{{ url_for('static', filename='scripts/get_selected.js') }}"></script>
 
-        <!--Header/Running Head-->
-            <div id="running_head">
-                <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
+    <!--Header/Running Head-->
 
-                 by <a href="{{ url_for("author", name=book.author.url) }}">
-                    {{ book.author.name }} </a>
-            </div>
+    <div class="running_head">
+        <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
+         by <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }} </a>
+    </div>
 
-        <button class="linker">Link/Annotate</button>
 
-        <div id="linkerbox" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <br><br><br>
-                <div id="selection" style="text-align: justify;"></div>
-                <br>
-                {% include "_annotation_form.html" %}
-            </div>
+    <div id="selection" style="text-align: justify;"></div>
+    <br>
+    {% include "_annotation_form.html" %}
+    <!--
+    <button class="linker">Link/Annotate</button>
+    <div id="linkerbox" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <br><br><br>
         </div>
+    </div>
+    -->
 
-        <hr>
-        <content id="content">
-            {%- for line in lines -%}
-                {%- include "_line_create.html" -%}
+    <hr>
+    <content id="content">
+        {%- for line in lines -%}
+            {%- include "_line.html" -%}
+        {%- endfor -%}
+    </content>
+    <hr>
+    <div class="running_head">
+        <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
 
-            {%- endfor -%}
-        </content>
-
-
-
-        <hr>
+         by <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }} </a>
+    </div>
 
 {% endblock %}
