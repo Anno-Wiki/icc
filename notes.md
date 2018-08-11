@@ -53,3 +53,7 @@
    lines purely (as in broken at <line>'s), or loosely. linenums could
    _theoretically_ be computed to still display at the lines where the line
    begins in loose breaking.
+ - The current styles for setting the line numbers are totally deficient and need
+   to be fixed. They don't port to other screen sizes (for the obvious reason
+   that I'm doing it with absolute positioning). What should I expect when I
+   steal it from MIT?
