@@ -5,21 +5,29 @@
 {%- else -%}
 
     {% if line.l_class.l_class[-2:] == 'fl' or line.l_class.l_class[-2:] == 'sl' %}
-        <paragraph class="{{ line.l_class.l_class }}">
+
+    <paragraph class="{{ line.l_class.l_class }}">
+
     {% elif line.l_class.l_class == 'fpre' %}
-         <pre>
+
+     <pre>
+
     {% endif %}
-            {% if line.l_num % 5 == 0 %}
-                <span class="linenum">{{ line.l_num }}</span>
-            {% endif %}
-    <line class="{{ line.l_class.l_class }}" id="{{ line.id }}">
-    {{ line.line|safe }}
-    </line>
+
+        <line class="{{ line.l_class.l_class }}" id="{{ line.id }}">
+
+            {{ line.line|safe }}
+
+        </line>
     
     {% if line.l_class.l_class[-2:] == 'll' %}
-        </paragraph>
+
+    </paragraph>
+
     {% elif line.l_class.l_class == 'lpre' %}
-        </pre>
+
+    </pre>
+
     {% endif %}
 
 {%- endif -%}

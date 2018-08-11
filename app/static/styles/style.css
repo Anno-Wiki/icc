@@ -282,3 +282,11 @@ annotation {
     display: block;
     margin: 10px;
 }
+.linenum {
+	font-family: Playfair Display, serif;
+	font-size: 0.7em;
+	position: absolute; 
+	padding-left: 50px;
+	left: 500px; 
+	font-weight: bold;
+}

@@ -7,8 +7,12 @@ from app.models import User, Book, Author, Line, L_class, Annotation
 from sqlalchemy import func
 import math
 
-linesperpage = 30;
 
+#######################
+## General Utilities ##
+#######################
+
+linesperpage = 30;
 # The line has is dangling with an open <em>, close it.
 def opened(line):
     if line.count('<em>') > line.count('</em>'):
@@ -24,7 +28,9 @@ def closed(line):
         return False
 
 
-
+###########
+## Index ##
+###########
 
 @app.route('/')
 @app.route('/index/')
@@ -33,6 +39,10 @@ def index():
     authors = Author.query.all()
     return render_template('index.html', title='Home', books = books, 
             authors = authors)
+
+####################
+## User Functions ##
+####################
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -78,6 +88,10 @@ def author(name):
     return render_template('author.html', books = books, author = author,
             title = author.name)
 
+#############
+## Indexes ##
+#############
+
 @app.route('/author/')
 @app.route('/authors/')
 def author_index():
@@ -107,9 +121,12 @@ def book(title):
     return render_template('book.html', title = book.title, book = book,
             form = form, last_page = last_page)
 
+####################
+## Reading Routes ##
+####################
 
-@app.route('/book/<title>/read', methods=['GET', 'POST'])
-@app.route('/books/<title>/read', methods=['GET', 'POST'])
+@app.route('/book/<title>/read')
+@app.route('/books/<title>/read')
 def read(title):
     book = Book.query.filter_by(url = title).first_or_404()
 
@@ -120,6 +137,8 @@ def read(title):
     us = False
     lem = False
     for i, line in enumerate(lines):
+        # This fails. I need to convert it to char level iteration because the
+        # index changes and throws off multiple annotations.
         for anno in annotations:
             if anno.last_line_id == line.id:
                 lines[i].line = line.line[:anno.last_char_idx] + \
@@ -155,82 +174,91 @@ def read(title):
             lines = lines, page_num = 0,
             annotations = annotations)
 
+# This route is fundamentally screwed up for the following reason: In order to
+# process underscores into <em> tags we have to iterate through every character
+# in every line with underscores in order to flip on and off us as to whether us
+# is running. Then we have to use a line level flag (I might be wrong about this
+# but it works) in order to ensure when a _..._ spans multiple lines we properly
+# close and open and buttress lines with <em> and </em> tags. But this only
+# works for one page. There's no way, to my mind, to keep track of em's past a
+# single page with my current data model. Therefore this code is commented out
+# until I can imporove it to track that. I might just need add a new "oem" and
+# "cem" field to my line model. Until then, this stays closed and we operate on
+# the book (and eventually heierarchical chapter) level
+    
+#@app.route('/book/<title>/page<page_num>/read', methods=['GET', 'POST'])
+#@app.route('/books/<title>/page<page_num>/read', methods=['GET', 'POST'])
+#def read_page(title, page_num):
+#    book = Book.query.filter_by(url = title).first_or_404()
+#
+#    lines = Line.query.filter_by(book_id = book.id).paginate(
+#            int(page_num), linesperpage, True)
+#
+#    next_page = url_for('read_page', title = title, page_num = lines.next_num) \
+#            if lines.has_next else None
+#
+#    prev_page = url_for('read_page', title = title, page_num = lines.prev_num) \
+#            if lines.has_prev else None
+#
+#    annotations = Annotation.query.filter_by(book_id = book.id).all()
+#
+#    us = False
+#    lem = False
+#    for i, line in enumerate(lines.items):
+#        for anno in annotations:
+#            if anno.last_line_id == line.id:
+#                lines.items[i].line = line.line[:anno.last_char_idx] + \
+#                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
+#                    line.line[anno.last_char_idx:]
+#        if '_' in line.line:
+#            newline = []
+#            for c in line.line:
+#                if c == '_':
+#                    if us:
+#                        newline.append('</em>')
+#                        us = False
+#                    else:
+#                        newline.append('<em>')
+#                        us = True
+#                else:
+#                    newline.append(c)
+#            lines.items[i].line = ''.join(newline)
+#        
+#        if opened(lines.items[i].line):
+#            lines.items[i].line = lines.items[i].line + '</em>'
+#            lem = True
+#        elif closed(lines.items[i].line):
+#            lines.items[i].line = '<em>' + lines.items[i].line
+#            lem = False
+#        elif lem:
+#            lines.items[i].line = '<em>' + lines.items[i].line + '</em>'
+#
+#    return render_template('read_page.html', 
+#            book = book, author = book.author,
+#            title = book.title + f" p. {page_num}", 
+#            prev_page = prev_page, next_page = next_page, 
+#            linesperpage = linesperpage, 
+#            page_num = int(page_num), lines = lines.items,
+#            annotations = annotations)
 
-@app.route('/book/<title>/page<page_num>/read', methods=['GET', 'POST'])
-@app.route('/books/<title>/page<page_num>/read', methods=['GET', 'POST'])
-def read_page(title, page_num):
+
+#####################
+## Creation Routes ##
+#####################
+
+@app.route('/book/<title>/create', methods=['GET', 'POST'])
+@app.route('/books/<title>/create', methods=['GET', 'POST'])
+def create(title):
+
+
     book = Book.query.filter_by(url = title).first_or_404()
 
-    lines = Line.query.filter_by(book_id = book.id).paginate(
-            int(page_num), linesperpage, True)
-
-    next_page = url_for('read_page', title = title, page_num = lines.next_num) \
-            if lines.has_next else None
-
-    prev_page = url_for('read_page', title = title, page_num = lines.prev_num) \
-            if lines.has_prev else None
-
-    annotations = Annotation.query.filter_by(book_id = book.id).all()
-
-    us = False
-    lem = False
-    for i, line in enumerate(lines.items):
-        for anno in annotations:
-            if anno.last_line_id == line.id:
-                lines.items[i].line = line.line[:anno.last_char_idx] + \
-                    f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
-                    line.line[anno.last_char_idx:]
-        if '_' in line.line:
-            newline = []
-            for c in line.line:
-                if c == '_':
-                    if us:
-                        newline.append('</em>')
-                        us = False
-                    else:
-                        newline.append('<em>')
-                        us = True
-                else:
-                    newline.append(c)
-            lines.items[i].line = ''.join(newline)
-        
-        if opened(lines.items[i].line):
-            lines.items[i].line = lines.items[i].line + '</em>'
-            lem = True
-        elif closed(lines.items[i].line):
-            lines.items[i].line = '<em>' + lines.items[i].line
-            lem = False
-        elif lem:
-            lines.items[i].line = '<em>' + lines.items[i].line + '</em>'
-
-    return render_template('read_page.html', 
-            book = book, author = book.author,
-            title = book.title + f" p. {page_num}", 
-            prev_page = prev_page, next_page = next_page, 
-            linesperpage = linesperpage, 
-            page_num = int(page_num), lines = lines.items,
-            annotations = annotations)
-
-
-@app.route('/book/<title>/page<page_num>/edit', methods=['GET', 'POST'])
-@app.route('/books/<title>/page<page_num>/edit', methods=['GET', 'POST'])
-def edit_page(title, page_num):
-    book = Book.query.filter_by(url = title).first_or_404()
-
-    lines = Line.query.filter_by(book_id = book.id).paginate(
-            int(page_num), linesperpage, True)
-
-    next_page = url_for('book_page', title = title, page_num = lines.next_num) \
-            if lines.has_next else None
-
-    prev_page = url_for('book_page', title = title, page_num = lines.prev_num) \
-            if lines.has_prev else None
+    lines = Line.query.filter_by(book_id = book.id).all()
 
     form = AnnotationForm()
-    
+
     if form.validate_on_submit():
-        anno = Annotation(
-                book_id = book.id, 
+        anno = Annotation(book_id = book.id, 
                 first_line_id = form.first_line.data,
                 last_line_id = form.last_line.data,
                 first_char_idx = form.first_char_idx.data,
@@ -239,15 +267,10 @@ def edit_page(title, page_num):
         db.session.add(anno)
         db.session.commit()
         flash('Annotation Submitted')
-        return redirect(url_for('book_page', title=book.url, page_num=page_num))
+        return redirect(url_for('create', title=book.url))
     else:
         form.annotation.data = "Type your annotation here."
 
-
-    return render_template('book_page.html', 
-            book = book, author = book.author,
-            title = book.title + f" p. {page_num}", 
-            prev_page = prev_page, next_page = next_page, 
-            linesperpage = linesperpage, form = form,
-            page_num = int(page_num), lines = lines.items)
+    return render_template('create.html', title = book.title, form = form,
+            book = book, author = book.author, lines = lines)
 
