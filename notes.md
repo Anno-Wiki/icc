@@ -24,19 +24,22 @@
       index the `basequery` object I discovered I had to call `.all()` which
       ended up being just as slow explicitly as it was implicitly in the
       for-each loop.
-       - I need to somehow access a list of `Annotation`'s on an indexed basis.
-         That is I need to be able to say `WHERE last_line = i` so that I can
-         access those specific items. Then I have one mysql call and it will be
-         a ton faster. It looks like it _is_ possible per
-         [this SO question/answer](https://stackoverflow.com/questions/28620389/accessing-list-of-python-objects-by-object-attribute).
-       - Okay: so iterating through every annotation for every line (with the
-         slightly non-naive modification of breaking when I get to the first
-         annotation with a last_line_id greater than the current line) is
-         decidedly faster than the previous implementations.
-       - The next implementation (because the current one won't scale at all)
-         will be to iterate through all the once before the line-by-line
-         iteration and index them in a dictionary. Until I come up with a
-         reproducible and slicable hash to do that, this will work for now.
+        - I need to somehow access a list of `Annotation`'s on an indexed basis.
+          That is I need to be able to say `WHERE last_line = i` so that I can
+          access those specific items. Then I have one mysql call and it will be
+          a ton faster. It looks like it _is_ possible per
+          [this SO question/answer](https://stackoverflow.com/questions/28620389/accessing-list-of-python-objects-by-object-attribute).
+        - Okay: so iterating through every annotation for every line (with the
+          slightly non-naive modification of breaking when I get to the first
+          annotation with a last_line_id greater than the current line) is
+          decidedly faster than the previous implementations.
+        - The next implementation (because the current one won't scale at all)
+          will be to iterate through all the annotators once before the
+          line-by-line iteration and index them in a dictionary. Until I come up
+          with a reproducible and slicable hash to do that, this will work for
+          now.
+        - Solution: dictionary whereby key is a hash of important attributes and
+          value is list of all annotators with those values.
     - One possible solution is to implement the /bk/, /pt/, /ch/ read views
       which would limit the amount of lines for processing but this still runs
       into the problem on especially long chapters such as in Ulysses (plus bk's
