@@ -178,6 +178,10 @@ paragraph.cont {
 }
     
     /* Justified lines */
+line {
+    margin-right:100px;
+
+}
 line.fl {
     line-height: 1.5em;
     margin: 0px;
@@ -277,10 +281,10 @@ annotation {
     margin: 10px;
 }
 .linenum {
-	font-family: Playfair Display, serif;
-	font-size: 0.7em;
-	position: absolute; 
-	padding-left: 50px;
-	left: 500px; 
-	font-weight: bold;
+    font-family: Playfair Display, serif;
+    font-size: 0.7em;
+/*    float: right;*/
+    right:50px;
+    position: relative; 
+    font-weight: bold;
 }
