@@ -178,8 +178,6 @@ paragraph.cont {
 }
     
     /* Justified lines */
-line {
-}
 line.fl {
     line-height: 1.5em;
     margin: 0px;
