@@ -179,8 +179,6 @@ paragraph.cont {
     
     /* Justified lines */
 line {
-    margin-right:100px;
-
 }
 line.fl {
     line-height: 1.5em;
