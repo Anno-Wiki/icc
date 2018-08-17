@@ -17,7 +17,7 @@ a {
     text-decoration: none;
     color: #268bd2;
 }
-a: hover {
+a:hover {
     color: #002b36;
 }
 p {
@@ -285,4 +285,7 @@ annotation {
     font-size: 0.7em;
     font-weight: 600;
     line-height: 2;
+}
+sup {
+    font-size:0.7em;
 }
