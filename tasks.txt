@@ -1,11 +1,15 @@
 
-ID Age  Project Description                                            Urg
--- ---- ------- ------------------------------------------------------ ----
- 1 13d  web     Write _toc.html for processing a table of contents     1.07
- 4 7d   web     Create edit view                                       1.04
- 6 6d   web     write javascript for pe char-level annotation          1.03
- 7 6d   web     Clean everything up and comment                        1.03
- 8 4min web     Create filters for book/part/chapter pagination           1
- 9 3min web     Remove the page number selection box                      1
+ID Age   Project Description                                                Urg
+-- ----- ------- ---------------------------------------------------------- ----
+ 1 2w    web     Write _toc.html for processing a table of contents         1.08
+ 4 7d    web     Create edit view                                           1.04
+ 6 6d    web     write javascript for pe char-level annotation              1.03
+ 7 6d    web     Clean everything up and comment                            1.03
+ 8 1h    web     Create filters for book/part/chapter pagination               1
+ 9 59min web     Remove the page number selection box                          1
+10 52s   web     find a way to index the annotations on a given page           1
+                 starting at 1; using the actual id of the annotation will
+                 become obnoxious when we have annotation
+                 [a100000000002354]
 
-6 tasks
+7 tasks
