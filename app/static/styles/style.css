@@ -179,8 +179,12 @@ paragraph.cont {
     
     /* Justified lines */
 line {
+<<<<<<< HEAD
     margin-right:100px;
 
+=======
+    width: 6.5in;
+>>>>>>> 967e32d7eaf43833db0be3d0fb4614856a240644
 }
 line.fl {
     line-height: 1.5em;
