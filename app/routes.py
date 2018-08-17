@@ -28,6 +28,9 @@ def closed(line):
     else:
         return False
 
+def ahash(line, char):
+    return f"{line},{char}"
+
 ###########
 ## Index ##
 ###########
@@ -134,14 +137,12 @@ def read(title):
 
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
-                    Annotation.last_line_id.asc(),
-                    Annotation.last_char_idx.asc()).all()
+            Annotation.last_line_id.asc(),
+            Annotation.last_char_idx.desc()).all()
 
     annos = defaultdict(list)
     for a in annotations:
         annos[a.last_line_id].append(a)
-
-    print(annos)
 
     us = False
     lem = False
@@ -149,13 +150,14 @@ def read(title):
 
         if line.id in annos:
             for a in annos[line.id]:
+                a.anno_id = ahash(a.last_line_id, a.last_char_idx)
                 if a.first_char_idx == 0 and a.last_char_idx == 0:
                     lines[i].line = lines[i].line + \
-                        f'<sup><a href="#a{a.id}">[a{a.id}]</a></sup>' 
+                        f'<sup><a href="#a{a.id}">[{a.anno_id}]</a></sup>' 
                 else:
                     lines[i].line = lines[i].line[:a.last_char_idx] + \
                         f'<sup><a href="#a{a.id}">'\
-                        f'[a{a.id}]</a></sup>' + \
+                        f'[{a.anno_id}]</a></sup>' + \
                         lines[i].line[a.last_char_idx:]
 
         if '_' in lines[i].line:
