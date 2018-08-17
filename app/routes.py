@@ -5,6 +5,7 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
 from app.models import User, Book, Author, Line, L_class, Annotation
 from sqlalchemy import func
+from collections import defaultdict
 import math
 
 
@@ -26,7 +27,6 @@ def closed(line):
         return True
     else:
         return False
-
 
 ###########
 ## Index ##
@@ -132,28 +132,31 @@ def read(title):
 
     lines = Line.query.filter_by(book_id = book.id).all()
 
-    annotations = Annotation.query.filter_by(book_id = book.id).all()
-    annotators = Annotation.query.filter(
+    annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
                     Annotation.last_line_id.asc(),
                     Annotation.last_char_idx.asc()).all()
 
+    annos = defaultdict(list)
+    for a in annotations:
+        annos[a.last_line_id].append(a)
+
+    print(annos)
 
     us = False
     lem = False
     for i, line in enumerate(lines):
 
-        for anno in annotators:
-            if anno.last_line_id == line.id:
-                if anno.first_char_idx == 0 and anno.last_char_idx == 0:
+        if line.id in annos:
+            for a in annos[line.id]:
+                if a.first_char_idx == 0 and a.last_char_idx == 0:
                     lines[i].line = lines[i].line + \
-                        f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' 
+                        f'<sup><a href="#a{a.id}">[a{a.id}]</a></sup>' 
                 else:
-                    lines[i].line = lines[i].line[:anno.last_char_idx] + \
-                        f'<sup><a href="#a{anno.id}">[a{anno.id}]</a></sup>' + \
-                            lines[i].line[anno.last_char_idx:]
-            elif anno.last_line_id >= line.id:
-                break
+                    lines[i].line = lines[i].line[:a.last_char_idx] + \
+                        f'<sup><a href="#a{a.id}">'\
+                        f'[a{a.id}]</a></sup>' + \
+                        lines[i].line[a.last_char_idx:]
 
         if '_' in lines[i].line:
             newline = []
