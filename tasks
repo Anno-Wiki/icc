@@ -1,5 +1,0 @@
-[
-{"id":2,"description":"Convert flag processing in tags.py and lines.py to argparse","entry":"20180803T204803Z","modified":"20180803T204803Z","project":"proc","status":"pending","uuid":"9ee6b2db-3c8d-4dd1-a560-2224b1078282","urgency":1.03836},
-{"id":3,"description":"process more books into line format","entry":"20180804T072938Z","modified":"20180804T072938Z","project":"proc","status":"pending","uuid":"03273ec2-ff19-4657-b9ce-95df2aada318","urgency":1.03836},
-{"id":0,"description":"Add fpre and lpre for first and last lines in a pre block","end":"20180804T001923Z","entry":"20180803T204656Z","modified":"20180804T001923Z","project":"proc","status":"completed","uuid":"10c31488-4fee-4be4-8e7d-7af1b7ad99c4","urgency":1.03836}
-]
