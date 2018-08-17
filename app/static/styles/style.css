@@ -278,9 +278,11 @@ annotation {
 }
 .linenum {
     font-family: Playfair Display, serif;
+    float: left;
+    width: 4em;
+    margin: 0 0 0 -6em;
+    text-align: right;
     font-size: 0.7em;
-/*    float: right;*/
-    right:50px;
-    position: relative; 
-    font-weight: bold;
+    font-weight: 600;
+    line-height: 2;
 }
