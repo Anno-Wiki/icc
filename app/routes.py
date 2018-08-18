@@ -135,7 +135,37 @@ def read(book_url):
 ## Creation Routes ##
 #####################
 
-@app.route('/annotate/<book_url>/<first_line>/<last_line>/', methods=['GET', 'POST'])
+@app.route('/edit/<anno_id>', methods=['GET', 'POST'])
+def edit(anno_id):
+    annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
+    book = Book.query.filter_by(url = annotation.book.url).first()
+    lines = annotation.get_lines()
+    form = AnnotationForm()
+
+    if form.cancel.data:
+        return redirect(url_for('read', book_url=book.url))
+    elif form.validate_on_submit():
+        annotation.first_line_num = form.first_line.data
+        annotation.last_line_num = form.last_line.data
+        annotation.first_char_idx = form.first_char_idx.data
+        annotation.last_char_idx = form.last_char_idx.data
+        annotation.annotation = form.annotation.data
+        db.session.commit()
+        flash('Annotation Edited')
+        return redirect(url_for('read', book_url=book.url))
+    else:
+        form.first_line.data = annotation.first_line_num
+        form.last_line.data = annotation.last_line_num
+        form.first_char_idx.data = annotation.first_char_idx
+        form.last_char_idx.data = annotation.last_char_idx
+        form.annotation.data = annotation.annotation
+
+    return render_template('create.html', title = book.title, form = form,
+            book = book, lines = lines)
+
+
+@app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
+        methods=['GET', 'POST'])
 def create(book_url, first_line, last_line):
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter(Line.book_id == book.id, Line.id >= first_line,
