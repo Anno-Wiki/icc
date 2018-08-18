@@ -4,7 +4,7 @@
 
     <!--Header/Running Head-->
     <div class="running_head">
-        <a href="{{ url_for("book", title=book.url) }}">{{ book.title }}</a> 
+        <a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a> 
          by <a href="{{ url_for("author", name=book.author.url) }}">
             {{ book.author.name }} </a>
     </div>
@@ -31,7 +31,7 @@
     <!--Page Counter-->
 
     <div class="running_head">
-        <a href="{{ url_for("book", title=book.url) }}"> {{ book.title }}</a> 
+        <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
 
          by <a href="{{ url_for("author", name=book.author.url) }}">
             {{ book.author.name }} </a>

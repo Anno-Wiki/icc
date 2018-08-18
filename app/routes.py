@@ -96,9 +96,9 @@ def book_index():
     return render_template('book_index.html', books=books, title='Books')
 
 
-@app.route('/books/<title>/', methods=['GET', 'POST'])
-def book(title):
-    book = Book.query.filter_by(url = title).first_or_404()
+@app.route('/books/<book_url>/', methods=['GET', 'POST'])
+def book(book_url):
+    book = Book.query.filter_by(url = book_url).first_or_404()
     return render_template('book.html', title = book.title, book = book)
 
 
@@ -107,9 +107,9 @@ def book(title):
 ## Reading Routes ##
 ####################
 
-@app.route('/read/<title>/')
-def read(title):
-    book = Book.query.filter_by(url = title).first_or_404()
+@app.route('/read/<book_url>/', methods=['GET', 'POST'])
+def read(book_url):
+    book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
@@ -127,14 +127,13 @@ def read(title):
             book = book, lines = lines, annotations = annotations)
 
 
-
 #####################
 ## Creation Routes ##
 #####################
 
-@app.route('/annotate/<title>', methods=['GET', 'POST'])
-def create(title):
-    book = Book.query.filter_by(url = title).first_or_404()
+@app.route('/annotate/<book_url>', methods=['GET', 'POST'])
+def create(book_url):
+    book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
     form = AnnotationForm()
 
@@ -148,7 +147,7 @@ def create(title):
         db.session.add(anno)
         db.session.commit()
         flash('Annotation Submitted')
-        return redirect(url_for('read', title=book.url))
+        return redirect(url_for('read', book_url=book.url))
     else:
         form.annotation.data = "Type your annotation here."
         form.first_char_idx.data = 0
