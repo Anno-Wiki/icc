@@ -9,9 +9,15 @@
             {{ book.author.name }} </a>
     </div>
 
-    <div class="links">
-        <a href="{{ url_for("create", title=book.url) }}">Annotate</a>
-    </div>
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.first_line.label }}
+        {{ form.first_line(size=1) }}
+        {{ form.last_line.label }}
+        {{ form.last_line(size=1) }}
+        {{ form.submit() }}
+    </form>
+
     <hr>
 
     <content id="content">

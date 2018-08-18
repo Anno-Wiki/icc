@@ -8,8 +8,9 @@ class PageNumberForm(FlaskForm):
     page_num = IntegerField('Page Number', validators=[InputRequired()])
 
 class LineNumberForm(FlaskForm):
-    first_line = IntegerField('Page Number', validators=[InputRequired()])
-    last_line = IntegerField('Page Number', validators=[InputRequired()])
+    first_line = IntegerField('First Line', validators=[InputRequired()])
+    last_line = IntegerField('Last Line', validators=[InputRequired()])
+    submit = SubmitField('Annotate')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])

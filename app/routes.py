@@ -6,7 +6,8 @@ from werkzeug.urls import url_parse
 from sqlalchemy import func
 from app import app, db
 from app.models import User, Book, Author, Line, L_class, Annotation
-from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
+from app.forms import LoginForm, RegistrationForm
+from app.forms import AnnotationForm, LineNumberForm
 from app.funky import opened, closed, ahash, preplines
 
 ###########
@@ -118,6 +119,7 @@ def read(title):
             Annotation.book_id == book.id).order_by(
             Annotation.last_line_id.asc(),
             Annotation.last_char_idx.desc()).all()
+    form = LineNumberForm()
 
     annos = defaultdict(list)
     for a in annotations:
@@ -125,8 +127,8 @@ def read(title):
 
     preplines(lines, annos)
 
-    return render_template('read.html', title = book.title, book = book,
-            author = book.author, lines = lines, annotations = annotations)
+    return render_template('read.html', title = book.title, form = form,
+            book = book, lines = lines, annotations = annotations)
 
 
 
@@ -158,4 +160,4 @@ def create(title):
         form.last_char_idx.data = 0
 
     return render_template('create.html', title = book.title, form = form,
-            book = book, author = book.author, lines = lines)
+            book = book, lines = lines)
