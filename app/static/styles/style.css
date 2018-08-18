@@ -151,6 +151,9 @@ paragraph.fl {
     text-align: justify;
     text-indent: 1em;
 }
+paragraph.cont {
+    text-align: justify;
+}
 paragraph.sl {
     text-indent: 1em;
 }
@@ -159,7 +162,6 @@ paragraph.sl {
 line.fl {
     margin: 0px;
     line-height: 1.5em;
-    text-align: justify;
     text-indent: 1em;
 }
 line.fl:after {

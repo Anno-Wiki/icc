@@ -109,13 +109,17 @@ def book(book_url):
 
 @app.route('/read/<book_url>/', methods=['GET', 'POST'])
 def read(book_url):
+    form = LineNumberForm()
+    if form.validate_on_submit():
+        return redirect(url_for("create", book_url = book_url, 
+            first_line = form.first_line.data, last_line = form.last_line.data))
+
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
             Annotation.last_line_num.asc(),
             Annotation.last_char_idx.desc()).all()
-    form = LineNumberForm()
 
     annos = defaultdict(list)
     for a in annotations:
@@ -131,15 +135,18 @@ def read(book_url):
 ## Creation Routes ##
 #####################
 
-@app.route('/annotate/<book_url>', methods=['GET', 'POST'])
-def create(book_url):
+@app.route('/annotate/<book_url>/<first_line>/<last_line>/', methods=['GET', 'POST'])
+def create(book_url, first_line, last_line):
     book = Book.query.filter_by(url = book_url).first_or_404()
-    lines = Line.query.filter_by(book_id = book.id).all()
+    lines = Line.query.filter(Line.book_id == book.id, Line.id >= first_line,
+            Line.id <= last_line).all()
     form = AnnotationForm()
 
-    if form.validate_on_submit():
+    if form.cancel.data:
+        return redirect(url_for('read', book_url=book.url))
+    elif form.validate_on_submit():
         anno = Annotation(book_id = book.id, 
-                first_line_id = form.first_line.data,
+                first_line_num = form.first_line.data,
                 last_line_num = form.last_line.data,
                 first_char_idx = form.first_char_idx.data,
                 last_char_idx = form.last_char_idx.data,
@@ -149,7 +156,8 @@ def create(book_url):
         flash('Annotation Submitted')
         return redirect(url_for('read', book_url=book.url))
     else:
-        form.annotation.data = "Type your annotation here."
+        form.first_line.data = first_line
+        form.last_line.data = last_line
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
