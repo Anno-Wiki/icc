@@ -72,7 +72,17 @@ def register():
 
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/author/<name>/')
+
+#####################
+## Content Indexes ##
+#####################
+
+@app.route('/authors/')
+def author_index():
+    authors = Author.query.order_by(Author.last_name).all()
+    return render_template('author_index.html', authors=authors,
+            title='Authors')
+
 @app.route('/authors/<name>/')
 def author(name):
     author = Author.query.filter_by(url = name).first_or_404()
@@ -80,25 +90,12 @@ def author(name):
     return render_template('author.html', books = books, author = author,
             title = author.name)
 
-#####################
-## Content Indexes ##
-#####################
-
-@app.route('/author/')
-@app.route('/authors/')
-def author_index():
-    authors = Author.query.order_by(Author.last_name).all()
-    return render_template('author_index.html', authors=authors,
-            title='Authors')
-
-@app.route('/book/')
 @app.route('/books/')
 def book_index():
     books = Book.query.order_by(Book.sort_title).all()
     return render_template('book_index.html', books=books, title='Books')
 
 
-@app.route('/book/<title>/', methods=['GET', 'POST'])
 @app.route('/books/<title>/', methods=['GET', 'POST'])
 def book(title):
     book = Book.query.filter_by(url = title).first_or_404()
@@ -110,8 +107,7 @@ def book(title):
 ## Reading Routes ##
 ####################
 
-@app.route('/book/<title>/read')
-@app.route('/books/<title>/read')
+@app.route('/read/<title>/')
 def read(title):
     book = Book.query.filter_by(url = title).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
@@ -136,8 +132,7 @@ def read(title):
 ## Creation Routes ##
 #####################
 
-@app.route('/book/<title>/create', methods=['GET', 'POST'])
-@app.route('/books/<title>/create', methods=['GET', 'POST'])
+@app.route('/annotate/<title>', methods=['GET', 'POST'])
 def create(title):
     book = Book.query.filter_by(url = title).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
