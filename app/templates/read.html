@@ -25,6 +25,14 @@
             {%- include "_line.html" -%}
         {% endfor -%}
     </content>
+    <!--Annotations-->
+        {% for anno in annotations %}
+        {% if anno.last_line_num >= lines[0].id and anno.last_line_num <= lines[-1].id %}
+        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_num }}">[a{{ anno.id }}]</a></sup> {{ anno.annotation }}
+        <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
+        </annotation>
+        {% endif %}
+        {% endfor %}
 
     <hr>
 
@@ -37,13 +45,5 @@
             {{ book.author.name }} </a>
     </div>
 
-    <!--Annotations-->
-        {% for anno in annotations %}
-        {% if anno.last_line_num >= lines[0].id and anno.last_line_num <= lines[-1].id %}
-        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_num }}">[a{{ anno.id }}]</a></sup> {{ anno.annotation }}
-        <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
-        </annotation>
-        {% endif %}
-        {% endfor %}
 
 {% endblock %}
