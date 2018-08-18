@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import func
 from app import app, db
-from app.models import User, Book, Author, Line, L_class, Annotation
+from app.models import User, Book, Author, Line, Kind, Annotation
 from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
 from app.funky import opened, closed, preplines
@@ -113,13 +113,13 @@ def read(title):
     lines = Line.query.filter_by(book_id = book.id).all()
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
-            Annotation.last_line_id.asc(),
+            Annotation.last_line_num.asc(),
             Annotation.last_char_idx.desc()).all()
     form = LineNumberForm()
 
     annos = defaultdict(list)
     for a in annotations:
-        annos[a.last_line_id].append(a)
+        annos[a.last_line_num].append(a)
 
     preplines(lines, annos)
 
@@ -141,7 +141,7 @@ def create(title):
     if form.validate_on_submit():
         anno = Annotation(book_id = book.id, 
                 first_line_id = form.first_line.data,
-                last_line_id = form.last_line.data,
+                last_line_num = form.last_line.data,
                 first_char_idx = form.first_char_idx.data,
                 last_char_idx = form.last_char_idx.data,
                 annotation = form.annotation.data)
@@ -152,7 +152,7 @@ def create(title):
     else:
         form.annotation.data = "Type your annotation here."
         form.first_char_idx.data = 0
-        form.last_char_idx.data = 0
+        form.last_char_idx.data = -1
 
     return render_template('create.html', title = book.title, form = form,
             book = book, lines = lines)

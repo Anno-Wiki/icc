@@ -26,7 +26,8 @@ def preplines(lines, annos):
         if line.id in annos:
             for a in annos[line.id]:
                 a.anno_id = a.id
-                if a.first_char_idx == 0 and a.last_char_idx == 0:
+
+                if a.first_char_idx == 0 and a.last_char_idx == -1:
                     lines[i].line = lines[i].line + \
                         f'<sup class="anno"><a href="#a{a.id}">[{a.anno_id}]</a></sup>' 
                 else:

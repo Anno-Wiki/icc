@@ -1,24 +1,24 @@
-{%- if line.l_class.l_class == 'hr' -%}
+{%- if line.kind.kind == 'hr' -%}
 
     <hr class="bksep">
 
 {%- else -%}
 
-    {% if line.l_class.l_class[-2:] == 'fl' or line.l_class.l_class[-2:] == 'sl' %}
-        <paragraph class="{{ line.l_class.l_class }}">
-    {% elif line.l_class.l_class == 'fpre' %}
+    {% if line.kind.kind[-2:] == 'fl' or line.kind.kind[-2:] == 'sl' %}
+        <paragraph class="{{ line.kind.kind }}">
+    {% elif line.kind.kind == 'fpre' %}
          <pre>
     {% endif %}
             {% if line.l_num % 5 == 0 %}
                 <span class="linenum">{{ line.l_num }}</span>
             {% endif %}
-    <line class="{{ line.l_class.l_class }}" id="{{ line.id }}">
+    <line class="{{ line.kind.kind }}" id="{{ line.id }}">
     {{ line.line|safe }}
     </line>
     
-    {% if line.l_class.l_class[-2:] == 'll' %}
+    {% if line.kind.kind[-2:] == 'll' %}
         </paragraph>
-    {% elif line.l_class.l_class == 'lpre' %}
+    {% elif line.kind.kind == 'lpre' %}
         </pre>
     {% endif %}
 

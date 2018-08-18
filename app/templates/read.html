@@ -39,8 +39,8 @@
 
     <!--Annotations-->
         {% for anno in annotations %}
-        {% if anno.last_line_id >= lines[0].id and anno.last_line_id <= lines[-1].id %}
-        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_id }}">[a{{ anno.id }}]</a></sup> {{ anno.annotation }}</annotation>
+        {% if anno.last_line_num >= lines[0].id and anno.last_line_num <= lines[-1].id %}
+        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_num }}">[a{{ anno.id }}]</a></sup> {{ anno.annotation }}</annotation>
         {% endif %}
         {% endfor %}
 

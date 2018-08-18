@@ -61,12 +61,12 @@ class Book(db.Model):
 ## Content Models ##
 ####################
 
-class L_class(db.Model):
+class Kind(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    l_class = db.Column(db.String(12), index = True)
+    kind = db.Column(db.String(12), index = True)
 
     def __repr__(self):
-        return f"<Line Class {self.id}: {self.l_class}>"
+        return f"<lk {self.id}: {self.ltype}>"
 
 
 class Line(db.Model):
@@ -74,15 +74,15 @@ class Line(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
     l_num = db.Column(db.Integer, index = True)
-    l_class_id = db.Column(db.Integer, db.ForeignKey("L_class.id"), index = True)
-    l_class = db.relationship("L_class")
+    kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
+    kind = db.relationship("Kind")
     bk_num = db.Column(db.Integer, index = True)
     pt_num = db.Column(db.Integer, index = True)
     ch_num = db.Column(db.Integer, index = True)
     line = db.Column(db.String(200))
     
     def __repr__(self):
-        return f"<Line {self.id}: {self.l_num} of {self.book.title} [{self.l_class.l_class}]>"
+        return f"<l {self.id}: {self.l_num} of {self.book.title} [{self.kind.kind}]>"
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -95,10 +95,8 @@ class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
-    first_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
-    first_line = db.relationship("Line", backref = "annotations", foreign_keys = [first_line_id])
-    last_line_id = db.Column(db.Integer, db.ForeignKey("line.id"), index = True)
-    last_line = db.relationship("Line", foreign_keys = [last_line_id])
+    first_line_num = db.Column(db.Integer, index=True)
+    last_line_num = db.Column(db.Integer, index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
     weight = db.Column(db.Integer, default = 0)
@@ -115,6 +113,23 @@ class Annotation(db.Model):
     tag_3 = db.relationship("Tag", foreign_keys = [tag_3_id])
     tag_4 = db.relationship("Tag", foreign_keys = [tag_4_id])
     tag_5 = db.relationship("Tag", foreign_keys = [tag_5_id])
+
+    def get_lines(self):
+        lines = Line.query.filter(Line.book_id == self.book_id,
+                Line.l_num >= self.first_line_num, 
+                Line.l_num <= self.last_line_num).all()
+        return lines
+
+    def get_hl(self):
+        lines = self.get_lines()
+        
+        if first_line_num == last_line: 
+            lines[0].line = lines[0].line[self.first_char_idx:self.last_char_idx]
+        else:
+            lines[0].line = lines[0].line[self.first_char_idx:]
+            lines[-1].line = lines[-1].line[:self.last_char_idx]
+
+        return lines
 
     def __repr__(self):
         return f"<Ann {self.id}: {self.weight} lbs. on book {self.book.title}>"

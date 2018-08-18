@@ -1,17 +1,20 @@
 
-ID Age  P Project Description                                               Urg
--- ---- - ------- --------------------------------------------------------- ----
- 4 8d   H web     Create edit view                                          7.04
-11 6min H web     Set up annotate form validation in @read in routes.py        7
-12 4min H web     Configure annotate route to handle hand-off from read        7
-                  linenumber form (hint: investigate flask_requests)
- 7 18h  M web     Create filters for book/part/chapter pagination            4.9
- 9 7min M web     convert line model to store <em> dash represenation line   4.9
- 1 2w   L web     Write _toc.html for processing a table of contents        2.88
- 6 6d   L web     write javascript for pe char-level annotation             2.83
- 8 17h  L web     find a way to index the annotations on a given page        2.8
-                  starting at 1; using the actual id of the annotation will
-                  become obnoxious when we have annotation
-                  [a100000000002354]
+ID Age P Project Description                                                Urg
+-- --- - ------- ---------------------------------------------------------- ----
+ 4 8d  H web     Create edit view                                           7.04
+11 1h  H web     Set up annotate form validation in @read in routes.py         7
+12 1h  H web     Configure annotate route to handle hand-off from read         7
+                 linenumber form (hint: investigate flask_requests)
+ 7 19h M web     Create filters for book/part/chapter pagination             4.9
+ 9 1h  M web     convert line model to store <em> dash represenation line    4.9
+ 1 2w  L web     Write _toc.html for processing a table of contents         2.88
+ 6 6d  L web     write javascript for pe char-level annotation              2.83
+ 8 18h L web     find a way to index the annotations on a given page         2.8
+                 starting at 1; using the actual id of the annotation will
+                 become obnoxious when we have annotation
+                 [a100000000002354]
+13 12s   web     Convert annotation processing on whole lines to use           1
+                 last_char_idx = -1 to eliminate all the edge cases and
+                 necessary branches
 
-8 tasks
+9 tasks
