@@ -1,19 +1,13 @@
+import math
+from collections import defaultdict
 from flask import render_template, flash, redirect, url_for, request, Markup
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-from app import app, db
-from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
-from app.models import User, Book, Author, Line, L_class, Annotation
 from sqlalchemy import func
-from collections import defaultdict
+from app import app, db
+from app.models import User, Book, Author, Line, L_class, Annotation
+from app.forms import LoginForm, RegistrationForm, PageNumberForm, AnnotationForm
 from app.funky import opened, closed, ahash, preplines
-import math
-
-#######################
-## General Utilities ##
-#######################
-
-linesperpage = 30;
 
 ###########
 ## Index ##
@@ -35,17 +29,24 @@ def index():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+
     form = LoginForm()
+
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
+
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
+
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
+
         return redirect(next_page)
+
     return render_template('login.html', title='Sign In', form=form)
 
 @app.route('/logout/')
@@ -57,7 +58,9 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+
     form = RegistrationForm()
+
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
@@ -65,6 +68,7 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
+
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/author/<name>/')
@@ -75,9 +79,9 @@ def author(name):
     return render_template('author.html', books = books, author = author,
             title = author.name)
 
-#############
-## Indexes ##
-#############
+#####################
+## Content Indexes ##
+#####################
 
 @app.route('/author/')
 @app.route('/authors/')
@@ -97,16 +101,9 @@ def book_index():
 @app.route('/books/<title>/', methods=['GET', 'POST'])
 def book(title):
     book = Book.query.filter_by(url = title).first_or_404()
-    form = PageNumberForm()
-    last_page = math.ceil(Line.query.filter_by(book_id = book.id).paginate(
-        1, 30, True).total / 30)
-    
-    if form.validate_on_submit():
-        pg = form.page_num.data
-        if pg <= last_page and pg >= 1:
-            return redirect(url_for('book_page', title=book.url, page_num = pg))
-    return render_template('book.html', title = book.title, book = book,
-            form = form, last_page = last_page)
+    return render_template('book.html', title = book.title, book = book)
+
+
 
 ####################
 ## Reading Routes ##
@@ -116,9 +113,7 @@ def book(title):
 @app.route('/books/<title>/read')
 def read(title):
     book = Book.query.filter_by(url = title).first_or_404()
-
     lines = Line.query.filter_by(book_id = book.id).all()
-
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
             Annotation.last_line_id.asc(),
@@ -130,12 +125,10 @@ def read(title):
 
     preplines(lines, annos)
 
-    return render_template('read.html', 
-            book = book, author = book.author,
-            title = book.title, 
-            linesperpage = linesperpage, 
-            lines = lines, page_num = 0,
-            annotations = annotations)
+    return render_template('read.html', title = book.title, book = book,
+            author = book.author, lines = lines, annotations = annotations)
+
+
 
 #####################
 ## Creation Routes ##
@@ -144,7 +137,6 @@ def read(title):
 @app.route('/book/<title>/create', methods=['GET', 'POST'])
 @app.route('/books/<title>/create', methods=['GET', 'POST'])
 def create(title):
-
     book = Book.query.filter_by(url = title).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
     form = AnnotationForm()

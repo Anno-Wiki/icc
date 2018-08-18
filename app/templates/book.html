@@ -5,12 +5,6 @@
 <h2>by <a href="{{ url_for("author", name = book.author.url) }}">{{ book.author.name|safe }}</a></h2>
 
 <!--------------table of contents------>
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p class="page_num_field">{{ form.page_num.label}}:&nbsp;
-    {{ form.page_num(size=1) }}&nbsp; of {{ last_page }}</p>
-</form>
-
 <p id="meta">
 {{ book.summary }}
 </p>
