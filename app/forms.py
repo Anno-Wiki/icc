@@ -7,6 +7,10 @@ from app.models import User
 class PageNumberForm(FlaskForm):
     page_num = IntegerField('Page Number', validators=[InputRequired()])
 
+class LineNumberForm(FlaskForm):
+    first_line = IntegerField('Page Number', validators=[InputRequired()])
+    last_line = IntegerField('Page Number', validators=[InputRequired()])
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
