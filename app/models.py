@@ -117,5 +117,4 @@ class Annotation(db.Model):
     tag_5 = db.relationship("Tag", foreign_keys = [tag_5_id])
 
     def __repr__(self):
-        return f"<Annotation {self.id}: {self.weight} lbs. on book {self.book.title}>"
-
+        return f"<Ann {self.id}: {self.weight} lbs. on book {self.book.title}>"

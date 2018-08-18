@@ -5,16 +5,18 @@ def opened(line):
     else:
         return False
 
-# The line
+# The line has an extra close tag, open it.
 def closed(line):
     if line.count('</em>') > line.count('<em>'):
         return True
     else:
         return False
 
-def ahash(line, char):
-    return f"{line},{char}"
-
+# This method is used to run through all the lines for a read view and convert
+# prep them to be shown: it (a) adds the annotations as [n] superscript links
+# and (b) converts underscores to <em>/</em> tags. This method will probably
+# need to be modified once I implement the dual line representation model that
+# stores <em>/</em> versions of the line to expand display capability.
 def preplines(lines, annos):
     us = False
     lem = False
@@ -23,13 +25,13 @@ def preplines(lines, annos):
 
         if line.id in annos:
             for a in annos[line.id]:
-                a.anno_id = ahash(a.last_line_id, a.last_char_idx)
+                a.anno_id = a.id
                 if a.first_char_idx == 0 and a.last_char_idx == 0:
                     lines[i].line = lines[i].line + \
-                        f'<sup><a href="#a{a.id}">[{a.anno_id}]</a></sup>' 
+                        f'<sup class="anno"><a href="#a{a.id}">[{a.anno_id}]</a></sup>' 
                 else:
                     lines[i].line = lines[i].line[:a.last_char_idx] + \
-                        f'<sup><a href="#a{a.id}">'\
+                        f'<sup class="anno"><a href="#a{a.id}">'\
                         f'[{a.anno_id}]</a></sup>' + \
                         lines[i].line[a.last_char_idx:]
 

@@ -6,12 +6,13 @@ body {
     width: 6.5in;
     margin: auto;
 }
+
 /* Generals */
 ul {
-    color: #657b83;
+    text-indent: 2em hanging;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    text-indent: 2em hanging;
+    color: #657b83;
 }
 a {
     text-decoration: none;
@@ -21,271 +22,203 @@ a:hover {
     color: #002b36;
 }
 p {
-    font-size: 14pt;
     margin: 0px;
     text-align: justify;
-    color: #657b83;
     text-indent: 2em;
+    font-size: 14pt;
+    color: #657b83;
 }
 h1 {
-    text-align: center;
     margin-bottom: 25px;
+    text-align: center;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size: 30pt;
     color: #586e75;
 } 
 h2 {
-    text-align: center;
     margin-bottom: 25px;
+    text-align: center;
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size: 25pt;
     color: #839496;
 } 
 pre {
-    font-family: 'Playfair Display', serif;
     margin: 5px;
+    font-family: 'Playfair Display', serif;
     color: #839496;
 }
 
 
 /* Nav bar */
 nav {
+    margin: 10px;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    margin: 10px;
     color: #586e75;
 }
 nav a {
     margin: 10px;
     color: #586e75;
 }
-nav a: hover {
-    color: #002b36;
-    border-bottom: 1px solid #000;
+nav a:hover {
     margin-bottom: 3px;
+    border-bottom: 1px solid #000;
+    color: #002b36;
 }
 
 
-/* Page numbers on book pages */
-.pages {
-    font-size: 20pt;
-    font-family: 'Playfair Display', serif;
-    text-align: center;
+/*************************
+ * Book Information Page *
+ *************************/
+#meta {
+    margin: 10px;
 }
-/* The running head for pages */
-.running_head {
-    text-align: right;
-    font-size: 20pt;
-    margin: 0 0 20px 0;
-    font-family: 'Playfair Display', serif;
-}
-
-/* * * * * * * * * * * 
- * Table of contents *
- * * * * * * * * * * */
-
 .table_of_contents {
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
 }
-.page_num_field {
-    font-family: 'Playfair Display', serif;
-    text-align: center;
-    font-size: 20pt;
-    text-indent: 0;
-}
 .chapter_contents {
-    font-size: 12pt;
     padding-left: 5em;
     text-indent: -2em;
+    font-size: 12pt;
 }
 .part_contents {
-    font-size: 14pt;
     padding-left: 4em;
     text-indent: -2em;
+    font-size: 14pt;
 }
 .book_contents {
-    font-size: 16pt;
     padding-left: 3em;
     text-indent: -2em;
+    font-size: 16pt;
 }
 
-/* Meta data */
-#meta {
-    margin: 10px;
+
+/********************
+ * Read View Styles *
+ ********************/
+
+.running_head {
+    margin: 0 0 20px 0;
+    text-align: right;
+    font-size: 20pt;
+    font-family: 'Playfair Display', serif;
 }
 
-/**************************************
- * Handling lines of actual book text * 
- **************************************/
-    /* Main tags */
+/* main tags */
 .ch {
+    display: block;
+    margin: 10px;
+    text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    text-align: center;
-    margin: 10px;
-    display: block;
-    color: #586e75;
     color: #586e75;
 }
 .pt {
+    display: block;
+    margin: 10px;
+    text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 20pt;
-    text-align: center;
-    margin: 10px;
-    display: block;
     color: #586e75;
 }
 .bk {
+    display: block;
+    margin: 10px;
+    text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 24pt;
-    text-align: center;
-    margin: 10px;
-    display: block;
     color: #586e75;
 }
 .stg {
+    display: block;
+    margin: 10px;
+    text-indent: 0;
     font-family: 'Playfair Display', serif;
     font-size: 12pt;
-    text-indent: 0;
-    margin: 10px;
-    display: block;
     color: #586e75;
 }
 paragraph{
+    margin: 3 0 3 0px;
+    display: block;
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
-    display: block;
-    margin: 3 0 3 0px;
     color: #657b83;
 }
 paragraph.fl {
-    text-indent: 1em;
     text-align: justify;
-}
-paragraph.flcont {
     text-indent: 1em;
-    text-align: justify;
-    text-align-last: justify;
 }
 paragraph.sl {
     text-indent: 1em;
 }
-paragraph.cont {
-    text-align: justify;
-}
     
-    /* Justified lines */
+/* Justified lines */
 line.fl {
-    line-height: 1.5em;
     margin: 0px;
+    line-height: 1.5em;
     text-align: justify;
     text-indent: 1em;
 }
 line.fl:after {
-    content: "";
     display: inline-block;
     width: 100%;
+    content: "";
 }
 line.sl {
-    line-height: 1.5em;
     margin: 0px;
+    line-height: 1.5em;
     text-indent: 1em;
 }
 line.l {
-    line-height: 1.5em;
     margin: 0px;
+    line-height: 1.5em;
     text-align: justify;
 }
 
 line.l:after {
-    content: "";
     display: inline-block;
     width: 100%;
+    content: "";
 }
 line.ll {
-    line-height: 1.5em;
     margin: 0px;
+    line-height: 1.5em;
     text-align: left;
 }
-    /* Handling of ragged right text */
-.rrfirstline {
-    line-height: 1.5em;
+/* Handling of ragged right text */
+.rrfl {
     margin: 0px;
-}
-.rrline {
     line-height: 1.5em;
+}
+.rrl {
     margin: 0px;
-}
-.rrsingleline {
     line-height: 1.5em;
-    margin: 0 0 10 0px;
 }
-.rrlastline {
+.rrsl {
+    margin: 0 0 10 0px;
     line-height: 1.5em;
+}
+.rrll {
     margin: 0 0 10 0px;
+    line-height: 1.5em;
 }
-.linker {
-    display: flex;
-    font-family: 'Playfair Display', serif;
-    margin: auto;
-    align-items: center;
-    visibility: hidden;
-}
-
-/* * * * * * * *
- * Modal Box!  *
- * * * * * * * */
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
-}
-.modal-content {
-/*    background-color: #fefefe;*/
-    background-color: #fdf6e3;
-    margin: 14% auto; /* 14% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 50%;
-}
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close: hover,
-.close: focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+sup.anno {
+    font-size:0.7em;
 }
 annotation {
     display: block;
     margin: 10px;
 }
 .linenum {
-    font-family: Playfair Display, serif;
-    float: left;
-    width: 4em;
     margin: 0 0 0 -6em;
+    width: 4em;
+    line-height: 2;
+    float: left;
     text-align: right;
+    font-family: Playfair Display, serif;
     font-size: 0.7em;
     font-weight: 600;
-    line-height: 2;
-}
-sup {
-    font-size:0.7em;
 }

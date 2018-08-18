@@ -8,7 +8,7 @@ from app import app, db
 from app.models import User, Book, Author, Line, L_class, Annotation
 from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
-from app.funky import opened, closed, ahash, preplines
+from app.funky import opened, closed, preplines
 
 ###########
 ## Index ##

@@ -4,14 +4,9 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
 from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, Optional
 from app.models import User
 
-class PageNumberForm(FlaskForm):
-    page_num = IntegerField('Page Number', validators=[InputRequired()])
-
-class LineNumberForm(FlaskForm):
-    first_line = IntegerField('First Line', validators=[InputRequired()])
-    last_line = IntegerField('Last Line', validators=[InputRequired()])
-    submit = SubmitField('Annotate')
-
+################
+## User Forms ##
+################
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
@@ -35,6 +30,14 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+###################
+## Content Forms ##
+###################
+class LineNumberForm(FlaskForm):
+    first_line = IntegerField('First Line', validators=[InputRequired()])
+    last_line = IntegerField('Last Line', validators=[InputRequired()])
+    submit = SubmitField('Annotate')
 
 class AnnotationForm(FlaskForm):
     first_line = IntegerField('First Line', validators=[InputRequired()])
