@@ -9,8 +9,8 @@ def preplines(lines, annos):
 
     for i, line in enumerate(lines):
 
-        if line.id in annos:
-            for a in annos[line.id]:
+        if line.l_num in annos:
+            for a in annos[line.l_num]:
                 a.anno_id = a.id
 
                 if a.first_char_idx == 0 and a.last_char_idx == -1:

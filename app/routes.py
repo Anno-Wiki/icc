@@ -128,10 +128,12 @@ def read(book_url):
             Annotation.last_line_num.asc(),
             Annotation.last_char_idx.desc()).all()
 
+
     annos = defaultdict(list)
     for a in annotations:
         annos[a.last_line_num].append(a)
 
+    print(annos)
     preplines(lines, annos)
 
     return render_template('read.html', title = book.title, form = form,
