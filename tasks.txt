@@ -1,23 +1,28 @@
 
-ID Age  P Project Description                                               Urg
--- ---- - ------- --------------------------------------------------------- ----
- 1 2w   H web     Write _toc.html for processing a table of contents        7.08
- 7 23h  H web     convert line model to store <em> dash represenation line     7
-11 17h  H web     Get tags up and running!                                     7
-16 3min H web     Create prev and next page for pagination system              7
-17 31s  H web     Get the requests system up and running to return people      7
-                  to the right read view after submitting/cancelling a
-                  edit/annotation
-12 17h  M web     Investigate and begin implementing all the user functions  4.9
-13 17h  M web     Implement edit history system                              4.9
-14 17h  M web     Test more formats!                                         4.9
- 5 7d   L web     write javascript for pe char-level annotation             2.84
- 6 1d   L web     find a way to index the annotations on a given page       2.81
-                  starting at 1; using the actual id of the annotation will
-                  become obnoxious when we have annotation
-                  [a100000000002354]
- 9 17h  L web     Write javascript for popup annotations on read view.       2.8
-10 17h  L web     Fix basic css for annotations                              2.8
-15 17h  L web     Have to figure out how to display already-annotated-books  2.8
+ID Age   P Project Tags Description                                         Urg
+-- ----- - ------- ---- --------------------------------------------------- ----
+ 1 2w    H web          Write _toc.html for processing a table of contents  7.08
+ 9 19h   H web          Get tags up and running!                               7
+14 1h    H web          Create prev and next page for pagination system        7
+15 1h    H web          Get the requests system up and running to return       7
+                        people to the right read view after
+                        submitting/cancelling a edit/annotation
+17 1min  M web     bug  Investigate trailing space bug on lines.             5.7
+10 19h   M web          Investigate and begin implementing all the user      4.9
+                        functions
+11 19h   M web          Implement edit history system                        4.9
+12 19h   M web          Test more formats!                                   4.9
+16 31min M web          Modify insertlines.py to index all the kinds once    4.9
+                        and speed up the insertion process
+ 6 1d    L web     bug  find a way to index the annotations on a given page 3.61
+                        starting at 1; using the actual id of the
+                        annotation will become obnoxious when we have
+                        annotation [a100000000002354]
+ 8 19h   L web     bug  Fix basic css for annotations                        3.6
+ 5 7d    L web          write javascript for pe char-level annotation       2.84
+ 7 19h   L web          Write javascript for popup annotations on read       2.8
+                        view.
+13 19h   L web          Have to figure out how to display                    2.8
+                        already-annotated-books
 
-13 tasks
+14 tasks
