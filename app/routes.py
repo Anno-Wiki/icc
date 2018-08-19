@@ -11,6 +11,12 @@ from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
 from app.funky import opened, closed, preplines
 
+#################
+## Controllers ##
+#################
+
+linesperpage = 30
+
 ###########
 ## Index ##
 ###########
@@ -139,6 +145,9 @@ def read_section(book_url, level, number):
         return redirect(url_for("create", book_url = book_url, 
             first_line = form.first_line.data, last_line = form.last_line.data))
 
+    if int(number) < 1:
+        abort(404)
+
     book = Book.query.filter_by(url = book_url).first_or_404()
     if level == 'book':
         lines = Line.query.filter(Line.book_id == book.id, 
@@ -149,6 +158,9 @@ def read_section(book_url, level, number):
     elif level == 'chapter':
         lines = Line.query.filter(Line.book_id == book.id,
                 Line.ch_num == number).all()
+    elif level == 'page':
+        lines = Line.query.filter_by(book_id = book.id).paginate(int(number),
+                linesperpage, False).items
     else:
         abort(404)
 
