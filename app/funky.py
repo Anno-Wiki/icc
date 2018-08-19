@@ -1,25 +1,11 @@
-# The line has is dangling with an open <em>, close it.
-def opened(line):
-    if line.count('<em>') > line.count('</em>'):
-        return True
-    else:
-        return False
-
-# The line has an extra close tag, open it.
-def closed(line):
-    if line.count('</em>') > line.count('<em>'):
-        return True
-    else:
-        return False
-
-# This method is used to run through all the lines for a read view and convert
-# prep them to be shown: it (a) adds the annotations as [n] superscript links
-# and (b) converts underscores to <em>/</em> tags. This method will probably
-# need to be modified once I implement the dual line representation model that
-# stores <em>/</em> versions of the line to expand display capability.
+# This method is used to run through all the lines for a read view and convert/
+# prep them to be shown: it (a) adds the annotations as [n] superscript links,
+# (b) converts underscores to <em>/</em> tags, and (c) opens and closes
+# surrounding <em></em> tags on lines that need it so that the tags don's span
+# multiple levels in the DOM and throw everything into a tizzy. It also allows
+# me to display an arbitrary number of lines perfectly.
 def preplines(lines, annos):
     us = False
-    lem = False
 
     for i, line in enumerate(lines):
 
@@ -50,11 +36,10 @@ def preplines(lines, annos):
                     newline.append(c)
             lines[i].line = ''.join(newline)
         
-        if opened(lines[i].line):
+        if line.em_status.kind == 'oem':
             lines[i].line = lines[i].line + '</em>'
-            lem = True
-        elif closed(lines[i].line):
+        elif line.em_status.kind == 'cem':
             lines[i].line = '<em>' + lines[i].line
-            lem = False
-        elif lem:
+        elif line.em_status.kind == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
+        

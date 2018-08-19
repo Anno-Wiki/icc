@@ -9,7 +9,7 @@ from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation
 from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
-from app.funky import opened, closed, preplines
+from app.funky import preplines
 
 #################
 ## Controllers ##
@@ -219,9 +219,11 @@ def edit(anno_id):
         methods=['GET', 'POST'])
 def create(book_url, first_line, last_line):
     book = Book.query.filter_by(url = book_url).first_or_404()
-    lines = Line.query.filter(Line.book_id == book.id, Line.id >= first_line,
-            Line.id <= last_line).all()
+    lines = Line.query.filter(Line.book_id == book.id, Line.l_num >= first_line,
+            Line.l_num <= last_line).all()
     form = AnnotationForm()
+
+    print(lines)
 
     if form.cancel.data:
         return redirect(url_for('read', book_url=book.url))
