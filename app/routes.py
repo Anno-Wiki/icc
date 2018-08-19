@@ -1,6 +1,7 @@
 import math
 from collections import defaultdict
 from flask import render_template, flash, redirect, url_for, request, Markup
+from flask import abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import func
@@ -116,6 +117,44 @@ def read(book_url):
 
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
+    annotations = Annotation.query.filter(
+            Annotation.book_id == book.id).order_by(
+            Annotation.last_line_num.asc(),
+            Annotation.last_char_idx.desc()).all()
+
+    annos = defaultdict(list)
+    for a in annotations:
+        annos[a.last_line_num].append(a)
+
+    preplines(lines, annos)
+
+    return render_template('read.html', title = book.title, form = form,
+            book = book, lines = lines, annotations = annotations)
+
+
+@app.route('/read/<book_url>/<level>/<number>/', methods=['GET', 'POST'])
+def read_section(book_url, level, number):
+    form = LineNumberForm()
+    if form.validate_on_submit():
+        return redirect(url_for("create", book_url = book_url, 
+            first_line = form.first_line.data, last_line = form.last_line.data))
+
+    book = Book.query.filter_by(url = book_url).first_or_404()
+    if level == 'book':
+        lines = Line.query.filter(Line.book_id == book.id, 
+                Line.bk_num == number).all()
+    elif level == 'part':
+        lines = Line.query.filter(Line.book_id == book.id,
+                Line.pt_num == number).all()
+    elif level == 'chapter':
+        lines = Line.query.filter(Line.book_id == book.id,
+                Line.ch_num == number).all()
+    else:
+        abort(404)
+
+    if len(lines) <= 0:
+        abort(404)
+
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).order_by(
             Annotation.last_line_num.asc(),
