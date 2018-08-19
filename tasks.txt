@@ -1,19 +1,23 @@
 
 ID Age  P Project Description                                               Urg
 -- ---- - ------- --------------------------------------------------------- ----
- 6 1d   H web     Create filters for book/part/chapter pagination           7.01
-12 4min H web     Get tags up and running                                      7
- 1 2w   M web     Write _toc.html for processing a table of contents        4.98
- 8 5h   M web     convert line model to store <em> dash represenation line   4.9
-15 1min M web     Implement edit history.monthly system                      4.9
+ 1 2w   H web     Write _toc.html for processing a table of contents        7.08
+ 7 23h  H web     convert line model to store <em> dash represenation line     7
+11 17h  H web     Get tags up and running!                                     7
+16 3min H web     Create prev and next page for pagination system              7
+17 31s  H web     Get the requests system up and running to return people      7
+                  to the right read view after submitting/cancelling a
+                  edit/annotation
+12 17h  M web     Investigate and begin implementing all the user functions  4.9
+13 17h  M web     Implement edit history system                              4.9
+14 17h  M web     Test more formats!                                         4.9
  5 7d   L web     write javascript for pe char-level annotation             2.84
- 7 23h  L web     find a way to index the annotations on a given page        2.8
+ 6 1d   L web     find a way to index the annotations on a given page       2.81
                   starting at 1; using the actual id of the annotation will
                   become obnoxious when we have annotation
                   [a100000000002354]
-10 5min L web     Write javascript for popup annotations on read view.       2.8
-11 5min L web     Fix basic css for annotations                              2.8
-13 3min L web     After converting line model re-implement page read view.   2.8
-14 1min L web     Investigate and begin implementing all the user functions  2.8
+ 9 17h  L web     Write javascript for popup annotations on read view.       2.8
+10 17h  L web     Fix basic css for annotations                              2.8
+15 17h  L web     Have to figure out how to display already-annotated-books  2.8
 
-11 tasks
+13 tasks
