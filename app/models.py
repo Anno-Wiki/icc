@@ -75,10 +75,12 @@ class Line(db.Model):
     book = db.relationship("Book")
     l_num = db.Column(db.Integer, index = True)
     kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
-    kind = db.relationship("Kind")
+    kind = db.relationship("Kind", foreign_keys = [kind_id])
     bk_num = db.Column(db.Integer, index = True)
     pt_num = db.Column(db.Integer, index = True)
     ch_num = db.Column(db.Integer, index = True)
+    em_status_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
+    em_status = db.relationship("Kind", foreign_keys = [em_status_id])
     line = db.Column(db.String(200))
     
     def __repr__(self):
