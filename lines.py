@@ -42,7 +42,7 @@ def printhelp():
     h = []
     h.append(f'Usage: python {sys.argv[0]} -b <book_id> [options] [-i <input file>] [-o <output file>]')
     h.append(f'The output is formatted as @ separated values of the order:')
-    h.append(f'book_id   l_num   l_class   bk_num   pt_num   ch_num   line emstatus')
+    h.append(f'book_id   l_num   kind   bk_num   pt_num   ch_num   emstatus line')
 
     h.append('')
     h.append('Defaults to stdin and stdout. To specify an input or output file')
