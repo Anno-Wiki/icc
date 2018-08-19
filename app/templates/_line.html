@@ -12,7 +12,7 @@
             {% if line.l_num % 5 == 0 %}
                 <span class="linenum">{{ line.l_num }}</span>
             {% endif %}
-    <line class="{{ line.kind.kind }}" id="{{ line.id }}">
+    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
     {{ line.line|safe }}
     </line>
     
