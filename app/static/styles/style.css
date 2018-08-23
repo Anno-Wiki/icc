@@ -210,10 +210,6 @@ line.ll {
 sup.anno {
     font-size:0.7em;
 }
-annotation {
-    display: block;
-    margin: 10px;
-}
 .linenum {
     margin: 0 0 0 -6em;
     width: 4em;
@@ -223,4 +219,14 @@ annotation {
     font-family: Playfair Display, serif;
     font-size: 0.7em;
     font-weight: 600;
+}
+annotation {
+    display: block;
+    margin: 10px;
+    font-size: 14px;
+    font-family: Playfair Display, serif;
+    text-align: justify;
+}
+tags {
+    display: block;
 }
