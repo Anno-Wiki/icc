@@ -11,5 +11,46 @@
 
 <!--------------table of contents------>
 <table class="table_of_contents">
+    {% for section in heierarchy %}
+        {% if section.kind.kind == 'bk' %}
+            <tr class="book_contents">
+                <th align="left">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.bk_num) }}">
+                        {{ section.line }}
+                    </a>
+                </th>
+                <th align="right">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.bk_num) }}">
+                        {{ section.l_num }}
+                    </a>
+                </th>
+
+        {% elif section.kind.kind == 'pt' %}
+            <tr class="part_contents">
+                <th align="left">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
+                        {{ section.line }}
+                    </a>
+                <th align="right">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
+                        {{ section.l_num }}
+                    </a>
+                </th>
+        {% elif section.kind.kind == 'ch' %}
+            <tr class="chapter_contents">
+                <th align="left">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.ch_num) }}">
+                        {{ section.line }}
+                    </a>
+                </th>
+                <th align="right">
+                    <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.ch_num) }}">
+                        {{ section.l_num }}
+                    </a>
+                </th>
+            </tr>
+        {% endif %}
+    {% endfor %}
+        
 </table>
 {% endblock %}

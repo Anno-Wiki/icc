@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, Markup
 from flask import abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-from sqlalchemy import func
+from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, Tag
 from app.forms import LoginForm, RegistrationForm
@@ -106,7 +106,13 @@ def book_index():
 @app.route('/books/<book_url>/', methods=['GET', 'POST'])
 def book(book_url):
     book = Book.query.filter_by(url = book_url).first_or_404()
-    return render_template('book.html', title = book.title, book = book)
+    bk_kind = Kind.query.filter_by(kind = 'bk').first()
+    pt_kind = Kind.query.filter_by(kind = 'pt').first()
+    ch_kind = Kind.query.filter_by(kind = 'ch').first()
+    heierarchy = Line.query.filter(or_(Line.kind == bk_kind, 
+        Line.kind == pt_kind, Line.kind == ch_kind)).all()
+    return render_template('book.html', title = book.title, book = book,
+            heierarchy = heierarchy)
 
 
 
@@ -150,13 +156,13 @@ def read_section(book_url, level, number):
         abort(404)
 
     book = Book.query.filter_by(url = book_url).first_or_404()
-    if level == 'book':
+    if level == 'bk':
         lines = Line.query.filter(Line.book_id == book.id, 
                 Line.bk_num == number).all()
-    elif level == 'part':
+    elif level == 'pt':
         lines = Line.query.filter(Line.book_id == book.id,
                 Line.pt_num == number).all()
-    elif level == 'chapter':
+    elif level == 'ch':
         lines = Line.query.filter(Line.book_id == book.id,
                 Line.ch_num == number).all()
     elif level == 'page':

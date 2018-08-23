@@ -73,26 +73,25 @@ nav a:hover {
  * Book Information Page *
  *************************/
 #meta {
-    margin: 10px;
 }
 .table_of_contents {
+    width: 100%;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
 }
-.chapter_contents {
-    padding-left: 5em;
-    text-indent: -2em;
-    font-size: 12pt;
-}
-.part_contents {
-    padding-left: 4em;
-    text-indent: -2em;
-    font-size: 14pt;
+.table_of_contents tr:hover{
+    background-color: #ffffff;
 }
 .book_contents {
-    padding-left: 3em;
-    text-indent: -2em;
     font-size: 16pt;
+}
+.part_contents {
+    font-size: 14pt;
+    text-indent: 1em;
+}
+.chapter_contents {
+    text-indent: 2em;
+    font-size: 12pt;
 }
 
 
