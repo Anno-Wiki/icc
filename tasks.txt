@@ -1,32 +1,37 @@
 
 ID Age   P Project Tags         Description                                 Urg
 -- ----- - ------- ------------ ------------------------------------------- ----
- 1 2w    H web     feature      Write _toc.html for processing a table of   7.88
+ 1 2w    H web     feature      Write _toc.html for processing a table of    7.9
                                 contents
- 9 19h   H web     feature      Get tags up and running!                     7.8
-14 1h    H web     feature      Create prev and next page for pagination     7.8
+12 4d    H web     feature      Create prev and next page for pagination    7.82
                                 system
-15 1h    H web     feature      Get the requests system up and running to    7.8
+13 4d    H web     feature      Get the requests system up and running to   7.82
                                 return people to the right read view after
                                 submitting/cancelling a edit/annotation
-10 19h   M web     reasearch    Investigate and begin implementing all the   5.7
+19 41min H web     feature      Create annotation view                       7.8
+ 8 4d    M web     reasearch    Investigate and begin implementing all the  5.72
                                 user functions
-11 19h   M web     feature      Implement edit history system                5.7
-12 19h   M web     test         Test more formats!                           5.7
-16 35min M web     optimization Modify insertlines.py to index all the       5.7
+ 9 4d    M web     feature      Implement edit history system               5.72
+10 4d    M web     test         Test more formats!                          5.72
+14 4d    M web     optimization Modify insertlines.py to index all the      5.72
                                 kinds once and speed up the insertion
                                 process
-17 6min  M web     bug          Investigate trailing space bug on lines.     5.7
- 5 7d    L web     feature      write javascript for pe char-level          3.64
+15 4d    M web     bug          Investigate trailing space bug on lines.    5.72
+ 4 12d   L web     feature      write javascript for pe char-level          3.67
                                 annotation
- 6 1d    L web     bug          find a way to index the annotations on a    3.61
+ 5 5d    L web     bug          find a way to index the annotations on a    3.63
                                 given page starting at 1; using the actual
                                 id of the annotation will become obnoxious
                                 when we have annotation [a100000000002354]
- 7 19h   L web     feature      Write javascript for popup annotations on    3.6
+ 6 4d    L web     feature      Write javascript for popup annotations on   3.62
                                 read view.
- 8 19h   L web     bug          Fix basic css for annotations                3.6
-13 19h   L web     research     Have to figure out how to display            3.6
+ 7 4d    L web     bug          Fix basic css for annotations               3.62
+11 4d    L web     research     Have to figure out how to display           3.62
                                 already-annotated-books
+17 53min L web     bug          Keep eye out for italic bug where cursors    3.6
+                                says data truncated at for column line at
+                                row 1
+18 42min L web     feature      Limit output of annotation display on main   3.6
+                                read page for extra long annos
 
-14 tasks
+16 tasks
