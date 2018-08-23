@@ -2,7 +2,7 @@
             <tr class="book_contents">
                 <th align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.bk_num) }}">
-                        {{ section.line }}
+                        Book {{ section.bk_num }}: {{ section.line }}
                     </a>
                 </th>
                 <th align="right">
@@ -15,7 +15,7 @@
             <tr class="part_contents">
                 <th align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
-                        {{ section.line }}
+                        Part {{ section.pt_num }}: {{ section.line }}
                     </a>
                 <th align="right">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
@@ -26,7 +26,7 @@
             <tr class="chapter_contents">
                 <th align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.ch_num) }}">
-                        {{ section.line }}
+                        Chapter {{ section.ch_num }}: {{ section.line }}
                     </a>
                 </th>
                 <th align="right">
