@@ -30,6 +30,7 @@
         {% if anno.last_line_num >= lines[0].l_num and anno.last_line_num <= lines[-1].l_num %}
         <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_num }}">[{{ anno.id }}]</a></sup> {{ anno.annotation }}
         <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
+        {{ anno.added }}
             <tags>
             {% if anno.tag_1 != None %}
             <tag>{{ anno.tag_1.tag }}</tag>

@@ -103,6 +103,7 @@ class Annotation(db.Model):
     last_char_idx = db.Column(db.Integer)
     weight = db.Column(db.Integer, default = 0)
     annotation = db.Column(db.Text)
+    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
     tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
