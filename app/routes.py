@@ -6,10 +6,10 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import func
 from app import app, db
-from app.models import User, Book, Author, Line, Kind, Annotation
+from app.models import User, Book, Author, Line, Kind, Annotation, Tag
 from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
-from app.funky import preplines
+from app.funky import preplines, is_empty, proc_tag
 
 #################
 ## Controllers ##
@@ -133,7 +133,6 @@ def read(book_url):
     for a in annotations:
         annos[a.last_line_num].append(a)
 
-    print(annos)
     preplines(lines, annos)
 
     return render_template('read.html', title = book.title, form = form,
@@ -225,17 +224,35 @@ def create(book_url, first_line, last_line):
             Line.l_num <= last_line).all()
     form = AnnotationForm()
 
-    print(lines)
+    tag1 = None
+    tag2 = None
+    tag3 = None
+    tag4 = None
+    tag5 = None
 
     if form.cancel.data:
         return redirect(url_for('read', book_url=book.url))
     elif form.validate_on_submit():
+
+        if not is_empty(form.tag_1.data):
+            tag1 = proc_tag(form.tag_1.data)
+        if not is_empty(form.tag_2.data):
+            tag2 = proc_tag(form.tag_2.data)
+        if not is_empty(form.tag_3.data):
+            tag3 = proc_tag(form.tag_3.data)
+        if not is_empty(form.tag_4.data):
+            tag4 = proc_tag(form.tag_4.data)
+        if not is_empty(form.tag_5.data):
+            tag5 = proc_tag(form.tag_5.data)
+            
         anno = Annotation(book_id = book.id, 
                 first_line_num = form.first_line.data,
                 last_line_num = form.last_line.data,
                 first_char_idx = form.first_char_idx.data,
                 last_char_idx = form.last_char_idx.data,
-                annotation = form.annotation.data)
+                annotation = form.annotation.data,
+                tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
+                tag_4 = tag4, tag_5 = tag5)
         db.session.add(anno)
         db.session.commit()
         flash('Annotation Submitted')

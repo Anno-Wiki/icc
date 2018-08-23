@@ -1,3 +1,5 @@
+from app import app, db
+from app.models import Tag
 # This method is used to run through all the lines for a read view and convert/
 # prep them to be shown: it (a) adds the annotations as [n] superscript links,
 # (b) converts underscores to <em>/</em> tags, and (c) opens and closes
@@ -42,4 +44,22 @@ def preplines(lines, annos):
             lines[i].line = '<em>' + lines[i].line
         elif line.em_status.kind == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
-        
+
+def is_empty(data):
+   if data == None:
+      return True
+   if data == '':
+      return True
+   if data == []:
+      return True
+   return False
+
+def proc_tag(tag):
+    t = Tag.query.filter_by(tag = tag).first()
+    if is_empty(t):
+        t = Tag(tag = tag)
+        db.session.add(t)
+        db.session.commit()
+        t = Tag.query.filter_by(tag = t.tag).first()
+    return t
+
