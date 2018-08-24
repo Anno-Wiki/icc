@@ -1,4 +1,3 @@
-import math
 from collections import defaultdict
 from flask import render_template, flash, redirect, url_for, request, Markup
 from flask import abort
