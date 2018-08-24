@@ -188,6 +188,15 @@ def read_section(book_url, level, number):
             book = book, lines = lines, annotations = annotations)
 
 
+@app.route('/view/<anno_id>')
+def view_anno(anno_id):
+    annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
+    lines = annotation.get_lines()
+    
+    return render_template('annotation.html', title = annotation.book.title,
+            annotation = annotation, lines = lines)
+
+
 #####################
 ## Creation Routes ##
 #####################
