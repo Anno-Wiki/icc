@@ -3,7 +3,7 @@ body {
     background-color: #fdf6e3;
 }
 #container {
-    width: 6.5in;
+    width: 7.25in;
     margin: auto;
 }
 
@@ -218,14 +218,15 @@ sup.anno {
     font-family: Playfair Display, serif;
     font-size: 0.7em;
     font-weight: 600;
+    color: #93a1a1;
 }
 annotation {
     display: block;
-    margin: 10px;
+    margin: 20px 0 20px 0;
     padding: 10px;
     background-color: #eee8d5;
-    border: 2px solid #002b36;
-    border-radius: 5px;
+/*    border: 2px solid #002b36;
+    border-radius: 5px;*/
     color: #586e75;
     font-size: 14px;
     font-family: Playfair Display, serif;
@@ -236,9 +237,9 @@ annotation p {
 }
 tag {
     padding: 5px;
-    background-color: #fdf6e3;
-    border: 2px solid #002b36;
-    border-radius: 5px;
-    color: #b58900;
-    margin: 3px;
+/*    border: 2px solid #002b36;
+    border-radius: 5px;*/
+    margin: 10px 0 10px 3px;
+    background-color: #2aa198;
+    color: #fdf6e3;
 }
