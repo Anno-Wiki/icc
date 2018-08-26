@@ -28,8 +28,8 @@
     <!--Annotations-->
         {% for anno in annotations %}
         {% if anno.HEAD.last_line_num >= lines[0].l_num and anno.HEAD.last_line_num <= lines[-1].l_num %}
-        <annotation id="a{{ anno.HEAD.id }}"><sup><a href="#{{ anno.HEAD.last_line_num
-        }}">[{{ anno.HEAD.id }}]</a></sup>{{ anno.HEAD.annotation|markdown }}
+        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.HEAD.last_line_num
+        }}">[{{ anno.id }}]</a></sup>{{ anno.HEAD.annotation|markdown }}
             <tags>
             {% if anno.HEAD.tag_1 != None %}
             <tag>{{ anno.HEAD.tag_1.tag }}</tag>
@@ -48,7 +48,7 @@
             {% endif %}
             </tags>
         {{ anno.added }}
-        <a href="{{ url_for("edit", anno_id=anno.HEAD.id) }}">edit</a>
+        <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
         </annotation>
         {% endif %}
         {% endfor %}

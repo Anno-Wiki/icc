@@ -100,12 +100,15 @@ class Tag(db.Model):
 
 class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
+
     head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
     HEAD = db.relationship("AnnotationVersion") 
+
     weight = db.Column(db.Integer, default = 0)
-    modified = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
     
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -124,7 +127,7 @@ class AnnotationVersion(db.Model):
 
     annotation = db.Column(db.Text)
 
-    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+    modified = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)
     tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)

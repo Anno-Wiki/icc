@@ -13,16 +13,16 @@ def preplines(lines, annos):
 
         if line.l_num in annos:
             for a in annos[line.l_num]:
-                a.anno_id = a.id
+                a.HEAD.anno_id = a.id
 
-                if a.first_char_idx == 0 and a.last_char_idx == -1:
+                if a.HEAD.first_char_idx == 0 and a.HEAD.last_char_idx == -1:
                     lines[i].line = lines[i].line + \
-                        f'<sup class="anno"><a href="#a{a.id}">[{a.anno_id}]</a></sup>' 
+                        f'<sup class="anno"><a href="#a{a.id}">[{a.HEAD.anno_id}]</a></sup>' 
                 else:
-                    lines[i].line = lines[i].line[:a.last_char_idx] + \
-                        f'<sup class="anno"><a href="#a{a.id}">'\
-                        f'[{a.anno_id}]</a></sup>' + \
-                        lines[i].line[a.last_char_idx:]
+                    lines[i].line = lines[i].line[:a.HEAD.last_char_idx] + \
+                        f'<sup class="anno"><a href="#a{a.HEAD.id}">'\
+                        f'[{a.HEAD.anno_id}]</a></sup>' + \
+                        lines[i].line[a.HEAD.last_char_idx:]
 
         if '_' in lines[i].line:
             newline = []
