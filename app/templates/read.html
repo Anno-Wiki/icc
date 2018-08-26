@@ -27,28 +27,28 @@
     </content>
     <!--Annotations-->
         {% for anno in annotations %}
-        {% if anno.last_line_num >= lines[0].l_num and anno.last_line_num <= lines[-1].l_num %}
-        <annotation id="a{{ anno.id }}"><sup><a href="#{{ anno.last_line_num
-        }}">[{{ anno.id }}]</a></sup>{{ anno.annotation|markdown }}
+        {% if anno.HEAD.last_line_num >= lines[0].l_num and anno.HEAD.last_line_num <= lines[-1].l_num %}
+        <annotation id="a{{ anno.HEAD.id }}"><sup><a href="#{{ anno.HEAD.last_line_num
+        }}">[{{ anno.HEAD.id }}]</a></sup>{{ anno.HEAD.annotation|markdown }}
             <tags>
-            {% if anno.tag_1 != None %}
-            <tag>{{ anno.tag_1.tag }}</tag>
+            {% if anno.HEAD.tag_1 != None %}
+            <tag>{{ anno.HEAD.tag_1.tag }}</tag>
             {% endif %}
-            {% if anno.tag_2 != None %}
-            <tag>{{ anno.tag_2.tag }}</tag>
+            {% if anno.HEAD.tag_2 != None %}
+            <tag>{{ anno.HEAD.tag_2.tag }}</tag>
             {% endif %}
-            {% if anno.tag_3 != None %}
-            <tag>{{ anno.tag_3.tag }}</tag>
+            {% if anno.HEAD.tag_3 != None %}
+            <tag>{{ anno.HEAD.tag_3.tag }}</tag>
             {% endif %}
-            {% if anno.tag_4 != None %}
-            <tag>{{ anno.tag_4.tag }}</tag>
+            {% if anno.HEAD.tag_4 != None %}
+            <tag>{{ anno.HEAD.tag_4.tag }}</tag>
             {% endif %}
-            {% if anno.tag_5 != None %}
-            <tag>{{ anno.tag_5.tag }}</tag>
+            {% if anno.HEAD.tag_5 != None %}
+            <tag>{{ anno.HEAD.tag_5.tag }}</tag>
             {% endif %}
             </tags>
         {{ anno.added }}
-        <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
+        <a href="{{ url_for("edit", anno_id=anno.HEAD.id) }}">edit</a>
         </annotation>
         {% endif %}
         {% endfor %}

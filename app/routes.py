@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
-from app.models import User, Book, Author, Line, Kind, Annotation, Tag
+from app.models import User, Book, Author, Line, Kind, Annotation, AnnotationVersion, Tag
 from app.forms import LoginForm, RegistrationForm
 from app.forms import AnnotationForm, LineNumberForm
 from app.funky import preplines, is_empty, proc_tag
@@ -129,14 +129,11 @@ def read(book_url):
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter_by(book_id = book.id).all()
     annotations = Annotation.query.filter(
-            Annotation.book_id == book.id).order_by(
-            Annotation.last_line_num.asc(),
-            Annotation.last_char_idx.desc()).all()
-
+            Annotation.book_id == book.id) .all()
 
     annos = defaultdict(list)
     for a in annotations:
-        annos[a.last_line_num].append(a)
+        annos[a.HEAD.last_line_num].append(a.HEAD)
 
     preplines(lines, annos)
 
@@ -174,13 +171,11 @@ def read_section(book_url, level, number):
         abort(404)
 
     annotations = Annotation.query.filter(
-            Annotation.book_id == book.id).order_by(
-            Annotation.last_line_num.asc(),
-            Annotation.last_char_idx.desc()).all()
+            Annotation.book_id == book.id).all()
 
     annos = defaultdict(list)
     for a in annotations:
-        annos[a.last_line_num].append(a)
+        annos[a.HEAD.last_line_num].append(a.HEAD)
 
     preplines(lines, annos)
 
@@ -192,7 +187,6 @@ def read_section(book_url, level, number):
 def view_anno(anno_id):
     annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
     lines = annotation.get_lines()
-    
     return render_template('annotation.html', title = annotation.book.title,
             annotation = annotation, lines = lines)
 
@@ -204,48 +198,52 @@ def view_anno(anno_id):
 @app.route('/edit/<anno_id>', methods=['GET', 'POST'])
 @login_required
 def edit(anno_id):
-    annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
-    book = Book.query.filter_by(url = annotation.book.url).first()
+    annotation = Annotation.query.filter_by(id = anno_id).first_or_404().HEAD
     lines = annotation.get_lines()
     form = AnnotationForm()
 
     if form.cancel.data:
-        return redirect(url_for('read', book_url=book.url))
+        return redirect(url_for('read', book_url=annotation.book.url))
     elif form.validate_on_submit():
-        annotation.first_line_num = form.first_line.data
-        annotation.last_line_num = form.last_line.data
-        annotation.first_char_idx = form.first_char_idx.data
-        annotation.last_char_idx = form.last_char_idx.data
-        annotation.annotation = form.annotation.data
+        tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
+        tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
+        tag3 = proc_tag(form.tag_3.data) if not is_empty(form.tag_3.data) else None
+        tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
+        tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
-        if not is_empty(form.tag_1.data):
-            annotation.tag_1 = proc_tag(form.tag_1.data)
-        if not is_empty(form.tag_2.data):
-            annotation.tag_2 = proc_tag(form.tag_2.data)
-        if not is_empty(form.tag_3.data):
-            annotation.tag_3 = proc_tag(form.tag_3.data)
-        if not is_empty(form.tag_4.data):
-            annotation.tag_4 = proc_tag(form.tag_4.data)
-        if not is_empty(form.tag_5.data):
-            annotation.tag_5 = proc_tag(form.tag_5.data)
+        anno = AnnotationVersion(book_id = annotation.book.id,
+                previous_id = annotation.id,
+                first_line_num = form.first_line.data,
+                last_line_num = form.last_line.data,
+                first_char_idx = form.first_char_idx.data,
+                last_char_idx = form.last_char_idx.data,
+                annotation = form.annotation.data,
+                tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
+                tag_4 = tag4, tag_5 = tag5)
 
+        db.session.add(anno)
         db.session.commit()
-        flash('Annotation Edited')
-        return redirect(url_for('read', book_url=book.url))
+        flash('Edit submitted for review.')
+        return redirect(url_for('read', book_url=annotation.book.url))
     else:
+        tag1 = annotation.tag_1.tag if annotation.tag_1 else None
+        tag2 = annotation.tag_2.tag if annotation.tag_2 else None
+        tag3 = annotation.tag_3.tag if annotation.tag_3 else None
+        tag4 = annotation.tag_4.tag if annotation.tag_4 else None
+        tag5 = annotation.tag_5.tag if annotation.tag_5 else None
         form.first_line.data = annotation.first_line_num
         form.last_line.data = annotation.last_line_num
         form.first_char_idx.data = annotation.first_char_idx
         form.last_char_idx.data = annotation.last_char_idx
         form.annotation.data = annotation.annotation
-        form.tag_1.data = annotation.tag_1.tag
-        form.tag_2.data = annotation.tag_2.tag
-        form.tag_3.data = annotation.tag_3.tag
-        form.tag_4.data = annotation.tag_4.tag
-        form.tag_5.data = annotation.tag_5.tag
+        form.tag_1.data = tag1
+        form.tag_2.data = tag2
+        form.tag_3.data = tag3
+        form.tag_4.data = tag4
+        form.tag_5.data = tag5
 
-    return render_template('create.html', title = book.title, form = form,
-            book = book, lines = lines)
+    return render_template('create.html', title = annotation.book.title, 
+            form = form, book = annotation.book, lines = lines)
 
 
 @app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
@@ -265,20 +263,15 @@ def create(book_url, first_line, last_line):
 
     if form.cancel.data:
         return redirect(url_for('read', book_url=book.url))
-    elif form.validate_on_submit():
 
-        if not is_empty(form.tag_1.data):
-            tag1 = proc_tag(form.tag_1.data)
-        if not is_empty(form.tag_2.data):
-            tag2 = proc_tag(form.tag_2.data)
-        if not is_empty(form.tag_3.data):
-            tag3 = proc_tag(form.tag_3.data)
-        if not is_empty(form.tag_4.data):
-            tag4 = proc_tag(form.tag_4.data)
-        if not is_empty(form.tag_5.data):
-            tag5 = proc_tag(form.tag_5.data)
-            
-        anno = Annotation(book_id = book.id, 
+    elif form.validate_on_submit():
+        tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
+        tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
+        tag3 = proc_tag(form.tag_3.data) if not is_empty(form.tag_3.data) else None
+        tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
+        tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
+
+        anno = AnnotationVersion(book_id = book.id, 
                 first_line_num = form.first_line.data,
                 last_line_num = form.last_line.data,
                 first_char_idx = form.first_char_idx.data,
@@ -286,7 +279,12 @@ def create(book_url, first_line, last_line):
                 annotation = form.annotation.data,
                 tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
                 tag_4 = tag4, tag_5 = tag5)
+
         db.session.add(anno)
+
+        head = Annotation(book_id = book.id, HEAD = anno)
+        db.session.add(head)
+
         db.session.commit()
         flash('Annotation Submitted')
         return redirect(url_for('read', book_url=book.url))

@@ -66,21 +66,26 @@ class Kind(db.Model):
     kind = db.Column(db.String(12), index = True)
 
     def __repr__(self):
-        return f"<lk {self.id}: {self.ltype}>"
-
+        return f"<k {self.id}: {self.kind}>"
 
 class Line(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
+
     l_num = db.Column(db.Integer, index = True)
+
     kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
     kind = db.relationship("Kind", foreign_keys = [kind_id])
+
     bk_num = db.Column(db.Integer, index = True)
     pt_num = db.Column(db.Integer, index = True)
     ch_num = db.Column(db.Integer, index = True)
+
     em_status_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
     em_status = db.relationship("Kind", foreign_keys = [em_status_id])
+
     line = db.Column(db.String(200))
     
     def __repr__(self):
@@ -97,12 +102,28 @@ class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
-    first_line_num = db.Column(db.Integer, index=True)
+    head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
+    HEAD = db.relationship("AnnotationVersion") 
+    weight = db.Column(db.Integer, default = 0)
+    modified = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+    
+class AnnotationVersion(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book")
+
+    previous_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
+            default = None)
+    previous = db.relationship("AnnotationVersion")
+
+    first_line_num = db.Column(db.Integer)
     last_line_num = db.Column(db.Integer, index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
-    weight = db.Column(db.Integer, default = 0)
+
     annotation = db.Column(db.Text)
+
     added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index = True)

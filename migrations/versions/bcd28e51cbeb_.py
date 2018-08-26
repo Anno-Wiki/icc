@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4d8a274b3563
+Revision ID: bcd28e51cbeb
 Revises: 
-Create Date: 2018-08-19 10:41:48.257698
+Create Date: 2018-08-26 12:19:41.948534
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4d8a274b3563'
+revision = 'bcd28e51cbeb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -76,18 +76,32 @@ def upgrade():
     op.create_table('annotation',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('head_id', sa.Integer(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('modified', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['head_id'], ['annotation.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
+    op.create_index(op.f('ix_annotation_modified'), 'annotation', ['modified'], unique=False)
+    op.create_table('annotation_version',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('previous_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('annotation', sa.Text(), nullable=True),
+    sa.Column('added', sa.DateTime(), nullable=True),
     sa.Column('tag_1_id', sa.Integer(), nullable=True),
     sa.Column('tag_2_id', sa.Integer(), nullable=True),
     sa.Column('tag_3_id', sa.Integer(), nullable=True),
     sa.Column('tag_4_id', sa.Integer(), nullable=True),
     sa.Column('tag_5_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['previous_id'], ['annotation_version.id'], ),
     sa.ForeignKeyConstraint(['tag_1_id'], ['tag.id'], ),
     sa.ForeignKeyConstraint(['tag_2_id'], ['tag.id'], ),
     sa.ForeignKeyConstraint(['tag_3_id'], ['tag.id'], ),
@@ -95,14 +109,14 @@ def upgrade():
     sa.ForeignKeyConstraint(['tag_5_id'], ['tag.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
-    op.create_index(op.f('ix_annotation_first_line_num'), 'annotation', ['first_line_num'], unique=False)
-    op.create_index(op.f('ix_annotation_last_line_num'), 'annotation', ['last_line_num'], unique=False)
-    op.create_index(op.f('ix_annotation_tag_1_id'), 'annotation', ['tag_1_id'], unique=False)
-    op.create_index(op.f('ix_annotation_tag_2_id'), 'annotation', ['tag_2_id'], unique=False)
-    op.create_index(op.f('ix_annotation_tag_3_id'), 'annotation', ['tag_3_id'], unique=False)
-    op.create_index(op.f('ix_annotation_tag_4_id'), 'annotation', ['tag_4_id'], unique=False)
-    op.create_index(op.f('ix_annotation_tag_5_id'), 'annotation', ['tag_5_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_added'), 'annotation_version', ['added'], unique=False)
+    op.create_index(op.f('ix_annotation_version_book_id'), 'annotation_version', ['book_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_last_line_num'), 'annotation_version', ['last_line_num'], unique=False)
+    op.create_index(op.f('ix_annotation_version_tag_1_id'), 'annotation_version', ['tag_1_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_tag_2_id'), 'annotation_version', ['tag_2_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_tag_3_id'), 'annotation_version', ['tag_3_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_tag_4_id'), 'annotation_version', ['tag_4_id'], unique=False)
+    op.create_index(op.f('ix_annotation_version_tag_5_id'), 'annotation_version', ['tag_5_id'], unique=False)
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=True),
@@ -111,14 +125,17 @@ def upgrade():
     sa.Column('bk_num', sa.Integer(), nullable=True),
     sa.Column('pt_num', sa.Integer(), nullable=True),
     sa.Column('ch_num', sa.Integer(), nullable=True),
+    sa.Column('em_status_id', sa.Integer(), nullable=True),
     sa.Column('line', sa.String(length=200), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['em_status_id'], ['kind.id'], ),
     sa.ForeignKeyConstraint(['kind_id'], ['kind.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_line_bk_num'), 'line', ['bk_num'], unique=False)
     op.create_index(op.f('ix_line_book_id'), 'line', ['book_id'], unique=False)
     op.create_index(op.f('ix_line_ch_num'), 'line', ['ch_num'], unique=False)
+    op.create_index(op.f('ix_line_em_status_id'), 'line', ['em_status_id'], unique=False)
     op.create_index(op.f('ix_line_kind_id'), 'line', ['kind_id'], unique=False)
     op.create_index(op.f('ix_line_l_num'), 'line', ['l_num'], unique=False)
     op.create_index(op.f('ix_line_pt_num'), 'line', ['pt_num'], unique=False)
@@ -130,17 +147,21 @@ def downgrade():
     op.drop_index(op.f('ix_line_pt_num'), table_name='line')
     op.drop_index(op.f('ix_line_l_num'), table_name='line')
     op.drop_index(op.f('ix_line_kind_id'), table_name='line')
+    op.drop_index(op.f('ix_line_em_status_id'), table_name='line')
     op.drop_index(op.f('ix_line_ch_num'), table_name='line')
     op.drop_index(op.f('ix_line_book_id'), table_name='line')
     op.drop_index(op.f('ix_line_bk_num'), table_name='line')
     op.drop_table('line')
-    op.drop_index(op.f('ix_annotation_tag_5_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_tag_4_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_tag_3_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_tag_2_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_tag_1_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_last_line_num'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_first_line_num'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_version_tag_5_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_tag_4_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_tag_3_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_tag_2_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_tag_1_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_last_line_num'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_book_id'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_added'), table_name='annotation_version')
+    op.drop_table('annotation_version')
+    op.drop_index(op.f('ix_annotation_modified'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_book_id'), table_name='annotation')
     op.drop_table('annotation')
     op.drop_index(op.f('ix_book_url'), table_name='book')
