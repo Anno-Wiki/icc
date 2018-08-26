@@ -202,6 +202,7 @@ def view_anno(anno_id):
 #####################
 
 @app.route('/edit/<anno_id>', methods=['GET', 'POST'])
+@login_required
 def edit(anno_id):
     annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
     book = Book.query.filter_by(url = annotation.book.url).first()
@@ -216,6 +217,18 @@ def edit(anno_id):
         annotation.first_char_idx = form.first_char_idx.data
         annotation.last_char_idx = form.last_char_idx.data
         annotation.annotation = form.annotation.data
+
+        if not is_empty(form.tag_1.data):
+            annotation.tag_1 = proc_tag(form.tag_1.data)
+        if not is_empty(form.tag_2.data):
+            annotation.tag_2 = proc_tag(form.tag_2.data)
+        if not is_empty(form.tag_3.data):
+            annotation.tag_3 = proc_tag(form.tag_3.data)
+        if not is_empty(form.tag_4.data):
+            annotation.tag_4 = proc_tag(form.tag_4.data)
+        if not is_empty(form.tag_5.data):
+            annotation.tag_5 = proc_tag(form.tag_5.data)
+
         db.session.commit()
         flash('Annotation Edited')
         return redirect(url_for('read', book_url=book.url))
@@ -225,6 +238,11 @@ def edit(anno_id):
         form.first_char_idx.data = annotation.first_char_idx
         form.last_char_idx.data = annotation.last_char_idx
         form.annotation.data = annotation.annotation
+        form.tag_1.data = annotation.tag_1.tag
+        form.tag_2.data = annotation.tag_2.tag
+        form.tag_3.data = annotation.tag_3.tag
+        form.tag_4.data = annotation.tag_4.tag
+        form.tag_5.data = annotation.tag_5.tag
 
     return render_template('create.html', title = book.title, form = form,
             book = book, lines = lines)
@@ -232,6 +250,7 @@ def edit(anno_id):
 
 @app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
         methods=['GET', 'POST'])
+@login_required
 def create(book_url, first_line, last_line):
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter(Line.book_id == book.id, Line.l_num >= first_line,
