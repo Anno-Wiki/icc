@@ -1,6 +1,26 @@
+:root {
+    --base03:       #002b36;
+    --base02:       #073642;
+    --base01:       #586e75;
+    --base00:       #657b83;
+    --base0:        #839496;
+    --base1:        #93a1a1;
+    --base2:        #eee8d5;
+    --base3:        #fdf6e3;
+    --yellow:       #b58900;
+    --orange:       #cb4b16;
+    --red:          #dc322f;
+    --magenta:      #d33682;
+    --violet:       #6c71c4;
+    --blue:         #268bd2;
+    --cyan:         #2aa198;
+    --green:        #859900;
+}
+
 body {
     font-family: 'EB Garamond', serif;
-    background-color: #fdf6e3;
+    background-color: var(--base3);
+    color: var(--base1);
 }
 #container {
     width: 7.25in;
@@ -12,21 +32,21 @@ ul {
     text-indent: 2em hanging;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    color: #657b83;
+    var(--base01);
 }
 a {
     text-decoration: none;
-    color: #268bd2;
+    color: var(--blue);
 }
 a:hover {
-    color: #002b36;
+    color: var(--cyan);
 }
 p {
     margin: 0px;
     text-align: justify;
     text-indent: 2em;
     font-size: 14pt;
-    color: #657b83;
+    color: var(--base00);
 }
 h1 {
     margin-bottom: 25px;
@@ -34,7 +54,7 @@ h1 {
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size: 30pt;
-    color: #586e75;
+    color: var(--base01);
 } 
 h2 {
     margin-bottom: 25px;
@@ -42,12 +62,11 @@ h2 {
     font-family: 'Playfair Display', serif;
     font-weight: normal;
     font-size: 25pt;
-    color: #839496;
+    color: var(--base01);
 } 
 pre {
     margin: 5px;
     font-family: 'Playfair Display', serif;
-    color: #839496;
 }
 
 
@@ -56,16 +75,16 @@ nav {
     margin: 10px;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    color: #586e75;
+    color: var(--base01);
 }
 nav a {
     margin: 10px;
-    color: #586e75;
+    color: var(--base01);
 }
 nav a:hover {
     margin-bottom: 3px;
-    border-bottom: 1px solid #000;
-    color: #002b36;
+    border-bottom: 1px solid var(--base1);
+    color: var(--base1);
 }
 
 
@@ -80,7 +99,7 @@ nav a:hover {
     font-size: 16pt;
 }
 .table_of_contents tr:hover{
-    background-color: #ffffff;
+    background-color: var(--base2);
 }
 .book_contents {
     font-size: 16pt;
@@ -113,7 +132,7 @@ nav a:hover {
     text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    color: #586e75;
+    color: var(--base01);
 }
 .pt {
     display: block;
@@ -121,7 +140,7 @@ nav a:hover {
     text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 20pt;
-    color: #586e75;
+    color: var(--base01);
 }
 .bk {
     display: block;
@@ -129,7 +148,7 @@ nav a:hover {
     text-align: center;
     font-family: 'Playfair Display', serif;
     font-size: 24pt;
-    color: #586e75;
+    color: var(--base01);
 }
 .stg {
     display: block;
@@ -137,14 +156,14 @@ nav a:hover {
     text-indent: 0;
     font-family: 'Playfair Display', serif;
     font-size: 12pt;
-    color: #586e75;
+    color: var(--base01);
 }
 paragraph{
     margin: 3 0 3 0px;
     display: block;
     font-family: 'EB Garamond', serif;
     font-size: 14pt;
-    color: #657b83;
+    color: var(--base00);
 }
 paragraph.fl {
     text-align: justify;
@@ -218,16 +237,16 @@ sup.anno {
     font-family: Playfair Display, serif;
     font-size: 0.7em;
     font-weight: 600;
-    color: #93a1a1;
+    color: var(--base1);
 }
 annotation {
     display: block;
     margin: 20px 0 20px 0;
     padding: 10px;
-    background-color: #eee8d5;
+    background-color: var(--base2);
 /*    border: 2px solid #002b36;
     border-radius: 5px;*/
-    color: #586e75;
+    color: var(--base01);
     font-size: 14px;
     font-family: Playfair Display, serif;
     text-align: justify;
@@ -236,10 +255,9 @@ annotation p {
     margin-bottom: 20px;
 }
 tag {
-    padding: 5px;
-/*    border: 2px solid #002b36;
-    border-radius: 5px;*/
-    margin: 10px 0 10px 3px;
-    background-color: #2aa198;
-    color: #fdf6e3;
+    padding: 5px 15px 5px 15px;;
+    border-radius: 3px;
+    margin: 10px 0 10px 5px;
+    background-color: var(--cyan);
+    color: var(--base3);
 }
