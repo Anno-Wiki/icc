@@ -1,32 +1,36 @@
 
-ID Age  P Project Tags         Description                                  Urg
--- ---- - ------- ------------ -------------------------------------------- ----
- 9 7d   H web     feature      Create prev and next page for pagination     7.84
-                               system
-10 7d   H web     feature      Get the requests system up and running to    7.84
-                               return people to the right read view after
-                               submitting/cancelling a edit/annotation
-16 1min H web     feature      implement edit review queue                   7.8
- 6 7d   M web     reasearch    Investigate and begin implementing all the   5.74
-                               user functions
- 7 7d   M web     test         Test more formats!                           5.74
-11 7d   M web     optimization Modify insertlines.py to index all the kinds 5.74
-                               once and speed up the insertion process
-12 7d   M web     bug          Investigate trailing space bug on lines.     5.74
- 3 2w   L web     feature      write javascript for pe char-level           3.68
-                               annotation
- 4 8d   L web     bug          find a way to index the annotations on a     3.64
-                               given page starting at 1; using the actual
-                               id of the annotation will become obnoxious
-                               when we have annotation [a100000000002354]
- 5 7d   L web     feature      Write javascript for popup annotations on    3.64
-                               read view.
- 8 7d   L web     research     Have to figure out how to display            3.64
-                               already-annotated-books
-14 3d   L web     bug          Keep eye out for italic bug where cursors    3.62
-                               says data truncated at for column line at
-                               row 1
-15 3d   L web     feature      Limit output of annotation display on main   3.62
-                               read page for extra long annos
+ID Age P Project Tags         Description                                   Urg
+-- --- - ------- ------------ --------------------------------------------- ----
+ 9 8d  H web     feature      Create prev and next page for pagination      7.84
+                              system
+10 8d  H web     feature      Get the requests system up and running to     7.84
+                              return people to the right read view after
+                              submitting/cancelling a edit/annotation
+16 20h H web     feature      implement edit review queue                    7.8
+ 6 8d  M web     reasearch    Investigate and begin implementing all the    5.74
+                              user functions
+ 7 8d  M web     test         Test more formats!                            5.74
+11 8d  M web     optimization Modify insertlines.py to index all the kinds  5.74
+                              once and speed up the insertion process
+12 7d  M web     bug          Investigate trailing space bug on lines.      5.74
+17 19h M web     bug          Refuse to annotate (x,y) where x > y           5.7
+18 12s M web     bug          Need to figure out what to do about how lines  5.7
+                              break when there are too many annotations. I
+                              think I'm going to display them out of the
+                              line, like the line nums.
+ 3 2w  L web     feature      write javascript for pe char-level annotation 3.68
+ 4 9d  L web     bug          find a way to index the annotations on a      3.65
+                              given page starting at 1; using the actual id
+                              of the annotation will become obnoxious when
+                              we have annotation [a100000000002354]
+ 5 8d  L web     feature      Write javascript for popup annotations on     3.64
+                              read view.
+ 8 8d  L web     research     Have to figure out how to display             3.64
+                              already-annotated-books
+14 3d  L web     bug          Keep eye out for italic bug where cursors     3.62
+                              says data truncated at for column line at row
+                              1
+15 3d  L web     feature      Limit output of annotation display on main    3.62
+                              read page for extra long annos
 
-13 tasks
+15 tasks
