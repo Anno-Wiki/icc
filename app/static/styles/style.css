@@ -175,19 +175,9 @@ paragraph.cont {
 paragraph.sl {
     text-indent: 1em;
 }
-    
+
 /* Justified lines */
-line.fl {
-    margin: 0px;
-    line-height: 1.5em;
-    text-indent: 1em;
-}
-line.fl:after {
-    display: inline-block;
-    width: 100%;
-    content: "";
-}
-line.sl {
+line.fl, line.sl, {
     margin: 0px;
     line-height: 1.5em;
     text-indent: 1em;
@@ -195,33 +185,24 @@ line.sl {
 line.l {
     margin: 0px;
     line-height: 1.5em;
-    text-align: justify;
-}
-
-line.l:after {
-    display: inline-block;
-    width: 100%;
-    content: "";
 }
 line.ll {
     margin: 0px;
     line-height: 1.5em;
     text-align: left;
 }
+line.fl:after, line.l:after {
+    display: inline-block;
+    width: 100%;
+    content: "";
+}
+
 /* Handling of ragged right text */
-.rrfl {
+.rrfl, .rrl {
     margin: 0px;
     line-height: 1.5em;
 }
-.rrl {
-    margin: 0px;
-    line-height: 1.5em;
-}
-.rrsl {
-    margin: 0 0 10 0px;
-    line-height: 1.5em;
-}
-.rrll {
+.rrsl, .rrll {
     margin: 0 0 10 0px;
     line-height: 1.5em;
 }
