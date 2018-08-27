@@ -23,7 +23,7 @@ body {
     color: var(--base1);
 }
 #container {
-    width: 7.25in;
+    width: 600px;
     margin: auto;
 }
 
