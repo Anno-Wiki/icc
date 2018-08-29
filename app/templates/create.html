@@ -13,20 +13,27 @@
 
 
     <hr>
-    {% include "_annotation_form.html" %}
-    <h1>Selection:</h1>
-    <hr>
-    <div id="content">
-        {%- if lines[0].kind.kind == "l" -%}
-            <paragraph class="cont">
-        {% endif %}
-        {%- for line in lines -%}
-            {%- include "_line.html" -%}
-        {%- endfor -%}
-        {%- if lines[-1].kind.kind == "l" -%}
-            </paragraph>
-        {% endif %}
-    </div>
+    {% if annotation.edit_pending %}
+        <h2>An edit is already pending</h2>
+        <p>A new edit suggestion cannot be submitted until the currently pending
+        edit suggestion is either approved or rejected.</p>
+        <p>Please try again later.</p>
+    {% else %}
+        {% include "_annotation_form.html" %}
+        <h1>Selection:</h1>
+        <hr>
+        <div id="content">
+            {%- if lines[0].kind.kind == "l" -%}
+                <paragraph class="cont">
+            {% endif %}
+            {%- for line in lines -%}
+                {%- include "_line.html" -%}
+            {%- endfor -%}
+            {%- if lines[-1].kind.kind == "l" -%}
+                </paragraph>
+            {% endif %}
+        </div>
+    {% endif %}
     <hr>
     <div class="running_head">
         <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 

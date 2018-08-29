@@ -110,6 +110,8 @@ class Annotation(db.Model):
 
     weight = db.Column(db.Integer, default = 0)
     added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+
+    edit_pending = db.Column(db.Boolean, index = True, default = False)
     
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key = True)

@@ -223,11 +223,12 @@ def edit(anno_id):
                 tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
                 tag_4 = tag4, tag_5 = tag5)
 
+        annotation.edit_pending = True
         db.session.add(anno)
         db.session.commit()
         flash('Edit submitted for review.')
         return redirect(url_for('read', book_url=annotation.HEAD.book.url))
-    else:
+    elif not annotation.edit_pending:
         tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
         tag2 = annotation.HEAD.tag_2.tag if annotation.HEAD.tag_2 else None
         tag3 = annotation.HEAD.tag_3.tag if annotation.HEAD.tag_3 else None
@@ -245,7 +246,8 @@ def edit(anno_id):
         form.tag_5.data = tag5
 
     return render_template('create.html', title = annotation.HEAD.book.title, 
-            form = form, book = annotation.HEAD.book, lines = lines)
+            form = form, book = annotation.HEAD.book, lines = lines, 
+            annotation = annotation)
 
 
 @app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
