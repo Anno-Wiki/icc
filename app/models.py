@@ -1,3 +1,4 @@
+import hashlib
 from datetime import datetime
 from app import db, login
 from flask_login import UserMixin
@@ -105,13 +106,20 @@ class Annotation(db.Model):
     book = db.relationship("Book")
 
     head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
-    HEAD = db.relationship("AnnotationVersion") 
+    HEAD = db.relationship("AnnotationVersion", foreign_keys = [head_id]) 
 
     weight = db.Column(db.Integer, default = 0)
     added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
     
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+
+    pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index = True)
+    pointer = db.relationship("Annotation", foreign_keys = [pointer_id]) 
+
+    hash_id = db.Column(db.String(40), index = True)
+
+    author_id = db.Column(db.Integer, index = True)
 
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
@@ -141,6 +149,16 @@ class AnnotationVersion(db.Model):
     tag_4 = db.relationship("Tag", foreign_keys = [tag_4_id])
     tag_5 = db.relationship("Tag", foreign_keys = [tag_5_id])
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        s = f"{self.author_id},{self.book_id},{self.first_line_num},{self.last_line_num}," \
+                "{self.first_char_idx},{self.last_char_idx},{self.annotation},{self.modified}," \
+                "{self.tag_1_id},{self.tag_2_id},{self.tag_3_id},{self.tag_4_id},{self.tag_5_id}" 
+        self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
+
+    def __repr__(self):
+        return f"<Ann {self.id} on book {self.book.title}>"
+
     def get_lines(self):
         lines = Line.query.filter(Line.book_id == self.book_id,
                 Line.l_num >= self.first_line_num, 
@@ -158,5 +176,3 @@ class AnnotationVersion(db.Model):
 
         return lines
 
-    def __repr__(self):
-        return f"<Ann {self.id}: {self.weight} lbs. on book {self.book.title}>"

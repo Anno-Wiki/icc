@@ -63,3 +63,8 @@ def proc_tag(tag):
         t = Tag.query.filter_by(tag = t.tag).first()
     return t
 
+def cat(*args):
+    s = []
+    for arg in args:
+        s.append(str(arg))
+    return ''.join(s)

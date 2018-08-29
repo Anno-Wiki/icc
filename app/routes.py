@@ -1,4 +1,5 @@
 from collections import defaultdict
+import hashlib
 from flask import render_template, flash, redirect, url_for, request, Markup
 from flask import abort
 from flask_login import login_user, logout_user, current_user, login_required
@@ -212,6 +213,7 @@ def edit(anno_id):
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
         anno = AnnotationVersion(book_id = annotation.HEAD.book.id,
+                pointer_id = anno_id,
                 previous_id = annotation.HEAD.id,
                 first_line_num = form.first_line.data,
                 last_line_num = form.last_line.data,
@@ -265,41 +267,47 @@ def create(book_url, first_line, last_line):
         return redirect(url_for('read', book_url=book.url))
 
     elif form.validate_on_submit():
+
+        # Process all the tags as sqlalchemy objects if the form isn't empty
         tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
         tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
         tag3 = proc_tag(form.tag_3.data) if not is_empty(form.tag_3.data) else None
         tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
-        anno = AnnotationVersion(book_id = book.id, 
-                first_line_num = form.first_line.data,
-                last_line_num = form.last_line.data,
-                first_char_idx = form.first_char_idx.data,
-                last_char_idx = form.last_char_idx.data,
-                annotation = form.annotation.data,
-                tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
-                tag_4 = tag4, tag_5 = tag5)
+        # Create the inital transient sqlalchemy AnnotationVersion object
+        anno = AnnotationVersion(book_id = book.id,
+            first_line_num = form.first_line.data,
+            last_line_num = form.last_line.data,
+            first_char_idx = form.first_char_idx.data,
+            last_char_idx = form.last_char_idx.data,
+            annotation = form.annotation.data,
+            tag_1 = tag1, tag_2 = tag2, tag_3 = tag3, tag_4 = tag4, tag_5 = tag5)
 
+        # Save the hash_id from the transient object
+        ahash = anno.hash_id
+
+        # Add/commit it to db
         db.session.add(anno)
         db.session.commit()
 
-        anno = AnnotationVersion.query.filter(
-                AnnotationVersion.book_id == book.id, 
-                AnnotationVersion.first_line_num == anno.first_line_num,
-                AnnotationVersion.last_line_num == anno.last_line_num,
-                AnnotationVersion.first_char_idx == anno.first_char_idx,
-                AnnotationVersion.last_char_idx == anno.last_char_idx,
-                AnnotationVersion.annotation == anno.annotation,
-                AnnotationVersion.tag_1 == anno.tag_1, 
-                AnnotationVersion.tag_2 == anno.tag_2, 
-                AnnotationVersion.tag_3 == anno.tag_3,
-                AnnotationVersion.tag_4 == anno.tag_4, 
-                AnnotationVersion.tag_5 == anno.tag_5).first()
+        # Grab the a_v object for its id using the hash
+        anno = AnnotationVersion.query.filter_by(hash_id = ahash).first()
 
+        # Create the head with the a_v id, add/commit it
         head = Annotation(book_id = book.id, head_id = anno.id)
-
         db.session.add(head)
         db.session.commit()
+
+        # Get the same head object for its id
+        pointer = Annotation.query.filter_by(head_id = anno.id).first()
+
+        # Set the a_v's pointer_id to the pointer
+        anno.pointer_id = pointer.id
+        db.session.add(anno)
+        db.session.commit()
+
+        # That seems needlessly complex.
         flash('Annotation Submitted')
         return redirect(url_for('read', book_url=book.url))
 
