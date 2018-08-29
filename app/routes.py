@@ -278,7 +278,7 @@ def create(book_url, first_line, last_line):
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
         # Create the inital transient sqlalchemy AnnotationVersion object
-        anno = AnnotationVersion(book_id = book.id,
+        anno = AnnotationVersion(book_id = book.id, approved = True,
             first_line_num = form.first_line.data,
             last_line_num = form.last_line.data,
             first_char_idx = form.first_char_idx.data,

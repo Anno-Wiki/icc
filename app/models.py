@@ -116,6 +116,8 @@ class Annotation(db.Model):
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key = True)
 
+    approved = db.Column(db.Boolean, default = False, index = True)
+
     pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index = True)
     pointer = db.relationship("Annotation", foreign_keys = [pointer_id]) 
 
