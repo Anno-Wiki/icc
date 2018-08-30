@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% for anno in edits %}
+    <hr>
+        <h2>Click the hash link of the version to keep.</h2>
+        <h3>Original</h3>
+        [<a href="{{ url_for(
+            "reject", edit_hash = anno.hash_id) }}">
+            {{ anno.pointer.HEAD.hash_id }}
+        </a>]
+        <annotation id="{{ anno.pointer.HEAD.hash_id }}">
+        {% for l in anno.pointer.HEAD.get_hl() %}
+            {{ l.line }}
+        {% endfor %}
+
+        {{ anno.pointer.HEAD.annotation|markdown }}
+        
+        {% if anno.pointer.HEAD.tag_1 != None %}
+            <tag>{{ anno.pointer.HEAD.tag_1.tag }}</tag>
+        {% endif %}
+
+        {% if anno.pointer.HEAD.tag_2 != None %}
+            <tag>{{ anno.pointer.HEAD.tag_2.tag }}</tag>
+        {% endif %}
+
+        {% if anno.pointer.HEAD.tag_3 != None %}
+            <tag>{{ anno.pointer.HEAD.tag_3.tag }}</tag>
+        {% endif %}
+
+        {% if anno.pointer.HEAD.tag_4 != None %}
+            <tag>{{ anno.pointer.HEAD.tag_4.tag }}</tag>
+        {% endif %}
+
+        {% if anno.pointer.HEAD.tag_5 != None %}
+            <tag>{{ anno.pointer.HEAD.tag_5.tag }}</tag>
+        {% endif %}
+
+        {{ anno.pointer.HEAD.modified }}
+        </annotation>
+
+        <h3>Edit</h3>
+        [<a href="{{ url_for(
+            "approve", edit_hash = anno.hash_id) }}">
+            {{ anno.hash_id }}
+        </a>]
+        <annotation id="{{ anno.hash_id }}">
+        {% for l in anno.get_hl() %}
+            {{ l.line }}
+        {% endfor %}
+
+        {{ anno.annotation|markdown }}
+        
+        {% if anno.tag_1 != None %}
+            <tag>{{ anno.tag_1.tag }}</tag>
+        {% endif %}
+
+        {% if anno.tag_2 != None %}
+            <tag>{{ anno.tag_2.tag }}</tag>
+        {% endif %}
+
+        {% if anno.tag_3 != None %}
+            <tag>{{ anno.tag_3.tag }}</tag>
+        {% endif %}
+
+        {% if anno.tag_4 != None %}
+            <tag>{{ anno.tag_4.tag }}</tag>
+        {% endif %}
+
+        {% if anno.tag_5 != None %}
+            <tag>{{ anno.tag_5.tag }}</tag>
+        {% endif %}
+
+        {{ anno.modified }}
+        </annotation>
+
+    {% endfor %}
+    <hr>
+{% endblock %}

@@ -11,6 +11,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), index = True, unique = True)
@@ -155,9 +157,12 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.author_id},{self.book_id},{self.first_line_num},{self.last_line_num}," \
-                "{self.first_char_idx},{self.last_char_idx},{self.annotation},{self.modified}," \
-                "{self.tag_1_id},{self.tag_2_id},{self.tag_3_id},{self.tag_4_id},{self.tag_5_id}" 
+        s = f"{self.author_id},{self.book_id}," \
+                f"{self.first_line_num},{self.last_line_num}," \
+                f"{self.first_char_idx},{self.last_char_idx}," \
+                f"{self.annotation},{self.modified}," \
+                f"{self.tag_1_id},{self.tag_2_id},{self.tag_3_id}," \
+                f"{self.tag_4_id},{self.tag_5_id}" 
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):
@@ -172,7 +177,7 @@ class AnnotationVersion(db.Model):
     def get_hl(self):
         lines = self.get_lines()
         
-        if first_line_num == last_line: 
+        if self.first_line_num == self.last_line_num: 
             lines[0].line = lines[0].line[self.first_char_idx:self.last_char_idx]
         else:
             lines[0].line = lines[0].line[self.first_char_idx:]

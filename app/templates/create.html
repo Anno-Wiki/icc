@@ -13,7 +13,7 @@
 
 
     <hr>
-    {% if annotation.edit_pending %}
+    {% if annotation and annotation.edit_pending %}
         <h2>An edit is already pending</h2>
         <p>A new edit suggestion cannot be submitted until the currently pending
         edit suggestion is either approved or rejected.</p>

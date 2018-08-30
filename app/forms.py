@@ -54,3 +54,7 @@ class AnnotationForm(FlaskForm):
     tag_5 = StringField('Tag 5', render_kw={"placeholder":"Tag 5"}, validators=[Optional()])
     submit = SubmitField('Annotate')
     cancel = SubmitField('Cancel')
+
+class ReviewForm(FlaskForm):
+    approve = SubmitField('Approve')
+    cancel = SubmitField('Reject')

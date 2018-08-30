@@ -6,9 +6,10 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
-from app.models import User, Book, Author, Line, Kind, Annotation, AnnotationVersion, Tag
-from app.forms import LoginForm, RegistrationForm
-from app.forms import AnnotationForm, LineNumberForm
+from app.models import User, Book, Author, Line, Kind, Annotation
+from app.models import AnnotationVersion, Tag
+from app.forms import LoginForm, RegistrationForm, AnnotationForm 
+from app.forms import LineNumberForm, ReviewForm
 from app.funky import preplines, is_empty, proc_tag
 
 #################
@@ -205,6 +206,7 @@ def edit(anno_id):
 
     if form.cancel.data:
         return redirect(url_for('read', book_url=annotation.HEAD.book.url))
+
     elif form.validate_on_submit():
         tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
         tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
@@ -228,6 +230,7 @@ def edit(anno_id):
         db.session.commit()
         flash('Edit submitted for review.')
         return redirect(url_for('read', book_url=annotation.HEAD.book.url))
+
     elif not annotation.edit_pending:
         tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
         tag2 = annotation.HEAD.tag_2.tag if annotation.HEAD.tag_2 else None
@@ -279,6 +282,7 @@ def create(book_url, first_line, last_line):
 
         # Create the inital transient sqlalchemy AnnotationVersion object
         anno = AnnotationVersion(book_id = book.id, approved = True,
+            author_id = current_user.id,
             first_line_num = form.first_line.data,
             last_line_num = form.last_line.data,
             first_char_idx = form.first_char_idx.data,
@@ -320,4 +324,33 @@ def create(book_url, first_line, last_line):
         form.last_char_idx.data = -1
 
     return render_template('create.html', title = book.title, form = form,
-            book = book, lines = lines)
+             book = book, lines = lines)
+
+
+###########################
+## Administration Routes ##
+###########################
+
+@app.route('/queue/edits/')
+@login_required
+def edit_review_queue():
+    edits = AnnotationVersion.query.filter_by(approved = False).all()
+    return render_template("queue.html", edits = edits)
+
+@app.route('/approve/edit/<edit_hash>/')
+@login_required
+def approve(edit_hash):
+    edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
+    edit.approved = True
+    edit.pointer.HEAD = edit
+    edit.pointer.edit_pending = False
+    db.session.commit()
+    return redirect(url_for("edit_review_queue"))
+
+@app.route('/reject/edit/<edit_hash>/')
+def reject(edit_hash):
+    edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
+    edit.pointer.edit_pending = False
+    db.session.delete(edit)
+    db.session.commit()
+    return redirect(url_for("edit_review_queue"))
