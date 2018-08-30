@@ -101,22 +101,12 @@ class Tag(db.Model):
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
 
-class Annotation(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-
-    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
-    book = db.relationship("Book")
-
-    head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
-    HEAD = db.relationship("AnnotationVersion", foreign_keys = [head_id]) 
-
-    weight = db.Column(db.Integer, default = 0)
-    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
-
-    edit_pending = db.Column(db.Boolean, index = True, default = False)
     
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+
+    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index = True)
+    editor = db.relationship("User")
 
     approved = db.Column(db.Boolean, default = False, index = True)
 
@@ -124,8 +114,6 @@ class AnnotationVersion(db.Model):
     pointer = db.relationship("Annotation", foreign_keys = [pointer_id]) 
 
     hash_id = db.Column(db.String(40), index = True)
-
-    author_id = db.Column(db.Integer, index = True)
 
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
     book = db.relationship("Book")
@@ -185,3 +173,20 @@ class AnnotationVersion(db.Model):
 
         return lines
 
+
+class Annotation(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index = True)
+    author = db.relationship("User")
+
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index = True)
+    book = db.relationship("Book")
+
+    head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
+    HEAD = db.relationship("AnnotationVersion", foreign_keys = [head_id])
+
+    weight = db.Column(db.Integer, default = 0)
+    added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+
+    edit_pending = db.Column(db.Boolean, index = True, default = False)
