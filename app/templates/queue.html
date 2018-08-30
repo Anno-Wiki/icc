@@ -37,7 +37,9 @@
             <tag>{{ anno.pointer.HEAD.tag_5.tag }}</tag>
         {% endif %}
 
+        edited by {{ anno.pointer.HEAD.editor.username }},
         {{ anno.pointer.HEAD.modified }}
+
         </annotation>
 
         <h3>Edit</h3>
@@ -72,6 +74,7 @@
             <tag>{{ anno.tag_5.tag }}</tag>
         {% endif %}
 
+        edited by {{ anno.editor.username }},
         {{ anno.modified }}
         </annotation>
 

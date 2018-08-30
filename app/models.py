@@ -145,7 +145,7 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.author_id},{self.book_id}," \
+        s = f"{self.editor_id},{self.book_id}," \
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.modified}," \

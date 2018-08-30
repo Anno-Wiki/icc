@@ -215,6 +215,7 @@ def edit(anno_id):
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
         anno = AnnotationVersion(book_id = annotation.HEAD.book.id,
+                editor_id = current_user.id,
                 pointer_id = anno_id,
                 previous_id = annotation.HEAD.id,
                 first_line_num = form.first_line.data,
@@ -282,7 +283,7 @@ def create(book_url, first_line, last_line):
 
         # Create the inital transient sqlalchemy AnnotationVersion object
         anno = AnnotationVersion(book_id = book.id, approved = True,
-            author_id = current_user.id,
+            editor_id = current_user.id,
             first_line_num = form.first_line.data,
             last_line_num = form.last_line.data,
             first_char_idx = form.first_char_idx.data,
@@ -301,7 +302,8 @@ def create(book_url, first_line, last_line):
         anno = AnnotationVersion.query.filter_by(hash_id = ahash).first()
 
         # Create the head with the a_v id, add/commit it
-        head = Annotation(book_id = book.id, head_id = anno.id)
+        head = Annotation(book_id = book.id, head_id = anno.id, 
+                author_id = current_user.id)
         db.session.add(head)
         db.session.commit()
 
