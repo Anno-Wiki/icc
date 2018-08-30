@@ -12,12 +12,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def load_user(id):
     return User.query.get(int(id))
 
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), index = True, unique = True)
     email = db.Column(db.String(128), index = True, unique = True)
     password_hash = db.Column(db.String(128))
+    reputation = db.Column(db.Integer, default = 0)
     
     def __repr__(self):
         return "<User {}>".format(self.username)
