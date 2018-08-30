@@ -1,0 +1,24 @@
+    <sup><a href="#{{ anno.HEAD.last_line_num }}">[{{ anno.id }}]</a></sup>
+    {{ anno.HEAD.annotation|markdown }}
+    <tags>
+        {% if anno.HEAD.tag_1 != None %}
+            <tag>{{ anno.HEAD.tag_1.tag }}</tag>
+        {% endif %}
+
+        {% if anno.HEAD.tag_2 != None %}
+            <tag>{{ anno.HEAD.tag_2.tag }}</tag>
+        {% endif %}
+
+        {% if anno.HEAD.tag_3 != None %}
+            <tag>{{ anno.HEAD.tag_3.tag }}</tag>
+        {% endif %}
+
+        {% if anno.HEAD.tag_4 != None %}
+            <tag>{{ anno.HEAD.tag_4.tag }}</tag>
+        {% endif %}
+
+        {% if anno.HEAD.tag_5 != None %}
+            <tag>{{ anno.HEAD.tag_5.tag }}</tag>
+        {% endif %}
+    </tags>
+    {{ anno.added }}
