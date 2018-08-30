@@ -2,18 +2,18 @@
 
 {% block content %}
 
+        <h3>Click the hash link of the version to keep.</h3>
     {% for anno in edits %}
     <hr>
-        <h2>Click the hash link of the version to keep.</h2>
-        <h3>Original</h3>
-        [<a href="{{ url_for(
+        Original: [<a href="{{ url_for(
             "reject", edit_hash = anno.hash_id) }}">
             {{ anno.pointer.HEAD.hash_id }}
         </a>]
-        <annotation id="{{ anno.pointer.HEAD.hash_id }}">
-        {% for l in anno.pointer.HEAD.get_hl() %}
-            {{ l.line }}
+        {% for line in anno.pointer.HEAD.get_hl() %}
+            {% include "_line.html" %}
         {% endfor %}
+        </paragraph>
+        <annotation id="{{ anno.pointer.HEAD.hash_id }}">
 
         {{ anno.pointer.HEAD.annotation|markdown }}
         
@@ -42,15 +42,15 @@
 
         </annotation>
 
-        <h3>Edit</h3>
-        [<a href="{{ url_for(
+        Suggested edit: [<a href="{{ url_for(
             "approve", edit_hash = anno.hash_id) }}">
             {{ anno.hash_id }}
         </a>]
-        <annotation id="{{ anno.hash_id }}">
-        {% for l in anno.get_hl() %}
-            {{ l.line }}
+        {% for line in anno.get_hl() %}
+            {% include "_line.html" %}
         {% endfor %}
+        </paragraph>
+        <annotation id="{{ anno.hash_id }}">
 
         {{ anno.annotation|markdown }}
         
