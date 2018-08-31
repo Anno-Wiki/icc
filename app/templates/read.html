@@ -9,6 +9,12 @@
             {{ book.author.name }} </a>
     </div>
 
+    {% if prev_page %}
+    <a href="{{ prev_page }}">Previous</a>
+    {% endif %}
+    {% if next_page %}
+    <a href="{{ next_page }}">Next</a>
+    {% endif %}
     <form action="" method="POST">
         {{ form.hidden_tag() }}
         {{ form.first_line.label }}
