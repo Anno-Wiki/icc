@@ -12,12 +12,6 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm
 from app.forms import LineNumberForm, ReviewForm
 from app.funky import preplines, is_empty, proc_tag
 
-#################
-## Controllers ##
-#################
-
-LINES_PER_PAGE = 30
-
 ###########
 ## Index ##
 ###########
@@ -27,8 +21,8 @@ LINES_PER_PAGE = 30
 def index():
     books = Book.query.all()
     authors = Author.query.all()
-    return render_template('index.html', title='Home', books = books, 
-            authors = authors)
+    return render_template('index.html', title='Home', books=books, 
+            authors=authors)
 
 ####################
 ## User Functions ##
@@ -93,28 +87,27 @@ def author_index():
 
 @app.route('/authors/<name>/')
 def author(name):
-    author = Author.query.filter_by(url = name).first_or_404()
-    books = Book.query.filter_by(author_id = author.id).order_by(Book.sort_title)
-    return render_template('author.html', books = books, author = author,
-            title = author.name)
+    author = Author.query.filter_by(url=name).first_or_404()
+    books = Book.query.filter_by(author_id=author.id).order_by(Book.sort_title)
+    return render_template('author.html', title=author.name, books=books,
+            author=author)
 
 @app.route('/books/')
 def book_index():
     books = Book.query.order_by(Book.sort_title).all()
-    return render_template('book_index.html', books = books, title = 'Books')
+    return render_template('book_index.html', title='Books', books=books)
 
 
 @app.route('/books/<book_url>/', methods=['GET', 'POST'])
 def book(book_url):
-    book = Book.query.filter_by(url = book_url).first_or_404()
-    bk_kind = Kind.query.filter_by(kind = 'bk').first()
-    pt_kind = Kind.query.filter_by(kind = 'pt').first()
-    ch_kind = Kind.query.filter_by(kind = 'ch').first()
-    heierarchy = Line.query.filter(or_(Line.kind == bk_kind, 
-        Line.kind == pt_kind, Line.kind == ch_kind)).all()
-    return render_template('book.html', title = book.title, book = book,
-            heierarchy = heierarchy)
-
+    book = Book.query.filter_by(url=book_url).first_or_404()
+    bk_kind = Kind.query.filter_by(kind='bk').first()
+    pt_kind = Kind.query.filter_by(kind='pt').first()
+    ch_kind = Kind.query.filter_by(kind='ch').first()
+    heierarchy = Line.query.filter(or_(Line.kind==bk_kind, 
+        Line.kind==pt_kind, Line.kind==ch_kind)).all()
+    return render_template('book.html', title=book.title, book=book,
+            heierarchy=heierarchy)
 
 
 ####################
@@ -125,13 +118,12 @@ def book(book_url):
 def read(book_url):
     form = LineNumberForm()
     if form.validate_on_submit():
-        return redirect(url_for("create", book_url = book_url, 
-            first_line = form.first_line.data, last_line = form.last_line.data))
+        return redirect(url_for("create", book_url=book_url, 
+            first_line=form.first_line.data, last_line=form.last_line.data))
 
-    book = Book.query.filter_by(url = book_url).first_or_404()
-    lines = Line.query.filter_by(book_id = book.id).all()
-    annotations = Annotation.query.filter(
-            Annotation.book_id == book.id) .all()
+    book = Book.query.filter_by(url=book_url).first_or_404()
+    lines = Line.query.filter_by(book_id=book.id).all()
+    annotations = Annotation.query.filter(Annotation.book_id==book.id).all()
 
     annos = defaultdict(list)
     for a in annotations:
@@ -139,85 +131,113 @@ def read(book_url):
 
     preplines(lines, annos)
 
-    return render_template('read.html', title = book.title, form = form,
-            book = book, lines = lines, annotations = annotations)
+    return render_template('read.html', title=book.title, form=form, book=book, 
+            lines=lines, annotations=annotations)
 
-
+# unfortunately, this one is a lot more complicated than simple read.
 @app.route('/read/<book_url>/<level>/<number>/', methods=['GET', 'POST'])
 def read_section(book_url, level, number):
-    number = int(number)
+    number = int(number) # convert number to int for straightforward use later
     form = LineNumberForm()
+
+    # initialize next and prev pages
     next_page = None
     prev_page = None
-    if form.validate_on_submit():
-        return redirect(url_for("create", book_url = book_url, 
-            first_line = form.first_line.data, last_line = form.last_line.data,
-            next=url_for("read_section",
-                book_url=book_url,level=level,number=number)))
 
+    if form.validate_on_submit():
+        # redirect to annotate page, with next query param being the current
+        # page. Multi-layered nested return statement. Read carefully.
+        return redirect(url_for("create", book_url=book_url, 
+            first_line=form.first_line.data, last_line=form.last_line.data, 
+            next=url_for("read_section", book_url=book_url, level=level, 
+                number=number)
+                )
+            )
+
+    # c'mon joker, there is no 0 page, even if I am a programmer.
     if int(number) < 1:
         abort(404)
 
-    book = Book.query.filter_by(url = book_url).first_or_404()
+    book = Book.query.filter_by(url=book_url).first_or_404()
+
+    # because we have to access one of three different fields based on the
+    # heierarchical level, we have to test for the level instead of just passing
+    # it to the query as a variable.
     if level == 'bk':
-        lines = Line.query.filter(Line.book_id == book.id, 
-                Line.bk_num == number).all()
+        lines = Line.query.filter(Line.book_id==book.id, 
+                Line.bk_num==number).all()
     elif level == 'pt':
-        lines = Line.query.filter(Line.book_id == book.id,
-                Line.pt_num == number).all()
+        lines = Line.query.filter(Line.book_id==book.id,
+                Line.pt_num==number).all()
     elif level == 'ch':
-        lines = Line.query.filter(Line.book_id == book.id,
-                Line.ch_num == number).all()
+        lines = Line.query.filter(Line.book_id==book.id,
+                Line.ch_num==number).all()
     elif level == 'pg':
-        lines = Line.query.filter_by(book_id = book.id).paginate(int(number),
+        lines = Line.query.filter_by(book_id=book.id).paginate(int(number),
                 app.config['LINES_PER_PAGE'], False)
-        next_page = url_for('read_section', book_url = book.url, level='pg', 
+
+        # to build the next_page url I have first to test for has_next
+        next_page = url_for('read_section', book_url=book.url, level='pg', 
                 number=lines.next_num) if lines.has_next else None
+
+        # then I can cash lines out to the actual lines
         lines = lines.items
+
     else:
+        # this is not the level you are looking for.
         abort(404)
 
     if len(lines) <= 0:
+        # the section you requested didn't actually exist (you must have typed
+        # it into the url bar like some kind of a weirdo)
         abort(404)
 
+    # the next_page url is already built for pg by now. If it's not pg, build
+    # it.
     if level != 'pg':
-        sections = Line.query.filter(Line.book_id == book.id, 
-                Line.kind == Kind.query.filter_by(kind = level).first()
+        # get the last section based on level
+        sections = Line.query.filter(Line.book_id==book.id, 
+                Line.kind==Kind.query.filter_by(kind=level).first()
                 ).order_by(Line.l_num.desc()).first()
+        # cash it out to the actual number based on one of those three fields
         if level == 'bk':
             sections = sections.bk_num
         elif level =='pt':
             sections = sections.pt_num
         elif level == 'ch':
             sections = sections.ch_num
+        # now that it's cashed out, if it's not too big, build the next url
         if number + 1 <= sections:
-            next_page = url_for("read_section", book_url=book_url,
-                    level=level,number=number+1)
+            next_page = url_for("read_section", book_url=book_url, level=level, 
+                    number=number+1)
 
+    # if it's not the first page, build a previous url
     if number > 1:
         prev_page = url_for("read_section", book_url=book_url,
                 level=level, number=number-1)
 
-    annotations = Annotation.query.filter(
-            Annotation.book_id == book.id).all()
+    # get all the annotations
+    annotations = Annotation.query.filter(Annotation.book_id==book.id).all()
 
+    # index the annotations in a dictionary
     annos = defaultdict(list)
     for a in annotations:
         annos[a.HEAD.last_line_num].append(a)
 
+    # call the annotator
     preplines(lines, annos)
 
-    return render_template('read.html', title = book.title, form = form,
-            book = book, lines = lines, annotations = annotations,
-            next_page = next_page, prev_page = prev_page)
+    return render_template('read.html', title=book.title, form=form, book=book,
+            lines=lines, annotations=annotations, next_page=next_page,
+            prev_page=prev_page)
 
 
 @app.route('/view/<anno_id>')
 def view_anno(anno_id):
-    annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
+    annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
     lines = annotation.get_lines()
-    return render_template('annotation.html', title = annotation.book.title,
-            annotation = annotation, lines = lines)
+    return render_template('annotation.html', title=annotation.book.title,
+            annotation=annotation, lines=lines)
 
 
 #####################
@@ -227,14 +247,14 @@ def view_anno(anno_id):
 @app.route('/edit/<anno_id>', methods=['GET', 'POST'])
 @login_required
 def edit(anno_id):
-    annotation = Annotation.query.filter_by(id = anno_id).first_or_404()
+    annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
     lines = annotation.HEAD.get_lines()
     form = AnnotationForm()
 
     if form.cancel.data:
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url = annotation.book.book_url)
+            next_page = url_for('read', book_url=annotation.book.book_url)
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -244,23 +264,25 @@ def edit(anno_id):
         tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
-        anno = AnnotationVersion(book_id = annotation.HEAD.book.id,
-                editor_id = current_user.id,
-                pointer_id = anno_id,
-                previous_id = annotation.HEAD.id,
-                first_line_num = form.first_line.data,
-                last_line_num = form.last_line.data,
-                first_char_idx = form.first_char_idx.data,
-                last_char_idx = form.last_char_idx.data,
-                annotation = form.annotation.data,
-                tag_1 = tag1, tag_2 = tag2, tag_3 = tag3,
-                tag_4 = tag4, tag_5 = tag5)
+        anno = AnnotationVersion(book_id=annotation.HEAD.book.id,
+                editor_id=current_user.id, pointer_id=anno_id,
+                previous_id=annotation.HEAD.id,
+                first_line_num=form.first_line.data,
+                last_line_num=form.last_line.data,
+                first_char_idx=form.first_char_idx.data,
+                last_char_idx=form.last_char_idx.data,
+                annotation=form.annotation.data, 
+                tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
         annotation.edit_pending = True
         db.session.add(anno)
         db.session.commit()
         flash('Edit submitted for review.')
-        return redirect(url_for('read', book_url=annotation.HEAD.book.url))
+
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('read', book_url=annotation.book.book_url)
+        return redirect(next_page)
 
     elif not annotation.edit_pending:
         tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
@@ -279,9 +301,9 @@ def edit(anno_id):
         form.tag_4.data = tag4
         form.tag_5.data = tag5
 
-    return render_template('create.html', title = annotation.HEAD.book.title, 
-            form = form, book = annotation.HEAD.book, lines = lines, 
-            annotation = annotation)
+    return render_template('create.html', title=annotation.HEAD.book.title, 
+            form=form, book=annotation.HEAD.book, lines=lines,
+            annotation=annotation)
 
 
 @app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
@@ -294,8 +316,8 @@ def create(book_url, first_line, last_line):
         last_line = tmp
 
     book = Book.query.filter_by(url = book_url).first_or_404()
-    lines = Line.query.filter(Line.book_id == book.id, Line.l_num >= first_line,
-            Line.l_num <= last_line).all()
+    lines = Line.query.filter(Line.book_id==book.id, Line.l_num>=first_line,
+            Line.l_num<=last_line).all()
     form = AnnotationForm()
 
     tag1 = None
@@ -307,7 +329,7 @@ def create(book_url, first_line, last_line):
     if form.cancel.data:
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url = annotation.book.book_url)
+            next_page = url_for('read', book_url=book_url)
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -320,14 +342,14 @@ def create(book_url, first_line, last_line):
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
         # Create the inital transient sqlalchemy AnnotationVersion object
-        anno = AnnotationVersion(book_id = book.id, approved = True,
-            editor_id = current_user.id,
-            first_line_num = form.first_line.data,
-            last_line_num = form.last_line.data,
-            first_char_idx = form.first_char_idx.data,
-            last_char_idx = form.last_char_idx.data,
-            annotation = form.annotation.data,
-            tag_1 = tag1, tag_2 = tag2, tag_3 = tag3, tag_4 = tag4, tag_5 = tag5)
+        anno = AnnotationVersion(book_id=book.id, approved=True,
+                editor_id=current_user.id, 
+                first_line_num=form.first_line.data,
+                last_line_num=form.last_line.data,
+                first_char_idx=form.first_char_idx.data,
+                last_char_idx=form.last_char_idx.data,
+                annotation=form.annotation.data,
+                tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
         # Save the hash_id from the transient object
         ahash = anno.hash_id
@@ -337,16 +359,16 @@ def create(book_url, first_line, last_line):
         db.session.commit()
 
         # Grab the a_v object for its id using the hash
-        anno = AnnotationVersion.query.filter_by(hash_id = ahash).first()
+        anno = AnnotationVersion.query.filter_by(hash_id=ahash).first()
 
         # Create the head with the a_v id, add/commit it
-        head = Annotation(book_id = book.id, head_id = anno.id, 
-                author_id = current_user.id)
+        head = Annotation(book_id=book.id, head_id=anno.id,
+                author_id=current_user.id)
         db.session.add(head)
         db.session.commit()
 
         # Get the same head object for its id
-        pointer = Annotation.query.filter_by(head_id = anno.id).first()
+        pointer = Annotation.query.filter_by(head_id=anno.id).first()
 
         # Set the a_v's pointer_id to the pointer
         anno.pointer_id = pointer.id
@@ -355,7 +377,11 @@ def create(book_url, first_line, last_line):
 
         # That seems needlessly complex.
         flash('Annotation Submitted')
-        return redirect(url_for('read', book_url=book.url))
+
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('read', book_url=book_url)
+        return redirect(next_page)
 
     else:
         form.first_line.data = first_line
@@ -363,14 +389,14 @@ def create(book_url, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template('create.html', title = book.title, form = form,
-             book = book, lines = lines)
+    return render_template('create.html', title=book.title, form=form,
+             book=book, lines=lines)
 
 
 @app.route("/upvote/<anno_id>/")
 @login_required
 def upvote(anno_id):
-    anno = Annotation.query.filter_by(id = anno_id).first_or_404()
+    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
     anno.author.upvote()
     anno.upvote()
     db.session.commit()
@@ -378,13 +404,13 @@ def upvote(anno_id):
     next_page = request.args.get('next')
     print(next_page)
     if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url = anno.book.url)
+        next_page = url_for('read', book_url=anno.book.url)
     return redirect(next_page)
     
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
-    anno = Annotation.query.filter_by(id = anno_id).first_or_404()
+    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
     anno.author.downvote()
     anno.downvote()
     db.session.commit()
@@ -392,7 +418,7 @@ def downvote(anno_id):
     next_page = request.args.get('next')
     print(next_page)
     if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url = anno.book.url)
+        next_page = url_for('read', book_url=anno.book.url)
     return redirect(next_page)
 
 ###########################
@@ -402,8 +428,8 @@ def downvote(anno_id):
 @app.route('/queue/edits/')
 @login_required
 def edit_review_queue():
-    edits = AnnotationVersion.query.filter_by(approved = False).all()
-    return render_template("queue.html", edits = edits)
+    edits = AnnotationVersion.query.filter_by(approved=False).all()
+    return render_template("queue.html", edits=edits)
 
 @app.route('/approve/edit/<edit_hash>/')
 @login_required
@@ -417,7 +443,7 @@ def approve(edit_hash):
 
 @app.route('/reject/edit/<edit_hash>/')
 def reject(edit_hash):
-    edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
+    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     edit.pointer.edit_pending = False
     db.session.delete(edit)
     db.session.commit()
