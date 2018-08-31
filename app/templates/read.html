@@ -37,7 +37,7 @@
             <annotation id="a{{ anno.id }}">
             {% include "_annotation.html" %}
             |
-            <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
+            <a href="{{ url_for("edit", anno_id=anno.id, next=request.path) }}">edit</a>
             |
             <a href="{{ url_for("upvote", anno_id=anno.id, next=request.path) }}">up</a>
             /
