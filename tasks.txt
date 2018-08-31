@@ -1,51 +1,46 @@
 
-ID Age   P Project Tags         Description                                 Urg
--- ----- - ------- ------------ ------------------------------------------- ----
- 9 11d   H web     feature      Create prev and next page for pagination    7.86
-                                system
-10 11d   H web     feature      Get the requests system up and running to   7.86
-                                return people to the right read view after
-                                submitting/cancelling a edit/annotation
-16 4d    H web     feature      implement edit review queue                 7.82
-21 40min H web     feature      Implement upvote downvote                    7.8
-22 40min H web     feature      Implement user karma                         7.8
-23 40min H web     feature      user vote table                              7.8
- 6 12d   M web     reasearch    Investigate and begin implementing all the  5.77
-                                user functions
- 7 12d   M web     test         Test more formats!                          5.77
-11 11d   M web     optimization Modify insertlines.py to index all the      5.76
-                                kinds once and speed up the insertion
-                                process
-12 11d   M web     bug          Investigate trailing space bug on lines.    5.76
-17 4d    M web     bug          Refuse to annotate (x,y) where x > y        5.72
-18 3d    M web     bug          Need to figure out what to do about how     5.72
-                                lines break when there are too many
-                                annotations. I think I'm going to display
-                                them out of the line, like the line nums.
-24 39min M web     feature      Turn index into recent annotations           5.7
-25 39min M web     feature      Set up privilege requirements for various    5.7
-                                things
-26 38min M web     feature      user profiles                                5.7
-27 38min M web     feature      3 user requirement for edit approval and     5.7
-                                rejection
-28 37min M web     feature      Tag filtering                                5.7
-29 37min M web     feature      privilege requirements on tag creation       5.7
-30 36min M web     feature      tag view and tag descriptions                5.7
-31 36min M web     feature      search!                                      5.7
- 3 2w    L web     feature      write javascript for pe char-level           3.7
-                                annotation
- 4 13d   L web     bug          find a way to index the annotations on a    3.67
-                                given page starting at 1; using the actual
-                                id of the annotation will become obnoxious
-                                when we have annotation [a100000000002354]
- 5 12d   L web     feature      Write javascript for popup annotations on   3.67
-                                read view.
- 8 12d   L web     research     Have to figure out how to display           3.67
-                                already-annotated-books
-14 7d    L web     bug          Keep eye out for italic bug where cursors   3.64
-                                says data truncated at for column line at
-                                row 1
-15 7d    L web     feature      Limit output of annotation display on main  3.64
-                                read page for extra long annos
+ID Age P Project Tags         Description                                   Urg
+-- --- - ------- ------------ --------------------------------------------- ----
+ 9 11d H web     feature      Create prev and next page for pagination      7.86
+                              system
+10 11d H web     feature      Get the requests system up and running to     7.86
+                              return people to the right read view after
+                              submitting/cancelling a edit/annotation
+20 1h  H web     feature      user vote table                                7.8
+ 6 12d M web     research     Investigate and begin implementing all the    5.77
+                              user functions
+ 7 12d M web     test         Test more formats!                            5.77
+11 11d M web     optimization Modify insertlines.py to index all the kinds  5.76
+                              once and speed up the insertion process
+12 11d M web     bug          Investigate trailing space bug on lines.      5.76
+16 4d  M web     bug          Refuse to annotate (x,y) where x > y          5.72
+17 3d  M web     bug          Need to figure out what to do about how lines 5.72
+                              break when there are too many annotations. I
+                              think I'm going to display them out of the
+                              line, like the line nums.
+21 1h  M web     feature      Turn index into recent annotations             5.7
+22 1h  M web     feature      Set up privilege requirements for various      5.7
+                              things
+23 1h  M web     feature      user profiles                                  5.7
+24 1h  M web     feature      3 user requirement for edit approval and       5.7
+                              rejection
+25 1h  M web     feature      Tag filtering                                  5.7
+26 1h  M web     feature      privilege requirements on tag creation         5.7
+27 1h  M web     feature      tag view and tag descriptions                  5.7
+28 1h  M web     feature      search!                                        5.7
+ 3 2w  L web     feature      write javascript for pe char-level annotation  3.7
+ 4 13d L web     bug          find a way to index the annotations on a      3.67
+                              given page starting at 1; using the actual id
+                              of the annotation will become obnoxious when
+                              we have annotation [a100000000002354]
+ 5 12d L web     feature      Write javascript for popup annotations on     3.67
+                              read view.
+ 8 12d L web     research     Have to figure out how to display             3.67
+                              already-annotated-books
+14 7d  L web     bug          Keep eye out for italic bug where cursors     3.64
+                              says data truncated at for column line at row
+                              1
+15 7d  L web     feature      Limit output of annotation display on main    3.64
+                              read page for extra long annos
 
-26 tasks
+23 tasks
