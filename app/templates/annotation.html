@@ -4,7 +4,7 @@
     <!--Header/Running Head-->
     <div class="running_head">
         <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{
-            annotation.book.title }}</a> 
+            annotation.book.title }}</a>
          by <a href="{{ url_for("author", name=annotation.book.author.url) }}">
             {{ annotation.book.author.name }} </a>
     </div>
@@ -28,7 +28,7 @@
     <hr>
     <div class="running_head">
         <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{
-            annotation.book.title }}</a> 
+            annotation.book.title }}</a>
 
          by <a href="{{ url_for("author", name=annotation.book.author.url) }}">
             {{ annotation.book.author.name }} </a>

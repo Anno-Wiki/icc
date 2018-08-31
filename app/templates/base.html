@@ -5,16 +5,20 @@
         {% else %}
         <title>Welcome to The Lattice</title>
         {% endif %}
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}"> 
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',
+            filename='styles/style.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static',
+            filename='favicon.ico') }}">
         <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i" rel="stylesheet">
-        <script src="{{ url_for('static', filename='scripts/jquery-3.3.1.js') }}"></script>
+        <script src="{{ url_for('static',
+            filename='scripts/jquery-3.3.1.js') }}"></script>
     </head>
     <body>
         <div>
             <nav>
             <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='images/madeleine_logo.jpg')}}">
+                <img src="{{ url_for('static',
+                filename='images/madeleine_logo.jpg')}}">
             </a>
             <a href="{{ url_for('index') }}">THE LATTICE:</a>
             <a href="{{ url_for('index') }}">Home</a>

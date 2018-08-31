@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><a href="{{ url_for("read", book_url = book.url) }}">{{ book.title|safe }}</a></h1>
-<h2>by <a href="{{ url_for("author", name = book.author.url) }}">{{ book.author.name|safe }}</a></h2>
+<h1>
+    <a href="{{ url_for("read", book_url=book.url) }}">
+        {{ book.title|safe }}
+    </a>
+</h1>
+<h2>
+    by
+    <a href="{{ url_for("author", name=book.author.url) }}">
+        {{ book.author.name|safe }}
+    </a>
+</h2>
 
 <!--------------table of contents------>
 <p id="meta">
@@ -22,6 +31,6 @@
     {% for section in heierarchy %}
     {% include "_toc.html" %}
     {% endfor %}
-        
+
 </table>
 {% endblock %}
