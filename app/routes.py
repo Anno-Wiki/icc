@@ -170,9 +170,9 @@ def read_section(book_url, level, number):
                 Line.ch_num == number).all()
     elif level == 'pg':
         lines = Line.query.filter_by(book_id = book.id).paginate(int(number),
-                LINES_PER_PAGE, False)
-        next_page = url_for('read_section', level='pg', number=lines.next_num) \
-                if lines.has_next else None
+                app.config['LINES_PER_PAGE'], False)
+        next_page = url_for('read_section', book_url = book.url, level='pg', 
+                number=lines.next_num) if lines.has_next else None
         lines = lines.items
     else:
         abort(404)
@@ -288,6 +288,11 @@ def edit(anno_id):
         methods=['GET', 'POST'])
 @login_required
 def create(book_url, first_line, last_line):
+    if int(first_line) > int(last_line):
+        tmp = first_line
+        first_line = last_line
+        last_line = tmp
+
     book = Book.query.filter_by(url = book_url).first_or_404()
     lines = Line.query.filter(Line.book_id == book.id, Line.l_num >= first_line,
             Line.l_num <= last_line).all()
