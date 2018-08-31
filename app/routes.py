@@ -145,7 +145,10 @@ def read(book_url):
 
 @app.route('/read/<book_url>/<level>/<number>/', methods=['GET', 'POST'])
 def read_section(book_url, level, number):
+    number = int(number)
     form = LineNumberForm()
+    next_page = None
+    prev_page = None
     if form.validate_on_submit():
         return redirect(url_for("create", book_url = book_url, 
             first_line = form.first_line.data, last_line = form.last_line.data,
@@ -165,14 +168,35 @@ def read_section(book_url, level, number):
     elif level == 'ch':
         lines = Line.query.filter(Line.book_id == book.id,
                 Line.ch_num == number).all()
-    elif level == 'page':
+    elif level == 'pg':
         lines = Line.query.filter_by(book_id = book.id).paginate(int(number),
-                LINES_PER_PAGE, False).items
+                LINES_PER_PAGE, False)
+        next_page = url_for('read_section', level='pg', number=lines.next_num) \
+                if lines.has_next else None
+        lines = lines.items
     else:
         abort(404)
 
     if len(lines) <= 0:
         abort(404)
+
+    if level != 'pg':
+        sections = Line.query.filter(Line.book_id == book.id, 
+                Line.kind == Kind.query.filter_by(kind = level).first()
+                ).order_by(Line.l_num.desc()).first()
+        if level == 'bk':
+            sections = sections.bk_num
+        elif level =='pt':
+            sections = sections.pt_num
+        elif level == 'ch':
+            sections = sections.ch_num
+        if number + 1 <= sections:
+            next_page = url_for("read_section", book_url=book_url,
+                    level=level,number=number+1)
+
+    if number > 1:
+        prev_page = url_for("read_section", book_url=book_url,
+                level=level, number=number-1)
 
     annotations = Annotation.query.filter(
             Annotation.book_id == book.id).all()
@@ -184,7 +208,8 @@ def read_section(book_url, level, number):
     preplines(lines, annos)
 
     return render_template('read.html', title = book.title, form = form,
-            book = book, lines = lines, annotations = annotations)
+            book = book, lines = lines, annotations = annotations,
+            next_page = next_page, prev_page = prev_page)
 
 
 @app.route('/view/<anno_id>')

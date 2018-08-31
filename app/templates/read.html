@@ -40,6 +40,12 @@
     <hr>
 
     <!--Page Counter-->
+    {% if prev_page %}
+    <a href="{{ prev_page }}">Previous</a>
+    {% endif %}
+    {% if next_page %}
+    <a href="{{ next_page }}">Next</a>
+    {% endif %}
 
     <div class="running_head">
         <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
