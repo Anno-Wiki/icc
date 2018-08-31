@@ -29,10 +29,8 @@ body {
 
 /* Generals */
 ul {
-    text-indent: 2em hanging;
     font-family: 'Playfair Display', serif;
     font-size: 16pt;
-    var(--base01);
 }
 a {
     text-decoration: none;
@@ -241,4 +239,12 @@ tag {
     margin: 10px 0 10px 5px;
     background-color: var(--cyan);
     color: var(--base3);
+}
+.flash li {
+    background-color: var(--base2);
+    list-style: none;
+    padding: 10px;
+    margin: 20px 0 20px 0;
+    color: var(--base01);
+    text-align: center;
 }

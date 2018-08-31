@@ -28,15 +28,15 @@
             </nav>
         </div>
         <hr>
-        <div id="container">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <ul>
+        <ul class="flash">
             {% for message in messages %}
             <li>{{ message }}</li>
             {% endfor %}
         </ul>
         {% endif %}
+        <div id="container">
         {% endwith %}
         {% block content %}{% endblock %}
         </div>
