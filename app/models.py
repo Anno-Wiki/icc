@@ -28,6 +28,12 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def upvote(self):
+        self.reputation += 5
+
+    def downvote(self):
+        self.reputation += 2
+
 ###########################
 ## Book/Author Meta Data ##
 ###########################
@@ -187,6 +193,17 @@ class Annotation(db.Model):
     HEAD = db.relationship("AnnotationVersion", foreign_keys = [head_id])
 
     weight = db.Column(db.Integer, default = 0)
+
     added = db.Column(db.DateTime, index = True, default = datetime.utcnow)
 
     edit_pending = db.Column(db.Boolean, index = True, default = False)
+
+    def upvote(self):
+        weight = int(self.author.reputation / 10)
+        weight = 1 if weight < 1 else weight
+        self.weight += weight
+
+    def downvote(self):
+        weight = int(self.author.reputation / 15)
+        weight = 1 if weight < 1 else weight
+        self.weight -= weight

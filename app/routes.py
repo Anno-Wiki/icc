@@ -329,6 +329,24 @@ def create(book_url, first_line, last_line):
              book = book, lines = lines)
 
 
+@app.route("/upvote/<anno_id>/")
+@login_required
+def upvote(anno_id):
+    anno = Annotation.query.filter_by(id = anno_id).first_or_404()
+    anno.author.upvote()
+    anno.upvote()
+    db.session.commit()
+    return redirect(url_for("read", book_url = anno.book.url))
+    
+@app.route("/downvote/<anno_id>/")
+@login_required
+def downvote(anno_id):
+    anno = Annotation.query.filter_by(id = anno_id).first_or_404()
+    anno.author.downvote()
+    anno.downvote()
+    db.session.commit()
+    return redirect(url_for("read", book_url = anno.book.url))
+
 ###########################
 ## Administration Routes ##
 ###########################
