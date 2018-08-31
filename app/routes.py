@@ -1,15 +1,15 @@
 from collections import defaultdict
 import hashlib
-from flask import render_template, flash, redirect, url_for, request, Markup
-from flask import abort
+from flask import render_template, flash, redirect, url_for, request, Markup, \
+        abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
-from app.models import User, Book, Author, Line, Kind, Annotation
-from app.models import AnnotationVersion, Tag
-from app.forms import LoginForm, RegistrationForm, AnnotationForm 
-from app.forms import LineNumberForm, ReviewForm
+from app.models import User, Book, Author, Line, Kind, Annotation, \
+        AnnotationVersion, Tag
+from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
+        LineNumberForm
 from app.funky import preplines, is_empty, proc_tag
 
 ###########
@@ -21,7 +21,7 @@ from app.funky import preplines, is_empty, proc_tag
 def index():
     books = Book.query.all()
     authors = Author.query.all()
-    return render_template('index.html', title='Home', books=books, 
+    return render_template('index.html', title='Home', books=books,
             authors=authors)
 
 ####################
@@ -104,7 +104,7 @@ def book(book_url):
     bk_kind = Kind.query.filter_by(kind='bk').first()
     pt_kind = Kind.query.filter_by(kind='pt').first()
     ch_kind = Kind.query.filter_by(kind='ch').first()
-    heierarchy = Line.query.filter(or_(Line.kind==bk_kind, 
+    heierarchy = Line.query.filter(or_(Line.kind==bk_kind,
         Line.kind==pt_kind, Line.kind==ch_kind)).all()
     return render_template('book.html', title=book.title, book=book,
             heierarchy=heierarchy)
@@ -118,7 +118,7 @@ def book(book_url):
 def read(book_url):
     form = LineNumberForm()
     if form.validate_on_submit():
-        return redirect(url_for("create", book_url=book_url, 
+        return redirect(url_for("create", book_url=book_url,
             first_line=form.first_line.data, last_line=form.last_line.data))
 
     book = Book.query.filter_by(url=book_url).first_or_404()
@@ -131,7 +131,7 @@ def read(book_url):
 
     preplines(lines, annos)
 
-    return render_template('read.html', title=book.title, form=form, book=book, 
+    return render_template('read.html', title=book.title, form=form, book=book,
             lines=lines, annotations=annotations)
 
 # unfortunately, this one is a lot more complicated than simple read.
@@ -147,9 +147,9 @@ def read_section(book_url, level, number):
     if form.validate_on_submit():
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
-        return redirect(url_for("create", book_url=book_url, 
-            first_line=form.first_line.data, last_line=form.last_line.data, 
-            next=url_for("read_section", book_url=book_url, level=level, 
+        return redirect(url_for("create", book_url=book_url,
+            first_line=form.first_line.data, last_line=form.last_line.data,
+            next=url_for("read_section", book_url=book_url, level=level,
                 number=number)
                 )
             )
@@ -164,7 +164,7 @@ def read_section(book_url, level, number):
     # heierarchical level, we have to test for the level instead of just passing
     # it to the query as a variable.
     if level == 'bk':
-        lines = Line.query.filter(Line.book_id==book.id, 
+        lines = Line.query.filter(Line.book_id==book.id,
                 Line.bk_num==number).all()
     elif level == 'pt':
         lines = Line.query.filter(Line.book_id==book.id,
@@ -177,7 +177,7 @@ def read_section(book_url, level, number):
                 app.config['LINES_PER_PAGE'], False)
 
         # to build the next_page url I have first to test for has_next
-        next_page = url_for('read_section', book_url=book.url, level='pg', 
+        next_page = url_for('read_section', book_url=book.url, level='pg',
                 number=lines.next_num) if lines.has_next else None
 
         # then I can cash lines out to the actual lines
@@ -196,7 +196,7 @@ def read_section(book_url, level, number):
     # it.
     if level != 'pg':
         # get the last section based on level
-        sections = Line.query.filter(Line.book_id==book.id, 
+        sections = Line.query.filter(Line.book_id==book.id,
                 Line.kind==Kind.query.filter_by(kind=level).first()
                 ).order_by(Line.l_num.desc()).first()
         # cash it out to the actual number based on one of those three fields
@@ -208,7 +208,7 @@ def read_section(book_url, level, number):
             sections = sections.ch_num
         # now that it's cashed out, if it's not too big, build the next url
         if number + 1 <= sections:
-            next_page = url_for("read_section", book_url=book_url, level=level, 
+            next_page = url_for("read_section", book_url=book_url, level=level,
                     number=number+1)
 
     # if it's not the first page, build a previous url
@@ -271,7 +271,7 @@ def edit(anno_id):
                 last_line_num=form.last_line.data,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, 
+                annotation=form.annotation.data,
                 tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
         annotation.edit_pending = True
@@ -301,12 +301,12 @@ def edit(anno_id):
         form.tag_4.data = tag4
         form.tag_5.data = tag5
 
-    return render_template('create.html', title=annotation.HEAD.book.title, 
+    return render_template('create.html', title=annotation.HEAD.book.title,
             form=form, book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
 
-@app.route('/annotate/<book_url>/<first_line>/<last_line>/', 
+@app.route('/annotate/<book_url>/<first_line>/<last_line>/',
         methods=['GET', 'POST'])
 @login_required
 def create(book_url, first_line, last_line):
@@ -343,7 +343,7 @@ def create(book_url, first_line, last_line):
 
         # Create the inital transient sqlalchemy AnnotationVersion object
         anno = AnnotationVersion(book_id=book.id, approved=True,
-                editor_id=current_user.id, 
+                editor_id=current_user.id,
                 first_line_num=form.first_line.data,
                 last_line_num=form.last_line.data,
                 first_char_idx=form.first_char_idx.data,

@@ -1,5 +1,6 @@
 from app import app, db
 from app.models import Tag
+
 # This method is used to run through all the lines for a read view and convert/
 # prep them to be shown: it (a) adds the annotations as [n] superscript links,
 # (b) converts underscores to <em>/</em> tags, and (c) opens and closes
@@ -17,7 +18,8 @@ def preplines(lines, annos):
 
                 if a.HEAD.first_char_idx == 0 and a.HEAD.last_char_idx == -1:
                     lines[i].line = lines[i].line + \
-                        f'<sup class="anno"><a href="#a{a.id}">[{a.HEAD.anno_id}]</a></sup>' 
+                        f'<sup class="anno"><a href="#a{a.id}">' \
+                        f'[{a.HEAD.anno_id}]</a></sup>' 
                 else:
                     lines[i].line = lines[i].line[:a.HEAD.last_char_idx] + \
                         f'<sup class="anno"><a href="#a{a.HEAD.id}">'\
@@ -37,7 +39,7 @@ def preplines(lines, annos):
                 else:
                     newline.append(c)
             lines[i].line = ''.join(newline)
-        
+
         if line.em_status.kind == 'oem':
             lines[i].line = lines[i].line + '</em>'
         elif line.em_status.kind == 'cem':
@@ -55,14 +57,15 @@ def is_empty(data):
    return False
 
 def proc_tag(tag):
-    t = Tag.query.filter_by(tag = tag).first()
+    t = Tag.query.filter_by(tag=tag).first()
     if is_empty(t):
-        t = Tag(tag = tag)
+        t = Tag(tag=tag)
         db.session.add(t)
         db.session.commit()
-        t = Tag.query.filter_by(tag = t.tag).first()
+        t = Tag.query.filter_by(tag=t.tag).first()
     return t
 
+# Not sure if I even need this anymore
 def cat(*args):
     s = []
     for arg in args:
