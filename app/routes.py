@@ -344,7 +344,12 @@ def upvote(anno_id):
     anno.author.upvote()
     anno.upvote()
     db.session.commit()
-    return redirect(url_for("read", book_url = anno.book.url))
+
+    next_page = request.args.get('next')
+    print(next_page)
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('read', book_url = anno.book.url)
+    return redirect(next_page)
     
 @app.route("/downvote/<anno_id>/")
 @login_required
@@ -353,7 +358,12 @@ def downvote(anno_id):
     anno.author.downvote()
     anno.downvote()
     db.session.commit()
-    return redirect(url_for("read", book_url = anno.book.url))
+
+    next_page = request.args.get('next')
+    print(next_page)
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('read', book_url = anno.book.url)
+    return redirect(next_page)
 
 ###########################
 ## Administration Routes ##

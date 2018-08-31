@@ -29,8 +29,8 @@
         {% for anno in annotations %}
         {% if anno.HEAD.last_line_num >= lines[0].l_num and anno.HEAD.last_line_num <= lines[-1].l_num %}
             <annotation id="a{{ anno.id }}">
-            <a href="{{ url_for("upvote", anno_id=anno.id) }}">up</a>/
-            <a href="{{ url_for("downvote", anno_id=anno.id) }}">down</a>
+            <a href="{{ url_for("upvote", anno_id=anno.id, next=request.path) }}">up</a>/
+            <a href="{{ url_for("downvote", anno_id=anno.id, next=request.path) }}">down</a>
             {% include "_annotation.html" %}
             <a href="{{ url_for("edit", anno_id=anno.id) }}">edit</a>
             </annotation>
