@@ -148,7 +148,9 @@ def read_section(book_url, level, number):
     form = LineNumberForm()
     if form.validate_on_submit():
         return redirect(url_for("create", book_url = book_url, 
-            first_line = form.first_line.data, last_line = form.last_line.data))
+            first_line = form.first_line.data, last_line = form.last_line.data,
+            next=url_for("read_section",
+                book_url=book_url,level=level,number=number)))
 
     if int(number) < 1:
         abort(404)
@@ -205,7 +207,10 @@ def edit(anno_id):
     form = AnnotationForm()
 
     if form.cancel.data:
-        return redirect(url_for('read', book_url=annotation.HEAD.book.url))
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('read', book_url = annotation.book.book_url)
+        return redirect(next_page)
 
     elif form.validate_on_submit():
         tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
@@ -270,7 +275,10 @@ def create(book_url, first_line, last_line):
     tag5 = None
 
     if form.cancel.data:
-        return redirect(url_for('read', book_url=book.url))
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('read', book_url = annotation.book.book_url)
+        return redirect(next_page)
 
     elif form.validate_on_submit():
 
