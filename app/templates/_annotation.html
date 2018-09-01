@@ -21,5 +21,9 @@
             <tag>{{ anno.HEAD.tag_5.tag }}</tag>
         {% endif %}
     </tags>
-    last edited by {{ anno.HEAD.editor.username }}, 
+    {% if anno.HEAD.previous_id == None %}
+        annotated by {{ anno.author.username }},
+    {% else %}
+        last edited by {{ anno.HEAD.editor.username }}, 
+    {% endif %}
     {{ anno.added }}
