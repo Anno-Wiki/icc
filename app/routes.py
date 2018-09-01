@@ -396,29 +396,37 @@ def create(book_url, first_line, last_line):
 @app.route("/upvote/<anno_id>/")
 @login_required
 def upvote(anno_id):
+    next_page = request.args.get('next')
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('read', book_url=anno.book.url)
+
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+
+    if current_user.already_voted(anno):
+        return redirect(next_page)
+    
     anno.author.upvote()
     anno.upvote()
     db.session.commit()
 
-    next_page = request.args.get('next')
-    print(next_page)
-    if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url=anno.book.url)
     return redirect(next_page)
     
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
+    next_page = request.args.get('next')
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('read', book_url=anno.book.url)
+
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+    
+    if current_user.already_voted(anno):
+        return redirect(next_page)
+
     anno.author.downvote()
     anno.downvote()
     db.session.commit()
 
-    next_page = request.args.get('next')
-    print(next_page)
-    if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url=anno.book.url)
     return redirect(next_page)
 
 ###########################

@@ -1,8 +1,19 @@
 import hashlib
 from datetime import datetime
-from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from app import app, db, login
+
+#########################
+## Ancillary Functions ##
+#########################
+
+# I wanted to put this in app.funky but then I get a recursive import and that
+# doesn't quite work.
+def recordvote(author, annotation, weight):
+    vote = Vote(user=author, annotation=annotation, delta=weight)
+    db.session.add(vote)
+    db.session.commit()
 
 ####################
 ## User Functions ##
@@ -18,6 +29,11 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     reputation = db.Column(db.Integer, default=0)
+    votes = db.relationship('Annotation', secondary='vote',
+            primaryjoin="User.id==vote.c.user_id",
+            secondaryjoin="Annotation.id==vote.c.annotation_id",
+            backref='voters')
+
 
     def __repr__(self):
         return "<User {}>".format(self.username)
@@ -33,6 +49,25 @@ class User(UserMixin, db.Model):
 
     def downvote(self):
         self.reputation += 2
+
+    def already_voted(self, annotation):
+        if annotation in self.votes:
+            return True
+        else:
+            return False
+
+
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user = db.relationship("User", backref="ballots")
+    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id"),
+            index=True)
+    annotation = db.relationship("Annotation", backref="ballots")
+    delta = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"<{self.user.username} {self.delta} on {self.annotation}>"
 
 ###############
 ## Meta Data ##
@@ -183,7 +218,7 @@ class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
 
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    author = db.relationship("User")
+    author = db.relationship("User", backref="annotations")
 
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     book = db.relationship("Book")
@@ -198,11 +233,13 @@ class Annotation(db.Model):
     edit_pending = db.Column(db.Boolean, index=True, default=False)
 
     def upvote(self):
-        weight = int(self.author.reputation / 10)
+        weight = int(self.author.reputation / app.config['ANNO_UP_FACTOR'])
         weight = 1 if weight < 1 else weight
         self.weight += weight
+        recordvote(self.author, self, weight)
 
     def downvote(self):
-        weight = int(self.author.reputation / 15)
+        weight = int(self.author.reputation / app.config['ANNO_DOWN_FACTOR'])
         weight = 1 if weight < 1 else weight
         self.weight -= weight
+        recordvote(self.author, self, -weight)
