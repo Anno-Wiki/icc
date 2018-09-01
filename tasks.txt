@@ -1,44 +1,42 @@
 
-ID Age   P Project Tags                  Description                        Urg
--- ----- - ------- --------------------- ---------------------------------- ----
-12 22h   H web     feature               user vote table                     7.8
-13 22h   H web     feature               Turn index into recent annotations  7.8
-14 22h   H web     feature               Set up privilege requirements for   7.8
-                                         various things
-19 22h   H web     feature               tag view and tag descriptions       7.8
-15 22h   M web     feature               user profiles                       5.7
-16 22h   M web     feature               3 user requirement for edit         5.7
-                                         approval and rejection
-17 22h   M web     feature               Tag filtering                       5.7
-18 22h   M web     feature               privilege requirements on tag       5.7
-                                         creation
-22 5h    M web     feature               restricted tags for                 5.7
-                                         author-original annotations
- 3 2w    L web     JS feature            write javascript for pe char-level 3.81
-                                         annotation
- 5 13d   L web     AJAX feature          Write javascript for popup         3.77
-                                         annotations on read view.
-20 22h   L web     elasticsearch feature search!                             3.7
- 4 13d   L web     bug                   find a way to index the            3.67
-                                         annotations on a given page
-                                         starting at 1; using the actual id
-                                         of the annotation will become
-                                         obnoxious when we have annotation
-                                         [a100000000002354]
- 6 13d   L web     test                  Test more formats!                 3.67
- 8 8d    L web     bug                   Keep eye out for italic bug where  3.64
-                                         cursors says data truncated at for
-                                         column line at row 1
- 9 8d    L web     feature               Limit output of annotation display 3.64
-                                         on main read page for extra long
-                                         annos
-21 5h    L web     bug                   Re-implement bracket anno n         3.6
-                                         display for line-by-line to be
-                                         outside of line.
-23 1h    L web     bug                   Fix paragraph open and close bug    3.6
-                                         on pg level
-24 12min L web     bug                   Fix message flashing so the ul      3.6
-                                         doesn't have the weird alignment
-                                         issues
+ID Age P Project Tags                  Description                          Urg
+-- --- - ------- --------------------- ------------------------------------ ----
+12 1d  H web     feature               Turn index into recent annotations   7.81
+13 1d  H web     feature               Set up privilege requirements for    7.81
+                                       various things
+18 1d  H web     feature               tag view and tag descriptions        7.81
+14 1d  M web     feature               user profiles                        5.71
+15 1d  M web     feature               3 user requirement for edit approval 5.71
+                                       and rejection
+16 1d  M web     feature               Tag filtering                        5.71
+17 1d  M web     feature               privilege requirements on tag        5.71
+                                       creation
+21 1d  M web     feature               restricted tags for author-original  5.71
+                                       annotations
+ 3 2w  L web     JS feature            write javascript for pe char-level   3.81
+                                       annotation
+ 5 13d L web     AJAX feature          Write javascript for popup           3.77
+                                       annotations on read view.
+19 1d  L web     elasticsearch feature search!                              3.71
+ 4 2w  L web     bug                   find a way to index the annotations  3.68
+                                       on a given page starting at 1; using
+                                       the actual id of the annotation will
+                                       become obnoxious when we have
+                                       annotation [a100000000002354]
+ 6 13d L web     test                  Test more formats!                   3.67
+ 8 8d  L web     bug                   Keep eye out for italic bug where    3.64
+                                       cursors says data truncated at for
+                                       column line at row 1
+ 9 8d  L web     feature               Limit output of annotation display   3.64
+                                       on main read page for extra long
+                                       annos
+20 1d  L web     bug                   Re-implement bracket anno n display  3.61
+                                       for line-by-line to be outside of
+                                       line.
+22 19h L web     bug                   Fix paragraph open and close bug on   3.6
+                                       pg level
+23 19h L web     bug                   Fix message flashing so the ul        3.6
+                                       doesn't have the weird alignment
+                                       issues
 
-19 tasks
+18 tasks
