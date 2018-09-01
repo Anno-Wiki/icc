@@ -1,0 +1,3 @@
+<a href="{{ url_for("upvote", anno_id=anno.id, next=request.path) }}">up</a>
+/
+<a href="{{ url_for("downvote", anno_id=anno.id, next=request.path) }}">down</a>
