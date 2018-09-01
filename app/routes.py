@@ -403,9 +403,13 @@ def upvote(anno_id):
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
 
     if current_user.already_voted(anno):
-        anno.rollback(current_user.get_vote(anno))
-        db.session.commit()
-        return redirect(next_page)
+        vote = current_user.get_vote(anno)
+        if vote.is_up():
+            anno.rollback(vote)
+            db.session.commit()
+            return redirect(next_page)
+        else:
+            anno.rollback(vote)
     elif current_user == anno.author:
         flash("You cannot vote on your own annotation.")
         return redirect(next_page)
@@ -425,9 +429,13 @@ def downvote(anno_id):
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
     
     if current_user.already_voted(anno):
-        anno.rollback(current_user.get_vote(anno))
-        db.session.commit()
-        return redirect(next_page)
+        vote = current_user.get_vote(anno)
+        if vote.is_up:
+            anno.rollback(vote)
+            db.session.commit()
+            return redirect(next_page)
+        else:
+            anno.rollback(vote)
     elif current_user == anno.author:
         flash("You cannot vote on your own annotation.")
         return redirect(next_page)

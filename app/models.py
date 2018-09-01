@@ -4,17 +4,6 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 
-#########################
-## Ancillary Functions ##
-#########################
-
-# I wanted to put this in app.funky but then I get a recursive import and that
-# doesn't quite work.
-#def recordvote(author, annotation, weight):
-#    vote = Vote(user=author, annotation=annotation, delta=weight)
-#    db.session.add(vote)
-#    db.session.commit()
-
 ####################
 ## User Functions ##
 ####################
@@ -77,6 +66,12 @@ class Vote(db.Model):
 
     def __repr__(self):
         return f"<{self.user.username} {self.delta} on {self.annotation}>"
+    
+    def is_up(self):
+        if self.delta > 0:
+            return True
+        else:
+            return False
 
 ###############
 ## Meta Data ##
@@ -260,7 +255,7 @@ class Annotation(db.Model):
 
     def rollback(self, vote):
         self.weight -= vote.delta
-        if vote.delta > 0:
+        if vote.is_up():
             self.author.rollback_upvote()
         else:
             self.author.rollback_downvote()
