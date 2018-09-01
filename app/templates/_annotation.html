@@ -1,26 +1,27 @@
     <sup><a href="#{{ anno.HEAD.last_line_num }}">[{{ anno.id }}]</a></sup>
     {{ anno.HEAD.annotation|markdown }}
     <tags>
-        {% if anno.HEAD.tag_1 != None %}
+        {%- if anno.HEAD.tag_1 != None -%}
             <tag>{{ anno.HEAD.tag_1.tag }}</tag>
-        {% endif %}
+        {%- endif -%}
 
-        {% if anno.HEAD.tag_2 != None %}
+        {%- if anno.HEAD.tag_2 != None -%}
             <tag>{{ anno.HEAD.tag_2.tag }}</tag>
-        {% endif %}
+        {%- endif -%}
 
-        {% if anno.HEAD.tag_3 != None %}
+        {%- if anno.HEAD.tag_3 != None -%}
             <tag>{{ anno.HEAD.tag_3.tag }}</tag>
-        {% endif %}
+        {%- endif -%}
 
-        {% if anno.HEAD.tag_4 != None %}
+        {%- if anno.HEAD.tag_4 != None -%}
             <tag>{{ anno.HEAD.tag_4.tag }}</tag>
-        {% endif %}
+        {%- endif -%}
 
-        {% if anno.HEAD.tag_5 != None %}
+        {%- if anno.HEAD.tag_5 != None -%}
             <tag>{{ anno.HEAD.tag_5.tag }}</tag>
-        {% endif %}
+        {%- endif -%}
     </tags>
+    <br>
     {% if anno.HEAD.previous_id == None %}
         annotated by {{ anno.author.username }},
     {% else %}
@@ -29,7 +30,13 @@
     {{ anno.added }}
     |
     {% if anno.weight > 0 %}
-        <weight class="up">{{ anno.weight }}</weight>
+        {% if anno.weight >= 1000000 %}
+            <weight class="up">{{ anno.weight / 1000000 }}m</weight>
+        {% elif anno.weight >= 1000 %}
+            <weight class="up">{{ anno.weight / 1000 }}k</weight>
+        {% else %}
+            <weight class="up">{{ anno.weight }}</weight>
+        {% endif %}
     {% elif anno.weight == 0 %}
         <weight class="nil">{{ anno.weight }}</weight>
     {% else %}
