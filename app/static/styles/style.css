@@ -17,6 +17,7 @@
     --green:        #859900;
 }
 
+
 body {
     font-family: 'EB Garamond', serif;
     background-color: var(--base3);
@@ -223,8 +224,6 @@ annotation {
     margin: 20px 0 20px 0;
     padding: 10px;
     background-color: var(--base2);
-/*    border: 2px solid #002b36;
-    border-radius: 5px;*/
     color: var(--base01);
     font-size: 14px;
     font-family: Playfair Display, serif;
@@ -246,5 +245,16 @@ tag {
     padding: 10px;
     margin: 20px 0 20px 0;
     color: var(--base01);
+    text-align: center;
+}
+weight {
+    color: var(--base01);
+    font-size: 18px;
+    padding: 10px;
+    margin: 5px;
+    font-family: Playfair Display, serif;
+    display: inline-flex;
+    width: 25px;
+    height: 25px;
     text-align: center;
 }

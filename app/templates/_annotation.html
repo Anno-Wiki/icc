@@ -1,4 +1,5 @@
     <sup><a href="#{{ anno.HEAD.last_line_num }}">[{{ anno.id }}]</a></sup>
+    <weight>{{ anno.weight }}</weight>
     {{ anno.HEAD.annotation|markdown }}
     <tags>
         {% if anno.HEAD.tag_1 != None %}
