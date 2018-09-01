@@ -31,14 +31,20 @@
     |
     {% if anno.weight > 0 %}
         {% if anno.weight >= 1000000 %}
-            <weight class="up">{{ anno.weight / 1000000 }}m</weight>
+            <weight class="up">{{ round(anno.weight / 1000000, 1) }}m</weight>
         {% elif anno.weight >= 1000 %}
-            <weight class="up">{{ anno.weight / 1000 }}k</weight>
+            <weight class="up">{{ round(anno.weight / 1000, 1) }}k</weight>
         {% else %}
             <weight class="up">{{ anno.weight }}</weight>
         {% endif %}
     {% elif anno.weight == 0 %}
         <weight class="nil">{{ anno.weight }}</weight>
     {% else %}
-        <weight class="down">{{ anno.weight }}</weight>
+        {% if anno.weight <= -1000000 %}
+            <weight class="down">{{ round(anno.weight / 1000000, 1) }}m</weight>
+        {% elif anno.weight <= -1000 %}
+            <weight class="down">{{ round(anno.weight / 1000, 1) }}k</weight>
+        {% else %}
+            <weight class="down">{{ anno.weight }}</weight>
+        {% endif %}
     {% endif %}

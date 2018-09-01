@@ -267,8 +267,8 @@ weight {
     text-align: center;
     vertical-align: center;
     padding: 0.25em 0 0.25em 0;
-    width: 3em;
     font-weight: bold;
+    margin: 0.5em;
 }
 weight.up {
     color: var(--green);

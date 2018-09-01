@@ -12,5 +12,6 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 md = Markdown(app)
 login.login_view = 'login'
+app.jinja_env.globals['round'] = round
 
 from app import routes, models
