@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     reputation = db.Column(db.Integer, default=0)
+    cumulative_negative = db.Column(db.Integer, default=0)
+    cumulative_positive = db.Column(db.Integer, default=0)
     votes = db.relationship('Annotation', secondary='vote',
             primaryjoin="User.id==vote.c.user_id",
             secondaryjoin="Annotation.id==vote.c.annotation_id",
@@ -35,15 +37,23 @@ class User(UserMixin, db.Model):
 
     def upvote(self):
         self.reputation += 5
+        self.cumulative_positive += 5
 
     def rollback_upvote(self):
         self.reputation -= 5
+        if self.reputation <= 0:
+            self.reputation = 0
+        self.cumulative_positive -= 5
 
     def downvote(self):
         self.reputation -= 2
+        if self.reputation <= 0:
+            self.reputation = 0
+        self.cumulative_negative -= 2
 
     def rollback_downvote(self):
         self.reputation += 2
+        self.cumulative_negative += 2
 
     def already_voted(self, annotation):
         if annotation in self.votes:

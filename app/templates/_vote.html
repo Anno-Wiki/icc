@@ -1,10 +1,10 @@
-{% if anno.id in uservotes and uservotes[anno.id] %}
+{% if uservotes and anno.id in uservotes and uservotes[anno.id] %}
     <a href="{{ url_for("upvote", anno_id=anno.id, next=request.path) }}" class="voted">up</a>
 {% else %}
     <a href="{{ url_for("upvote", anno_id=anno.id, next=request.path) }}" class="notvoted">up</a>
 {% endif %}
 /
-{% if anno.id in uservotes and not uservotes[anno.id] %}
+{% if uservotes and anno.id in uservotes and not uservotes[anno.id] %}
     <a href="{{ url_for("downvote", anno_id=anno.id, next=request.path) }}" class="voted">down</a>
 {% else %}
     <a href="{{ url_for("downvote", anno_id=anno.id, next=request.path) }}" class="notvoted">down</a>

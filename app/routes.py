@@ -131,7 +131,8 @@ def read(book_url):
 
     preplines(lines, annos)
 
-    uservotes = current_user.get_vote_dict()
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
 
     return render_template('read.html', title=book.title, form=form, book=book,
             lines=lines, annotations=annotations, uservotes=uservotes)
@@ -229,7 +230,8 @@ def read_section(book_url, level, number):
     # call the annotator
     preplines(lines, annos)
 
-    uservotes = current_user.get_vote_dict()
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
 
     return render_template('read.html', title=book.title, form=form, book=book,
             lines=lines, annotations=annotations, next_page=next_page,
