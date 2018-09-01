@@ -53,6 +53,12 @@ class User(UserMixin, db.Model):
 
     def get_vote(self, annotation):
         return Vote.query.filter_by(annotation=annotation).first()
+    
+    def get_vote_dict(self):
+        v = {}
+        for vote in self.ballots:
+            v[vote.annotation.id] = vote.is_up()
+        return v
 
 
 class Vote(db.Model):

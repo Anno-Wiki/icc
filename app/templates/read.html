@@ -36,10 +36,9 @@
         {% if anno.HEAD.last_line_num >= lines[0].l_num and anno.HEAD.last_line_num <= lines[-1].l_num %}
             <annotation id="a{{ anno.id }}">
             {% include "_annotation.html" %}
+            {% include "_vote.html" %}
             |
             <a href="{{ url_for("edit", anno_id=anno.id, next=request.path) }}">edit</a>
-            |
-            {% include "_vote.html" %}
             </annotation>
         {% endif %}
         {% endfor %}

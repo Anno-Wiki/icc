@@ -131,8 +131,10 @@ def read(book_url):
 
     preplines(lines, annos)
 
+    uservotes = current_user.get_vote_dict()
+
     return render_template('read.html', title=book.title, form=form, book=book,
-            lines=lines, annotations=annotations)
+            lines=lines, annotations=annotations, uservotes=uservotes)
 
 # unfortunately, this one is a lot more complicated than simple read.
 @app.route('/read/<book_url>/<level>/<number>/', methods=['GET', 'POST'])
@@ -227,9 +229,11 @@ def read_section(book_url, level, number):
     # call the annotator
     preplines(lines, annos)
 
+    uservotes = current_user.get_vote_dict()
+
     return render_template('read.html', title=book.title, form=form, book=book,
             lines=lines, annotations=annotations, next_page=next_page,
-            prev_page=prev_page)
+            prev_page=prev_page, uservotes=uservotes)
 
 
 @app.route('/view/<anno_id>')
@@ -430,7 +434,7 @@ def downvote(anno_id):
     
     if current_user.already_voted(anno):
         vote = current_user.get_vote(anno)
-        if vote.is_up:
+        if not vote.is_up():
             anno.rollback(vote)
             db.session.commit()
             return redirect(next_page)
