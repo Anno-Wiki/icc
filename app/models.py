@@ -10,10 +10,10 @@ from app import app, db, login
 
 # I wanted to put this in app.funky but then I get a recursive import and that
 # doesn't quite work.
-def recordvote(author, annotation, weight):
-    vote = Vote(user=author, annotation=annotation, delta=weight)
-    db.session.add(vote)
-    db.session.commit()
+#def recordvote(author, annotation, weight):
+#    vote = Vote(user=author, annotation=annotation, delta=weight)
+#    db.session.add(vote)
+#    db.session.commit()
 
 ####################
 ## User Functions ##
@@ -47,7 +47,13 @@ class User(UserMixin, db.Model):
     def upvote(self):
         self.reputation += 5
 
+    def rollback_upvote(self):
+        self.reputation -= 5
+
     def downvote(self):
+        self.reputation -= 2
+
+    def rollback_downvote(self):
         self.reputation += 2
 
     def already_voted(self, annotation):
@@ -55,6 +61,9 @@ class User(UserMixin, db.Model):
             return True
         else:
             return False
+
+    def get_vote(self, annotation):
+        return Vote.query.filter_by(annotation=annotation).first()
 
 
 class Vote(db.Model):
@@ -232,14 +241,27 @@ class Annotation(db.Model):
 
     edit_pending = db.Column(db.Boolean, index=True, default=False)
 
-    def upvote(self):
-        weight = int(self.author.reputation / app.config['ANNO_UP_FACTOR'])
+    def upvote(self, voter):
+        weight = int(voter.reputation / app.config['ANNO_UP_FACTOR'])
         weight = 1 if weight < 1 else weight
         self.weight += weight
-        recordvote(self.author, self, weight)
+        self.author.upvote()
+        vote = Vote(user=voter, annotation=self, delta=weight)
+        db.session.add(vote)
 
-    def downvote(self):
-        weight = int(self.author.reputation / app.config['ANNO_DOWN_FACTOR'])
+    def downvote(self, voter):
+        weight = int(voter.reputation / app.config['ANNO_DOWN_FACTOR'])
         weight = 1 if weight < 1 else weight
-        self.weight -= weight
-        recordvote(self.author, self, -weight)
+        weight = -weight
+        self.weight += weight
+        self.author.downvote()
+        vote = Vote(user=voter, annotation=self, delta=weight)
+        db.session.add(vote)
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        if vote.delta > 0:
+            self.author.rollback_upvote()
+        else:
+            self.author.rollback_downvote()
+        db.session.delete(vote)
