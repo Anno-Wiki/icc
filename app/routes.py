@@ -75,6 +75,10 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+@app.route('/user/<user_id>/')
+def user(user_id):
+    user = User.query.filter_by(id = user_id).first_or_404()
+    return render_template("user.html", title=user.username, user=user)
 #####################
 ## Content Indexes ##
 #####################

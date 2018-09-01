@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ user.username }}</h1>
+
+{% if user.reputation >= 1000000 %}
+    <weight class="up">{{ round(user.reputation/1000000) }}m</weight>
+{% elif user.reputation >= 1000 %}
+    <weight class="up">{{ round(user.reputation/1000) }}k</weight>
+{% elif user.reputation > 0 %}
+    <weight class="up">{{ user.reputation }}</weight>
+{% else %}
+    <weight class="nil">{{ user.reputation }}</weight>
+{% endif %}
+
+{% for anno in user.annotations %}
+<annotation>
+    {% include "_annotation.html" %}
+</annotation>
+{% endfor %}
+
+{% endblock %}
+
