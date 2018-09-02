@@ -19,10 +19,8 @@ from app.funky import preplines, is_empty, proc_tag
 @app.route('/')
 @app.route('/index/')
 def index():
-    books = Book.query.all()
-    authors = Author.query.all()
-    return render_template('index.html', title='Home', books=books,
-            authors=authors)
+    annotations = Annotation.query.order_by(Annotation.added.desc()).all()
+    return render_template('index.html', title='Home', annotations=annotations)
 
 ####################
 ## User Functions ##
