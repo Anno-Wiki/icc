@@ -143,7 +143,7 @@ class Line(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    book = db.relationship("Book")
+    book = db.relationship("Book", backref="lines")
 
     l_num = db.Column(db.Integer, index=True)
 
@@ -241,7 +241,7 @@ class Annotation(db.Model):
     author = db.relationship("User", backref="annotations")
 
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    book = db.relationship("Book")
+    book = db.relationship("Book", backref="annotations")
 
     head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])

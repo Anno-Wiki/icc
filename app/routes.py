@@ -12,24 +12,26 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm
 from app.funky import preplines, is_empty, proc_tag
 
+
 ###########
 ## Index ##
 ###########
 
-@app.route('/')
-@app.route('/index/')
+@app.route("/")
+@app.route("/index/")
 def index():
     annotations = Annotation.query.order_by(Annotation.added.desc()).all()
-    return render_template('index.html', title='Home', annotations=annotations)
+    return render_template("index.html", title="Home", annotations=annotations)
+
 
 ####################
 ## User Functions ##
 ####################
 
-@app.route('/login/', methods=['GET', 'POST'])
+@app.route("/login/", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
     form = LoginForm()
 
@@ -37,28 +39,30 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
 
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
+            flash("Invalid username or password")
+            return redirect(url_for("login"))
 
         login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
+        next_page = request.args.get("next")
 
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = url_for("index")
 
         return redirect(next_page)
 
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template("login.html", title="Sign In", form=form)
 
-@app.route('/logout/')
+
+@app.route("/logout/")
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for("index"))
 
-@app.route('/register/', methods=['GET', 'POST'])
+
+@app.route("/register/", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
     form = RegistrationForm()
 
@@ -67,48 +71,55 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
+        flash("Congratulations, you are now a registered user!")
+        return redirect(url_for("login"))
 
-    return render_template('register.html', title='Register', form=form)
+    return render_template("register.html", title="Register", form=form)
 
 
-@app.route('/user/<user_id>/')
+@app.route("/user/<user_id>/")
 def user(user_id):
     user = User.query.filter_by(id = user_id).first_or_404()
     return render_template("user.html", title=user.username, user=user)
+
+
 #####################
 ## Content Indexes ##
 #####################
 
-@app.route('/authors/')
+@app.route("/authors/")
 def author_index():
-    authors = Author.query.order_by(Author.last_name).all()
-    return render_template('author_index.html', authors=authors,
-            title='Authors')
+    authors = Author.query.order_by(Author.last_name)
+    return render_template("author_index.html", title="Authors",
+            authors=authors)
 
-@app.route('/authors/<name>/')
+
+@app.route("/authors/<name>/")
 def author(name):
     author = Author.query.filter_by(url=name).first_or_404()
-    books = Book.query.filter_by(author_id=author.id).order_by(Book.sort_title)
-    return render_template('author.html', title=author.name, books=books,
-            author=author)
+    return render_template("author.html", title=author.name, author=author)
 
-@app.route('/books/')
+
+@app.route("/books/")
 def book_index():
-    books = Book.query.order_by(Book.sort_title).all()
-    return render_template('book_index.html', title='Books', books=books)
+    books = Book.query.order_by(Book.sort_title)
+    return render_template("book_index.html", title="Books", books=books)
 
 
-@app.route('/books/<book_url>/', methods=['GET', 'POST'])
+@app.route("/books/<book_url>/", methods=["GET", "POST"])
 def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
-    bk_kind = Kind.query.filter_by(kind='bk').first()
-    pt_kind = Kind.query.filter_by(kind='pt').first()
-    ch_kind = Kind.query.filter_by(kind='ch').first()
+
+    # get the kinds for each heierarchical chapter level
+    bk_kind = Kind.query.filter_by(kind="bk").first()
+    pt_kind = Kind.query.filter_by(kind="pt").first()
+    ch_kind = Kind.query.filter_by(kind="ch").first()
+
+    # get all the heierarchical chapter lines
     heierarchy = Line.query.filter(or_(Line.kind==bk_kind,
         Line.kind==pt_kind, Line.kind==ch_kind)).all()
-    return render_template('book.html', title=book.title, book=book,
+
+    return render_template("book.html", title=book.title, book=book,
             heierarchy=heierarchy)
 
 
@@ -116,33 +127,39 @@ def book(book_url):
 ## Reading Routes ##
 ####################
 
-@app.route('/read/<book_url>/', methods=['GET', 'POST'])
+@app.route("/read/<book_url>/", methods=["GET", "POST"])
 def read(book_url):
     form = LineNumberForm()
+
     if form.validate_on_submit():
         return redirect(url_for("create", book_url=book_url,
             first_line=form.first_line.data, last_line=form.last_line.data))
 
     book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = Line.query.filter_by(book_id=book.id).all()
-    annotations = Annotation.query.filter(Annotation.book_id==book.id).all()
+    lines = book.lines
+    annotations = book.annotations
 
-    annos = defaultdict(list)
+    # index all of the annotations by their last line number
+    annotations_idx = defaultdict(list)
     for a in annotations:
-        annos[a.HEAD.last_line_num].append(a)
+        annotations_idx[a.HEAD.last_line_num].append(a)
 
-    preplines(lines, annos)
+    # insert the [n] annotation in each line (to be changed)
+    preplines(lines, annotations_idx)
 
+    # get a dictionary of all the annotations and the vote on each for the
+    # current user to be used to show vote status on each annotation
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
-    return render_template('read.html', title=book.title, form=form, book=book,
+    return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations=annotations, uservotes=uservotes)
 
+
 # unfortunately, this one is a lot more complicated than simple read.
-@app.route('/read/<book_url>/<level>/<number>/', methods=['GET', 'POST'])
+@app.route("/read/<book_url>/<level>/<number>/", methods=["GET", "POST"])
 def read_section(book_url, level, number):
-    number = int(number) # convert number to int for straightforward use later
+    number = int(number) # convert number to int for transparency
     form = LineNumberForm()
 
     # initialize next and prev pages
@@ -168,21 +185,21 @@ def read_section(book_url, level, number):
     # because we have to access one of three different fields based on the
     # heierarchical level, we have to test for the level instead of just passing
     # it to the query as a variable.
-    if level == 'bk':
-        lines = Line.query.filter(Line.book_id==book.id,
-                Line.bk_num==number).all()
-    elif level == 'pt':
-        lines = Line.query.filter(Line.book_id==book.id,
-                Line.pt_num==number).all()
-    elif level == 'ch':
-        lines = Line.query.filter(Line.book_id==book.id,
-                Line.ch_num==number).all()
-    elif level == 'pg':
+    if level == "bk":
+        lines = Line.query.filter(Line.book_id==book.id, Line.bk_num==number
+                ).all()
+    elif level == "pt":
+        lines = Line.query.filter(Line.book_id==book.id, Line.pt_num==number
+                ).all()
+    elif level == "ch":
+        lines = Line.query.filter(Line.book_id==book.id, Line.ch_num==number
+                ).all()
+    elif level == "pg":
         lines = Line.query.filter_by(book_id=book.id).paginate(int(number),
-                app.config['LINES_PER_PAGE'], False)
+                app.config["LINES_PER_PAGE"], False)
 
         # to build the next_page url I have first to test for has_next
-        next_page = url_for('read_section', book_url=book.url, level='pg',
+        next_page = url_for("read_section", book_url=book.url, level="pg",
                 number=lines.next_num) if lines.has_next else None
 
         # then I can cash lines out to the actual lines
@@ -197,19 +214,19 @@ def read_section(book_url, level, number):
         # it into the url bar like some kind of a weirdo)
         abort(404)
 
-    # the next_page url is already built for pg by now. If it's not pg, build
-    # it.
-    if level != 'pg':
-        # get the last section based on level
+    # the next_page url is already built for pg by now. 
+    # if it's not pg a pg you're reading, build it.
+    if level != "pg":
+        # get the last section based on level being read
         sections = Line.query.filter(Line.book_id==book.id,
                 Line.kind==Kind.query.filter_by(kind=level).first()
                 ).order_by(Line.l_num.desc()).first()
         # cash it out to the actual number based on one of those three fields
-        if level == 'bk':
+        if level == "bk":
             sections = sections.bk_num
-        elif level =='pt':
+        elif level =="pt":
             sections = sections.pt_num
-        elif level == 'ch':
+        elif level == "ch":
             sections = sections.ch_num
         # now that it's cashed out, if it's not too big, build the next url
         if number + 1 <= sections:
@@ -222,29 +239,29 @@ def read_section(book_url, level, number):
                 level=level, number=number-1)
 
     # get all the annotations
-    annotations = Annotation.query.filter(Annotation.book_id==book.id).all()
+    annotations = book.annotations
 
     # index the annotations in a dictionary
-    annos = defaultdict(list)
+    annotations_idx = defaultdict(list)
     for a in annotations:
-        annos[a.HEAD.last_line_num].append(a)
+        annotations_idx[a.HEAD.last_line_num].append(a)
 
     # call the annotator
-    preplines(lines, annos)
+    preplines(lines, annotations_idx)
 
+    # to darken up/down voted annotations
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
-    return render_template('read.html', title=book.title, form=form, book=book,
-            lines=lines, annotations=annotations, next_page=next_page,
-            prev_page=prev_page, uservotes=uservotes)
+    return render_template("read.html", title=book.title, form=form, book=book,
+            lines=lines, annotations=annotations, uservotes=uservotes,
+            next_page=next_page, prev_page=prev_page)
 
 
-@app.route('/view/<anno_id>')
+@app.route("/view/<anno_id>")
 def view_anno(anno_id):
     annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
-    lines = annotation.get_lines()
-    return render_template('annotation.html', title=annotation.book.title,
+    return render_template("annotation.html", title=annotation.book.title,
             annotation=annotation, lines=lines)
 
 
@@ -252,7 +269,7 @@ def view_anno(anno_id):
 ## Creation Routes ##
 #####################
 
-@app.route('/edit/<anno_id>', methods=['GET', 'POST'])
+@app.route("/edit/<anno_id>", methods=["GET", "POST"])
 @login_required
 def edit(anno_id):
     annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
@@ -260,9 +277,9 @@ def edit(anno_id):
     form = AnnotationForm()
 
     if form.cancel.data:
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url=annotation.book.book_url)
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = url_for("read", book_url=annotation.book.book_url)
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -285,11 +302,11 @@ def edit(anno_id):
         annotation.edit_pending = True
         db.session.add(anno)
         db.session.commit()
-        flash('Edit submitted for review.')
+        flash("Edit submitted for review.")
 
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url=annotation.book.book_url)
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = url_for("read", book_url=annotation.book.book_url)
         return redirect(next_page)
 
     elif not annotation.edit_pending:
@@ -309,13 +326,13 @@ def edit(anno_id):
         form.tag_4.data = tag4
         form.tag_5.data = tag5
 
-    return render_template('create.html', title=annotation.HEAD.book.title,
+    return render_template("create.html", title=annotation.HEAD.book.title,
             form=form, book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
 
-@app.route('/annotate/<book_url>/<first_line>/<last_line>/',
-        methods=['GET', 'POST'])
+@app.route("/annotate/<book_url>/<first_line>/<last_line>/",
+        methods=["GET", "POST"])
 @login_required
 def create(book_url, first_line, last_line):
     if int(first_line) > int(last_line):
@@ -335,9 +352,9 @@ def create(book_url, first_line, last_line):
     tag5 = None
 
     if form.cancel.data:
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url=book_url)
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = url_for("read", book_url=book_url)
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -384,11 +401,11 @@ def create(book_url, first_line, last_line):
         db.session.commit()
 
         # That seems needlessly complex.
-        flash('Annotation Submitted')
+        flash("Annotation Submitted")
 
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('read', book_url=book_url)
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = url_for("read", book_url=book_url)
         return redirect(next_page)
 
     else:
@@ -397,16 +414,16 @@ def create(book_url, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template('create.html', title=book.title, form=form,
+    return render_template("create.html", title=book.title, form=form,
              book=book, lines=lines)
 
 
 @app.route("/upvote/<anno_id>/")
 @login_required
 def upvote(anno_id):
-    next_page = request.args.get('next')
-    if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url=anno.book.url)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("read", book_url=anno.book.url)
 
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
 
@@ -430,9 +447,9 @@ def upvote(anno_id):
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
-    next_page = request.args.get('next')
-    if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('read', book_url=anno.book.url)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("read", book_url=anno.book.url)
 
     anno = Annotation.query.filter_by(id=anno_id).first_or_404()
     
@@ -457,13 +474,13 @@ def downvote(anno_id):
 ## Administration Routes ##
 ###########################
 
-@app.route('/queue/edits/')
+@app.route("/queue/edits/")
 @login_required
 def edit_review_queue():
     edits = AnnotationVersion.query.filter_by(approved=False).all()
     return render_template("queue.html", edits=edits)
 
-@app.route('/approve/edit/<edit_hash>/')
+@app.route("/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
     edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
@@ -473,7 +490,7 @@ def approve(edit_hash):
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
-@app.route('/reject/edit/<edit_hash>/')
+@app.route("/reject/edit/<edit_hash>/")
 def reject(edit_hash):
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     edit.pointer.edit_pending = False
