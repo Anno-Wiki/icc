@@ -233,49 +233,44 @@ sup.anno {
 **********************/
 
 annotation {
+    position: relative;
     display: block;
     margin: 20px 0 20px 0;
     padding: 10px;
     background-color: var(--base2);
     color: var(--base01);
-    font-size: 14px;
+    font-size: 16px;
     font-family: Playfair Display, serif;
     text-align: justify;
 }
 annotation p {
-    margin-bottom: 20px;
+    margin: 10px 0 10px 0;
 }
 annotation sup {
-    font-size: 20px;
+    font-size: 15px;
+}
+tags {
+    display: block;
 }
 tag {
-    padding: 5px 15px 5px 15px;;
+    padding: 5px 10px 5px 10px;
     border-radius: 2px;
-    margin: 10px 0 10px 5px;
     background-color: var(--cyan);
     color: var(--base3);
-}
-.flash li {
-    background-color: var(--base2);
-    list-style: none;
-    padding: 10px;
-    margin: 20px 0 20px 0;
-    color: var(--base01);
-    text-align: center;
 }
 .notvoted {
 }
 .voted {
     color: var(--base03);
 }
+
 weight {
-    font-size:24px;
-    display: inline-block;
-    text-align: center;
-    vertical-align: center;
-    padding: 0.25em 0 0.25em 0;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin-right: 30px;
+    font-size: 50px;
     font-weight: bold;
-    margin: 0 0.5em 0 0.5em;
 }
 weight.up {
     color: var(--green);
@@ -285,4 +280,13 @@ weight.nil {
 }
 weight.down {
     color: var(--red);
+}
+
+.flash li {
+    background-color: var(--base2);
+    list-style: none;
+    padding: 10px;
+    margin: 20px 0 20px 0;
+    color: var(--base01);
+    text-align: center;
 }
