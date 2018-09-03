@@ -85,6 +85,16 @@ class User(UserMixin, db.Model):
             return 1
         return round(self.up_power() / 2)
 
+    def authorize(self, min_rep):
+        if self.reputation < min_rep:
+            abort(403)
+
+    def is_authorized(self, min_rep):
+        if self.reputation >= min_rep:
+            return True
+        else:
+            return False
+
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)

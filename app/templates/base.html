@@ -24,6 +24,11 @@
             <a href="{{ url_for('index') }}">Home</a>
             <a href="{{ url_for('book_index') }}">Books</a>
             <a href="{{ url_for('author_index') }}">Authors</a>
+            {% if current_user.is_authenticated and 
+                current_user.is_authorized(vars['AUTHORIZATION']['EDIT_QUEUE']) 
+                %}
+                <a href="{{ url_for('edit_review_queue') }}">Edit Queue</a>
+            {% endif %}
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('login') }}">Login</a>
             {% else %}

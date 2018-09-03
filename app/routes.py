@@ -477,12 +477,14 @@ def downvote(anno_id):
 @app.route("/queue/edits/")
 @login_required
 def edit_review_queue():
+    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edits = AnnotationVersion.query.filter_by(approved=False).all()
     return render_template("queue.html", edits=edits)
 
 @app.route("/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
+    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
     edit.approved = True
     edit.pointer.HEAD = edit
@@ -492,6 +494,7 @@ def approve(edit_hash):
 
 @app.route("/reject/edit/<edit_hash>/")
 def reject(edit_hash):
+    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     edit.pointer.edit_pending = False
     db.session.delete(edit)
