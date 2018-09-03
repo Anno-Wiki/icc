@@ -1,4 +1,5 @@
 import hashlib
+from math import log10 as l
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -70,6 +71,16 @@ class User(UserMixin, db.Model):
             v[vote.annotation.id] = vote.is_up()
         return v
 
+    def up_power(self):
+        if self.reputation <= 10:
+            return 1
+        log = int(l(self.reputation) - (l(11) - int(l(11))))
+        return int(self.reputation / 10**log) + 10*log - 10
+
+    def down_power(self):
+        if self.reputation <= 10:
+            return 1
+        return round(self.up_power() / 2)
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -253,16 +264,14 @@ class Annotation(db.Model):
     edit_pending = db.Column(db.Boolean, index=True, default=False)
 
     def upvote(self, voter):
-        weight = int(voter.reputation / app.config['ANNO_UP_FACTOR'])
-        weight = 1 if weight < 1 else weight
+        weight = voter.up_power()
         self.weight += weight
         self.author.upvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
-        weight = int(voter.reputation / app.config['ANNO_DOWN_FACTOR'])
-        weight = 1 if weight < 1 else weight
+        weight = voter.down_power()
         weight = -weight
         self.weight += weight
         self.author.downvote()
