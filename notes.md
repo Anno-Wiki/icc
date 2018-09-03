@@ -120,4 +120,65 @@ def vote_power(reputation):
     log = int(math.log10(reputation) - (math.log10(11) - int(math.log10(11))))
     return int(reputation / 10**log) + 10*log - 10
 ```
-- That actually seems to do exactly the trick. I don't fully get why.
+- That actually seems to do exactly the trick. I don't fully get why. There's an
+  extra `0.004139268...` in `log(10^n + 10^(n-1))` for `n >= 1`. By subtracting 
+  it from the calculated log we get the chart above. _I really don't understand
+  why it isn't transparent_. That said, I am also unsure if this is the result
+  of floating-point arithmetic or the actual nature of the math.
+- No, crap. This is stupid. Now, it does follow my chart, but my chart is
+  stupid! How does this make sense? For every step, it jumps 1 based on one
+  10^n-1, and then only one for every subsequent 10^n! We end up with this:
+```
+k(arma)     p(ower)
+100         10
+110         11
+120         11
+130         11
+...         ...
+190         11
+200         12
+250         12
+300         13
+400         14
+...         ...
+1000        20
+1100        21
+1200        21
+...         ...
+2000        22
+...         ...
+```
+You see! But in reality, the math without that little
+`math.log10(11) - int(math.log10(11))` hack doesn't really make sense either.
+Then I have
+```
+k(arma)     p(ower)
+99          9
+100         11
+110         11
+...         ...
+190         11
+200         12
+300         13
+...         ...
+999         19
+1000        21
+...         ...
+```
+Which doesn't make sense either! You jump two and never have a 10n voting power?
+I think I need to just establish every 10n based on 10^n and then every 
+`(10^n) + 1` is immediately incremented 1. I think that actually makes the most
+logical sense. Back to the drawing board. It's Sun Sep  2 23:14:35 EDT 2018 and
+I think I'm goint to go to sleep.
+- I got it.
+```
+import math
+def u(k):
+    if k <= 10:
+        return 1
+    elif k == 10**int(math.log10(k)):
+        log = int(math.log10(k) - (math.log10(11) - int(math.log10(11))))
+        return int(k / 10**log) + 10*log - 10
+    log = int(math.log10(k))
+    return int(k / 10**log) + 10*log - 10
+```
