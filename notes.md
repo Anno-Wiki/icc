@@ -117,7 +117,7 @@ just add the 1 and it comes out good.
 def vote_power(reputation):
     if reputation <= 10:
         return 1
-    log = int(math.log10(a) - (math.log10(11) - int(math.log10(11))))
+    log = int(math.log10(reputation) - (math.log10(11) - int(math.log10(11))))
     return int(reputation / 10**log) + 10*log - 10
 ```
 - That actually seems to do exactly the trick. I don't fully get why.
