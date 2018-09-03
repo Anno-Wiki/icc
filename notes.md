@@ -64,3 +64,60 @@ Key:
   steal it from MIT?
 - Line numbers ought to be unhighlightable like github's. I'll have to
   investigate that.
+- I not at all sure that I like the current method of voting. I think I need to
+  make user power growth logarithmic rather than linear. I am not sure where I
+  would like a user's power to more or less top off, but I am thinking around
+  25 points for an upvote (250 personal karma). That said, I would rather
+  someone with 250 personal karma didn't have 25 points. I'd rather they had
+  maybe 10. All voting power should be int(p)
+```
+k(arma)     p(ower)     f(actor)
+1-10        1           p = 1
+20          2           p = k / 10
+30          3           p = k / 10
+...         ...         ...
+100         10          p = k / 10
+110         11          p = k / 100 + 10
+...         ...         ...
+200         12          p = k / 100 + 10
+300         13          p = k / 100 + 10
+...         ...         ...
+900         19          p = k / 100 + 10 
+1000        20          p = k / 100 + 10
+1100        21          p = k / 1000 + 20
+...         ...         ...
+10000       30          p = k / 1000 + 20
+11000       31          p = k / 10000 + 30
+...         ...         ...
+k           p           p = k / 10^log(k) + 10log(k)
+```
+- I'm pretty sure that's what it is. I'm defining the function in python right
+  now:
+```
+def v(a):
+    if a <= 10:
+        return 1
+    log = round(math.log(a,10))
+    return int(a / (10 ** log + 1)) + (10 * log - 10)
+```
+which seems to maintain its accuracy up to 100 quadrillion more testing is
+necessary, but it seems to work. The issue without the round() is that every
+couple of magnitudes the accuracy of `log(a, 10)` is not quite a whole number. I
+don't at all get why, but it is the case. So if I don't add the 1, the evens
+(e.g., 10000) come to `10log - 10 + 1` (e.g., 21 instead of 20 for `v(1000)`. If
+I add 1 to 10^log, the cases where it doesn't come out even on `log(a,10)` turn
+into `10log - 10 - 1`. I just can't freaking win. However, by rounding, the
+cases where `log(a,10)` have a decimal expansion of .9999997 or so are
+immediately rounded up to the even equivalency for the good cases, and so we can
+just add the 1 and it comes out good.
+- That function didn't work for anything _except_ the case where a = 10^n. I
+  believe I have a function that will do it, though.
+- I believe i got it:
+```
+def vote_power(reputation):
+    if reputation <= 10:
+        return 1
+    log = int(math.log10(a) - (math.log10(11) - int(math.log10(11))))
+    return int(reputation / 10**log) + 10*log - 10
+```
+- That actually seems to do exactly the trick. I don't fully get why.
