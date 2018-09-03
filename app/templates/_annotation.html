@@ -1,5 +1,19 @@
 <annotation id="a{{ annotation.id }}">
-    <sup><a href="#{{ annotation.HEAD.last_line_num }}">[{{ annotation.id }}]</a></sup>
+<sup>
+    <a href="{{ url_for("view_annotation", annotation_id=annotation.id) }}">
+        [{{ annotation.id }}]
+    </a>
+</sup>
+    on
+    <em>
+        <a href="#{{ annotation.HEAD.first_line_num }}">
+            {% if annotation.HEAD.first_line_num == annotation.HEAD.last_line_num %}
+                l.{{ annotation.HEAD.last_line_num }}
+            {% else %}
+                ll.{{ annotation.HEAD.first_line_num }}-{{ annotation.HEAD.last_line_num }}
+            {% endif %}
+        </a>
+    </em>
 
     {{ annotation.HEAD.annotation|markdown }}
 
@@ -28,14 +42,34 @@
     <br>
 
     {% if annotation.HEAD.previous_id == None %}
-        annotated by {{ annotation.author.username }},
+        annotated by 
+        <a href="{{ url_for("user", user_id=annotation.author.id) }}">
+            {{ annotation.author.username }},
+        </a>
     {% else %}
-        last edited by {{ annotation.HEAD.editor.username }}, 
+        last edited by 
+        <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
+            {{ annotation.HEAD.editor.username }}, 
+        </a>
     {% endif %}
 
     {{ annotation.added }}
 
     |
+
+    {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="voted">up</a>
+    {% else %}
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">up</a>
+    {% endif %}
+
+    /
+
+    {% if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
+        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="voted">down</a>
+    {% else %}
+        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">down</a>
+    {% endif %}
 
     {% if annotation.weight > 0 %}
 
@@ -61,20 +95,6 @@
             <weight class="down">{{ annotation.weight }}</weight>
         {% endif %}
 
-    {% endif %}
-
-    {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="voted">up</a>
-    {% else %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">up</a>
-    {% endif %}
-
-    /
-
-    {% if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
-        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="voted">down</a>
-    {% else %}
-        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">down</a>
     {% endif %}
 
     | 
