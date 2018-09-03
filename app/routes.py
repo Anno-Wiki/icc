@@ -21,7 +21,10 @@ from app.funky import preplines, is_empty, proc_tag
 @app.route("/index/")
 def index():
     annotations = Annotation.query.order_by(Annotation.added.desc()).all()
-    return render_template("index.html", title="Home", annotations=annotations)
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("index.html", title="Home", annotations=annotations,
+            uservotes=uservotes)
 
 
 ####################
@@ -262,8 +265,10 @@ def read_section(book_url, level, number):
 def view_annotation(annotation_id):
     annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
     lines = annotation.HEAD.get_lines() # we call it now to query it later
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
     return render_template("annotation.html", title=annotation.book.title,
-            annotation=annotation, lines=lines)
+            annotation=annotation, uservotes=uservotes, lines=lines)
 
 
 #####################
