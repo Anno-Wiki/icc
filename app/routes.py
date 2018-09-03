@@ -132,7 +132,7 @@ def read(book_url):
     form = LineNumberForm()
 
     if form.validate_on_submit():
-        return redirect(url_for("create", book_url=book_url,
+        return redirect(url_for("annotate", book_url=book_url,
             first_line=form.first_line.data, last_line=form.last_line.data))
 
     book = Book.query.filter_by(url=book_url).first_or_404()
@@ -169,7 +169,7 @@ def read_section(book_url, level, number):
     if form.validate_on_submit():
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
-        return redirect(url_for("create", book_url=book_url,
+        return redirect(url_for("annotate", book_url=book_url,
             first_line=form.first_line.data, last_line=form.last_line.data,
             next=url_for("read_section", book_url=book_url, level=level,
                 number=number)
@@ -326,7 +326,7 @@ def edit(anno_id):
         form.tag_4.data = tag4
         form.tag_5.data = tag5
 
-    return render_template("create.html", title=annotation.HEAD.book.title,
+    return render_template("annotate.html", title=annotation.HEAD.book.title,
             form=form, book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
@@ -334,7 +334,7 @@ def edit(anno_id):
 @app.route("/annotate/<book_url>/<first_line>/<last_line>/",
         methods=["GET", "POST"])
 @login_required
-def create(book_url, first_line, last_line):
+def annotate(book_url, first_line, last_line):
     if int(first_line) > int(last_line):
         tmp = first_line
         first_line = last_line
@@ -414,7 +414,7 @@ def create(book_url, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template("create.html", title=book.title, form=form,
+    return render_template("annotate.html", title=book.title, form=form,
              book=book, lines=lines)
 
 
