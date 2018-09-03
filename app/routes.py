@@ -258,9 +258,10 @@ def read_section(book_url, level, number):
             next_page=next_page, prev_page=prev_page)
 
 
-@app.route("/view/<anno_id>")
-def view_anno(anno_id):
-    annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
+@app.route("/view/<annotation_id>")
+def view_annotation(annotation_id):
+    annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
+    lines = annotation.HEAD.get_lines() # we call it now to query it later
     return render_template("annotation.html", title=annotation.book.title,
             annotation=annotation, lines=lines)
 

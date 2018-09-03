@@ -12,18 +12,16 @@
 
     <hr>
     <div id="content">
-        <h1>Anotation:</h1>
-        <annotation>{{ annotation.annotation }}</annotation>
-        <h1>Selection:</h1>
-        {%- if lines[0].kind.kind == "l" -%}
-            <paragraph class="cont">
+        {% if lines[0].kind.kind == "l" %}
+            <paragraph class="fl">
         {% endif %}
-        {%- for line in lines -%}
-            {%- include "_line.html" -%}
-        {%- endfor -%}
-        {%- if lines[-1].kind.kind == "l" -%}
+        {% for line in lines %}
+            {% include "_line.html" %}
+        {% endfor %}
+        {% if lines[-1].kind.kind == "l" %}
             </paragraph>
         {% endif %}
+        {% include "_annotation_standalone.html" %}
     </div>
     <hr>
     <div class="running_head">
