@@ -13,10 +13,8 @@
     <weight class="nil">{{ user.reputation }}</weight>
 {% endif %}
 
-{% for anno in user.annotations %}
-<annotation>
-    {% include "_annotation.html" %}
-</annotation>
+{% for annotation in user.annotations %}
+    {% include "_annotation_standalone.html" %}
 {% endfor %}
 
 {% endblock %}
