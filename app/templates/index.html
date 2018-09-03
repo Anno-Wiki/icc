@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% for anno in annotations %}
-<annotation>
-    {% include "_annotation.html" %}
-</annotation>
-{% endfor %}
+    {% for annotation in annotations %}
+        {% include "_annotation_standalone.html" %}
+    {% endfor %}
 {% endblock %}
