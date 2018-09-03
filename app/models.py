@@ -74,7 +74,7 @@ class User(UserMixin, db.Model):
     def up_power(self):
         if self.reputation <= 10:
             return 1
-        elif k == 10**int(math.log10(k)):
+        elif self.reputation == 10**int(l(self.reputation)):
             log = int(l(self.reputation) - (l(11) - int(l(11))))
             return int(self.reputation / 10**log) + 10*log - 10
         log = int(l(self.reputation))
