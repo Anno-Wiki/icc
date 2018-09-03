@@ -13,5 +13,6 @@ login = LoginManager(app)
 md = Markdown(app)
 login.login_view = 'login'
 app.jinja_env.globals['round'] = round
+app.jinja_env.globals['vars'] = app.config
 
 from app import routes, models
