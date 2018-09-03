@@ -64,10 +64,3 @@ def proc_tag(tag):
         db.session.commit()
         t = Tag.query.filter_by(tag=t.tag).first()
     return t
-
-# Not sure if I even need this anymore
-def cat(*args):
-    s = []
-    for arg in args:
-        s.append(str(arg))
-    return ''.join(s)
