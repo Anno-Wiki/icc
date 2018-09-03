@@ -1,50 +1,83 @@
-    <sup><a href="#{{ anno.HEAD.last_line_num }}">[{{ anno.id }}]</a></sup>
-    {{ anno.HEAD.annotation|markdown }}
+<annotation id="a{{ annotation.id }}">
+    <sup><a href="#{{ annotation.HEAD.last_line_num }}">[{{ annotation.id }}]</a></sup>
+
+    {{ annotation.HEAD.annotation|markdown }}
+
     <tags>
-        {%- if anno.HEAD.tag_1 != None -%}
-            <tag>{{ anno.HEAD.tag_1.tag }}</tag>
+        {%- if annotation.HEAD.tag_1 != None -%}
+            <tag>{{ annotation.HEAD.tag_1.tag }}</tag>
         {%- endif -%}
 
-        {%- if anno.HEAD.tag_2 != None -%}
-            <tag>{{ anno.HEAD.tag_2.tag }}</tag>
+        {%- if annotation.HEAD.tag_2 != None -%}
+            <tag>{{ annotation.HEAD.tag_2.tag }}</tag>
         {%- endif -%}
 
-        {%- if anno.HEAD.tag_3 != None -%}
-            <tag>{{ anno.HEAD.tag_3.tag }}</tag>
+        {%- if annotation.HEAD.tag_3 != None -%}
+            <tag>{{ annotation.HEAD.tag_3.tag }}</tag>
         {%- endif -%}
 
-        {%- if anno.HEAD.tag_4 != None -%}
-            <tag>{{ anno.HEAD.tag_4.tag }}</tag>
+        {%- if annotation.HEAD.tag_4 != None -%}
+            <tag>{{ annotation.HEAD.tag_4.tag }}</tag>
         {%- endif -%}
 
-        {%- if anno.HEAD.tag_5 != None -%}
-            <tag>{{ anno.HEAD.tag_5.tag }}</tag>
+        {%- if annotation.HEAD.tag_5 != None -%}
+            <tag>{{ annotation.HEAD.tag_5.tag }}</tag>
         {%- endif -%}
     </tags>
+
     <br>
-    {% if anno.HEAD.previous_id == None %}
-        annotated by {{ anno.author.username }},
+
+    {% if annotation.HEAD.previous_id == None %}
+        annotated by {{ annotation.author.username }},
     {% else %}
-        last edited by {{ anno.HEAD.editor.username }}, 
+        last edited by {{ annotation.HEAD.editor.username }}, 
     {% endif %}
-    {{ anno.added }}
+
+    {{ annotation.added }}
+
     |
-    {% if anno.weight > 0 %}
-        {% if anno.weight >= 1000000 %}
-            <weight class="up">{{ round(anno.weight / 1000000, 1) }}m</weight>
-        {% elif anno.weight >= 1000 %}
-            <weight class="up">{{ round(anno.weight / 1000, 1) }}k</weight>
+
+    {% if annotation.weight > 0 %}
+
+        {% if annotation.weight >= 1000000 %}
+            <weight class="up">{{ round(annotation.weight / 1000000, 1) }}m</weight>
+        {% elif annotation.weight >= 1000 %}
+            <weight class="up">{{ round(annotation.weight / 1000, 1) }}k</weight>
         {% else %}
-            <weight class="up">{{ anno.weight }}</weight>
+            <weight class="up">{{ annotation.weight }}</weight>
         {% endif %}
-    {% elif anno.weight == 0 %}
-        <weight class="nil">{{ anno.weight }}</weight>
+
+    {% elif annotation.weight == 0 %}
+
+        <weight class="nil">{{ annotation.weight }}</weight>
+
     {% else %}
-        {% if anno.weight <= -1000000 %}
-            <weight class="down">{{ round(anno.weight / 1000000, 1) }}m</weight>
-        {% elif anno.weight <= -1000 %}
-            <weight class="down">{{ round(anno.weight / 1000, 1) }}k</weight>
+
+        {% if annotation.weight <= -1000000 %}
+            <weight class="down">{{ round(annotation.weight / 1000000, 1) }}m</weight>
+        {% elif annotation.weight <= -1000 %}
+            <weight class="down">{{ round(annotation.weight / 1000, 1) }}k</weight>
         {% else %}
-            <weight class="down">{{ anno.weight }}</weight>
+            <weight class="down">{{ annotation.weight }}</weight>
         {% endif %}
+
     {% endif %}
+
+    {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="voted">up</a>
+    {% else %}
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">up</a>
+    {% endif %}
+
+    /
+
+    {% if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
+        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="voted">down</a>
+    {% else %}
+        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">down</a>
+    {% endif %}
+
+    | 
+
+    <a href="{{ url_for("edit", anno_id=annotation.id, next=request.path) }}">edit</a>
+</annotation>
