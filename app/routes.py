@@ -316,16 +316,16 @@ def edit(anno_id):
         return redirect(next_page)
 
     elif not annotation.edit_pending:
-        tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
-        tag2 = annotation.HEAD.tag_2.tag if annotation.HEAD.tag_2 else None
-        tag3 = annotation.HEAD.tag_3.tag if annotation.HEAD.tag_3 else None
-        tag4 = annotation.HEAD.tag_4.tag if annotation.HEAD.tag_4 else None
-        tag5 = annotation.HEAD.tag_5.tag if annotation.HEAD.tag_5 else None
         form.first_line.data = annotation.HEAD.first_line_num
         form.last_line.data = annotation.HEAD.last_line_num
         form.first_char_idx.data = annotation.HEAD.first_char_idx
         form.last_char_idx.data = annotation.HEAD.last_char_idx
         form.annotation.data = annotation.HEAD.annotation
+        tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
+        tag2 = annotation.HEAD.tag_2.tag if annotation.HEAD.tag_2 else None
+        tag3 = annotation.HEAD.tag_3.tag if annotation.HEAD.tag_3 else None
+        tag4 = annotation.HEAD.tag_4.tag if annotation.HEAD.tag_4 else None
+        tag5 = annotation.HEAD.tag_5.tag if annotation.HEAD.tag_5 else None
         form.tag_1.data = tag1
         form.tag_2.data = tag2
         form.tag_3.data = tag3
