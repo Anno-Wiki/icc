@@ -1,0 +1,46 @@
+
+ID Age P Project Tags                  Description                          Urg
+-- --- - ------- --------------------- ------------------------------------ ----
+13 7d  H web     feature               tag view and tag descriptions        7.84
+20 4d  H web     feature               Change edit queue to be simple list  7.82
+                                       of annotations with special
+                                       _annotation.html template linking to
+                                       new route to approve/disapprove an
+                                       edit
+10 7d  M web     feature               3 user requirement for edit approval 5.74
+                                       and rejection
+11 7d  M web     feature               Tag filtering                        5.74
+12 7d  M web     feature               privilege requirements on tag        5.74
+                                       creation
+16 7d  M web     feature               restricted tags for author-original  5.74
+                                       annotations
+19 6d  M web     feature               user about mes                       5.73
+21 2d  M web     feature               Create line-by-line editing system   5.71
+                                       for admin
+ 3 3w  L web     JS feature            write javascript for pe char-level   3.85
+                                       annotation
+ 5 2w  L web     AJAX feature          Write javascript for popup            3.8
+                                       annotations on read view.
+14 7d  L web     elasticsearch feature search!                              3.74
+ 4 2w  L web     bug                   find a way to index the annotations  3.71
+                                       on a given page starting at 1; using
+                                       the actual id of the annotation will
+                                       become obnoxious when we have
+                                       annotation [a100000000002354]
+ 6 2w  L web     test                  Test more formats!                    3.7
+ 8 2w  L web     bug                   Keep eye out for italic bug where    3.68
+                                       cursors says data truncated at for
+                                       column line at row 1
+ 9 2w  L web     feature               Limit output of annotation display   3.68
+                                       on main read page for extra long
+                                       annos
+15 7d  L web     bug                   Re-implement bracket anno n display  3.64
+                                       for line-by-line to be outside of
+                                       line.
+17 6d  L web     bug                   Fix paragraph open and close bug on  3.63
+                                       pg level
+18 6d  L web     bug                   Fix message flashing so the ul       3.63
+                                       doesn't have the weird alignment
+                                       issues
+
+18 tasks
