@@ -17,7 +17,7 @@ for line in fin:
 
     l = Line(book_id=fields[0], l_num=fields[1], kind_id=kind[fields[2]],
             bk_num=fields[3], pt_num=fields[4], ch_num=fields[5],
-            em_status_id=kind[fields[6]], line=fields[7])
+            em_status_id=kind[fields[6]], line=fields[7][:-1])
 
     db.session.add(l)
 
