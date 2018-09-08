@@ -154,6 +154,7 @@ class Kind(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True)
+    description = db.Column(db.Text)
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"

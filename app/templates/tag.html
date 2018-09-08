@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ tag.tag }}
+    {{ tag.description }}
+    {% for annotation in annotations %}
+        {% include "_annotation_standalone.html" %}
+    {% endfor %}
+{% endblock %}

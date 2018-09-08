@@ -261,7 +261,7 @@ def read_section(book_url, level, number):
             next_page=next_page, prev_page=prev_page)
 
 
-@app.route("/view/<annotation_id>")
+@app.route("/annotation/<annotation_id>")
 def view_annotation(annotation_id):
     annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
     lines = annotation.HEAD.get_lines() # we call it now to query it later
@@ -270,6 +270,21 @@ def view_annotation(annotation_id):
     return render_template("annotation.html", title=annotation.book.title,
             annotation=annotation, uservotes=uservotes, lines=lines)
 
+@app.route("/tag/<tag>/")
+def tag(tag):
+    tag = Tag.query.filter_by(tag=tag).first_or_404()
+    edits = AnnotationVersion.query.filter(or_(AnnotationVersion.tag_1_id==tag.id,
+        AnnotationVersion.tag_2_id==tag.id, AnnotationVersion.tag_3_id==tag.id,
+        AnnotationVersion.tag_4_id==tag.id, AnnotationVersion.tag_5_id==tag.id)
+        ).order_by(AnnotationVersion.modified.desc()).all()
+
+    annotations = []
+    for e in edits:
+        if e.pointer not in annotations:
+            annotations.append(e.pointer)
+    
+    return render_template("tag.html", title=tag.tag, tag=tag,
+            annotations=annotations)
 
 #####################
 ## Creation Routes ##
