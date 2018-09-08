@@ -125,6 +125,11 @@ def book(book_url):
     return render_template("book.html", title=book.title, book=book,
             heierarchy=heierarchy)
 
+@app.route("/tags/")
+def tag_index():
+    tags = Tag.query.all()
+    return render_template("tag_index.html", title="Tags", tags=tags)
+
 
 ####################
 ## Reading Routes ##
@@ -270,7 +275,7 @@ def view_annotation(annotation_id):
     return render_template("annotation.html", title=annotation.book.title,
             annotation=annotation, uservotes=uservotes, lines=lines)
 
-@app.route("/tag/<tag>/")
+@app.route("/tags/<tag>/")
 def tag(tag):
     tag = Tag.query.filter_by(tag=tag).first_or_404()
     edits = AnnotationVersion.query.filter(or_(AnnotationVersion.tag_1_id==tag.id,

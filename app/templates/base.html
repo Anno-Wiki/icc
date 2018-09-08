@@ -17,13 +17,13 @@
         <div>
             <nav>
             <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static',
-                filename='images/madeleine_logo.jpg')}}">
+                <img src="{{ url_for("static", filename="images/madeleine_logo.jpg")}}">
             </a>
-            <a href="{{ url_for('index') }}">THE LATTICE:</a>
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('book_index') }}">Books</a>
-            <a href="{{ url_for('author_index') }}">Authors</a>
+            <a href="{{ url_for("index") }}">THE LATTICE:</a>
+            <a href="{{ url_for("index") }}">Home</a>
+            <a href="{{ url_for("book_index") }}">Books</a>
+            <a href="{{ url_for("author_index") }}">Authors</a>
+            <a href="{{ url_for("tag_index") }}">Tags</a>
             {% if current_user.is_authenticated and 
                 current_user.is_authorized(vars['AUTHORIZATION']['EDIT_QUEUE']) 
                 %}
