@@ -1,0 +1,2 @@
+FLASK_APP=icc.py
+FLASK_DEBUG=1
