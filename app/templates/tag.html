@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {{ tag.tag }}
-    {{ tag.description }}
+<h1><tag>{{ tag.tag }}</tag></h1><h4>x{{ len(annotations) }}</h4>
+    {% if tag.description %}
+        {{ tag.description|markdown }}
+    {% endif %}
     {% for annotation in annotations %}
         {% include "_annotation_standalone.html" %}
     {% endfor %}
