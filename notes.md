@@ -182,3 +182,15 @@ def u(k):
     log = int(math.log10(k))
     return int(k / 10**log) + 10*log - 10
 ```
+---
+Sun Sep  9 21:12:20 EDT 2018
+- For linking I don't _need_ any kind of special tag or system. Sure, I can't
+  get the users to specially select individual characters, but just linking to a
+  particular line on a page (describing how to do it to them) allows the user to
+  build context. For an example.
+
+Hamlet here references `[John 10:29](https://icc.com/read/the_bible/john#23)`.
+
+would take you to the twenty-third line of the book of john (speaking of this,
+I'll have to do something about handling the Bible in particular; I also still
+have to implement separate things for act/scene).
