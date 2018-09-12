@@ -44,13 +44,28 @@ class AnnotationForm(FlaskForm):
     last_line = IntegerField('Last Line', validators=[InputRequired()])
     first_char_idx = IntegerField('First Char', validators=[InputRequired()])
     last_char_idx = IntegerField('Last Char', validators=[InputRequired()])
+
     annotation = TextAreaField('Annotation', 
             render_kw={"placeholder":"Type your annotation here."},
             validators=[InputRequired()])
-    tag_1 = StringField('Tag 1', render_kw={"placeholder":"Tag 1"}, validators=[Optional()])
-    tag_2 = StringField('Tag 2', render_kw={"placeholder":"Tag 2"}, validators=[Optional()])
-    tag_3 = StringField('Tag 3', render_kw={"placeholder":"Tag 3"}, validators=[Optional()])
-    tag_4 = StringField('Tag 4', render_kw={"placeholder":"Tag 4"}, validators=[Optional()])
-    tag_5 = StringField('Tag 5', render_kw={"placeholder":"Tag 5"}, validators=[Optional()])
+
+    tag_1 = StringField('Tag 1', render_kw={"placeholder":"Tag 1"},
+            validators=[Optional()])
+    tag_2 = StringField('Tag 2', render_kw={"placeholder":"Tag 2"},
+            validators=[Optional()])
+    tag_3 = StringField('Tag 3', render_kw={"placeholder":"Tag 3"},
+            validators=[Optional()])
+    tag_4 = StringField('Tag 4', render_kw={"placeholder":"Tag 4"},
+            validators=[Optional()])
+    tag_5 = StringField('Tag 5', render_kw={"placeholder":"Tag 5"},
+            validators=[Optional()])
+
     submit = SubmitField('Annotate')
     cancel = SubmitField('Cancel')
+
+class TagForm(FlaskForm):
+    tag = StringField("Tag", render_kw={"placeholder":"Tag"},
+            validators=[InputRequired()])
+    description = TextAreaField("Description",
+            render_kw={"placeholder":"Description"},
+            validators=[Optional()])

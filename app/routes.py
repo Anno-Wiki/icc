@@ -9,7 +9,7 @@ from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm
+        LineNumberForm, TagForm
 from app.funky import preplines, is_empty, proc_tag
 
 
@@ -500,14 +500,21 @@ def downvote(anno_id):
 ## Administration Routes ##
 ###########################
 
-@app.route("/queue/edits/")
+@app.route("/admin/tags/create")
+@login_required
+def create_tag():
+    current_user.authorize(app.config["AUTHORIZATION"]["TAG_CREATION"])
+    form = TagForm()
+
+
+@app.route("/admin/queue/edits/")
 @login_required
 def edit_review_queue():
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edits = AnnotationVersion.query.filter_by(approved=False).all()
     return render_template("queue.html", edits=edits)
 
-@app.route("/approve/edit/<edit_hash>/")
+@app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
@@ -518,7 +525,7 @@ def approve(edit_hash):
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
-@app.route("/reject/edit/<edit_hash>/")
+@app.route("/admin/reject/edit/<edit_hash>/")
 def reject(edit_hash):
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
