@@ -278,16 +278,8 @@ def view_annotation(annotation_id):
 @app.route("/tags/<tag>/")
 def tag(tag):
     tag = Tag.query.filter_by(tag=tag).first_or_404()
-    edits = AnnotationVersion.query.filter(or_(AnnotationVersion.tag_1_id==tag.id,
-        AnnotationVersion.tag_2_id==tag.id, AnnotationVersion.tag_3_id==tag.id,
-        AnnotationVersion.tag_4_id==tag.id, AnnotationVersion.tag_5_id==tag.id)
-        ).order_by(AnnotationVersion.modified.desc()).all()
 
-    annotations = []
-    for e in edits:
-        if e.pointer not in annotations:
-            annotations.append(e.pointer)
-    
+    annotations = tag.get_annotations() 
     return render_template("tag.html", title=tag.tag, tag=tag,
             annotations=annotations)
 

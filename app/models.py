@@ -4,6 +4,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
+from sqlalchemy import or_
 
 ####################
 ## User Functions ##
@@ -106,7 +107,7 @@ class Vote(db.Model):
 
     def __repr__(self):
         return f"<{self.user.username} {self.delta} on {self.annotation}>"
-    
+
     def is_up(self):
         if self.delta > 0:
             return True
@@ -158,6 +159,20 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
+
+    def get_annotations(self):
+        edits = AnnotationVersion.query.filter(or_(
+            AnnotationVersion.tag_1_id==self.id,
+            AnnotationVersion.tag_2_id==self.id,
+            AnnotationVersion.tag_3_id==self.id,
+            AnnotationVersion.tag_4_id==self.id,
+            AnnotationVersion.tag_5_id==self.id)
+            ).order_by(AnnotationVersion.modified.asc()).all()
+        annotations = []
+        for e in edits:
+            if e.pointer not in annotations:
+                annotations.append(e.pointer)
+        return annotations
 
 
 ####################
@@ -299,3 +314,16 @@ class Annotation(db.Model):
         else:
             self.author.rollback_downvote()
         db.session.delete(vote)
+
+    def get_tags(self):
+        tags = []
+        if self.HEAD.tag_1:
+            tags.append(self.HEAD.tag_1)
+        if self.HEAD.tag_2:
+            tags.append(self.HEAD.tag_2)
+        if self.HEAD.tag_3:
+            tags.append(self.HEAD.tag_3)
+        if self.HEAD.tag_4:
+            tags.append(self.HEAD.tag_4)
+        if self.HEAD.tag_5:
+            tags.append(self.HEAD.tag_5)
