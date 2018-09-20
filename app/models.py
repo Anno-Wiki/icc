@@ -174,6 +174,22 @@ class Tag(db.Model):
                 annotations.append(e.pointer)
         return annotations
 
+    def get_annotations_by_book(self, book):
+        edits = AnnotationVersion.query.filter(or_(
+            AnnotationVersion.tag_1_id==self.id,
+            AnnotationVersion.tag_2_id==self.id,
+            AnnotationVersion.tag_3_id==self.id,
+            AnnotationVersion.tag_4_id==self.id,
+            AnnotationVersion.tag_5_id==self.id),
+            AnnotationVersion.book_id==book.id
+            ).order_by(AnnotationVersion.last_line_num.asc()).all()
+        annotations = []
+        for e in edits:
+            if e.pointer not in annotations:
+                annotations.append(e.pointer)
+        return annotations
+
+
 
 ####################
 ## Content Models ##

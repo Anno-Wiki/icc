@@ -165,8 +165,10 @@ def read(book_url):
 
 
 # unfortunately, this one is a lot more complicated than simple read.
-@app.route("/read/<book_url>/<level>/<number>/", methods=["GET", "POST"])
-def read_section(book_url, level, number):
+@app.route("/read/<book_url>/<level>/<number>/", defaults={"tag": None},
+        methods=["GET", "POST"])
+@app.route("/read/<book_url>/<level>/<number>/<tag>", methods=["GET", "POST"])
+def read_section(book_url, level, number, tag):
     number = int(number) # convert number to int for transparency
     form = LineNumberForm()
 
@@ -247,7 +249,11 @@ def read_section(book_url, level, number):
                 level=level, number=number-1)
 
     # get all the annotations
-    annotations = book.annotations
+    if tag:
+        tag = Tag.query.filter_by(tag=tag).first_or_404()
+        annotations = tag.get_annotations_by_book(book)
+    else:
+        annotations = book.annotations
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
