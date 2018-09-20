@@ -343,3 +343,4 @@ class Annotation(db.Model):
             tags.append(self.HEAD.tag_4)
         if self.HEAD.tag_5:
             tags.append(self.HEAD.tag_5)
+        return tags

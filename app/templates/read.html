@@ -10,10 +10,23 @@
     </div>
 
     {% if prev_page %}
-    <a href="{{ prev_page }}">Previous</a>
+        {% if tag %}
+            <a href="{{ url_for("read_section", book_url=book.url, level=level,
+                number=prev_page, tag=tag.tag) }}">Previous</a>
+        {% else %}
+            <a href="{{ url_for("read_section", book_url=book.url, level=level,
+                number=prev_page) }}">Previous</a>
+        {% endif %}
     {% endif %}
+
     {% if next_page %}
-    <a href="{{ next_page }}">Next</a>
+        {% if tag %}
+            <a href="{{ url_for("read_section", book_url=book.url, level=level,
+                number=next_page, tag=tag.tag) }}">Next</a>
+        {% else %}
+            <a href="{{ url_for("read_section", book_url=book.url, level=level,
+                number=next_page) }}">Next</a>
+        {% endif %}
     {% endif %}
     <form action="" method="POST">
         {{ form.hidden_tag() }}
@@ -23,6 +36,19 @@
         {{ form.last_line(size=1) }}
         {{ form.submit() }}
     </form>
+    {% if tags %}
+        Limit to:
+        {% for tag in tags %}
+            <tag>
+                <a href="{{ url_for("read_section", book_url=book.url,
+                level=level, number=number, tag=tag.tag) }}">{{ tag.tag }}</a>
+            </tag>
+        {% endfor %}
+    {% else %}
+        <a href="{{ url_for("read_section", book_url=book.url, level=level,
+        number=number) }}">Show all tags</a>
+    {% endif %}
+            
 
     <hr>
 

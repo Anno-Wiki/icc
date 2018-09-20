@@ -240,20 +240,28 @@ def read_section(book_url, level, number, tag):
             sections = sections.ch_num
         # now that it's cashed out, if it's not too big, build the next url
         if number + 1 <= sections:
-            next_page = url_for("read_section", book_url=book_url, level=level,
-                    number=number+1)
+            next_page = number+1
+            #url_for("read_section", book_url=book_url, level=level,
+            #        number=number+1)
 
     # if it's not the first page, build a previous url
     if number > 1:
-        prev_page = url_for("read_section", book_url=book_url,
-                level=level, number=number-1)
+        prev_page = number-1
+        #prev_page = url_for("read_section", book_url=book_url,
+        #        level=level, number=number-1)
 
     # get all the annotations
     if tag:
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.get_annotations_by_book(book)
+        tags = None
     else:
         annotations = book.annotations
+        tags = []
+        for a in annotations:
+            for t in a.get_tags():
+                if t not in tags:
+                    tags.append(t)
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
@@ -269,7 +277,8 @@ def read_section(book_url, level, number, tag):
 
     return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations=annotations, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page)
+            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page, level=level,
+            number=number)
 
 
 @app.route("/annotation/<annotation_id>")
