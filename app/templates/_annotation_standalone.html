@@ -77,13 +77,15 @@
     {% if annotation.HEAD.previous_id == None %}
         annotated by 
         <a href="{{ url_for("user", user_id=annotation.author.id) }}">
-            {{ annotation.author.username }},
+            {{ annotation.author.username }}
         </a>
+        {{ annotation.author.reputation }},
     {% else %}
         last edited by 
         <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
-            {{ annotation.HEAD.editor.username }}, 
+            {{ annotation.HEAD.editor.username }}
         </a>
+        {{ annotation.HEAD.editor.reputation }}, 
     {% endif %}
     
     {{ annotation.added }}
