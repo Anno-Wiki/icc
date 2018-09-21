@@ -1,54 +1,71 @@
 
-ID Age P Project Tags                  Description                          Urg
--- --- - ------- --------------------- ------------------------------------ ----
- 9 3w  H web     feature               3 user requirement for edit approval 7.92
-                                       and rejection
-11 3w  H web     feature               privilege requirements on tag        7.92
-                                       creation
-13 3w  H web     bug                   Re-implement bracket anno n display  7.92
-                                       for line-by-line to be outside of
-                                       line.
-14 3w  H web     feature               restricted tags for author-original  7.92
-                                       annotations
-18 2w  H web     feature               Change edit queue to be simple list   7.9
-                                       of annotations with special
-                                       _annotation.html template linking to
-                                       new route to approve/disapprove an
-                                       edit
-19 2w  H web     feature               Create line-by-line editing system   7.89
-                                       for admin
-24 6d  H web     feature               Restricted tags                      7.83
-26 4h  H web     feature               annotation deletion                   7.8
-27 4h  H web     feature               book requests                         7.8
-30 14s H web                           REDO ALL STYLES                         7
-10 3w  M web     feature               Tag filtering                        5.82
-17 2w  M web     feature               user about mes                       5.81
-28 1h  M web     bug                   Need separate styles or _line.html    5.7
-                                       for display by self, I have an
-                                       indentation problem when it pulling
-                                       text on its own
-29 47s M web     bug                   Need to find way to target specific   5.7
-                                       lines of annotation ll number
-                                       instead of full book Deprecate full
-                                       book view
- 3 5w  L web     JS feature            write javascript for pe char-level   3.92
-                                       annotation
- 5 4w  L web     AJAX feature          Write javascript for popup           3.89
-                                       annotations on read view.
-12 3w  L web     elasticsearch feature search!                              3.82
- 4 4w  L web     bug                   find a way to index the annotations  3.79
-                                       on a given page starting at 1; using
-                                       the actual id of the annotation will
-                                       become obnoxious when we have
-                                       annotation [a100000000002354]
- 6 4w  L web     test                  Test more formats!                   3.79
- 8 4w  L web     bug                   Keep eye out for italic bug where    3.76
-                                       cursors says data truncated at for
-                                       column line at row 1
-15 3w  L web     bug                   Fix paragraph open and close bug on  3.72
-                                       pg level
-16 2w  L web     bug                   Fix message flashing so the ul       3.71
-                                       doesn't have the weird alignment
-                                       issues
+ID Age   P Project Tags                 Due        Description              Urg
+-- ----- - ------- -------------------- ---------- ------------------------ ----
+29 20min H web                          2018-09-22 REDO ALL STYLES          15.7
+ 9 3w    H web     feature                         3 user requirement for   7.92
+                                                   edit approval and
+                                                   rejection
+10 3w    H web     feature                         privilege requirements   7.92
+                                                   on tag creation
+13 3w    H web     feature                         restricted tags for      7.92
+                                                   author-original
+                                                   annotations
+17 2w    H web     feature                         Change edit queue to be   7.9
+                                                   simple list of
+                                                   annotations with special
+                                                   _annotation.html
+                                                   template linking to new
+                                                   route to
+                                                   approve/disapprove an
+                                                   edit
+18 2w    H web     feature                         Create line-by-line      7.89
+                                                   editing system for admin
+23 6d    H web     feature                         Restricted tags          7.83
+25 4h    H web     feature                         annotation deletion       7.8
+26 4h    H web     feature                         book requests             7.8
+12 3w    M web     bug                             Re-implement bracket     5.82
+                                                   anno n display for
+                                                   line-by-line to be
+                                                   outside of line.
+16 2w    M web     feature                         user about mes           5.81
+27 1h    M web     bug                             Need separate styles or   5.7
+                                                   _line.html for display
+                                                   by self, I have an
+                                                   indentation problem when
+                                                   it pulling text on its
+                                                   own
+28 21min M web     bug                             Need to find way to       5.7
+                                                   target specific lines of
+                                                   annotation ll number
+                                                   instead of full book
+                                                   Deprecate full book view
+30 3s    M web     bug                             need to paginate          5.7
+                                                   annotations on
+                                                   everything!
+ 3 5w    L web     JS feature                      write javascript for pe  3.92
+                                                   char-level annotation
+ 5 4w    L web     AJAX feature                    Write javascript for     3.89
+                                                   popup annotations on
+                                                   read view.
+11 3w    L web     elasticsearch                   search!                  3.82
+                   feature
+ 4 4w    L web     bug                             find a way to index the  3.79
+                                                   annotations on a given
+                                                   page starting at 1;
+                                                   using the actual id of
+                                                   the annotation will
+                                                   become obnoxious when we
+                                                   have annotation
+                                                   [a100000000002354]
+ 6 4w    L web     test                            Test more formats!       3.79
+ 8 4w    L web     bug                             Keep eye out for italic  3.76
+                                                   bug where cursors says
+                                                   data truncated at for
+                                                   column line at row 1
+14 3w    L web     bug                             Fix paragraph open and   3.72
+                                                   close bug on pg level
+15 3w    L web     bug                             Fix message flashing so  3.72
+                                                   the ul doesn't have the
+                                                   weird alignment issues
 
 22 tasks
