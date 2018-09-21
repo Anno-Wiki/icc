@@ -56,7 +56,14 @@
 
     <content id="content">
         {%- for line in lines %}
+
+            {% if line.l_num % 5 == 0 %}
+                <span class="linenum">{{ line.l_num }}</span>
+            {% endif %}
+
             {%- include "_line.html" -%}
+
+
         {% endfor -%}
     </content>
     <!--Annotations-->
