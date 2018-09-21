@@ -15,7 +15,21 @@
         </a>
     </em>
 
-    {{ annotation.HEAD.annotation|markdown }}
+
+    <div class="annotation_content">
+    {% if len(annotation.HEAD.annotation) < 255 %}
+        {{ annotation.HEAD.annotation|markdown }}
+    {% else -%}
+        <span class="cutoff">
+        {{- annotation.HEAD.annotation[:255]|markdown -}}
+        </span>
+        <a href="{{ url_for("view_annotation", annotation_id=annotation.id) }}">
+            View More
+        </a>
+    {% endif %}
+    </div>
+           
+
 
     <tags>
         {%- if annotation.HEAD.tag_1 != None -%}

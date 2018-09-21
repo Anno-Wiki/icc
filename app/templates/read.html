@@ -39,10 +39,12 @@
     {% if tags %}
         Limit to:
         {% for tag in tags %}
-            <tag>
-                <a href="{{ url_for("read_section", book_url=book.url,
-                level=level, number=number, tag=tag.tag) }}">{{ tag.tag }}</a>
-            </tag>
+            <a href="{{ url_for("read_section", book_url=book.url,
+                level=level, number=number, tag=tag.tag) }}">
+                <tag>
+                    {{ tag.tag }}
+                </tag>
+            </a>
         {% endfor %}
     {% else %}
         <a href="{{ url_for("read_section", book_url=book.url, level=level,
