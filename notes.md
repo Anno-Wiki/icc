@@ -194,3 +194,7 @@ Hamlet here references `[John 10:29](https://icc.com/read/the_bible/john#23)`.
 would take you to the twenty-third line of the book of john (speaking of this,
 I'll have to do something about handling the Bible in particular; I also still
 have to implement separate things for act/scene).
+- TLD's:
+    1. .org
+    2. .info
+    3. .io
