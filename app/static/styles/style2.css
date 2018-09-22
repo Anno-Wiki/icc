@@ -1,18 +1,19 @@
 :root {
-    --base03:       #002b36;
-    --base02:       #073642;
-    --base01:       #586e75; /* optional emphasized content */
-    --base00:       #657b83; /* body text/default code/primary content */
-    --base0:        #839496;
-    --base1:        #93a1a1; /* comments/secondary content */
-    --base21:       #d0d0c0;
-    --base22:       #e0e0d0;
+    --base03:       #002b36; /* links not visited */
+    --base02:       #073642; /* flash background */
+    --base01:       #586e75; /* optional emphasized content, flash text */
+    --base011:      #405060; /* tag text color */
+    --base00:       #657b83; /* body text/primary content */
+    --base0:        #839496; /* annotation head links, weight nil */
+    --base1:        #93a1a1; /* comments/secondary content (tags, linenums) */
+    --base11:       #708080; /* tag background fade */
+    --base21:       #d0d0c0; /* navbar header background color */
     --base2:        #eee8d5; /* background highlights */
     --base3:        #fdf6e3; /* background */
-    --black:        #000000;
+    --black:        #000000; /* header links visited and not */
     --blue:         #268bd2;
     --cyan:         #2aa198;
-    --green:        #859900;
+    --green:        #859900; /* voted and positive weight */
     --magenta:      #d33682;
     --orange:       #cb4b16;
     --red:          #dc322f;
@@ -74,17 +75,14 @@ body li {
 nav {
     display: inline;
     margin: 0 0 0 20px;
-    color: var(--base01);
     font-family: "Playfair Display", serif;
     font-size: 20px;
 }
 nav a {
     margin: 10px;
-    color: var(--base01);
 }
 nav a:hover {
     border-bottom: 1px solid var(--base1);
-    color: var(--base1);
 }
 
 /******************************************************************************/
@@ -190,17 +188,19 @@ tags {
     display: block;
 }
 tag {
-    margin: 0 5px 0 0;
-    padding: 5px 10px 5px 10px;
+    margin: 0 0 0 15px;
+    padding: 3px 10px 3px 10px;
     background-color: var(--base1);
-    color: var(--base01);
+    color: var(--base011);
     font-family: "Playfair Display", serif;
+    border-radius: 3px;
+    transition: all .15s ease-in;
 }
 tag a {
 }
 tag:hover{
-    background-color: var(--base01);
-    color: var(--base1);
+    background-color: var(--base11);
+    color: var(--base011);
 }
 
 /******************************************************************************/
