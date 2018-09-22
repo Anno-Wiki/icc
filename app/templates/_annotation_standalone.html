@@ -100,13 +100,13 @@
     <a href="{{ url_for("user", user_id=annotation.author.id) }}">
     {{ annotation.author.username }}
     </a>
-    <strong>{{ annotation.author.reputation }}</strong>,
+    {% include "_reputation_author.html" %}
     {%- else -%}
     last edited by 
     <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
     {{ annotation.HEAD.editor.username }}
     </a>
-    <strong>{{ annotation.HEAD.editor.reputation }}</strong>,
+    {% include "_reputation_editor.html" %}
     {% endif %}
 
     {{ annotation.added }}

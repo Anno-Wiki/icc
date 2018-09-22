@@ -1,0 +1,9 @@
+{% if user.reputation >= 1000000 %}
+    <strong>{{ round(user.reputation/1000000) }}m</strong>
+{% elif user.reputation >= 1000 %}
+    <strong>{{ round(user.reputation/1000) }}k</strong>
+{% elif user.reputation > 0 %}
+    <strong>{{ user.reputation }}</strong>
+{% else %}
+    <strong>{{ user.reputation }}</strong>
+{% endif %}
