@@ -1,0 +1,322 @@
+:root {
+    --base03:       #002b36;
+    --base02:       #073642;
+    --base01:       #586e75; /* optional emphasized content */
+    --base00:       #657b83; /* body text/default code/primary content */
+    --base0:        #839496;
+    --base1:        #93a1a1; /* comments/secondary content */
+    --base21:       #d0d0c0;
+    --base22:       #e0e0d0;
+    --base2:        #eee8d5; /* background highlights */
+    --base3:        #fdf6e3; /* background */
+    --black:        #000000;
+    --blue:         #268bd2;
+    --cyan:         #2aa198;
+    --green:        #859900;
+    --magenta:      #d33682;
+    --orange:       #cb4b16;
+    --red:          #dc322f;
+    --violet:       #6c71c4;
+    --yellow:       #b58900;
+}
+
+/******************************************************************************/
+
+/* general body styles */
+
+body {
+    font-family: "EB Garamond", serif;
+    font-size: 18px;
+}
+body a {
+    text-decoration: none;
+    color: var(--base03);
+}
+body a:visited {
+    color: var(--base1);
+}
+
+body h1, h2, h3, h4, h5, h6 {
+    font-family: "Playfair Display", serif;
+}
+
+body li {
+    font-size: 20px;
+    margin: 10px 0 0 0;
+}
+
+/******************************************************************************/
+
+/* styles associated with the nav bar header */
+
+/* full header */
+.header {
+    background-color: var(--base21);
+    padding: 10px 0 10px 0;
+}
+.header a, .header a:visited{
+    color: var(--black);
+}
+
+/* logo block in nav bar */
+.logo {
+    display: inline;
+    margin: 0 0 0 10px;
+    font-size: 26px;
+    font-family: "Playfair Display", serif;
+    font-weight: bold;
+}
+.logo img {
+    height: 18px;
+}
+
+/* nav bar */
+nav {
+    display: inline;
+    margin: 0 0 0 20px;
+    color: var(--base01);
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+}
+nav a {
+    margin: 10px;
+    color: var(--base01);
+}
+nav a:hover {
+    border-bottom: 1px solid var(--base1);
+    color: var(--base1);
+}
+
+/******************************************************************************/
+
+/* general content styles */
+
+/* content */
+#container {
+    background-color: var(--base3);
+    margin: 0px;
+    padding: 30px 50px 10px 50px;
+}
+
+/* flashed messages */
+.flash {
+    margin: 0px;
+    padding: 10px;
+    background-color: var(--base3);
+}
+.flash li {
+    list-style-type: none;
+
+    width: 600px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--base02);
+
+    color: var(--base01);
+    text-align: center;
+    font-family: "Playfair Display", serif;
+    font-size: 30px;
+}
+
+/******************************************************************************/
+
+/* annotation styles */
+
+annotation {
+    width: 800px;
+    display: block;
+    margin: 0 0 30px 0;
+    padding: 10px;
+    background-color: var(--base2);
+
+    color: var(--base01);
+    font-family: Playfair Display, serif;
+    font-size: 16px;
+}
+annotation sup {
+    font-size: 15px;
+}
+
+/* head in the annotation */
+.annotation_head {
+    position: relative;
+    background-color: var(--base02);
+    padding: 10px;
+    border-radius: 5px;
+}
+.annotation_head a {
+    color: var(--base0);
+}
+.annotation_head a:visited {
+    color: var(--base0);
+}
+weight {
+    position: absolute;
+    top: -17px;
+    right: 10px;
+    margin-right: 0px;
+    font-size: 50px;
+    font-weight: bold;
+}
+weight.up {
+    color: var(--green);
+}
+weight.nil {
+    color: var(--base0);
+}
+weight.down {
+    color: var(--red);
+}
+
+/* the actual content of the annotation */
+.annotation_content {
+    margin: 10px 0 10px 5px;
+    padding: 10px;
+}
+
+/* up/down vote links*/
+a.notvoted, a:visited.notvoted {
+    color: var(--base03);
+}
+a.voted, a:visited.voted{
+    color: var(--green);
+}
+
+/******************************************************************************/
+
+/* tags */
+
+tags {
+    display: block;
+}
+tag {
+    margin: 0 5px 0 0;
+    padding: 5px 10px 5px 10px;
+    background-color: var(--base1);
+    color: var(--base01);
+    font-family: "Playfair Display", serif;
+}
+tag a {
+}
+tag:hover{
+    background-color: var(--base01);
+    color: var(--base1);
+}
+
+/******************************************************************************/
+
+/* Book page stuff */
+
+/* summary */
+#summary {
+    /* to be designed later */
+}
+/* table of contents */
+.table_of_contents {
+    width: 600px;
+    font-size: 30px;
+}
+.table_of_contents tr {
+    margin: 40px 0 0 0;
+}
+.book_contents {
+    font-size: 20px;
+}
+.part_contents {
+    text-indent: 6px;
+    font-size: 18px;
+}
+.chapter_contents {
+    text-indent: 10px;
+    font-size: 16px;
+}
+
+/******************************************************************************/
+
+/* the header section to a read page */
+
+/* running head */
+.running_head {
+    margin: 0 0 20px 0;
+    font-size: 30px;
+    font-family: 'Playfair Display', serif;
+}
+
+.tag_limit {
+    margin: 20px 0 20px 0;
+}
+
+hr {
+    max-width: 47%;
+    margin: 30px 0 20px 0;
+}
+
+/******************************************************************************/
+
+/* the actual page */
+
+hr.book_separator {
+    border: 0;
+    height: 70px;
+}
+paragraph{
+    display: block;
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    color: var(--base00);
+    margin: 20px 0 0 0;
+}
+line {
+    display: block;
+}
+
+/* main tags */
+.ch, .pt, .bk, .stg {
+    font-family: "Playfair Display", serif;
+    color: var(--base01);
+}
+.ch {
+    font-size: 26px;
+}
+.pt {
+    font-size: 30px;
+}
+.bk {
+    font-size: 34px;
+}
+.stg {
+    font-size: 12px;
+}
+#content sup {
+    font-size: 12px;
+}
+.linenum {
+    margin: 0 0 0 -6em;
+    width: 4em;
+    line-height: 2;
+    float: left;
+    text-align: right;
+    font-family: "Playfair Display", serif;
+    font-size: 0.7em;
+    font-weight: 600;
+    color: var(--base1);
+    -webkit-touch-callout: none;    /* iOS Safari */
+    -webkit-user-select: none;      /* Safari */
+    -khtml-user-select: none;       /* Konqueror HTML */
+    -moz-user-select: none;         /* Firefox */
+    -ms-user-select: none;          /* Internet Explorer/Edge */
+    user-select: none;              /* Non-prefixed version, currently
+                                        supported by Chrome and Opera */
+}
+
+/******************************************************************************/
+
+/* input, buttons, etc.*/
+input {
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+}
+textarea {
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+}

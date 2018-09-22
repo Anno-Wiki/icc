@@ -19,9 +19,7 @@
         edit suggestion is either approved or rejected.</p>
         <p>Please try again later.</p>
     {% else %}
-        {% include "_form_annotate.html" %}
         <h1>Selection:</h1>
-        <hr>
         <div id="content">
             {%- if lines[0].kind.kind == "l" -%}
                 <paragraph class="cont">
@@ -33,13 +31,8 @@
                 </paragraph>
             {% endif %}
         </div>
+        <hr class="book_separator">
+        {% include "_form_annotate.html" %}
     {% endif %}
-    <hr>
-    <div class="running_head">
-        <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
-
-         by <a href="{{ url_for("author", name=book.author.url) }}">
-            {{ book.author.name }} </a>
-    </div>
 
 {% endblock %}

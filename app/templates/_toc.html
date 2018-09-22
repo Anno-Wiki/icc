@@ -1,11 +1,11 @@
         {% if section.kind.kind == 'bk' %}
             <tr class="book_contents">
-                <th align="left">
+                <td align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.bk_num) }}">
                         Book {{ section.bk_num }}: {{ section.line }}
                     </a>
                 </th>
-                <th align="right">
+                <td align="right">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.bk_num) }}">
                         {{ section.l_num }}
                     </a>
@@ -13,26 +13,26 @@
 
         {% elif section.kind.kind == 'pt' %}
             <tr class="part_contents">
-                <th align="left">
+                <td align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
                         Part {{ section.pt_num }}: {{ section.line }}
                     </a>
-                <th align="right">
+                <td align="right">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.pt_num) }}">
                         {{ section.l_num }}
                     </a>
                 </th>
         {% elif section.kind.kind == 'ch' %}
             <tr class="chapter_contents">
-                <th align="left">
+                <td align="left">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.ch_num) }}">
                         Chapter {{ section.ch_num }}: {{ section.line }}
                     </a>
-                </th>
-                <th align="right">
+                </td>
+                <td align="right">
                     <a href="{{ url_for("read_section", book_url=book.url, level=section.kind.kind, number=section.ch_num) }}">
                         {{ section.l_num }}
                     </a>
-                </th>
+                </td>
             </tr>
         {% endif %}

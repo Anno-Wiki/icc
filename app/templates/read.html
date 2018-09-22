@@ -9,6 +9,7 @@
             {{ book.author.name }} </a>
     </div>
 
+    <!--Pagination-->
     {% if prev_page %}
         {% if tag %}
             <a href="{{ url_for("read_section", book_url=book.url, level=level,
@@ -28,6 +29,7 @@
                 number=next_page) }}">Next</a>
         {% endif %}
     {% endif %}
+
     <form action="" method="POST">
         {{ form.hidden_tag() }}
         {{ form.first_line.label }}
@@ -37,7 +39,8 @@
         {{ form.submit() }}
     </form>
     {% if tags %}
-        Limit to:
+    <div class="tag_limit">
+        Limit visible annotations to tag:
         {% for tag in tags %}
             <a href="{{ url_for("read_section", book_url=book.url,
                 level=level, number=number, tag=tag.tag) }}">
@@ -46,6 +49,7 @@
                 </tag>
             </a>
         {% endfor %}
+    </div>
     {% else %}
         <a href="{{ url_for("read_section", book_url=book.url, level=level,
         number=number) }}">Show all tags</a>
@@ -54,7 +58,7 @@
 
     <hr>
 
-    <content id="content">
+    <div id="content">
         {%- for line in lines %}
 
             {% if line.l_num % 5 == 0 %}
@@ -63,9 +67,8 @@
 
             {%- include "_line.html" -%}
 
-
         {% endfor -%}
-    </content>
+    </div>
     <!--Annotations-->
         {% for annotation in annotations %}
         {% if annotation.HEAD.last_line_num >= lines[0].l_num and annotation.HEAD.last_line_num <= lines[-1].l_num %}
