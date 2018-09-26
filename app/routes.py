@@ -269,16 +269,16 @@ def read_section(book_url, level, number, tag):
         annotations_idx[a.HEAD.last_line_num].append(a)
 
     # call the annotator
-    preplines(lines, annotations_idx)
+    #preplines(lines, annotations_idx)
 
     # to darken up/down voted annotations
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
     return render_template("read.html", title=book.title, form=form, book=book,
-            lines=lines, annotations=annotations, uservotes=uservotes,
-            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page, level=level,
-            number=number)
+            lines=lines, annotations=annotations, annotations_idx=annotations_idx,
+            uservotes=uservotes, tags=tags, tag=tag, next_page=next_page,
+            prev_page=prev_page, level=level, number=number)
 
 
 @app.route("/annotation/<annotation_id>")

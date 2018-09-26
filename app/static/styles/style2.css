@@ -28,6 +28,7 @@
 body {
     font-family: "EB Garamond", serif;
     font-size: 18px;
+    margin: 5px 50px 0 50px;
 }
 body a {
     text-decoration: none;
@@ -247,7 +248,7 @@ tag:hover{
 }
 
 hr {
-    max-width: 47%;
+    max-width: 50%;
     margin: 30px 0 20px 0;
 }
 
@@ -255,6 +256,9 @@ hr {
 
 /* the actual page */
 
+#content {
+    width: 50%;
+}
 hr.book_separator {
     border: 0;
     height: 70px;
@@ -268,6 +272,7 @@ paragraph{
 }
 line {
     display: block;
+    width: 100%;
 }
 
 /* main tags */
@@ -300,6 +305,19 @@ line {
     font-size: 0.7em;
     font-weight: 600;
     color: var(--base1);
+    -webkit-touch-callout: none;    /* iOS Safari */
+    -webkit-user-select: none;      /* Safari */
+    -khtml-user-select: none;       /* Konqueror HTML */
+    -moz-user-select: none;         /* Firefox */
+    -ms-user-select: none;          /* Internet Explorer/Edge */
+    user-select: none;              /* Non-prefixed version, currently
+                                        supported by Chrome and Opera */
+}
+.body_annotation {
+    line-height 2;
+    float: right;
+    font-family: "Playfair Display", serif;
+    font-size: 16px;
     -webkit-touch-callout: none;    /* iOS Safari */
     -webkit-user-select: none;      /* Safari */
     -khtml-user-select: none;       /* Konqueror HTML */

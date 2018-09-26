@@ -59,23 +59,41 @@
     <hr>
 
     <div id="content">
-        {%- for line in lines %}
+    {%- for line in lines %}
+        {%- include "_popen.html" -%}
 
-            {% if line.l_num % 5 == 0 %}
-                <span class="linenum">{{ line.l_num }}</span>
-            {% endif %}
+        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
 
-            {%- include "_line.html" -%}
-
-        {% endfor -%}
-    </div>
-    <!--Annotations-->
-        {% for annotation in annotations %}
-        {% if annotation.HEAD.last_line_num >= lines[0].l_num and annotation.HEAD.last_line_num <= lines[-1].l_num %}
-            {% include "_annotation.html" %}
+        {% if line.l_num % 5 == 0 %}
+            <span class="linenum">{{ line.l_num }}</span>
         {% endif %}
-        {% endfor %}
 
+        {%- include "_line2.html" -%}
+
+        {% if line.l_num in annotations_idx %}
+            {% for a in annotations_idx[line.l_num] %}
+            <a href="#a{{ a.id }}"><span class="body_annotation">
+                [{{ a.id }}]
+            </span></a>
+            {% endfor %}
+        {% endif %}
+
+        </line>
+
+        {%- include "_pclose.html" -%}
+    {% endfor -%}
+    </div>
+
+    <!--Annotations-->
+    {% for i in range(len(lines)) %}
+        {% if i in annotations_idx %}
+            {% for annotation in annotations_idx[i] %}
+                {% include "_annotation.html" %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+            
     <hr>
 
     <!--Page Counter-->

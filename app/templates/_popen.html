@@ -1,0 +1,5 @@
+{% if line.kind.kind[-2:] == 'fl' or line.kind.kind[-2:] == 'sl' %}
+    <paragraph class="{{ line.kind.kind }}">
+{% elif line.kind.kind == 'fpre' %}
+     <pre>
+{% endif %}
