@@ -257,7 +257,7 @@ hr {
 /* the actual page */
 
 #content {
-    width: 50%;
+    width: 700px;
 }
 hr.book_separator {
     border: 0;
