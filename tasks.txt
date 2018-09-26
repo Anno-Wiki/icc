@@ -1,70 +1,58 @@
 
-ID Age   P Project Tags                  Description                        Urg
--- ----- - ------- --------------------- ---------------------------------- ----
- 9 3w    H web     feature               3 user requirement for edit        7.92
-                                         approval and rejection
-10 3w    H web     feature               privilege requirements on tag      7.92
-                                         creation
-13 3w    H web     feature               restricted tags for                7.92
-                                         author-original annotations
-17 2w    H web     feature               Change edit queue to be simple      7.9
-                                         list of annotations with special
-                                         _annotation.html template linking
-                                         to new route to approve/disapprove
-                                         an edit
-18 2w    H web     feature               Create line-by-line editing system 7.89
-                                         for admin
-23 7d    H web     feature               Restricted tags                    7.84
-25 1d    H web     feature               annotation deletion                7.81
-26 1d    H web     feature               book requests                      7.81
-12 3w    M web     bug                   Re-implement bracket anno n        5.82
-                                         display for line-by-line to be
-                                         outside of line.
-16 2w    M web     feature               user about mes                     5.81
-27 23h   M web     bug                   Need separate styles or _line.html  5.7
-                                         for display by self, I have an
-                                         indentation problem when it
-                                         pulling text on its own
-28 21h   M web     bug                   Need to find way to target          5.7
-                                         specific lines of annotation ll
-                                         number instead of full book
-                                         Deprecate full book view
-29 21h   M web     bug                   need to paginate annotations on     5.7
-                                         everything!
-32 15min M web     feature               Help feature for markdown           5.7
-                                         formatting
-33 15min M web     feature               About page                          5.7
-34 15min M web     feature               General help indicators             5.7
-35 14min M web     feature               username, rep, and profile edit     5.7
-                                         links on right of navbar
-36 7min  M web     feature               pagination for most things          5.7
-37 3min  M web     feature               Author bios                         5.7
-38 5s    M web     bug                   Fix linenums right after new        5.7
-                                         paragraphs that display too high
-30 1h    M web                           Identify chapter/part/book in       4.9
-                                         header and footer of read section
-                                         view
-31 1h    M web                           better previous and next page       4.9
-                                         buttons
- 3 6w    L web     JS feature            write javascript for pe char-level 3.93
-                                         annotation
- 5 4w    L web     AJAX feature          Write javascript for popup         3.89
-                                         annotations on read view.
-11 3w    L web     elasticsearch feature search!                            3.82
- 4 5w    L web     bug                   find a way to index the            3.79
-                                         annotations on a given page
-                                         starting at 1; using the actual id
-                                         of the annotation will become
-                                         obnoxious when we have annotation
-                                         [a100000000002354]
- 6 4w    L web     test                  Test more formats!                 3.79
- 8 4w    L web     bug                   Keep eye out for italic bug where  3.76
-                                         cursors says data truncated at for
-                                         column line at row 1
-14 3w    L web     bug                   Fix paragraph open and close bug   3.72
-                                         on pg level
-15 3w    L web     bug                   Fix message flashing so the ul     3.72
-                                         doesn't have the weird alignment
-                                         issues
+ID Age  P Project Tags                  Description                         Urg
+-- ---- - ------- --------------------- ----------------------------------- ----
+ 9 3w   H web     feature               privilege requirements on tag       7.94
+                                        creation
+11 3w   H web     feature               restricted tags for author-original 7.94
+                                        annotations
+14 3w   H web     feature               Create line-by-line editing system  7.92
+                                        for admin
+19 11d  H web     feature               Restricted tags                     7.86
+21 5d   H web     feature               annotation deletion                 7.83
+22 5d   H web     feature               book requests                       7.83
+13 3w   M web     feature               user about mes                      5.84
+23 5d   M web     bug                   Need separate styles or _line.html  5.73
+                                        for display by self, I have an
+                                        indentation problem when it pulling
+                                        text on its own
+24 5d   M web     bug                   Need to find way to target specific 5.73
+                                        lines of annotation ll number
+                                        instead of full book Deprecate full
+                                        book view
+25 5d   M web     bug                   need to paginate annotations on     5.73
+                                        everything!
+28 4d   M web     feature               Help feature for markdown           5.72
+                                        formatting
+29 4d   M web     feature               About page                          5.72
+30 4d   M web     feature               General help indicators             5.72
+31 4d   M web     feature               username, rep, and profile edit     5.72
+                                        links on right of navbar
+32 4d   M web     feature               pagination for most things          5.72
+33 4d   M web     feature               Author bios                         5.72
+34 3h   M web     bug                   Cannibalize preplines to save the    5.7
+                                        underscore conversion.
+35 4min M web     bug                   clean up tag page                    5.7
+26 4d   M web                           Identify chapter/part/book in       4.92
+                                        header and footer of read section
+                                        view
+27 4d   M web                           better previous and next page       4.92
+                                        buttons
+ 3 6w   L web     JS feature            write javascript for pe char-level  3.95
+                                        annotation
+ 5 5w   L web     AJAX feature          Write javascript for popup          3.91
+                                        annotations on read view.
+10 3w   L web     elasticsearch feature search!                             3.84
+ 4 5w   L web     bug                   find a way to index the annotations 3.81
+                                        on a given page starting at 1;
+                                        using the actual id of the
+                                        annotation will become obnoxious
+                                        when we have annotation
+                                        [a100000000002354]
+ 6 5w   L web     test                  Test more formats!                  3.81
+ 8 4w   L web     bug                   Keep eye out for italic bug where   3.79
+                                        cursors says data truncated at for
+                                        column line at row 1
+12 3w   L web     bug                   Fix paragraph open and close bug on 3.74
+                                        pg level
 
-30 tasks
+27 tasks
