@@ -7,7 +7,7 @@ from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
-        AnnotationVersion, Tag
+        AnnotationVersion, Tag, EditVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm
 from app.funky import preplines, is_empty, proc_tag
@@ -82,7 +82,7 @@ def register():
 
 @app.route("/user/<user_id>/")
 def user(user_id):
-    user = User.query.filter_by(id = user_id).first_or_404()
+    user = User.query.filter_by(id=user_id).first_or_404()
     return render_template("user.html", title=user.username, user=user)
 
 
@@ -322,7 +322,7 @@ def edit(anno_id):
         tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
         tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
 
-        anno = AnnotationVersion(book_id=annotation.HEAD.book.id,
+        edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
                 first_line_num=form.first_line.data,
@@ -332,14 +332,19 @@ def edit(anno_id):
                 annotation=form.annotation.data,
                 tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
+        if edit.hash_id == annotation.HEAD.hash_id:
+            flash("Your suggested edit is no different from" \
+                    "the previous version.")
+            return redirect(url_for("edit", anno_id=annotation.id))
+
         annotation.edit_pending = True
-        db.session.add(anno)
+        db.session.add(edit)
         db.session.commit()
         flash("Edit submitted for review.")
 
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("read", book_url=annotation.book.book_url)
+            next_page = url_for("read", book_url=annotation.book.url)
         return redirect(next_page)
 
     elif not annotation.edit_pending:
@@ -373,7 +378,7 @@ def annotate(book_url, first_line, last_line):
         first_line = last_line
         last_line = tmp
 
-    book = Book.query.filter_by(url = book_url).first_or_404()
+    book = Book.query.filter_by(url=book_url).first_or_404()
     lines = Line.query.filter(Line.book_id==book.id, Line.l_num>=first_line,
             Line.l_num<=last_line).all()
     form = AnnotationForm()
@@ -518,17 +523,28 @@ def create_tag():
 @login_required
 def edit_review_queue():
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edits = AnnotationVersion.query.filter_by(approved=False).all()
-    return render_template("queue.html", edits=edits)
+    edits = AnnotationVersion.query.filter_by(approved=False,
+            rejected=False).all()
+    votes = current_user.edit_votes
+
+    return render_template("queue.html", edits=edits, votes=votes)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.filter_by(hash_id = edit_hash).first_or_404()
-    edit.approved = True
-    edit.pointer.HEAD = edit
-    edit.pointer.edit_pending = False
+    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
+    if current_user.get_edit_vote(edit):
+        flash(f"You already voted on edit {edit.hash_id}")
+        return redirect(url_for("edit_review_queue"))
+    elif edit.editor == current_user:
+        flash("You cannot approve or reject your own edits")
+        return redirect(url_for("edit_review_queue"))
+    edit.approve(current_user)
+    if edit.weight >= app.config["MIN_APPROVAL_RATING"]:
+        edit.approved = True
+        edit.pointer.HEAD = edit
+        edit.pointer.edit_pending = False
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
@@ -536,7 +552,34 @@ def approve(edit_hash):
 def reject(edit_hash):
     current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
-    edit.pointer.edit_pending = False
-    db.session.delete(edit)
+    if current_user.get_edit_vote(edit):
+        flash(f"You already voted on edit {edit.hash_id}")
+        return redirect(url_for("edit_review_queue"))
+    elif edit.editor == current_user:
+        flash("You cannot approve or reject your own edits")
+        return redirect(url_for("edit_review_queue"))
+    edit.reject(current_user)
+    if edit.weight <= app.config["MIN_REJECTION_RATING"]:
+        edit.pointer.edit_pending = False
+        edit.rejected = True
     db.session.commit()
+    return redirect(url_for("edit_review_queue"))
+
+@app.route("/admin/rescind_vote/edit/<edit_hash>/")
+def rescind(edit_hash):
+    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
+    if edit.approved == True:
+        flash("This annotation is already approved; your vote cannot be rescinded.")
+        return redirect(url_for("edit_review_queue"))
+    elif edit.rejected == True:
+        flash("This annotation is already rejected; your vote cannot be rescinded.")
+        return redirect(url_for("edit_review_queue"))
+    vote = current_user.get_edit_vote(edit)
+    if not vote:
+        abort(404)
+    edit.weight -= vote.delta
+    db.session.delete(vote)
+    db.session.commit()
+    flash("Vote rescinded")
     return redirect(url_for("edit_review_queue"))

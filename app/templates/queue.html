@@ -2,82 +2,17 @@
 
 {% block content %}
 
-        <h3>Click the hash link of the version to keep.</h3>
-    {% for anno in edits %}
-    <hr>
-        Original: [<a href="{{ url_for(
-            "reject", edit_hash = anno.hash_id) }}">
-            {{ anno.pointer.HEAD.hash_id }}
-        </a>]
-        {% for line in anno.pointer.HEAD.get_hl() %}
-            {% include "_line.html" %}
-        {% endfor %}
-        </paragraph>
-        <annotation id="{{ anno.pointer.HEAD.hash_id }}">
+{% for annotation in edits %}
+    {% if annotation.editor == current_user %}
+        <p> {{ annotation.hash_id }} is your own edit; you cannot vote on it.</p>
+    {% elif not current_user.get_edit_vote(annotation) %}
+        {% include "_annotation_version.html" %}
+    {% else %}
+        <p>You already voted on {{ annotation.hash_id }}. To rescind that vote,
+        <a href={{ url_for("rescind", edit_hash=annotation.hash_id) }}>click here</a>.
+        </p>
+    {% endif %}
 
-        {{ anno.pointer.HEAD.annotation|markdown }}
-        
-        {% if anno.pointer.HEAD.tag_1 != None %}
-            <tag>{{ anno.pointer.HEAD.tag_1.tag }}</tag>
-        {% endif %}
+{% endfor %}
 
-        {% if anno.pointer.HEAD.tag_2 != None %}
-            <tag>{{ anno.pointer.HEAD.tag_2.tag }}</tag>
-        {% endif %}
-
-        {% if anno.pointer.HEAD.tag_3 != None %}
-            <tag>{{ anno.pointer.HEAD.tag_3.tag }}</tag>
-        {% endif %}
-
-        {% if anno.pointer.HEAD.tag_4 != None %}
-            <tag>{{ anno.pointer.HEAD.tag_4.tag }}</tag>
-        {% endif %}
-
-        {% if anno.pointer.HEAD.tag_5 != None %}
-            <tag>{{ anno.pointer.HEAD.tag_5.tag }}</tag>
-        {% endif %}
-
-        edited by {{ anno.pointer.HEAD.editor.username }},
-        {{ anno.pointer.HEAD.modified }}
-
-        </annotation>
-
-        Suggested edit: [<a href="{{ url_for(
-            "approve", edit_hash = anno.hash_id) }}">
-            {{ anno.hash_id }}
-        </a>]
-        {% for line in anno.get_hl() %}
-            {% include "_line.html" %}
-        {% endfor %}
-        </paragraph>
-        <annotation id="{{ anno.hash_id }}">
-
-        {{ anno.annotation|markdown }}
-        
-        {% if anno.tag_1 != None %}
-            <tag>{{ anno.tag_1.tag }}</tag>
-        {% endif %}
-
-        {% if anno.tag_2 != None %}
-            <tag>{{ anno.tag_2.tag }}</tag>
-        {% endif %}
-
-        {% if anno.tag_3 != None %}
-            <tag>{{ anno.tag_3.tag }}</tag>
-        {% endif %}
-
-        {% if anno.tag_4 != None %}
-            <tag>{{ anno.tag_4.tag }}</tag>
-        {% endif %}
-
-        {% if anno.tag_5 != None %}
-            <tag>{{ anno.tag_5.tag }}</tag>
-        {% endif %}
-
-        edited by {{ anno.editor.username }},
-        {{ anno.modified }}
-        </annotation>
-
-    {% endfor %}
-    <hr>
 {% endblock %}

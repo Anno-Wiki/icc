@@ -26,6 +26,10 @@ class User(UserMixin, db.Model):
             primaryjoin="User.id==vote.c.user_id",
             secondaryjoin="Annotation.id==vote.c.annotation_id",
             backref='voters')
+    edit_votes = db.relationship('AnnotationVersion', secondary='edit_vote',
+            primaryjoin="User.id==edit_vote.c.user_id",
+            secondaryjoin="AnnotationVersion.id==edit_vote.c.edit_id",
+            backref='edit_voters')
 
 
     def __repr__(self):
@@ -64,13 +68,18 @@ class User(UserMixin, db.Model):
             return False
 
     def get_vote(self, annotation):
-        return Vote.query.filter_by(annotation=annotation).first()
+        return Vote.query.filter(Vote.annotation==annotation,
+                Vote.user==self).first()
     
     def get_vote_dict(self):
         v = {}
         for vote in self.ballots:
             v[vote.annotation.id] = vote.is_up()
         return v
+
+    def get_edit_vote(self, edit):
+        return EditVote.query.filter(EditVote.edit==edit,
+                EditVote.user==self).first()
 
     def up_power(self):
         if self.reputation <= 10:
@@ -107,6 +116,24 @@ class Vote(db.Model):
 
     def __repr__(self):
         return f"<{self.user.username} {self.delta} on {self.annotation}>"
+
+    def is_up(self):
+        if self.delta > 0:
+            return True
+        else:
+            return False
+
+class EditVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user = db.relationship("User", backref="edit_ballots")
+    edit_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
+            index=True)
+    edit = db.relationship("AnnotationVersion", backref="edit_ballots")
+    delta = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"<{self.user.username} {self.delta} on {self.edit}>"
 
     def is_up(self):
         if self.delta > 0:
@@ -203,8 +230,8 @@ class Line(db.Model):
 
     l_num = db.Column(db.Integer, index=True)
 
-    kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index = True)
-    kind = db.relationship("Kind", foreign_keys = [kind_id])
+    kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index=True)
+    kind = db.relationship("Kind", foreign_keys=[kind_id])
 
     bk_num = db.Column(db.Integer, index=True)
     pt_num = db.Column(db.Integer, index=True)
@@ -224,7 +251,9 @@ class AnnotationVersion(db.Model):
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     editor = db.relationship("User")
 
-    approved = db.Column(db.Boolean, default = False, index=True)
+    weight = db.Column(db.Integer, default=0)
+    approved = db.Column(db.Boolean, default=False, index=True)
+    rejected = db.Column(db.Boolean, default=False, index=True)
 
     pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index=True)
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
@@ -245,7 +274,7 @@ class AnnotationVersion(db.Model):
 
     annotation = db.Column(db.Text)
 
-    modified = db.Column(db.DateTime, index = True, default = datetime.utcnow)
+    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
     tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
@@ -289,9 +318,20 @@ class AnnotationVersion(db.Model):
 
         return lines
 
+    def approve(self, voter):
+        self.weight += 1
+        vote = EditVote(user=voter, edit=self, delta=1)
+        db.session.add(vote)
+    
+    def reject(self, voter):
+        self.weight -= 1
+        vote = EditVote(user=voter, edit=self, delta=-1)
+        db.session.add(vote)
+
+
 
 class Annotation(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
 
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     author = db.relationship("User", backref="annotations")
