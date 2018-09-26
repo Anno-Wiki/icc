@@ -11,9 +11,9 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 md = Markdown(app)
-login.login_view = 'login'
-app.jinja_env.globals['round'] = round
-app.jinja_env.globals['vars'] = app.config
-app.jinja_env.globals['len'] = len
+login.login_view = "login"
+app.jinja_env.globals["round"] = round
+app.jinja_env.globals["vars"] = app.config
+app.jinja_env.globals["len"] = len
 
 from app import routes, models
