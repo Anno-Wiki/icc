@@ -34,20 +34,21 @@
 
     <div class="user_info">
         {%- if current_user.is_anonymous -%}
-        <a href="{{ url_for("login") }}">login</a>
+            <a href="{{ url_for("login") }}">login</a>
         {%- else %}
-        {% if current_user.is_authorized(vars["AUTHORIZATION"]["TAG_CREATION"]) -%}
-        <a href="{{ url_for("create_tag") }}">create tag</a>,
-        {% endif %}
-        {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
-        <a href="{{ url_for("edit_review_queue") }}">review edits</a>
-        |
-        <a href="{{ url_for("user", user_id=current_user.id) }}">
-            {{ current_user.username }}
-        </a>
-        {% include "_reputation_current_user.html" %}
-        |
-        {%- endif %}
+            {% if current_user.is_authorized(vars["AUTHORIZATION"]["TAG_CREATION"]) -%}
+            <a href="{{ url_for("create_tag") }}">create tag</a>,
+            {% endif %}
+
+            {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
+            <a href="{{ url_for("edit_review_queue") }}">review edits</a>
+            {% endif %}
+            |
+            <a href="{{ url_for("user", user_id=current_user.id) }}">
+                {{ current_user.username }}
+            </a>
+            {% include "_reputation_current_user.html" %}
+            |
         <a href="{{ url_for("logout") }}">logout</a>
         {%- endif %}
     </div>
