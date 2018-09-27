@@ -316,11 +316,11 @@ def edit(anno_id):
         return redirect(next_page)
 
     elif form.validate_on_submit():
-        tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
-        tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
-        tag3 = proc_tag(form.tag_3.data) if not is_empty(form.tag_3.data) else None
-        tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
-        tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
+        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
+        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
+        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
+        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
+        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
@@ -334,7 +334,9 @@ def edit(anno_id):
 
         if edit.hash_id == annotation.HEAD.hash_id:
             flash("Your suggested edit is no different from" \
-                    "the previous version.")
+                    " the previous version." \
+                    f" {edit.hash_id}" \
+                    f" {annotation.HEAD.hash_id}")
             return redirect(url_for("edit", anno_id=annotation.id))
 
         annotation.edit_pending = True
@@ -397,12 +399,12 @@ def annotate(book_url, first_line, last_line):
 
     elif form.validate_on_submit():
 
-        # Process all the tags as sqlalchemy objects if the form isn't empty
-        tag1 = proc_tag(form.tag_1.data) if not is_empty(form.tag_1.data) else None
-        tag2 = proc_tag(form.tag_2.data) if not is_empty(form.tag_2.data) else None
-        tag3 = proc_tag(form.tag_3.data) if not is_empty(form.tag_3.data) else None
-        tag4 = proc_tag(form.tag_4.data) if not is_empty(form.tag_4.data) else None
-        tag5 = proc_tag(form.tag_5.data) if not is_empty(form.tag_5.data) else None
+        # Process all the tags
+        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
+        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
+        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
+        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
+        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
         # Create the inital transient sqlalchemy AnnotationVersion object
         anno = AnnotationVersion(book_id=book.id, approved=True,
@@ -512,11 +514,22 @@ def downvote(anno_id):
 ## Administration Routes ##
 ###########################
 
-@app.route("/admin/tags/create")
+@app.route("/admin/tags/create", methods=["GET","POST"])
 @login_required
 def create_tag():
     current_user.authorize(app.config["AUTHORIZATION"]["TAG_CREATION"])
     form = TagForm()
+    if form.cancel.data:
+        return redirect(url_for("index"))
+    if form.validate_on_submit():
+        if form.tag.data != None and form.description.data != None:
+            tag = Tag(tag=form.tag.data, description=form.description.data)
+            db.session.add(tag)
+            db.session.commit()
+            flash("Tag created.")
+            return redirect(url_for("index"))
+            
+    return render_template("create_tag.html", title="Create Tag", form=form)
 
 
 @app.route("/admin/queue/edits/")
@@ -527,7 +540,8 @@ def edit_review_queue():
             rejected=False).all()
     votes = current_user.edit_votes
 
-    return render_template("queue.html", edits=edits, votes=votes)
+    return render_template("queue.html", title="Edit Queue", edits=edits,
+        votes=votes)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required

@@ -22,14 +22,14 @@ class User(UserMixin, db.Model):
     reputation = db.Column(db.Integer, default=0)
     cumulative_negative = db.Column(db.Integer, default=0)
     cumulative_positive = db.Column(db.Integer, default=0)
-    votes = db.relationship('Annotation', secondary='vote',
+    votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==vote.c.user_id",
             secondaryjoin="Annotation.id==vote.c.annotation_id",
-            backref='voters')
-    edit_votes = db.relationship('AnnotationVersion', secondary='edit_vote',
+            backref="voters")
+    edit_votes = db.relationship("AnnotationVersion", secondary="edit_vote",
             primaryjoin="User.id==edit_vote.c.user_id",
             secondaryjoin="AnnotationVersion.id==edit_vote.c.edit_id",
-            backref='edit_voters')
+            backref="edit_voters")
 
 
     def __repr__(self):
@@ -181,7 +181,7 @@ class Kind(db.Model):
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tag = db.Column(db.String(128), index=True)
+    tag = db.Column(db.String(128), index=True, unique=True)
     description = db.Column(db.Text)
 
     def __repr__(self):
@@ -293,9 +293,8 @@ class AnnotationVersion(db.Model):
         s = f"{self.editor_id},{self.book_id}," \
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
-                f"{self.annotation},{self.modified}," \
-                f"{self.tag_1_id},{self.tag_2_id},{self.tag_3_id}," \
-                f"{self.tag_4_id},{self.tag_5_id}" 
+                f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \
+                f"{self.tag_4},{self.tag_5}" 
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):

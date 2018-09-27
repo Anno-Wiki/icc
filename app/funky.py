@@ -46,21 +46,3 @@ def preplines(lines, annos):
             lines[i].line = '<em>' + lines[i].line
         elif line.em_status.kind == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
-
-def is_empty(data):
-   if data == None:
-      return True
-   if data == '':
-      return True
-   if data == []:
-      return True
-   return False
-
-def proc_tag(tag):
-    t = Tag.query.filter_by(tag=tag).first()
-    if is_empty(t):
-        t = Tag(tag=tag)
-        db.session.add(t)
-        db.session.commit()
-        t = Tag.query.filter_by(tag=t.tag).first()
-    return t
