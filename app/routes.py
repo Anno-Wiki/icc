@@ -268,8 +268,8 @@ def read_section(book_url, level, number, tag):
     for a in annotations:
         annotations_idx[a.HEAD.last_line_num].append(a)
 
-    # call the annotator
-    #preplines(lines, annotations_idx)
+    # replace markdown-style _ with <em> and </em>
+    preplines(lines)
 
     # to darken up/down voted annotations
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \

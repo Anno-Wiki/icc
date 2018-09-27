@@ -2,29 +2,14 @@ from app import app, db
 from app.models import Tag
 
 # This method is used to run through all the lines for a read view and convert/
-# prep them to be shown: it (a) adds the annotations as [n] superscript links,
-# (b) converts underscores to <em>/</em> tags, and (c) opens and closes
-# surrounding <em></em> tags on lines that need it so that the tags don's span
-# multiple levels in the DOM and throw everything into a tizzy. It also allows
-# me to display an arbitrary number of lines perfectly.
-def preplines(lines, annos):
+# prep them to be shown: (a) converts underscores to <em>/</em> tags, and (b)
+# opens and closes surrounding <em></em> tags on lines that need it so that the
+# tags don's span multiple levels in the DOM and throw everything into a tizzy.
+# It also allows me to display an arbitrary number of lines perfectly.
+def preplines(lines):
     us = False
 
     for i, line in enumerate(lines):
-
-        if line.l_num in annos:
-            for a in annos[line.l_num]:
-                a.HEAD.anno_id = a.id
-
-                if a.HEAD.first_char_idx == 0 and a.HEAD.last_char_idx == -1:
-                    lines[i].line = lines[i].line + \
-                        f'<sup class="anno"><a href="#a{a.id}">' \
-                        f'[{a.HEAD.anno_id}]</a></sup>' 
-                else:
-                    lines[i].line = lines[i].line[:a.HEAD.last_char_idx] + \
-                        f'<sup class="anno"><a href="#a{a.HEAD.id}">'\
-                        f'[{a.HEAD.anno_id}]</a></sup>' + \
-                        lines[i].line[a.HEAD.last_char_idx:]
 
         if '_' in lines[i].line:
             newline = []
