@@ -32,10 +32,8 @@
 
     <form action="" method="POST">
         {{ form.hidden_tag() }}
-        {{ form.first_line.label }}
-        {{ form.first_line(size=1) }}
-        {{ form.last_line.label }}
-        {{ form.last_line(size=1) }}
+        {{ form.first_line(size=4) }}
+        {{ form.last_line(size=4) }}
         {{ form.submit() }}
     </form>
     {% if tags %}
