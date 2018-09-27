@@ -5,10 +5,11 @@
     --base011:      #405060; /* tag text color */
     --base00:       #657b83; /* body text/primary content */
     --base0:        #839496; /* annotation head links, weight nil */
-    --base1:        #93a1a1; /* comments/secondary content (tags, linenums) */
-    --base11:       #708080; /* tag background fade */
-    --base21:       #d0d0c0; /* navbar header background color */
+    --base1:        #93a1a1; /* comments/secondary content (linenums) */
     --base2:        #eee8d5; /* background highlights */
+    --base21:       #d0d0c0; /* navbar header background color */
+    --base22:       #ccc6b3; /* tag */
+    --base23:       #bbb5a2; /* tag background fade */
     --base3:        #fdf6e3; /* background */
     --black:        #000000; /* header links visited and not */
     --blue:         #268bd2;
@@ -24,7 +25,6 @@
 /******************************************************************************/
 
 /* general body styles */
-
 body {
     font-family: "EB Garamond", serif;
     font-size: 18px;
@@ -37,11 +37,9 @@ body a {
 body a:visited {
     color: var(--base1);
 }
-
 body h1, h2, h3, h4, h5, h6 {
     font-family: "Playfair Display", serif;
 }
-
 body li {
     font-size: 20px;
     margin: 10px 0 0 0;
@@ -87,13 +85,12 @@ nav a:hover {
     border-bottom: 1px solid var(--base1);
 }
 
-/* user info */
+/* user info links at right of header*/
 .user_info {
     float: right;
     vertical-align: middle;
     margin: 10px 5px 0 0;
 }
-
 .user_info a:hover {
     border-bottom: 1px solid var(--base1);
 }
@@ -132,7 +129,6 @@ nav a:hover {
 /******************************************************************************/
 
 /* annotation styles */
-
 annotation {
     width: 800px;
     display: block;
@@ -148,7 +144,7 @@ annotation sup {
     font-size: 15px;
 }
 
-/* head in the annotation */
+/* annotation header (the dark bar) */
 .annotation_head {
     position: relative;
     background-color: var(--base02);
@@ -185,7 +181,7 @@ weight.down {
     padding: 10px;
 }
 
-/* up/down vote links*/
+/* up/down vote links */
 a.notvoted, a:visited.notvoted {
     color: var(--base03);
 }
@@ -208,7 +204,7 @@ tags {
 tag {
     margin: 0 0 0 15px;
     padding: 3px 10px 3px 10px;
-    background-color: var(--base1);
+    background-color: var(--base22);
     color: var(--base011);
     font-family: "Playfair Display", serif;
     border-radius: 3px;
@@ -217,7 +213,7 @@ tag {
 tag a {
 }
 tag:hover{
-    background-color: var(--base11);
+    background-color: var(--base23);
     color: var(--base011);
 }
 
