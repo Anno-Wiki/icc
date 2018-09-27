@@ -10,7 +10,7 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm
-from app.funky import preplines, is_empty, proc_tag
+from app.funky import preplines
 
 
 ###########
