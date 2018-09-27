@@ -8,18 +8,20 @@
 {% else %}
     <title>Welcome to Annopedia</title>
 {% endif %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style2.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3">
+    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="styles/style2.css") }}">
+    <link rel="shortcut icon" href="{{ url_for("static", filename="favicon.ico") }}?v=3">
     <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i" rel="stylesheet">
 
 </head>
 
 <body>
 <div class="header">
+
     <div class="logo">
         <a href="{{ url_for("index") }}"><img src="{{ url_for("static", filename="images/n2.png")}}"></a>
         <a href="{{ url_for("index") }}">Annopedia</a>
     </div>
+
     <nav>
         <a href="{{ url_for("index") }}">HOME</a>
         |
@@ -28,17 +30,24 @@
         <a href="{{ url_for("book_index") }}">BOOKS</a>
         |
         <a href="{{ url_for("tag_index") }}">TAGS</a>
-        |
-    {%- if current_user.is_authenticated and current_user.is_authorized(vars['AUTHORIZATION']['EDIT_QUEUE']) -%}
-        <a href="{{ url_for('edit_review_queue') }}">EDIT QUEUE</a>
-        |
-    {%- endif %}
-    {%- if current_user.is_anonymous -%}
-        <a href="{{ url_for('login') }}">LOGIN</a>
-    {%- else %}
-        <a href="{{ url_for('logout') }}">LOGOUT</a>
-    {%- endif %}
     </nav>
+
+    <div class="user_info">
+        {%- if current_user.is_anonymous -%}
+        <a href="{{ url_for("login") }}">login</a>
+        {%- else %}
+        {%- if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
+        <a href="{{ url_for("edit_review_queue") }}">edits</a>
+        |
+        {%- endif %}
+        <a href="{{ url_for("user", user_id=current_user.id) }}">
+            {{ current_user.username }}
+        </a>
+            {% include "_reputation_current_user.html" %}
+            |
+        <a href="{{ url_for("logout") }}">logout</a>
+        {%- endif %}
+    </div>
 </div>
 
 {% with messages = get_flashed_messages() %}
