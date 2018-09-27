@@ -12,24 +12,13 @@
 
     <hr>
     <div id="content">
-        {% if lines[0].kind.kind == "l" %}
-            <paragraph class="fl">
-        {% endif %}
+        <div class="selection">
         {% for line in lines %}
             {% include "_line.html" %}
         {% endfor %}
-        {% if lines[-1].kind.kind == "l" %}
-            </paragraph>
-        {% endif %}
-        {% include "_annotation_standalone.html" %}
-    </div>
-    <hr>
-    <div class="running_head">
-        <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{
-            annotation.book.title }}</a>
+        </div>
 
-         by <a href="{{ url_for("author", name=annotation.book.author.url) }}">
-            {{ annotation.book.author.name }} </a>
+        {% include "_annotation_standalone.html" %}
     </div>
 
 {% endblock %}
