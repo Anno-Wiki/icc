@@ -316,10 +316,7 @@ def edit(anno_id):
                 tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
         if edit.hash_id == annotation.HEAD.hash_id:
-            flash("Your suggested edit is no different from" \
-                    " the previous version." \
-                    f" {edit.hash_id}" \
-                    f" {annotation.HEAD.hash_id}")
+            flash("Your suggested edit is no different from the previous version.")
             return redirect(url_for("edit", anno_id=annotation.id))
 
         annotation.edit_pending = True
