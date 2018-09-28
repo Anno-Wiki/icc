@@ -132,7 +132,7 @@ nav a:hover {
 annotation {
     width: 800px;
     display: block;
-    margin: 0 0 30px 0;
+    margin: 10px 0 30px 0;
     padding: 10px;
     background-color: var(--base2);
 
@@ -146,7 +146,6 @@ annotation sup {
 
 /* annotation header (the dark bar) */
 .annotation_head {
-    position: relative;
     background-color: var(--base02);
     padding: 10px;
     border-radius: 5px;
@@ -158,11 +157,8 @@ annotation sup {
     color: var(--base0);
 }
 weight {
-    position: absolute;
-    top: -17px;
-    right: 10px;
-    margin-right: 0px;
-    font-size: 50px;
+    margin: 0 0 0 10px;
+    font-size: 20px;
     font-weight: bold;
 }
 weight.up {
