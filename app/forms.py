@@ -123,3 +123,13 @@ class TagForm(FlaskForm):
         tag = Tag.query.filter_by(tag=tag.data).first()
         if tag is not None:
             raise ValidationError("This tag already exists!")
+
+class LineForm(FlaskForm):
+    line = StringField("Line", validators=[InputRequired()],
+            render_kw={"maxlength":200})
+    submit = SubmitField("Submit")
+    cancel = SubmitField("Cancel")
+
+    def validate_line(self, line):
+        if len(line.data) > 200:
+            raise ValidationError(f"The maximum length for a line is 200 characters")

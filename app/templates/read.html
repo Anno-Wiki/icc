@@ -69,12 +69,21 @@
 
         {%- include "_line2.html" -%}
 
+        {% if current_user.is_authorized(config["AUTHORIZATION"]["LINE_EDIT"]) %}
+        <span class="body_annotation">
+            <a href="{{ url_for("edit_line", line_id=line.id, next=request.path)
+                }}">edit</a>
+        </span>
+        {% endif %}
+
         {% if line.l_num in annotations_idx %}
+            <span class="body_annotation">
             {% for a in annotations_idx[line.l_num] %}
-            <a href="#a{{ a.id }}"><span class="body_annotation">
+            <a href="#a{{ a.id }}">
                 [{{ a.id }}]
-            </span></a>
+            </a>
             {% endfor %}
+            </span>
         {% endif %}
 
         </line>

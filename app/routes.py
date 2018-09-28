@@ -9,7 +9,7 @@ from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm, TagForm
+        LineNumberForm, TagForm, LineForm
 from app.funky import preplines
 
 
@@ -46,8 +46,8 @@ def login():
             return redirect(url_for("login"))
 
         login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get("next")
 
+        next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
             next_page = url_for("index")
 
@@ -580,3 +580,24 @@ def rescind(edit_hash):
     db.session.commit()
     flash("Vote rescinded")
     return redirect(url_for("edit_review_queue"))
+
+@app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
+def edit_line(line_id):
+    current_user.authorize(app.config["AUTHORIZATION"]["LINE_EDIT"])
+    line = Line.query.filter_by(id=line_id).first_or_404()
+    form = LineForm()
+    form.line.data = line.line
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("index")
+
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.line.data != None and len(form.line.data) <= 200:
+            line.line = form.line.data
+            db.session.commit()
+            flash("Line updated.")
+            return redirect(next_page)
+    return render_template("edit_line.html", title="Edit Line", form=form)
