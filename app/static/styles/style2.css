@@ -210,9 +210,26 @@ tag {
 }
 tag a {
 }
-tag:hover{
+tag:hover {
     background-color: var(--base23);
     color: var(--base011);
+}
+.tag_index {
+    display: flex;
+    flex-wrap: wrap;
+}
+.tag_card {
+    display: inline-block;
+    width: 250px;
+    height: 200px;
+    margin: 10px;
+}
+.tag_card p {
+    font-size: 16px;
+    color: var(--base00);
+}
+.tag_card tag {
+    margin-left: 0px;
 }
 
 /******************************************************************************/
