@@ -1,48 +1,58 @@
 
-ID Age P Project Tags                  Description                          Urg
--- --- - ------- --------------------- ------------------------------------ ----
-17 6d  H web     feature               annotation deletion                  7.83
-18 6d  H web     feature               book requests                        7.83
-29 19h H web     bug                   Fix hierarchy routes                  7.8
-30 18h H web     bug                   deprecate full read view              7.8
-31 18h H web     feature               elasticsearch index on tag insertion  7.8
-32 14h H web     feature               Tag request                           7.8
-33 14h H web     feature               Consider deprecating tag creator      7.8
- 9 4w  M web     elasticsearch feature search!                              5.95
-11 3w  M web     feature               user about mes                       5.84
-19 6d  M web     bug                   Need separate styles or _line.html   5.73
-                                       for display by self, I have an
-                                       indentation problem when it pulling
-                                       text on its own
-20 6d  M web     bug                   Need to find way to target specific  5.73
-                                       lines of annotation ll number
-                                       instead of full book Deprecate full
-                                       book view
-21 6d  M web     bug                   need to paginate annotations on      5.73
-                                       everything!
-24 5d  M web     feature               Help feature for markdown formatting 5.73
-25 5d  M web     feature               About page                           5.73
-26 5d  M web     feature               General help indicators              5.73
-27 5d  M web     feature               pagination for most things           5.73
-28 5d  M web     feature               Author bios                          5.73
-22 5d  M web                           Identify chapter/part/book in header 4.93
-                                       and footer of read section view
-23 5d  M web                           better previous and next page        4.93
-                                       buttons
- 3 6w  L web     JS feature            write javascript for pe char-level   3.96
-                                       annotation
- 5 5w  L web     AJAX feature          Write javascript for popup           3.92
-                                       annotations on read view.
- 4 5w  L web     bug                   find a way to index the annotations  3.82
-                                       on a given page starting at 1; using
-                                       the actual id of the annotation will
-                                       become obnoxious when we have
-                                       annotation [a100000000002354]
- 6 5w  L web     test                  Test more formats!                   3.82
- 8 5w  L web     bug                   Keep eye out for italic bug where    3.79
-                                       cursors says data truncated at for
-                                       column line at row 1
-10 3w  L web     bug                   Fix paragraph open and close bug on  3.75
-                                       pg level
+ID Age  P Project Tags                  Description                         Urg
+-- ---- - ------- --------------------- ----------------------------------- ----
+17 7d   H web     feature               annotation deletion                 7.84
+18 7d   H web     feature               book requests                       7.84
+29 23h  H web     bug                   Fix hierarchy routes                 7.8
+30 23h  H web     bug                   deprecate full read view             7.8
+31 23h  H web     feature               elasticsearch index on tag           7.8
+                                        insertion
+32 19h  H web     feature               Tag request                          7.8
+33 19h  H web     feature               Consider deprecating tag creator     7.8
+34 3h   H web     feature               format authors and books indexes to  7.8
+                                        resemble tags
+35 3h   H web     feature               flagging of users and annotations    7.8
+36 2min H web     bug                   Limit number of lines to annotate    7.8
+37 1min H web     bug                   Create default single line app when  7.8
+                                        only one line number is inserted
+ 9 4w   M web     elasticsearch feature search!                             5.95
+11 3w   M web     feature               user about mes                      5.85
+19 7d   M web     bug                   Need separate styles or _line.html  5.74
+                                        for display by self, I have an
+                                        indentation problem when it pulling
+                                        text on its own
+20 6d   M web     bug                   Need to find way to target specific 5.73
+                                        lines of annotation ll number
+                                        instead of full book Deprecate full
+                                        book view
+21 6d   M web     bug                   need to paginate annotations on     5.73
+                                        everything!
+24 6d   M web     feature               Help feature for markdown           5.73
+                                        formatting
+25 6d   M web     feature               About page                          5.73
+26 6d   M web     feature               General help indicators             5.73
+27 6d   M web     feature               pagination for most things          5.73
+28 6d   M web     feature               Author bios                         5.73
+22 6d   M web                           Identify chapter/part/book in       4.93
+                                        header and footer of read section
+                                        view
+23 6d   M web                           better previous and next page       4.93
+                                        buttons
+ 3 6w   L web     JS feature            write javascript for pe char-level  3.96
+                                        annotation
+ 5 5w   L web     AJAX feature          Write javascript for popup          3.92
+                                        annotations on read view.
+ 4 5w   L web     bug                   find a way to index the annotations 3.82
+                                        on a given page starting at 1;
+                                        using the actual id of the
+                                        annotation will become obnoxious
+                                        when we have annotation
+                                        [a100000000002354]
+ 6 5w   L web     test                  Test more formats!                  3.82
+ 8 5w   L web     bug                   Keep eye out for italic bug where    3.8
+                                        cursors says data truncated at for
+                                        column line at row 1
+10 3w   L web     bug                   Fix paragraph open and close bug on 3.75
+                                        pg level
 
-25 tasks
+29 tasks
