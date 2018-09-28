@@ -303,6 +303,10 @@ line {
     width: 100%;
 }
 
+line:hover {
+    background-color: var(--base2);
+}
+
 /* main tags */
 .ch, .pt, .bk, .stg {
     font-family: "Playfair Display", serif;
