@@ -204,17 +204,6 @@ def read_section(book_url, level, number, tag):
     elif level == "ch":
         lines = Line.query.filter(Line.book_id==book.id, Line.ch_num==number
                 ).all()
-    elif level == "pg":
-        lines = Line.query.filter_by(book_id=book.id).paginate(int(number),
-                app.config["LINES_PER_PAGE"], False)
-
-        # to build the next_page url I have first to test for has_next
-        next_page = url_for("read_section", book_url=book.url, level="pg",
-                number=lines.next_num) if lines.has_next else None
-
-        # then I can cash lines out to the actual lines
-        lines = lines.items
-
     else:
         # this is not the level you are looking for.
         abort(404)
@@ -224,31 +213,25 @@ def read_section(book_url, level, number, tag):
         # it into the url bar like some kind of a weirdo)
         abort(404)
 
-    # the next_page url is already built for pg by now. 
-    # if it's not pg a pg you're reading, build it.
-    if level != "pg":
-        # get the last section based on level being read
-        sections = Line.query.filter(Line.book_id==book.id,
-                Line.kind==Kind.query.filter_by(kind=level).first()
-                ).order_by(Line.l_num.desc()).first()
-        # cash it out to the actual number based on one of those three fields
-        if level == "bk":
-            sections = sections.bk_num
-        elif level =="pt":
-            sections = sections.pt_num
-        elif level == "ch":
-            sections = sections.ch_num
-        # now that it's cashed out, if it's not too big, build the next url
-        if number + 1 <= sections:
-            next_page = number+1
-            #url_for("read_section", book_url=book_url, level=level,
-            #        number=number+1)
+    # get the last section based on level being read
+    sections = Line.query.filter(Line.book_id==book.id,
+            Line.kind==Kind.query.filter_by(kind=level).first()
+            ).order_by(Line.l_num.desc()).first()
 
-    # if it's not the first page, build a previous url
+    # cash it out to the actual number based on one of those three fields
+    if level == "bk":
+        sections = sections.bk_num
+    elif level =="pt":
+        sections = sections.pt_num
+    elif level == "ch":
+        sections = sections.ch_num
+    # now that it's cashed out, if it's not too big, say what it is
+    if number + 1 <= sections:
+        next_page = number+1
+
+    # if there's a previous page, say what it is
     if number > 1:
         prev_page = number-1
-        #prev_page = url_for("read_section", book_url=book_url,
-        #        level=level, number=number-1)
 
     # get all the annotations
     if tag:
