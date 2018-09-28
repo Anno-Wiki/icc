@@ -328,7 +328,7 @@ line:hover {
     font-size: 12px;
 }
 .linenum {
-    margin: 0 0 0 -6em;
+    margin: 0 0 0 -5em;
     width: 4em;
     line-height: 2;
     float: left;
