@@ -4,7 +4,7 @@
 <h1>Tags</h1>
 <div class="tag_index">
 {% for tag in tags %}
-    <a href="{{ url_for("tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>
+<a href="{{ url_for("tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>x{{ tag.get_count() }}
 {% endfor %}
 </div>
 {% endblock %}

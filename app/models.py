@@ -4,7 +4,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 ####################
 ## User Functions ##
@@ -195,10 +195,10 @@ class Tag(db.Model):
             AnnotationVersion.tag_3_id==self.id,
             AnnotationVersion.tag_4_id==self.id,
             AnnotationVersion.tag_5_id==self.id)
-            ).order_by(AnnotationVersion.modified.asc()).all()
+            ).order_by(AnnotationVersion.modified.desc()).all()
         annotations = []
         for e in edits:
-            if e.pointer not in annotations:
+            if self in e.pointer.get_tags() and e.pointer not in annotations:
                 annotations.append(e.pointer)
         return annotations
 
@@ -210,12 +210,17 @@ class Tag(db.Model):
             AnnotationVersion.tag_4_id==self.id,
             AnnotationVersion.tag_5_id==self.id),
             AnnotationVersion.book_id==book.id
-            ).order_by(AnnotationVersion.last_line_num.asc()).all()
+            ).order_by(AnnotationVersion.last_line_num.desc()).all()
         annotations = []
         for e in edits:
-            if e.pointer not in annotations:
+            if self in e.pointer.get_tags() and e.pointer not in annotations:
                 annotations.append(e.pointer)
         return annotations
+
+    def get_count(self):
+        annotations = self.get_annotations()
+        return len(annotations)
+
 
 
 
