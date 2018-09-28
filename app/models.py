@@ -182,6 +182,7 @@ class Kind(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
+    admin = db.Column(db.Boolean)
     description = db.Column(db.Text)
 
     def __repr__(self):
