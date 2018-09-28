@@ -198,7 +198,8 @@ tags {
     display: block;
 }
 tag {
-    margin: 0 0 0 15px;
+    display: inline-block;
+    margin: 10px 0 0 15px;
     padding: 3px 10px 3px 10px;
     background-color: var(--base22);
     color: var(--base011);
