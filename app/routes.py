@@ -317,9 +317,7 @@ def edit(anno_id):
 
         if edit.hash_id == annotation.HEAD.hash_id:
             flash("Your suggested edit is no different from" \
-                    " the previous version." \
-                    f" {edit.hash_id}" \
-                    f" {annotation.HEAD.hash_id}")
+                    " the previous version."
             return redirect(url_for("edit", anno_id=annotation.id))
 
         annotation.edit_pending = True
