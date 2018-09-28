@@ -52,7 +52,7 @@ body li {
 /* full header */
 .header {
     background-color: var(--base21);
-    padding: 10px 0 10px 0;
+    padding: 5px 0 5px 0;
 }
 .header a, .header a:visited{
     color: var(--black);
@@ -67,7 +67,8 @@ body li {
     font-weight: bold;
 }
 .logo img {
-    height: 18px;
+    height: 15px;
+    padding: 5px 0 0 0;
     vertical-align: top;
 }
 
@@ -89,7 +90,7 @@ nav a:hover {
 .user_info {
     float: right;
     vertical-align: middle;
-    margin: 10px 5px 0 0;
+    margin: 5px 5px 0 0;
 }
 .user_info a:hover {
     border-bottom: 1px solid var(--base1);
