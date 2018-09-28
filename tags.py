@@ -3,11 +3,12 @@ import sys
 
 fin = sys.stdin
 fout = sys.stdout
-underscore = False
+aout = open("a.out", "wt")
 emdash = False
 quotes = False
-spacepreservation = False
 wordboundary = re.compile(r'\w+|\W|_')
+a = None
+astack = {}
 
 
 # Flag processing
@@ -17,10 +18,9 @@ if '-h' in sys.argv:
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
     h.append('-r <regex>            (does nothing yet)')
-    h.append('-_                    Process underscores')
     h.append('-e                    Process em dashes')
     h.append('-q                    Process quote marks (still needs manual intervention')
-    h.append('-s                    Space preservation')
+    h.append('-a <regex>            Regex to recognize line annotated')
     for l in h:
         print(l)
     sys.exit()
@@ -30,19 +30,12 @@ if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
 if '-r' in sys.argv:
     regex = re.compile(sys.argv[sys.argv.index('-r')+1])
-if '-_' in sys.argv:
-    underscore = True
 if '-e' in sys.argv:
     emdash = True
 if '-q' in sys.argv:
     quotes = True
-if '-s' in sys.argv:
-    spacepreservation = True
-
-
-def stamp(word, chnum):
-    word = f'<ch id="ch{chnum}">{word}</ch>'
-    return word
+elif '-a' in sys.argv:
+    a = re.compile(sys.argv[sys.argv.index('-a')+1])
 
 
 us = False
@@ -53,13 +46,18 @@ for line in fin:
     if newline == '\n':
         doubleopen = False
 
-    if spacepreservation:
-        newline = re.sub(r"^      ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
-        newline = re.sub(r"^     ", r'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', newline)
-        newline = re.sub(r"^    ", r'&nbsp;&nbsp;&nbsp;&nbsp;', newline)
-        newline = re.sub(r"^   ", r'&nbsp;&nbsp;&nbsp;', newline)
-        newline = re.sub(r"^  ", r'&nbsp;&nbsp;', newline)
-        newline = re.sub(r"^ ", r'&nbsp;', newline)
+    if a:
+        if re.search(a, newline):
+            matches = a.findall(newline)
+            for m in matches:
+                if m in astack:
+                    amatch = astack.pop(m)
+                    aout.write(f"{newline[len(m)+1:-1]}@{amatch}")
+                    continue
+                else:
+                    newline = re.sub(a, r'', newline)
+                    astack[m] = newline
+
 
     if emdash:
         newline = re.sub(r'(--)', r'—', newline) 
@@ -79,21 +77,10 @@ for line in fin:
             else:
                 words[i] = re.sub(r'"', r'“', words[i])
                 doubleopen = True
-        # underscore processing
-        if underscore:
-            if '_' in words[i]:
-                us = not us
-                words[i] = ''
-            elif us:
-                words[i] = '<i>' + words[i] + '</i>'
-            
-        words[i] = re.sub(r'&', r'&amp;', words[i])
 
     newline = ''.join(words)
 
     fout.write(newline)
-
-    
 
 if fin is not sys.stdin:
     fin.close()
