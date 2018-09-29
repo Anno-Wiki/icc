@@ -279,7 +279,7 @@ class Line(db.Model):
     def get_next_section(self):
         if self.ch_num != 0:
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.l_num>self.l_num, Line.ch_num>self.ch_num
+                    Line.l_num>self.l_num
                     ).order_by(Line.l_num.asc()).limit(10).all()
             for l in lines:
                 if l.ch_num != 0:

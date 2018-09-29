@@ -159,7 +159,8 @@ def read(book_url, bk, pt, ch, tag):
 
     form = LineNumberForm()
 
-    next_page = lines[0].get_next_section()
+    next_page = lines[0].get_next_section() if ch == 0 else \
+            lines[-1].get_next_section()
     prev_page = lines[0].get_prev_section()
     if next_page != None:
         next_page = url_for("read", book_url=book.url, bk=next_page.bk_num,
