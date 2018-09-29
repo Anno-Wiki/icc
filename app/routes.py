@@ -119,11 +119,12 @@ def book(book_url):
     ch_kind = Kind.query.filter_by(kind="ch").first()
 
     # get all the heierarchical chapter lines
-    heierarchy = Line.query.filter(or_(Line.kind==bk_kind,
-        Line.kind==pt_kind, Line.kind==ch_kind)).all()
+    hierarchy = Line.query.filter(Line.book_id==book.id,
+            or_(Line.kind==bk_kind, Line.kind==pt_kind, Line.kind==ch_kind)
+            ).order_by(Line.l_num.asc()).all()
 
     return render_template("book.html", title=book.title, book=book,
-            heierarchy=heierarchy)
+            hierarchy=hierarchy)
 
 @app.route("/tags/")
 def tag_index():
