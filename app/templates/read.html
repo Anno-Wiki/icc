@@ -14,8 +14,9 @@
     <div class="tag_limit">
         Limit visible annotations to tag:
         {% for tag in tags %}
-            <a href="{{ url_for("read_section", book_url=book.url,
-                level=level, number=number, tag=tag.tag) }}">
+            <a href="{{ url_for("read", book_url=book.url,
+                bk=lines[0].bk_num, pt=lines[0].pt_num, ch=lines[0].ch_num,
+                tag=tag) }}">
                 <tag>
                     {{ tag.tag }}
                 </tag>
@@ -23,29 +24,17 @@
         {% endfor %}
     </div>
     {% else %}
-        <a href="{{ url_for("read_section", book_url=book.url, level=level,
-        number=number) }}">Show all tags</a>
+        <a href="{{ url_for("read", book_url=book.url, bk=lines[0].bk_num,
+            pt=lines[0].pt_num, ch=lines[0].ch_num) }}">Show all tags</a>
         <br>
     {% endif %}
             
     {% if prev_page %}
-        {% if tag %}
-            <a href="{{ url_for("read_section", book_url=book.url, level=level,
-                number=prev_page, tag=tag.tag) }}">Previous Page</a>
-        {% else %}
-            <a href="{{ url_for("read_section", book_url=book.url, level=level,
-                number=prev_page) }}">Previous Page</a>
-        {% endif %}
+        <a href="{{ prev_page }}">Previous Page</a>
     {% endif %}
 
     {% if next_page %}
-        {% if tag %}
-            <a href="{{ url_for("read_section", book_url=book.url, level=level,
-                number=next_page, tag=tag.tag) }}">Next Page</a>
-        {% else %}
-            <a href="{{ url_for("read_section", book_url=book.url, level=level,
-                number=next_page) }}">Next Page</a>
-        {% endif %}
+        <a href="{{ next_page }}">Next Page</a>
     {% endif %}
 
     <form action="" method="POST">

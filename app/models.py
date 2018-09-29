@@ -251,6 +251,62 @@ class Line(db.Model):
     def __repr__(self):
         return f"<l {self.id}: {self.l_num} of {self.book.title} [{self.kind.kind}]>"
 
+    def get_prev_section(self):     # cleverer than expected
+        if self.ch_num != 0:        # decrementing by chapters
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.l_num<self.l_num).order_by(Line.l_num.desc()
+                            ).limit(10).all()
+            for l in lines:         # go backwards through lines
+                if l.ch_num != 0:   # the 1st time ch_num != 0, return it
+                    return l
+        elif self.pt_num != 0:      # decrementing by parts
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.ch_num==0, Line.l_num<self.l_num
+                    ).order_by(Line.l_num.desc()).limit(10).all()
+            for l in lines:
+                if l.pt_num != 0:
+                    return l
+        else:                       # decrementing by books
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.ch_num==0, Line.pt_num==0, Line.l_num<self.l_num
+                    ).order_by(Line.l_num.desc()).limit(10).all()
+            for l in lines:
+                if l.bk_num != 0:
+                    return l
+        return None                 # there is no previous section
+
+    def get_next_section(self):
+        if self.ch_num != 0:
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.l_num>self.l_num).order_by(Line.l_num.asc()
+                            ).limit(10).all()
+            for l in lines:
+                if l.ch_num != 0:
+                    return l
+        elif self.pt_num != 0:
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.ch_num==0, Line.l_num>self.l_num
+                    ).order_by(Line.l_num.asc()).limit(10).all()
+            for l in lines:
+                if l.pt_num != 0:
+                    return l
+        else:
+            lines = Line.query.filter(Line.book_id==self.book_id,
+                    Line.ch_num==0, Line.pt_num==0, Line.l_num>self.l_num
+                    ).order_by(Line.l_num.asc()).limit(10).all()
+            for l in lines:
+                if l.bk_num != 0:
+                    return l
+        return None
+
+
+
+
+    def get_url(self):
+        return url_for("read", book_url=self.book.url, bk=self.bk_num,
+                pt=self.pt_num, ch=self.ch_num)
+
+
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 

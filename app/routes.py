@@ -134,104 +134,48 @@ def tag_index():
 ####################
 ## Reading Routes ##
 ####################
-
-@app.route("/read/<book_url>/", methods=["GET", "POST"])
-def read(book_url):
-    form = LineNumberForm()
-
-    if form.validate_on_submit():
-        return redirect(url_for("annotate", book_url=book_url,
-            first_line=form.first_line.data, last_line=form.last_line.data))
-
-    book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines
-    annotations = book.annotations
-
-    # index all of the annotations by their last line number
-    annotations_idx = defaultdict(list)
-    for a in annotations:
-        annotations_idx[a.HEAD.last_line_num].append(a)
-
-    # insert the [n] annotation in each line (to be changed)
-    preplines(lines, annotations_idx)
-
-    # get a dictionary of all the annotations and the vote on each for the
-    # current user to be used to show vote status on each annotation
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-            else None
-
-    return render_template("read.html", title=book.title, form=form, book=book,
-            lines=lines, annotations=annotations, uservotes=uservotes)
-
-
-# unfortunately, this one is a lot more complicated than simple read.
-@app.route("/read/<book_url>/<level>/<number>/", defaults={"tag": None},
+@app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/",
+        defaults={"tag": None}, methods=["GET", "POST"])
+@app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/<tag>/",
         methods=["GET", "POST"])
-@app.route("/read/<book_url>/<level>/<number>/<tag>", methods=["GET", "POST"])
-def read_section(book_url, level, number, tag):
-    number = int(number) # convert number to int for transparency
+def read(book_url, bk, pt, ch, tag):
+    book = Book.query.filter_by(url=book_url).first_or_404()
+    if int(ch) != 0:
+        lines = Line.query.filter(Line.book_id==book.id,
+                Line.bk_num==bk, Line.pt_num==pt, Line.ch_num==ch
+                ).order_by(Line.l_num.asc()).all()
+    elif int(pt) != 0:
+        lines = Line.query.filter(Line.book_id==book.id,
+                Line.bk_num==bk, Line.pt_num==pt
+                ).order_by(Line.l_num.asc()).all()
+    else:
+        lines = Line.query.filter(Line.book_id==book.id,
+                Line.bk_num==bk,
+                ).order_by(Line.l_num.asc()).all()
+
+    if len(lines) <= 0:
+        abort(404)
+
     form = LineNumberForm()
 
-    # initialize next and prev pages
-    next_page = None
-    prev_page = None
+    next_page = lines[0].get_next_section()
+    prev_page = lines[0].get_prev_section()
+    if next_page != None:
+        next_page = url_for("read", book_url=book.url, bk=next_page.bk_num,
+                pt=next_page.pt_num, ch=next_page.ch_num, tag=tag)
+    if prev_page != None:
+        prev_page = url_for("read", book_url=book.url, bk=prev_page.bk_num,
+                pt=prev_page.pt_num, ch=prev_page.ch_num, tag=tag)
 
     if form.validate_on_submit():
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
         return redirect(url_for("annotate", book_url=book_url,
             first_line=form.first_line.data, last_line=form.last_line.data,
-            next=url_for("read_section", book_url=book_url, level=level,
-                number=number)
+            next=url_for("read", book_url=book.url, bk=bk, pt=pt, ch=ch,
+                tag=tag)
                 )
             )
-
-    # c'mon joker, there is no 0 page, even if I am a programmer.
-    if int(number) < 1:
-        abort(404)
-
-    book = Book.query.filter_by(url=book_url).first_or_404()
-
-    # because we have to access one of three different fields based on the
-    # heierarchical level, we have to test for the level instead of just passing
-    # it to the query as a variable.
-    if level == "bk":
-        lines = Line.query.filter(Line.book_id==book.id, Line.bk_num==number
-                ).all()
-    elif level == "pt":
-        lines = Line.query.filter(Line.book_id==book.id, Line.pt_num==number
-                ).all()
-    elif level == "ch":
-        lines = Line.query.filter(Line.book_id==book.id, Line.ch_num==number
-                ).all()
-    else:
-        # this is not the level you are looking for.
-        abort(404)
-
-    if len(lines) <= 0:
-        # the section you requested didn't actually exist (you must have typed
-        # it into the url bar like some kind of a weirdo)
-        abort(404)
-
-    # get the last section based on level being read
-    sections = Line.query.filter(Line.book_id==book.id,
-            Line.kind==Kind.query.filter_by(kind=level).first()
-            ).order_by(Line.l_num.desc()).first()
-
-    # cash it out to the actual number based on one of those three fields
-    if level == "bk":
-        sections = sections.bk_num
-    elif level =="pt":
-        sections = sections.pt_num
-    elif level == "ch":
-        sections = sections.ch_num
-    # now that it's cashed out, if it's not too big, say what it is
-    if number + 1 <= sections:
-        next_page = number+1
-
-    # if there's a previous page, say what it is
-    if number > 1:
-        prev_page = number-1
 
     # get all the annotations
     if tag:
@@ -259,9 +203,8 @@ def read_section(book_url, level, number, tag):
             else None
 
     return render_template("read.html", title=book.title, form=form, book=book,
-            lines=lines, annotations=annotations, annotations_idx=annotations_idx,
-            uservotes=uservotes, tags=tags, tag=tag, next_page=next_page,
-            prev_page=prev_page, level=level, number=number)
+            lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
+            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page)
 
 
 @app.route("/annotation/<annotation_id>")
