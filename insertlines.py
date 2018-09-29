@@ -11,6 +11,7 @@ for k in kinds:
     kind[k.kind] = k.id
 
 
+i = 1
 for line in fin:
 
     fields = line.split('@')
@@ -21,4 +22,10 @@ for line in fin:
 
     db.session.add(l)
 
+    if i % 100 == 0:
+        print(i)
+    i+=1
+
+print(f"After an arduous {i} lines, we are done.")
 db.session.commit()
+print(f"And now committed.")
