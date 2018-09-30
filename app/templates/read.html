@@ -16,7 +16,7 @@
         {% for tag in tags %}
             <a href="{{ url_for("read", book_url=book.url,
                 bk=lines[0].bk_num, pt=lines[0].pt_num, ch=lines[0].ch_num,
-                tag=tag) }}">
+                tag=tag.tag) }}">
                 <tag>
                     {{ tag.tag }}
                 </tag>
