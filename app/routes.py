@@ -331,9 +331,10 @@ def annotate(book_url, first_line, last_line):
         tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
         tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
+        # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
-        anno = AnnotationVersion(book_id=book.id, approved=True,
-                editor_id=current_user.id,
+        commit = AnnotationVersion(book=book, approved=True,
+                editor=current_user,
                 first_line_num=form.first_line.data,
                 last_line_num=form.last_line.data,
                 first_char_idx=form.first_char_idx.data,
@@ -341,31 +342,17 @@ def annotate(book_url, first_line, last_line):
                 annotation=form.annotation.data,
                 tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
-        # Save the hash_id from the transient object
-        ahash = anno.hash_id
+        # Create the annotation pointer with HEAD pointing to anno
+        head = Annotation(book=book, HEAD=commit, author=current_user)
 
-        # Add/commit it to db
-        db.session.add(anno)
+        # add anno, commit it
+        db.session.add(commit)
         db.session.commit()
 
-        # Grab the a_v object for its id using the hash
-        anno = AnnotationVersion.query.filter_by(hash_id=ahash).first()
-
-        # Create the head with the a_v id, add/commit it
-        head = Annotation(book_id=book.id, head_id=anno.id,
-                author_id=current_user.id)
-        db.session.add(head)
+        # make anno's pointer point to the 
+        commit.pointer = head
         db.session.commit()
 
-        # Get the same head object for its id
-        pointer = Annotation.query.filter_by(head_id=anno.id).first()
-
-        # Set the a_v's pointer_id to the pointer
-        anno.pointer_id = pointer.id
-        db.session.add(anno)
-        db.session.commit()
-
-        # That seems needlessly complex.
         flash("Annotation Submitted")
 
         next_page = request.args.get("next")
