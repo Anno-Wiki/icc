@@ -190,8 +190,12 @@ def read(book_url, bk, pt, ch, tag):
     if form.validate_on_submit():
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
+        fl = int(form.first_line.data)
+        ll = int(form.last_line.data)
+        if ll - fl > 5:
+            fl = ll - 5
         return redirect(url_for("annotate", book_url=book_url,
-            first_line=form.first_line.data, last_line=form.last_line.data,
+            first_line=fl, last_line=ll,
             next=url_for("read", book_url=book.url, bk=bk, pt=pt, ch=ch,
                 tag=tag)
                 )
@@ -253,11 +257,16 @@ def edit(anno_id):
         tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
         tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
+        fl = int(form.first_line.data)
+        ll = int(form.last_line.data)
+        if ll - fl > 5:
+            fl = ll - 5
+
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
-                first_line_num=form.first_line.data,
-                last_line_num=form.last_line.data,
+                first_line_num=fl,
+                last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 annotation=form.annotation.data,
@@ -307,6 +316,8 @@ def annotate(book_url, first_line, last_line):
         tmp = first_line
         first_line = last_line
         last_line = tmp
+    elif int(last_line) - int(first_line) > 5:
+        first_line = int(last_line) - 5
 
     book = Book.query.filter_by(url=book_url).first_or_404()
     lines = Line.query.filter(Line.book_id==book.id, Line.l_num>=first_line,
@@ -334,12 +345,17 @@ def annotate(book_url, first_line, last_line):
         tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
         tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
+        fl = int(form.first_line.data)
+        ll = int(form.last_line.data)
+        if ll - fl > 5:
+            fl = ll - 5
+
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
         commit = AnnotationVersion(book=book, approved=True,
                 editor=current_user,
-                first_line_num=form.first_line.data,
-                last_line_num=form.last_line.data,
+                first_line_num=fl,
+                last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 annotation=form.annotation.data,
