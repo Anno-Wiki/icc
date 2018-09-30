@@ -17,7 +17,6 @@ if '-h' in sys.argv:
     h.append('-h                    Help')
     h.append('-i <inputfile>')
     h.append('-o <outputfile>')
-    h.append('-r <regex>            (does nothing yet)')
     h.append('-e                    Process em dashes')
     h.append('-q                    Process quote marks (still needs manual intervention')
     h.append('-a <regex>            Regex to recognize line annotated')
@@ -28,8 +27,6 @@ if '-i' in sys.argv:
     fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
 if '-o' in sys.argv:
     fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if '-r' in sys.argv:
-    regex = re.compile(sys.argv[sys.argv.index('-r')+1])
 if '-e' in sys.argv:
     emdash = True
 if '-q' in sys.argv:
@@ -40,6 +37,7 @@ elif '-a' in sys.argv:
 
 us = False
 doubleopen = False
+br = False
 
 for line in fin:
     newline = line
@@ -52,12 +50,16 @@ for line in fin:
             for m in matches:
                 if m in astack:
                     amatch = astack.pop(m)
-                    aout.write(f"{newline[len(m)+1:-1]}@{amatch}")
+                    aout.write(f"{newline[len(m):-1].strip()}@{amatch}")
+                    br = True
                     continue
                 else:
                     newline = re.sub(a, r'', newline)
                     astack[m] = newline
 
+    if br:
+        br = False
+        continue
 
     if emdash:
         newline = re.sub(r'(--)', r'—', newline) 
@@ -65,7 +67,6 @@ for line in fin:
     if quotes:
         newline = re.sub(r"([^a-zA-Z])'([a-zA-Z—])", r"\1‘\2", newline)
         newline = re.sub(r"'", r"’", newline)
-
 
     words = re.findall(wordboundary, newline)
 
