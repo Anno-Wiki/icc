@@ -82,7 +82,7 @@
     </div>
 
     <!--Annotations-->
-    {% for i in range(len(lines)) %}
+    {% for i in range(lines[0].l_num, lines[-1].l_num) %}
         {% if i in annotations_idx %}
             {% for annotation in annotations_idx[i] %}
                 {% include "_annotation.html" %}
