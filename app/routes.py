@@ -135,6 +135,24 @@ def tag_index():
 ####################
 ## Reading Routes ##
 ####################
+
+@app.route("/annotation/<annotation_id>")
+def view_annotation(annotation_id):
+    annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
+    lines = annotation.HEAD.get_lines() # we call it now to query it later
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("annotation.html", title=annotation.book.title,
+            annotation=annotation, uservotes=uservotes, lines=lines)
+
+@app.route("/tags/<tag>/")
+def tag(tag):
+    tag = Tag.query.filter_by(tag=tag).first_or_404()
+
+    annotations = tag.get_annotations() 
+    return render_template("tag.html", title=tag.tag, tag=tag,
+            annotations=annotations)
+
 @app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/",
         defaults={"tag": None}, methods=["GET", "POST"])
 @app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/<tag>/",
@@ -209,23 +227,6 @@ def read(book_url, bk, pt, ch, tag):
             tags=tags, tag=tag, next_page=next_page, prev_page=prev_page)
 
 
-@app.route("/annotation/<annotation_id>")
-def view_annotation(annotation_id):
-    annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
-    lines = annotation.HEAD.get_lines() # we call it now to query it later
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-            else None
-    return render_template("annotation.html", title=annotation.book.title,
-            annotation=annotation, uservotes=uservotes, lines=lines)
-
-@app.route("/tags/<tag>/")
-def tag(tag):
-    tag = Tag.query.filter_by(tag=tag).first_or_404()
-
-    annotations = tag.get_annotations() 
-    return render_template("tag.html", title=tag.tag, tag=tag,
-            annotations=annotations)
-
 #####################
 ## Creation Routes ##
 #####################
@@ -240,7 +241,7 @@ def edit(anno_id):
     if form.cancel.data:
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("read", book_url=annotation.book.book_url)
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -271,7 +272,7 @@ def edit(anno_id):
 
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("read", book_url=annotation.book.url)
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
     elif not annotation.edit_pending:
@@ -319,7 +320,7 @@ def annotate(book_url, first_line, last_line):
     if form.cancel.data:
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("read", book_url=book_url)
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -357,7 +358,7 @@ def annotate(book_url, first_line, last_line):
 
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("read", book_url=book_url)
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
     else:
@@ -373,11 +374,11 @@ def annotate(book_url, first_line, last_line):
 @app.route("/upvote/<anno_id>/")
 @login_required
 def upvote(anno_id):
+    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("read", book_url=anno.book.url)
-
-    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+        next_page = anno.HEAD.get_lines()[0].get_url()
 
     if current_user.already_voted(anno):
         vote = current_user.get_vote(anno)
@@ -399,11 +400,11 @@ def upvote(anno_id):
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
+    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("read", book_url=anno.book.url)
-
-    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+        next_page = anno.HEAD.get_lines()[0].get_url()
     
     if current_user.already_voted(anno):
         vote = current_user.get_vote(anno)
