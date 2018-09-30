@@ -92,7 +92,7 @@ def user(user_id):
 
 @app.route("/authors/")
 def author_index():
-    authors = Author.query.order_by(Author.last_name)
+    authors = Author.query.order_by(Author.last_name).all()
     return render_template("author_index.html", title="Authors",
             authors=authors)
 
@@ -105,7 +105,7 @@ def author(name):
 
 @app.route("/books/")
 def book_index():
-    books = Book.query.order_by(Book.sort_title)
+    books = Book.query.order_by(Book.sort_title).all()
     return render_template("book_index.html", title="Books", books=books)
 
 
@@ -213,7 +213,9 @@ def read(book_url, bk, pt, ch, tag):
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
     for a in annotations:
-        annotations_idx[a.HEAD.last_line_num].append(a)
+        if a.HEAD.last_line_num >= lines[0].l_num and \
+                a.HEAD.last_line_num <= lines[-1].l_num:
+            annotations_idx[a.HEAD.last_line_num].append(a)
 
     # replace markdown-style _ with <em> and </em>
     preplines(lines)
