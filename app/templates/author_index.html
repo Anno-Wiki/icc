@@ -1,13 +1,24 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <h1>Authors</h1>
-<ul>
-    {% for author in authors %}
-    <li>
-        <a href="{{ url_for("author", name=author.url) }}">{{ author.name }}</a>
-    </li>
-    {% endfor %}
-</ul>
+<div class="author_index">
+{% for author in authors %}
+<div class="author_card">
+    <a href="{{ url_for("author", name=author.url) }}"><h2>{{ author.name }}</h2></a>
+    Books &times; {{ author.book_count() }}
+    <br>
+
+    {% if len(author.bio) >= 127 %}
+    <div class="card_bio">
+    {% else %}
+    <div>
+    {% endif %}
+    {{ author.bio[:127]|markdown }}
+    </div>
+
+    <a href="{{ url_for("author", name=author.url) }}">View More</a>
+</div>
+{% endfor %}
+</div>
 {% endblock %}

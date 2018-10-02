@@ -370,3 +370,35 @@ textarea {
     font-family: "Playfair Display", serif;
     font-size: 14px;
 }
+
+/******************************************************************************/
+
+/* Author index stuff */
+.author_index {
+    display: flex;
+    flex-wrap: wrap;
+}
+.author_card {
+    display: inline-block;
+    width: 250px;
+    height: 175px;
+    margin: 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--base00);
+    padding: 10px;
+}
+.author_card p {
+    font-size: 16px;
+    margin: 5px;
+    color: var(--base00);
+    display: inline-block;
+}
+.author_card .card_bio p:after {
+    content: "...";
+}
+.author_card h2 {
+    margin: 3px;
+    font-size: 20px;
+    color: var(--base00);
+}
