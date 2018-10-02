@@ -11,8 +11,8 @@ ID Age   P Project Tags         Description                                 Urg
                                 Book lines for each page
 27 2d    H web     bug          debug selection display issues on           7.81
                                 annotate.html
-28 31min H web     feature      paginate authors index                       7.8
-29 31min H web     feature      paginate books index                         7.8
+28 38min H web     feature      paginate authors index                       7.8
+29 37min H web     feature      paginate books index                         7.8
 16 10d   H web                  Identify chapter/part/book in header and    7.05
                                 footer of read section view
  8 4w    M web     feature      user about mes                              5.87
@@ -20,7 +20,8 @@ ID Age   P Project Tags         Description                                 Urg
 19 10d   M web     feature      About page                                  5.75
 24 2d    M web     feature      edit summary view                           5.71
 25 2d    M web     feature      General help indicators                     5.71
-30 29min M web     feature      edit author bio view                         5.7
+30 36min M web     feature      edit author bio view                         5.7
+31 6s    M web     feature      Figure out a way to bulk edit annotations    5.7
 17 10d   M web                  better previous and next page buttons       4.95
  3 7w    L web     JS feature   write javascript for pe char-level          3.98
                                 annotation
@@ -32,4 +33,4 @@ ID Age   P Project Tags         Description                                 Urg
                                 when we have annotation [a100000000002354]
  6 6w    L web     test         Test more formats!                          3.85
 
-22 tasks
+23 tasks
