@@ -5,6 +5,12 @@ import codecs
 
 book_id = None
 user = User.query.filter_by(username="Community").first()
+if user == None:
+    user = User(username="Community", email="community@annopedia.org",
+            password_hash="***", reputation=0, cumulative_negative=0,
+            cumulative_positive=0)
+    db.session.add(user)
+    db.session.commit()
 author_tag = None
 original_tag = Tag.query.filter_by(tag="original").first()
 
@@ -18,7 +24,8 @@ else:
     author = sys.argv[sys.argv.index("-a")+1]
     author_tag = Tag.query.filter_by(tag=author).first()
     if author_tag == None:
-        author_tag = Tag(tag=author, description=f"Original annotations from {author}.")
+        author_tag = Tag(tag=author,
+            description=f"Original annotations from {author}.", admin=True)
         db.session.add(author_tag)
         db.session.commit()
 
