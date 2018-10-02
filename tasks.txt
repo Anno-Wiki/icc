@@ -1,72 +1,35 @@
 
-ID Age   P Project Tags                 Due        Description              Urg
--- ----- - ------- -------------------- ---------- ------------------------ ----
-35 13min   web     feature              2018-09-30 write annotations.py to  10.5
-                                                   insert annotations
-                                                   cribbed from the book
-17 8d    H web     feature                         annotation deletion      7.84
-18 8d    H web     feature                         book requests            7.84
-28 2d    H web     feature                         elasticsearch index on   7.81
-                                                   tag insertion
-29 1d    H web     feature                         Tag request              7.81
-30 1d    H web     feature                         Consider deprecating tag 7.81
-                                                   creator
-31 1d    H web     feature                         format authors and books 7.81
-                                                   indexes to resemble tags
-32 1d    H web     feature                         flagging of users and    7.81
-                                                   annotations
-33 1d    H web     bug                             Limit number of lines to 7.81
-                                                   annotate
-34 1d    H web     bug                             Create default single    7.81
-                                                   line app when only one
-                                                   line number is inserted
-36 11min H web     bug                             check on annotations      7.8
-                                                   that didnt get yanked
- 9 4w    M web     elasticsearch                   search!                  5.96
-                   feature
-11 4w    M web     feature                         user about mes           5.85
-19 8d    M web     bug                             Need separate styles or  5.74
-                                                   _line.html for display
-                                                   by self, I have an
-                                                   indentation problem when
-                                                   it pulling text on its
-                                                   own
-20 8d    M web     bug                             need to paginate         5.74
-                                                   annotations on
-                                                   everything!
-23 7d    M web     feature                         Help feature for         5.74
-                                                   markdown formatting
-24 7d    M web     feature                         About page               5.74
-25 7d    M web     feature                         General help indicators  5.74
-26 7d    M web     feature                         pagination for most      5.74
-                                                   things
-27 7d    M web     feature                         Author bios              5.74
-37 3s    M web     feature                         edit summary view         5.7
-21 7d    M web                                     Identify                 4.94
-                                                   chapter/part/book in
-                                                   header and footer of
-                                                   read section view
-22 7d    M web                                     better previous and next 4.94
-                                                   page buttons
- 3 7w    L web     JS feature                      write javascript for pe  3.97
-                                                   char-level annotation
- 5 6w    L web     AJAX feature                    Write javascript for     3.93
-                                                   popup annotations on
-                                                   read view.
- 4 6w    L web     bug                             find a way to index the  3.84
-                                                   annotations on a given
-                                                   page starting at 1;
-                                                   using the actual id of
-                                                   the annotation will
-                                                   become obnoxious when we
-                                                   have annotation
-                                                   [a100000000002354]
- 6 6w    L web     test                            Test more formats!       3.83
- 8 5w    L web     bug                             Keep eye out for italic   3.8
-                                                   bug where cursors says
-                                                   data truncated at for
-                                                   column line at row 1
-10 4w    L web     bug                             Fix paragraph open and   3.76
-                                                   close bug on pg level
+ID Age   P Project Tags         Description                                 Urg
+-- ----- - ------- ------------ ------------------------------------------- ----
+14 11d   H web     feature      annotation deletion                         7.86
+15 11d   H web     feature      book requests                               7.86
+20 5d    H web     feature      elasticsearch index on tag insertion        7.83
+21 4d    H web     feature      Tag request                                 7.82
+22 4d    H web     feature      Consider deprecating tag creator            7.82
+23 4d    H web     feature      flagging of users and annotations           7.82
+26 2d    H web     bug          Figure out how to get previous Part and     7.81
+                                Book lines for each page
+27 2d    H web     bug          debug selection display issues on           7.81
+                                annotate.html
+28 31min H web     feature      paginate authors index                       7.8
+29 31min H web     feature      paginate books index                         7.8
+16 10d   H web                  Identify chapter/part/book in header and    7.05
+                                footer of read section view
+ 8 4w    M web     feature      user about mes                              5.87
+18 10d   M web     feature      Help feature for markdown formatting        5.75
+19 10d   M web     feature      About page                                  5.75
+24 2d    M web     feature      edit summary view                           5.71
+25 2d    M web     feature      General help indicators                     5.71
+30 29min M web     feature      edit author bio view                         5.7
+17 10d   M web                  better previous and next page buttons       4.95
+ 3 7w    L web     JS feature   write javascript for pe char-level          3.98
+                                annotation
+ 5 6w    L web     AJAX feature Write javascript for popup annotations on   3.95
+                                read view.
+ 4 6w    L web     bug          find a way to index the annotations on a    3.85
+                                given page starting at 1; using the actual
+                                id of the annotation will become obnoxious
+                                when we have annotation [a100000000002354]
+ 6 6w    L web     test         Test more formats!                          3.85
 
-29 tasks
+22 tasks
