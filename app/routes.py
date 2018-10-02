@@ -20,11 +20,18 @@ from app.funky import preplines, is_filled
 @app.route("/")
 @app.route("/index/")
 def index():
-    annotations = Annotation.query.order_by(Annotation.added.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    annotations = Annotation.query.order_by(Annotation.added.desc()
+            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    next_url = url_for("index", page=annotations.next_num) \
+            if annotations.has_next else None
+    prev_url = url_for("index", page=annotations.prev_num) \
+            if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("index.html", title="Home", annotations=annotations,
-            uservotes=uservotes)
+    return render_template("index.html", title="Home",
+            annotations=annotations.items, uservotes=uservotes,
+            next_url=next_url, prev_url=prev_url)
 
 
 ####################
