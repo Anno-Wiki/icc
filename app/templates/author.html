@@ -2,10 +2,24 @@
 
 {% block content %}
 <h1>{{ author.name }}</h1>
-<h2>Books</h2>
-<ul>
-    {% for book in author.books %}
-    <li><a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a></li>
-    {% endfor %}
-</ul>
+<h2>&times; {{ author.book_count() }} Books</h2>
+<div class="index">
+{% for book in author.books %}
+<div class="card">
+    <a href="{{ url_for("book", book_url=book.url) }}"><h2>{{ book.title }}</h2></a>
+    <div class="count">
+    &times; {{ book.line_count() }} lines
+    </div>
+
+    {% if len(book.summary) >= 127 %}
+    <div class="card_text_cutoff">
+    {% else %}
+    <div>
+    {% endif %}
+    {{ book.summary[:127]|markdown }}
+    </div>
+
+    <a href="{{ url_for("book", book_url=book.url) }}">View More</a>
+</div    
+{% endfor %}
 {% endblock %}
