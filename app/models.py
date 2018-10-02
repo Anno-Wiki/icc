@@ -154,6 +154,7 @@ class Author(db.Model):
     url = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
+    bio = db.Column(db.Text)
     added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
@@ -196,7 +197,7 @@ class Kind(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
-    admin = db.Column(db.Boolean)
+    admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
 
     def __repr__(self):
