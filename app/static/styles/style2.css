@@ -214,23 +214,6 @@ tag:hover {
     background-color: var(--base23);
     color: var(--base011);
 }
-.tag_index {
-    display: flex;
-    flex-wrap: wrap;
-}
-.tag_card {
-    display: inline-block;
-    width: 250px;
-    height: 200px;
-    margin: 10px;
-}
-.tag_card p {
-    font-size: 16px;
-    color: var(--base00);
-}
-.tag_card tag {
-    margin-left: 0px;
-}
 
 /******************************************************************************/
 
@@ -373,32 +356,46 @@ textarea {
 
 /******************************************************************************/
 
-/* Author index stuff */
-.author_index {
+/* Indexes */
+.index {
     display: flex;
     flex-wrap: wrap;
 }
-.author_card {
+.card {
     display: inline-block;
     width: 250px;
     height: 175px;
     margin: 15px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--base00);
     padding: 10px;
 }
-.author_card p {
+.card .count {
+    margin: 0 0 0 3px;
+}
+.card p {
     font-size: 16px;
     margin: 5px;
     color: var(--base00);
     display: inline-block;
 }
-.author_card .card_bio p:after {
+.card .card_text_cutoff p:after {
     content: "...";
 }
-.author_card h2 {
+.card h2 {
     margin: 3px;
     font-size: 20px;
     color: var(--base00);
+}
+
+.tag_card {
+    display: inline-block;
+    width: 250px;
+    height: 200px;
+    margin: 10px;
+}
+.tag_card p {
+    font-size: 16px;
+    color: var(--base00);
+}
+.tag_card tag {
+    margin-left: 0px;
 }
