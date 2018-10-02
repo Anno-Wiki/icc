@@ -159,6 +159,11 @@ class Author(db.Model):
     def __repr__(self):
         return f"<Author: {self.name}>"
 
+    def book_count(self):
+        cnt = Book.query.filter_by(author=self).count()
+        return cnt
+
+
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
@@ -169,6 +174,14 @@ class Book(db.Model):
     summary = db.Column(db.Text)
     published = db.Column(db.Date)
     added = db.Column(db.DateTime)
+
+    def line_count(self):
+        cnt = Line.query.filter_by(book=self).count()
+        return cnt
+
+    def annotation_count(self):
+        cnt = Annotation.query.filter_by(book=self).count()
+        return cnt
 
     def __repr__(self):
         return f"<Book {self.id}: {self.title} by {self.author}>"
