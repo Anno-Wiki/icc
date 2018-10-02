@@ -35,10 +35,10 @@ class RegistrationForm(FlaskForm):
 ## Content Forms ##
 ###################
 class LineNumberForm(FlaskForm):
-    first_line = IntegerField("First Line", validators=[InputRequired()],
-            render_kw={"placeholder":"From"})
-    last_line = IntegerField("Last Line", validators=[InputRequired()],
-            render_kw={"placeholder":"To"})
+    first_line = IntegerField("First Line", render_kw={"placeholder":"From"},
+            validators=[Optional()])
+    last_line = IntegerField("Last Line", render_kw={"placeholder":"To"},
+            validators=[Optional()])
     submit = SubmitField("Annotate")
 
 class AnnotationForm(FlaskForm):

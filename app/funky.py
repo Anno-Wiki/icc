@@ -31,3 +31,12 @@ def preplines(lines):
             lines[i].line = '<em>' + lines[i].line
         elif line.em_status.kind == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
+
+def is_filled(data):
+   if data == None:
+      return False
+   if data == '':
+      return False
+   if data == []:
+      return False
+   return True

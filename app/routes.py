@@ -10,7 +10,7 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm
-from app.funky import preplines
+from app.funky import preplines, is_filled
 
 
 ###########
@@ -188,12 +188,31 @@ def read(book_url, bk, pt, ch, tag):
                 pt=prev_page.pt_num, ch=prev_page.ch_num, tag=tag)
 
     if form.validate_on_submit():
+        if not is_filled(form.first_line.data) and not is_filled(form.last_line.data):
+            flash("Please enter a first and last line number to annotate a selection.")
+            return redirect(url_for("read", book_url=book.url, bk=bk, pt=pt,
+                ch=ch, tag=tag))
+        elif not is_filled(form.first_line.data):
+            ll = int(form.last_line.data)
+            fl = ll
+        elif not is_filled(form.last_line.data) == "":
+            fl = int(form.first_line.data)
+            ll = fl
+        else:
+            fl = int(form.first_line.data)
+            ll = int(form.last_line.data)
+
+        if ll - fl > 5:
+            fl = ll - 4
+
+        if fl < 1:
+            fl = 1
+        if ll < 1:
+            fl = 1
+            ll = 1
+
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
-        fl = int(form.first_line.data)
-        ll = int(form.last_line.data)
-        if ll - fl > 5:
-            fl = ll - 5
         return redirect(url_for("annotate", book_url=book_url,
             first_line=fl, last_line=ll,
             next=url_for("read", book_url=book.url, bk=bk, pt=pt, ch=ch,
@@ -259,8 +278,15 @@ def edit(anno_id):
 
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
+
         if ll - fl > 5:
-            fl = ll - 5
+            fl = ll - 4
+
+        if fl < 1:
+            fl = 1
+        if ll < 1:
+            fl = 1
+            ll = 1
 
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
@@ -318,11 +344,18 @@ def annotate(book_url, first_line, last_line):
         last_line = tmp
     elif int(last_line) - int(first_line) > 5:
         first_line = int(last_line) - 5
+    if int(first_line) < 1:
+        first_line = 1
+    if int(last_line) < 1:
+        last_line = 1
 
     book = Book.query.filter_by(url=book_url).first_or_404()
     lines = Line.query.filter(Line.book_id==book.id, Line.l_num>=first_line,
             Line.l_num<=last_line).all()
     form = AnnotationForm()
+
+    if lines == None:
+        abort(404)
 
     tag1 = None
     tag2 = None
@@ -349,6 +382,10 @@ def annotate(book_url, first_line, last_line):
         ll = int(form.last_line.data)
         if ll - fl > 5:
             fl = ll - 5
+        if fl < 1:
+            fl = 1
+        if ll < 1:
+            ll = 1
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
