@@ -36,7 +36,7 @@
         {%- if current_user.is_anonymous -%}
             <a href="{{ url_for("login") }}">login</a>
         {%- else %}
-            {% if current_user.is_authorized(vars["AUTHORIZATION"]["TAG_CREATION"]) -%}
+            {% if current_user.has_right("create_tags") -%}
             <a href="{{ url_for("create_tag") }}">create tag</a>,
             {% endif %}
 

@@ -270,6 +270,19 @@ def read(book_url, bk, pt, ch, tag):
 @login_required
 def edit(anno_id):
     annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
+
+    if annotation.locked == True and not \
+            current_user.has_right("edit_locked_annotations"):
+        flash("That annotation is locked from editing.")
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = lines[0].get_url()
+        return redirect(next_page)
+
+    print(annotation.locked)
+    print(current_user.rights)
+    print(current_user.has_right("edit_locked_annotations"))
+
     lines = annotation.HEAD.get_lines()
     form = AnnotationForm()
 
@@ -501,7 +514,7 @@ def downvote(anno_id):
 @app.route("/admin/tags/create", methods=["GET","POST"])
 @login_required
 def create_tag():
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_CREATION"])
+    current_user.authorize_rights("create_tags")
     form = TagForm()
     if form.cancel.data:
         return redirect(url_for("index"))

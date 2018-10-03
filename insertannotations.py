@@ -42,7 +42,7 @@ for line in fin:
             tag_1=original_tag, tag_2=author_tag)
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(book_id=book_id, HEAD=commit, author=user)
+    head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)
 
     # add anno, commit it
     db.session.add(commit)

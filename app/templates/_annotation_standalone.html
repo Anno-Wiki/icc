@@ -123,7 +123,9 @@
     {% else %}
     <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">down</a>
     {% endif -%}
+    {% if current_user.is_authenticated and (annotation.locked and current_user.has_right("edit_locked_annotations")) or not annotation.locked %}
     |
     <a href="{{ url_for("edit", anno_id=annotation.id, next=request.path) }}">edit</a>
+    {% endif %}
 
 </annotation>

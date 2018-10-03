@@ -119,7 +119,7 @@ class User(UserMixin, db.Model):
 
     def has_right(self, right):
         r = AdminRight.query.filter_by(right=right).first()
-        return r
+        return r in self.rights
 
     def is_authorized(self, min_rep):
         if self.reputation >= min_rep:
@@ -368,6 +368,8 @@ class Annotation(db.Model):
     added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     edit_pending = db.Column(db.Boolean, index=True, default=False)
+
+    locked = db.Column(db.Boolean, index=True, default=False)
 
     def upvote(self, voter):
         weight = voter.up_power()
