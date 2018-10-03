@@ -458,12 +458,13 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.book_id}," \
+        s = f"{self.book}," \
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \
                 f"{self.tag_4},{self.tag_5}"
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
+
 
     def __repr__(self):
         return f"<Ann {self.id} on book {self.book.title}>"

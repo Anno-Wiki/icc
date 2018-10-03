@@ -28,7 +28,8 @@
             pt=lines[0].pt_num, ch=lines[0].ch_num) }}">Show all tags</a>
         <br>
     {% endif %}
-            
+
+
     {% if prev_page %}
         <a href="{{ prev_page }}">Previous Page</a>
     {% endif %}
@@ -45,7 +46,6 @@
     </form>
 
     <hr>
-
     <div id="content">
     {%- for line in lines %}
         {%- include "_popen.html" -%}
@@ -58,7 +58,7 @@
 
         {%- include "_line2.html" -%}
 
-        {% if current_user.is_authenticated and current_user.has_right("edit_lines") %}
+        {% if current_user.is_authenticated and edit_right in current_user.rights %}
         <span class="body_annotation">
             <a href="{{ url_for("edit_line", line_id=line.id, next=request.path)
                 }}">edit</a>
@@ -90,7 +90,6 @@
         {% endif %}
     {% endfor %}
 
-            
     <hr>
 
     <!--Page Counter-->
