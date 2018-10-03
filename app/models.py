@@ -22,7 +22,7 @@ class AdminRight(db.Model):
     right = db.Column(db.String(128), index=True)
 
     def __repr__(self):
-        return f"<right: {self.right}>"
+        return self.right
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,6 +44,9 @@ class User(UserMixin, db.Model):
     rights = db.relationship("AdminRight", secondary=conferred_right,
             backref="admins")
 
+    def in_rights(self, right):
+        r = AdminRight.query.filter_by(right=right).first()
+        return r
 
     def __repr__(self):
         return "<User {}>".format(self.username)
@@ -447,7 +450,7 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.editor_id},{self.book_id}," \
+        s = f"{self.book_id}," \
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \

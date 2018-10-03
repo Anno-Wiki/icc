@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
         IntegerField, TextAreaField
 from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, Optional
@@ -69,7 +70,7 @@ class AnnotationForm(FlaskForm):
         tag = Tag.query.filter_by(tag=tag_1.data).first()
         if tag is None:
             raise ValidationError(f"The tag '{tag_1.data}' does not exist.")
-        if tag.admin:
+        if tag.admin and not current_user.in_rights("use_restricted_tags"):
             raise ValidationError(f"The tag '{tag_1.data}' is restricted.")
 
     def validate_tag_2(self, tag_2):
@@ -78,7 +79,7 @@ class AnnotationForm(FlaskForm):
             raise ValidationError(f"The tag '{tag_2.data}' does not exist.")
         if tag_2.data == self.tag_1.data:
             raise ValidationError("You cannot use the same tag twice.")
-        if tag.admin:
+        if tag.admin and not current_user.in_rights("use_restricted_tags"):
             raise ValidationError(f"The tag '{tag_2.data}' is restricted.")
 
     def validate_tag_3(self, tag_3):
@@ -87,7 +88,7 @@ class AnnotationForm(FlaskForm):
             raise ValidationError(f"The tag '{tag_3.data}' does not exist.")
         if tag_3.data == self.tag_1.data or tag_3.data == self.tag_2.data:
             raise ValidationError("You cannot use the same tag twice.")
-        if tag.admin:
+        if tag.admin and not current_user.in_rights("use_restricted_tags"):
             raise ValidationError(f"The tag '{tag_3.data}' is restricted.")
 
     def validate_tag_4(self, tag_4):
@@ -97,7 +98,7 @@ class AnnotationForm(FlaskForm):
         if tag_4.data == self.tag_1.data or tag_4.data == self.tag_2.data or \
                 tag_4.data == self.tag_3.data:
             raise ValidationError("You cannot use the same tag twice.")
-        if tag.admin:
+        if tag.admin and not current_user.in_rights("use_restricted_tags"):
             raise ValidationError(f"The tag '{tag_4.data}' is restricted.")
 
     def validate_tag_5(self, tag_5):
@@ -107,7 +108,7 @@ class AnnotationForm(FlaskForm):
         if tag_5.data == self.tag_1.data or tag_5.data == self.tag_2.data or \
                 tag_5.data == self.tag_3.data or tag_5.data == self.tag_4.data:
             raise ValidationError("You cannot use the same tag twice.")
-        if tag.admin:
+        if tag.admin and not current_user.in_rights("use_restricted_tags"):
             raise ValidationError(f"The tag '{tag_5.data}' is restricted.")
 
 class TagForm(FlaskForm):
