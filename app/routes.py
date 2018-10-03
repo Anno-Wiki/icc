@@ -280,29 +280,31 @@ def edit(anno_id):
         return redirect(next_page)
 
     elif form.validate_on_submit():
-        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
-        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
-        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
-        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
-        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
-
+        # line number boilerplate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
-
         if ll - fl > 5:
             fl = ll - 4
-
         if fl < 1:
             fl = 1
         if ll < 1:
             fl = 1
             ll = 1
 
+        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
+        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
+        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
+        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
+        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
+
+        approved = True if current_user.in_rights("immediate_edits") else False
+        print(approved)
+
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
-                first_line_num=fl,
-                last_line_num=ll,
+                approved=approved,
+                first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 annotation=form.annotation.data,
@@ -312,10 +314,15 @@ def edit(anno_id):
             flash("Your suggested edit is no different from the previous version.")
             return redirect(url_for("edit", anno_id=annotation.id))
 
-        annotation.edit_pending = True
+        annotation.edit_pending = not approved
+        if approved:
+            annotation.HEAD = edit
         db.session.add(edit)
         db.session.commit()
-        flash("Edit submitted for review.")
+        if approved:
+            flash("Edit complete.")
+        else:
+            flash("Edit submitted for review.")
 
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
