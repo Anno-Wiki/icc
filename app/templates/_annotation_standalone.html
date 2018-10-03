@@ -117,19 +117,19 @@
     |
 
     {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
-    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="voted">up</a>
+    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="voted">up</a>
     {% else %}
-    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">up</a>
+    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">up</a>
     {% endif -%}
     /
     {%- if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
-    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="voted">down</a>
+    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="voted">down</a>
     {% else %}
-    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.path) }}" class="notvoted">down</a>
+    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">down</a>
     {% endif -%}
     {% if current_user.is_authenticated and (annotation.locked and current_user.has_right("edit_locked_annotations")) or not annotation.locked %}
     |
-    <a href="{{ url_for("edit", anno_id=annotation.id, next=request.path) }}">edit</a>
+    <a href="{{ url_for("edit", anno_id=annotation.id, next=request.full_path) }}">edit</a>
     {% endif %}
 
 </annotation>

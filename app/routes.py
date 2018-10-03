@@ -7,7 +7,7 @@ from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
-        AnnotationVersion, Tag, EditVote
+        AnnotationVersion, Tag, EditVote, AdminRight
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm
 from app.funky import preplines, is_filled
@@ -47,7 +47,7 @@ def login():
 
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        
+
         if user is None or not user.check_password(form.password.data):
             flash("Invalid username or password")
             return redirect(url_for("login"))
@@ -187,6 +187,7 @@ def read(book_url, bk, pt, ch, tag):
 
     form = LineNumberForm()
 
+
     next_page = lines[0].get_next_section() if ch == 0 else \
             lines[-1].get_next_section()
     prev_page = lines[0].get_prev_section()
@@ -206,7 +207,7 @@ def read(book_url, bk, pt, ch, tag):
         elif not is_filled(form.first_line.data):
             ll = int(form.last_line.data)
             fl = ll
-        elif not is_filled(form.last_line.data) == "":
+        elif not is_filled(form.last_line.data):
             fl = int(form.first_line.data)
             ll = fl
         else:
@@ -258,9 +259,12 @@ def read(book_url, bk, pt, ch, tag):
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
+    edit_right = AdminRight.query.filter_by(right="edit_lines").first()
+
     return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
-            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page)
+            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
+            edit_right=edit_right)
 
 
 #####################
@@ -307,12 +311,14 @@ def edit(anno_id):
         tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
         tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
-        approved = True if current_user.has_right("immediate_edits") else False
+        approved = current_user.has_right("immediate_edits")
 
+        lockchange = False
         if current_user.has_right("lock_annotations"):
+            lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
-        edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
+        edit = AnnotationVersion(book=annotation.HEAD.book,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
                 approved=approved,
@@ -322,15 +328,19 @@ def edit(anno_id):
                 annotation=form.annotation.data,
                 tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
 
-        if edit.hash_id == annotation.HEAD.hash_id:
+        if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
             return redirect(url_for("edit", anno_id=annotation.id))
+        elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
+            db.session.commit()
+            flash("Annotation Locked")
+        else:
+            annotation.edit_pending = not approved
+            if approved:
+                annotation.HEAD = edit
+            db.session.add(edit)
+            db.session.commit()
 
-        annotation.edit_pending = not approved
-        if approved:
-            annotation.HEAD = edit
-        db.session.add(edit)
-        db.session.commit()
         if approved:
             flash("Edit complete.")
         else:
@@ -481,7 +491,7 @@ def upvote(anno_id):
     db.session.commit()
 
     return redirect(next_page)
-    
+
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
@@ -490,7 +500,7 @@ def downvote(anno_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = anno.HEAD.get_lines()[0].get_url()
-    
+
     if current_user.already_voted(anno):
         vote = current_user.get_vote(anno)
         if not vote.is_up():
@@ -526,7 +536,7 @@ def create_tag():
             db.session.commit()
             flash("Tag created.")
             return redirect(url_for("index"))
-            
+
     return render_template("create_tag.html", title="Create Tag", form=form)
 
 
