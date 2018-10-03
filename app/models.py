@@ -22,7 +22,7 @@ class AdminRight(db.Model):
     right = db.Column(db.String(128), index=True)
 
     def __repr__(self):
-        return f"<Admin Right {right}"
+        return f"<Admin Right {self.right}"
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
