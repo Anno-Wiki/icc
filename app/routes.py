@@ -92,8 +92,20 @@ def register():
 
 @app.route("/user/<user_id>/")
 def user(user_id):
+    page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(id=user_id).first_or_404()
-    return render_template("user.html", title=user.username, user=user)
+    annotations = Annotation.query.filter_by(author=user
+            ).order_by(Annotation.added.desc()
+            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    next_url = url_for("user", user_id=user.id, page=annotations.next_num) \
+            if annotations.has_next else None
+    prev_url = url_for("user", user_id=user.id, page=annotations.prev_num) \
+            if annotations.has_prev else None
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("user.html", title=user.username, user=user,
+            annotations=annotations.items, uservotes=uservotes,
+            next_url=next_url, prev_url=prev_url)
 
 
 #####################
@@ -102,9 +114,17 @@ def user(user_id):
 
 @app.route("/authors/")
 def author_index():
-    authors = Author.query.order_by(Author.last_name).all()
+    page = request.args.get('page', 1, type=int)
+    authors = Author.query.order_by(Author.last_name
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    next_url = url_for("author_index", page=authors.next_num) \
+            if authors.has_next else None
+    prev_url = url_for("author_index", page=authors.prev_num) \
+            if authors.has_prev else None
+
     return render_template("author_index.html", title="Authors",
-            authors=authors)
+            authors=authors.items, next_url=next_url, prev_url=prev_url)
 
 
 @app.route("/authors/<name>/")
@@ -115,8 +135,17 @@ def author(name):
 
 @app.route("/books/")
 def book_index():
-    books = Book.query.order_by(Book.sort_title).all()
-    return render_template("book_index.html", title="Books", books=books)
+    page = request.args.get('page', 1, type=int)
+    books = Book.query.order_by(Book.sort_title
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    next_url = url_for("book_index", page=books.next_num) \
+            if books.has_next else None
+    prev_url = url_for("book_index", page=books.prev_num) \
+            if books.has_prev else None
+
+    return render_template("book_index.html", title="Books",
+            books=books.items, next_url=next_url, prev_url=prev_url)
 
 
 @app.route("/books/<book_url>/", methods=["GET", "POST"])
@@ -138,8 +167,17 @@ def book(book_url):
 
 @app.route("/tags/")
 def tag_index():
-    tags = Tag.query.all()
-    return render_template("tag_index.html", title="Tags", tags=tags)
+    page = request.args.get('page', 1, type=int)
+    tags = Tag.query.order_by(Tag.tag
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    next_url = url_for("tag_index", page=tags.next_num) \
+            if tags.has_next else None
+    prev_url = url_for("tag_index", page=tags.prev_num) \
+            if tags.has_prev else None
+
+    return render_template("tag_index.html", title="Tags",
+            tags=tags.items, next_url=next_url, prev_url=prev_url)
 
 
 ####################

@@ -12,3 +12,4 @@ class Config(object):
     MIN_APPROVAL_RATING = 2
     MIN_REJECTION_RATING = -2
     ANNOTATIONS_PER_PAGE = 5
+    CARDS_PER_PAGE = 15

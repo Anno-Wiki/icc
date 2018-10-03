@@ -5,9 +5,16 @@
     {% include "_reputation.html" %}
 </h1>
 
-{% for annotation in user.annotations %}
+{% for annotation in annotations %}
     {% include "_annotation_standalone.html" %}
 {% endfor %}
+
+{% if prev_url %}
+<a href="{{ prev_url }}">Newer Annotations</a>
+{% endif %}
+{% if next_url %}
+<a href="{{ next_url }}">Older Annotations</a>
+{% endif %}
 
 {% endblock %}
 
