@@ -198,6 +198,7 @@ def read(book_url, bk, pt, ch, tag):
                 pt=prev_page.pt_num, ch=prev_page.ch_num, tag=tag)
 
     if form.validate_on_submit():
+        # line number boiler plate
         if not is_filled(form.first_line.data) and not is_filled(form.last_line.data):
             flash("Please enter a first and last line number to annotate a selection.")
             return redirect(url_for("read", book_url=book.url, bk=bk, pt=pt,
@@ -278,10 +279,6 @@ def edit(anno_id):
         if not next_page or url_parse(next_page).netloc != "":
             next_page = lines[0].get_url()
         return redirect(next_page)
-
-    print(annotation.locked)
-    print(current_user.rights)
-    print(current_user.has_right("edit_locked_annotations"))
 
     lines = annotation.HEAD.get_lines()
     form = AnnotationForm()
@@ -399,14 +396,7 @@ def annotate(book_url, first_line, last_line):
         return redirect(next_page)
 
     elif form.validate_on_submit():
-
-        # Process all the tags
-        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
-        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
-        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
-        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
-        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
-
+        # line number boiler plate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
         if ll - fl > 5:
@@ -415,6 +405,13 @@ def annotate(book_url, first_line, last_line):
             fl = 1
         if ll < 1:
             ll = 1
+
+        # Process all the tags
+        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
+        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
+        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
+        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
+        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
