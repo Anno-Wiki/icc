@@ -58,7 +58,7 @@
 
         {%- include "_line2.html" -%}
 
-        {% if current_user.is_authenticated and current_user.is_authorized(config["AUTHORIZATION"]["LINE_EDIT"]) %}
+        {% if current_user.is_authenticated and current_user.has_right("edit_lines") %}
         <span class="body_annotation">
             <a href="{{ url_for("edit_line", line_id=line.id, next=request.path)
                 }}">edit</a>

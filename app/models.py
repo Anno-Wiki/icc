@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from sqlalchemy import or_, func
-from flask import url_for
+from flask import url_for, abort
 
 ####################
 ## User Functions ##
@@ -44,9 +44,6 @@ class User(UserMixin, db.Model):
     rights = db.relationship("AdminRight", secondary=conferred_right,
             backref="admins")
 
-    def in_rights(self, right):
-        r = AdminRight.query.filter_by(right=right).first()
-        return r
 
     def __repr__(self):
         return "<User {}>".format(self.username)
@@ -111,9 +108,18 @@ class User(UserMixin, db.Model):
             return 1
         return round(self.up_power() / 2)
 
-    def authorize(self, min_rep):
+    def authorize_rep(self, min_rep):
         if self.reputation < min_rep:
             abort(403)
+
+    def authorize_rights(self, right):
+        r = AdminRight.query.filter_by(right=right).first()
+        if not r:
+            abort(403)
+
+    def has_right(self, right):
+        r = AdminRight.query.filter_by(right=right).first()
+        return r
 
     def is_authorized(self, min_rep):
         if self.reputation >= min_rep:
@@ -454,7 +460,7 @@ class AnnotationVersion(db.Model):
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \
-                f"{self.tag_4},{self.tag_5}" 
+                f"{self.tag_4},{self.tag_5}"
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):
@@ -462,14 +468,14 @@ class AnnotationVersion(db.Model):
 
     def get_lines(self):
         lines = Line.query.filter(Line.book_id==self.book_id,
-                Line.l_num >= self.first_line_num, 
+                Line.l_num >= self.first_line_num,
                 Line.l_num <= self.last_line_num).all()
         return lines
 
     def get_hl(self):
         lines = self.get_lines()
 
-        if self.first_line_num == self.last_line_num: 
+        if self.first_line_num == self.last_line_num:
             lines[0].line = lines[0].line[self.first_char_idx:self.last_char_idx]
         else:
             lines[0].line = lines[0].line[self.first_char_idx:]

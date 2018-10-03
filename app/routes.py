@@ -297,8 +297,7 @@ def edit(anno_id):
         tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
         tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
 
-        approved = True if current_user.in_rights("immediate_edits") else False
-        print(approved)
+        approved = True if current_user.has_right("immediate_edits") else False
 
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
@@ -502,7 +501,7 @@ def downvote(anno_id):
 @app.route("/admin/tags/create", methods=["GET","POST"])
 @login_required
 def create_tag():
-    current_user.authorize(app.config["AUTHORIZATION"]["TAG_CREATION"])
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_CREATION"])
     form = TagForm()
     if form.cancel.data:
         return redirect(url_for("index"))
@@ -520,7 +519,7 @@ def create_tag():
 @app.route("/admin/queue/edits/")
 @login_required
 def edit_review_queue():
-    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edits = AnnotationVersion.query.filter_by(approved=False,
             rejected=False).all()
     votes = current_user.edit_votes
@@ -531,7 +530,7 @@ def edit_review_queue():
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
-    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.hash_id}")
@@ -549,7 +548,7 @@ def approve(edit_hash):
 
 @app.route("/admin/reject/edit/<edit_hash>/")
 def reject(edit_hash):
-    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.hash_id}")
@@ -566,7 +565,7 @@ def reject(edit_hash):
 
 @app.route("/admin/rescind_vote/edit/<edit_hash>/")
 def rescind(edit_hash):
-    current_user.authorize(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")
@@ -585,7 +584,7 @@ def rescind(edit_hash):
 
 @app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
 def edit_line(line_id):
-    current_user.authorize(app.config["AUTHORIZATION"]["LINE_EDIT"])
+    current_user.authorize_rights("edit_lines")
     line = Line.query.filter_by(id=line_id).first_or_404()
     form = LineForm()
     form.line.data = line.line
