@@ -1,36 +1,38 @@
 
-ID Age   P Project Tags         Description                                 Urg
--- ----- - ------- ------------ ------------------------------------------- ----
-14 11d   H web     feature      annotation deletion                         7.86
-15 11d   H web     feature      book requests                               7.86
-20 5d    H web     feature      elasticsearch index on tag insertion        7.83
-21 4d    H web     feature      Tag request                                 7.82
-22 4d    H web     feature      Consider deprecating tag creator            7.82
-23 4d    H web     feature      flagging of users and annotations           7.82
-26 2d    H web     bug          Figure out how to get previous Part and     7.81
-                                Book lines for each page
-27 2d    H web     bug          debug selection display issues on           7.81
-                                annotate.html
-28 38min H web     feature      paginate authors index                       7.8
-29 37min H web     feature      paginate books index                         7.8
-16 10d   H web                  Identify chapter/part/book in header and    7.05
-                                footer of read section view
- 8 4w    M web     feature      user about mes                              5.87
-18 10d   M web     feature      Help feature for markdown formatting        5.75
-19 10d   M web     feature      About page                                  5.75
-24 2d    M web     feature      edit summary view                           5.71
-25 2d    M web     feature      General help indicators                     5.71
-30 36min M web     feature      edit author bio view                         5.7
-31 6s    M web     feature      Figure out a way to bulk edit annotations    5.7
-17 10d   M web                  better previous and next page buttons       4.95
- 3 7w    L web     JS feature   write javascript for pe char-level          3.98
-                                annotation
- 5 6w    L web     AJAX feature Write javascript for popup annotations on   3.95
-                                read view.
- 4 6w    L web     bug          find a way to index the annotations on a    3.85
-                                given page starting at 1; using the actual
-                                id of the annotation will become obnoxious
-                                when we have annotation [a100000000002354]
- 6 6w    L web     test         Test more formats!                          3.85
+ID Age  P Project Tags         Description                                  Urg
+-- ---- - ------- ------------ -------------------------------------------- ----
+14 12d  H web     feature      annotation deletion                          7.87
+15 12d  H web     feature      book requests                                7.87
+20 6d   H web     feature      elasticsearch index on tag insertion         7.83
+21 5d   H web     feature      Tag request                                  7.83
+22 5d   H web     feature      flagging of users and annotations            7.83
+25 3d   H web     bug          Figure out how to get previous Part and Book 7.82
+                               lines for each page
+26 3d   H web     bug          debug selection display issues on            7.82
+                               annotate.html
+28 23h  H web     bug          Need a way to paginate annotations on tag.    7.8
+                               This could be a problem.
+29 7h   H web     feature      define bcrypt and salt for hashing function   7.8
+30 4h   H web     feature      User deletion                                 7.8
+16 11d  H web                  Identify chapter/part/book in header and     7.06
+                               footer of read section view
+ 8 4w   M web     feature      user about mes                               5.88
+18 11d  M web     feature      Help feature for markdown formatting         5.76
+19 11d  M web     feature      About page                                   5.76
+23 3d   M web     feature      edit summary view                            5.72
+24 3d   M web     feature      General help indicators                      5.72
+27 1d   M web     feature      edit author bio view                         5.71
+31 1min M web     feature      Modify chapter hierarchies to be more         5.7
+                               general, e.g. level 1, level 2, level 3
+17 11d  M web                  better previous and next page buttons        4.96
+ 3 7w   L web     JS feature   write javascript for pe char-level           3.99
+                               annotation
+ 5 6w   L web     AJAX feature Write javascript for popup annotations on    3.95
+                               read view.
+ 4 6w   L web     bug          find a way to index the annotations on a     3.85
+                               given page starting at 1; using the actual
+                               id of the annotation will become obnoxious
+                               when we have annotation [a100000000002354]
+ 6 6w   L web     test         Test more formats!                           3.85
 
 23 tasks
