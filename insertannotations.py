@@ -7,8 +7,8 @@ book_id = None
 user = User.query.filter_by(username="Community").first()
 if user == None:
     user = User(username="Community", email="community@annopedia.org",
-            password_hash="***", reputation=0, cumulative_negative=0,
-            cumulative_positive=0)
+            password_hash="***", locked=True,
+            reputation=0, cumulative_negative=0, cumulative_positive=0)
     db.session.add(user)
     db.session.commit()
 author_tag = None
