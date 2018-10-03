@@ -309,6 +309,9 @@ def edit(anno_id):
 
         approved = True if current_user.has_right("immediate_edits") else False
 
+        if current_user.has_right("lock_annotations"):
+            annotation.locked = form.locked.data
+
         edit = AnnotationVersion(book_id=annotation.HEAD.book.id,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
@@ -354,6 +357,7 @@ def edit(anno_id):
         form.tag_3.data = tag3
         form.tag_4.data = tag4
         form.tag_5.data = tag5
+        form.locked.data = annotation.locked
 
     return render_template("annotate.html", title=annotation.HEAD.book.title,
             form=form, book=annotation.HEAD.book, lines=lines,

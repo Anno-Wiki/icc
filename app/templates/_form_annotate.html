@@ -20,6 +20,12 @@
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </th>
+            <th>
+                {% if current_user.has_right("lock_annotations") %}
+                    {{ form.locked.label }}
+                    {{ form.locked }}
+                {% endif %}
+            </th>
         </tr>
         <tr>
             <td colspan=5>

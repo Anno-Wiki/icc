@@ -63,6 +63,8 @@ class AnnotationForm(FlaskForm):
     tag_5 = StringField("Tag 5", render_kw={"placeholder":"Tag 5"},
             validators=[Optional()])
 
+    locked = BooleanField("Locked")
+
     submit = SubmitField("Annotate")
     cancel = SubmitField("Cancel")
 
