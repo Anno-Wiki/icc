@@ -11,9 +11,18 @@ from flask import url_for
 ## User Functions ##
 ####################
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+conferred_right = db.Table(
+        "conferred_rights",
+        db.Column("right_id", db.Integer, db.ForeignKey("admin_right.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+class AdminRight(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    right = db.Column(db.String(128), index=True)
+
+    def __repr__(self):
+        return f"<Admin Right {right}"
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,6 +32,7 @@ class User(UserMixin, db.Model):
     reputation = db.Column(db.Integer, default=0)
     cumulative_negative = db.Column(db.Integer, default=0)
     cumulative_positive = db.Column(db.Integer, default=0)
+    locked = db.Column(db.Boolean, default=False)
     votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==vote.c.user_id",
             secondaryjoin="Annotation.id==vote.c.annotation_id",
@@ -31,6 +41,8 @@ class User(UserMixin, db.Model):
             primaryjoin="User.id==edit_vote.c.user_id",
             secondaryjoin="AnnotationVersion.id==edit_vote.c.edit_id",
             backref="edit_voters")
+    rights = db.relationship("AdminRight", secondary=conferred_right,
+            backref="admins")
 
 
     def __repr__(self):
@@ -71,7 +83,7 @@ class User(UserMixin, db.Model):
     def get_vote(self, annotation):
         return Vote.query.filter(Vote.annotation==annotation,
                 Vote.user==self).first()
-    
+
     def get_vote_dict(self):
         v = {}
         for vote in self.ballots:
@@ -105,6 +117,15 @@ class User(UserMixin, db.Model):
             return True
         else:
             return False
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+
+###########
+## Votes ##
+###########
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -320,89 +341,6 @@ class Line(db.Model):
                 pt=self.pt_num, ch=self.ch_num)
 
 
-class AnnotationVersion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    editor = db.relationship("User")
-
-    weight = db.Column(db.Integer, default=0)
-    approved = db.Column(db.Boolean, default=False, index=True)
-    rejected = db.Column(db.Boolean, default=False, index=True)
-
-    pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index=True)
-    pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
-
-    hash_id = db.Column(db.String(40), index=True)
-
-    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    book = db.relationship("Book")
-
-    previous_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
-            default=None)
-    previous = db.relationship("AnnotationVersion")
-
-    first_line_num = db.Column(db.Integer)
-    last_line_num = db.Column(db.Integer, index=True)
-    first_char_idx = db.Column(db.Integer)
-    last_char_idx = db.Column(db.Integer)
-
-    annotation = db.Column(db.Text)
-
-    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_3_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_4_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_5_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-
-    tag_1 = db.relationship("Tag", foreign_keys=[tag_1_id])
-    tag_2 = db.relationship("Tag", foreign_keys=[tag_2_id])
-    tag_3 = db.relationship("Tag", foreign_keys=[tag_3_id])
-    tag_4 = db.relationship("Tag", foreign_keys=[tag_4_id])
-    tag_5 = db.relationship("Tag", foreign_keys=[tag_5_id])
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        s = f"{self.editor_id},{self.book_id}," \
-                f"{self.first_line_num},{self.last_line_num}," \
-                f"{self.first_char_idx},{self.last_char_idx}," \
-                f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \
-                f"{self.tag_4},{self.tag_5}" 
-        self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
-
-    def __repr__(self):
-        return f"<Ann {self.id} on book {self.book.title}>"
-
-    def get_lines(self):
-        lines = Line.query.filter(Line.book_id==self.book_id,
-                Line.l_num >= self.first_line_num, 
-                Line.l_num <= self.last_line_num).all()
-        return lines
-
-    def get_hl(self):
-        lines = self.get_lines()
-
-        if self.first_line_num == self.last_line_num: 
-            lines[0].line = lines[0].line[self.first_char_idx:self.last_char_idx]
-        else:
-            lines[0].line = lines[0].line[self.first_char_idx:]
-            lines[-1].line = lines[-1].line[:self.last_char_idx]
-
-        return lines
-
-    def approve(self, voter):
-        self.weight += 1
-        vote = EditVote(user=voter, edit=self, delta=1)
-        db.session.add(vote)
-    
-    def reject(self, voter):
-        self.weight -= 1
-        vote = EditVote(user=voter, edit=self, delta=-1)
-        db.session.add(vote)
-
-
 
 class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -458,3 +396,90 @@ class Annotation(db.Model):
         if self.HEAD.tag_5:
             tags.append(self.HEAD.tag_5)
         return tags
+
+###########
+## Edits ##
+###########
+
+class AnnotationVersion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    editor = db.relationship("User")
+
+    weight = db.Column(db.Integer, default=0)
+    approved = db.Column(db.Boolean, default=False, index=True)
+    rejected = db.Column(db.Boolean, default=False, index=True)
+
+    pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index=True)
+    pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
+
+    hash_id = db.Column(db.String(40), index=True)
+
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
+    book = db.relationship("Book")
+
+    previous_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
+            default=None)
+    previous = db.relationship("AnnotationVersion")
+
+    first_line_num = db.Column(db.Integer)
+    last_line_num = db.Column(db.Integer, index=True)
+    first_char_idx = db.Column(db.Integer)
+    last_char_idx = db.Column(db.Integer)
+
+    annotation = db.Column(db.Text)
+
+    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    tag_3_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    tag_4_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    tag_5_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+
+    tag_1 = db.relationship("Tag", foreign_keys=[tag_1_id])
+    tag_2 = db.relationship("Tag", foreign_keys=[tag_2_id])
+    tag_3 = db.relationship("Tag", foreign_keys=[tag_3_id])
+    tag_4 = db.relationship("Tag", foreign_keys=[tag_4_id])
+    tag_5 = db.relationship("Tag", foreign_keys=[tag_5_id])
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        s = f"{self.editor_id},{self.book_id}," \
+                f"{self.first_line_num},{self.last_line_num}," \
+                f"{self.first_char_idx},{self.last_char_idx}," \
+                f"{self.annotation},{self.tag_1},{self.tag_2},{self.tag_3}," \
+                f"{self.tag_4},{self.tag_5}" 
+        self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
+
+    def __repr__(self):
+        return f"<Ann {self.id} on book {self.book.title}>"
+
+    def get_lines(self):
+        lines = Line.query.filter(Line.book_id==self.book_id,
+                Line.l_num >= self.first_line_num, 
+                Line.l_num <= self.last_line_num).all()
+        return lines
+
+    def get_hl(self):
+        lines = self.get_lines()
+
+        if self.first_line_num == self.last_line_num: 
+            lines[0].line = lines[0].line[self.first_char_idx:self.last_char_idx]
+        else:
+            lines[0].line = lines[0].line[self.first_char_idx:]
+            lines[-1].line = lines[-1].line[:self.last_char_idx]
+
+        return lines
+
+    def approve(self, voter):
+        self.weight += 1
+        vote = EditVote(user=voter, edit=self, delta=1)
+        db.session.add(vote)
+
+    def reject(self, voter):
+        self.weight -= 1
+        vote = EditVote(user=voter, edit=self, delta=-1)
+        db.session.add(vote)
