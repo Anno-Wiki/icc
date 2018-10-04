@@ -273,7 +273,7 @@ def read(book_url, bk, pt, ch, tag):
     # get all the annotations
     if tag:
         tag = Tag.query.filter_by(tag=tag).first_or_404()
-        annotations = tag.get_annotations_by_book(book)
+        annotations = tag.annotations.filter(Annotation.book_id==book.id).all()
         tags = None
     else:
         annotations = book.annotations

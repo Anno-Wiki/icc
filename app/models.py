@@ -229,6 +229,13 @@ class Tag(db.Model):
     tag = db.Column(db.String(128), index=True, unique=True)
     admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
+    annotations = db.relationship("Annotation", secondary="annotation_version",
+            secondaryjoin="Annotation.head_id==annotation_version.c.id",
+            primaryjoin="or_(Tag.id==annotation_version.c.tag_1_id,"
+            "Tag.id==annotation_version.c.tag_2_id,"
+            "Tag.id==annotation_version.c.tag_3_id,"
+            "Tag.id==annotation_version.c.tag_4_id,"
+            "Tag.id==annotation_version.c.tag_5_id)", lazy="dynamic")
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
@@ -371,6 +378,14 @@ class Annotation(db.Model):
 
     locked = db.Column(db.Boolean, index=True, default=False)
 
+    tags = db.relationship("Tag", secondary="annotation_version",
+            primaryjoin="Annotation.head_id==annotation_version.c.id",
+            secondaryjoin="or_(Tag.id==annotation_version.c.tag_1_id,"
+            "Tag.id==annotation_version.c.tag_2_id,"
+            "Tag.id==annotation_version.c.tag_3_id,"
+            "Tag.id==annotation_version.c.tag_4_id,"
+            "Tag.id==annotation_version.c.tag_5_id)", lazy="dynamic")
+
     def upvote(self, voter):
         weight = voter.up_power()
         self.weight += weight
@@ -455,6 +470,11 @@ class AnnotationVersion(db.Model):
     tag_4 = db.relationship("Tag", foreign_keys=[tag_4_id])
     tag_5 = db.relationship("Tag", foreign_keys=[tag_5_id])
 
+    tags = db.relationship("Tag",
+        primaryjoin="or_(AnnotationVersion.tag_1_id==Tag.id,"
+        "AnnotationVersion.tag_2_id==Tag.id, AnnotationVersion.tag_3_id==Tag.id,"
+        "AnnotationVersion.tag_4_id==Tag.id, AnnotationVersion.tag_5_id==Tag.id)", 
+        uselist=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
