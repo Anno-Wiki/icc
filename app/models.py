@@ -313,8 +313,8 @@ class Line(db.Model):
         bk = self.bk_num if self.bk_num > 0 else None
         pt = self.pt_num if self.pt_num > 0 else None
         ch = self.ch_num if self.ch_num > 0 else None
-        return url_for("read", book_url=self.book.url, bk=bk,
-                pt=pt, ch=ch)
+        return url_for("read", book_url=self.book.url, book=bk,
+                part=pt, chapter=ch)
 
 
 #################
