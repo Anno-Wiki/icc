@@ -6,7 +6,7 @@
 {% for tag in tags %}
 <div class="card">
     <a href="{{ url_for("tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>
-    &times; {{ tag.get_count() }}
+    &times; {{ tag.annotations.count() }}
     <br>
     {% if len(tag.description) > 127 %}
     <div class="card_text_cutoff">

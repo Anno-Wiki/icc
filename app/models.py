@@ -35,16 +35,17 @@ class User(UserMixin, db.Model):
     locked = db.Column(db.Boolean, default=False)
 
     annotations = db.relationship("Annotation",
-        primaryjoin="user.c.id==annotation.c.author_id", lazy="dynamic")
+        primaryjoin="and_(User.id==Annotation.author_id,"
+        "Annotation.active==True)", lazy="dynamic")
     ballots = db.relationship("Vote", primaryjoin="User.id==Vote.user_id",
             lazy="dynamic")
     votes = db.relationship("Annotation", secondary="vote",
-            primaryjoin="User.id==vote.c.user_id",
-            secondaryjoin="Annotation.id==vote.c.annotation_id",
+            primaryjoin="User.id==Vote.user_id",
+            secondaryjoin="Annotation.id==Vote.annotation_id",
             backref="voters", lazy="dynamic")
     edit_votes = db.relationship("AnnotationVersion", secondary="edit_vote",
-            primaryjoin="User.id==edit_vote.c.user_id",
-            secondaryjoin="AnnotationVersion.id==edit_vote.c.edit_id",
+            primaryjoin="User.id==EditVote.user_id",
+            secondaryjoin="AnnotationVersion.id==EditVote.edit_id",
             backref="edit_voters", lazy="dynamic")
     rights = db.relationship("AdminRight", secondary=conferred_right,
             backref="admins")
@@ -185,8 +186,9 @@ class Author(db.Model):
 
     books = db.relationship("Book", primaryjoin="Book.author_id==Author.id")
     annotations = db.relationship("Annotation", secondary="book",
-            primaryjoin="book.c.author_id==author.c.id",
-            secondaryjoin="annotation.c.book_id==book.c.id", lazy="dynamic")
+            primaryjoin="Book.author_id==Author.id",
+            secondaryjoin="and_(Annotation.book_id==Book.id,"
+            "Annotation.active==True)", lazy="dynamic")
 
     def __repr__(self):
         return f"<Author: {self.name}>"
@@ -205,7 +207,8 @@ class Book(db.Model):
     lines = db.relationship("Line", primaryjoin="Line.book_id==Book.id",
         lazy="dynamic")
     annotations = db.relationship("Annotation",
-        primaryjoin="Book.id==Annotation.book_id", lazy="dynamic")
+        primaryjoin="and_(Book.id==Annotation.book_id, Annotation.active==True)",
+        lazy="dynamic")
 
     def __repr__(self):
         return f"<Book {self.id}: {self.title} by {self.author}>"
@@ -224,12 +227,13 @@ class Tag(db.Model):
     description = db.Column(db.Text)
 
     annotations = db.relationship("Annotation", secondary="annotation_version",
-            secondaryjoin="Annotation.head_id==annotation_version.c.id",
-            primaryjoin="or_(Tag.id==annotation_version.c.tag_1_id,"
-            "Tag.id==annotation_version.c.tag_2_id,"
-            "Tag.id==annotation_version.c.tag_3_id,"
-            "Tag.id==annotation_version.c.tag_4_id,"
-            "Tag.id==annotation_version.c.tag_5_id)", lazy="dynamic")
+            secondaryjoin="and_(Annotation.head_id==AnnotationVersion.id,"
+            "Annotation.active==True)",
+            primaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
+            "Tag.id==AnnotationVersion.tag_2_id,"
+            "Tag.id==AnnotationVersion.tag_3_id,"
+            "Tag.id==AnnotationVersion.tag_4_id,"
+            "Tag.id==AnnotationVersion.tag_5_id)", lazy="dynamic")
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
@@ -323,22 +327,23 @@ class Annotation(db.Model):
     added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     edit_pending = db.Column(db.Boolean, index=True, default=False)
     locked = db.Column(db.Boolean, index=True, default=False)
+    active = db.Column(db.Boolean, default=True)
 
     author = db.relationship("User")
     book = db.relationship("Book")
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
     tags = db.relationship("Tag", secondary="annotation_version",
-            primaryjoin="Annotation.head_id==annotation_version.c.id",
-            secondaryjoin="or_(Tag.id==annotation_version.c.tag_1_id,"
-            "Tag.id==annotation_version.c.tag_2_id,"
-            "Tag.id==annotation_version.c.tag_3_id,"
-            "Tag.id==annotation_version.c.tag_4_id,"
-            "Tag.id==annotation_version.c.tag_5_id)")
+            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+            secondaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
+            "Tag.id==AnnotationVersion.tag_2_id,"
+            "Tag.id==AnnotationVersion.tag_3_id,"
+            "Tag.id==AnnotationVersion.tag_4_id,"
+            "Tag.id==AnnotationVersion.tag_5_id)")
     lines = db.relationship("Line", secondary="annotation_version",
-        primaryjoin="annotation.c.head_id==annotation_version.c.id",
-        secondaryjoin="and_(line.c.l_num>=annotation_version.c.first_line_num,"
-            "line.c.l_num<=annotation_version.c.last_line_num,"
-            "line.c.book_id==annotation_version.c.book_id)", viewonly=True,
+        primaryjoin="Annotation.head_id==AnnotationVersion.id",
+        secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
+            "Line.l_num<=AnnotationVersion.last_line_num,"
+            "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
             uselist=True)
 
     def upvote(self, voter):
@@ -409,9 +414,9 @@ class AnnotationVersion(db.Model):
             "AnnotationVersion.tag_5_id==Tag.id)", 
             uselist=True)
     lines = db.relationship("Line",
-        primaryjoin="and_(line.c.l_num>=annotation_version.c.first_line_num,"
-            "line.c.l_num<=annotation_version.c.last_line_num,"
-            "line.c.book_id==annotation_version.c.book_id)",
+        primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
+            "Line.l_num<=AnnotationVersion.last_line_num,"
+            "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
 
     def __init__(self, *args, **kwargs):
