@@ -20,7 +20,7 @@ from app.funky import preplines, is_filled
 @app.route("/")
 @app.route("/index/")
 def index():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     annotations = Annotation.query.filter_by(active=True
             ).order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
@@ -87,7 +87,7 @@ def register():
 
 @app.route("/user/<user_id>/")
 def user(user_id):
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     user = User.query.get_or_404(user_id)
     annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
@@ -110,7 +110,7 @@ def user(user_id):
 
 @app.route("/authors/")
 def author_index():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     authors = Author.query.order_by(Author.last_name
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
@@ -131,7 +131,7 @@ def author(name):
 
 @app.route("/books/")
 def book_index():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     books = Book.query.order_by(Book.sort_title
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
@@ -163,7 +163,7 @@ def book(book_url):
 
 @app.route("/tags/")
 def tag_index():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     tags = Tag.query.order_by(Tag.tag
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
@@ -177,7 +177,7 @@ def tag_index():
 
 @app.route("/tag/<tag>/")
 def tag(tag):
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     tag = Tag.query.filter_by(tag=tag).first_or_404()
     annotations = tag.annotations.order_by(Annotation.weight.desc()).paginate(page,
             app.config["ANNOTATIONS_PER_PAGE"], False)
@@ -205,17 +205,19 @@ def view_annotation(annotation_id):
             annotation=annotation, uservotes=uservotes)
 
 
-@app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/",
-        defaults={"tag": None}, methods=["GET", "POST"])
-@app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/<tag>/",
-        methods=["GET", "POST"])
-def read(book_url, bk, pt, ch, tag):
+@app.route("/read/<book_url>", methods=["GET", "POST"])
+def read(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
-    if int(ch) != 0:
+    tag = request.args.get("tag", None, type=str)
+    bk = request.args.get("bk", 0, type=int)
+    pt = request.args.get("pt", 0, type=int)
+    ch = request.args.get("ch", 0, type=int)
+
+    if ch != 0:
         lines = book.lines.filter(
                 Line.bk_num==bk, Line.pt_num==pt, Line.ch_num==ch
                 ).order_by(Line.l_num.asc()).all()
-    elif int(pt) != 0:
+    elif pt != 0:
         lines = book.lines.filter(Line.bk_num==bk, Line.pt_num==pt
                 ).order_by(Line.l_num.asc()).all()
     else:
@@ -686,7 +688,7 @@ def delete(anno_id):
 
 @app.route("/admin/view/deleted_annotations/")
 def view_deleted_annotations():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     current_user.authorize_rights("view_deleted_annotations")
     annotations = Annotation.query.filter_by(active=False
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
