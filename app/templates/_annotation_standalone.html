@@ -127,9 +127,17 @@
     {% else %}
     <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">down</a>
     {% endif -%}
-    {% if current_user.is_authenticated and (annotation.locked and current_user.has_right("edit_locked_annotations")) or not annotation.locked %}
+    {% if current_user.is_authenticated and (current_user.has_right("edit_locked_annotations") or not annotation.locked) %}
     |
     <a href="{{ url_for("edit", anno_id=annotation.id, next=request.full_path) }}">edit</a>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.has_right("delete_annotations") %}
+    |
+    {% if annotation.active %}
+    <a href="{{ url_for("delete", anno_id=annotation.id, next=request.full_path) }}">delete</a>
+    {% else %}
+    <a href="{{ url_for("delete", anno_id=annotation.id, next=request.full_path) }}">undelete</a>
+    {% endif %}
     {% endif %}
 
 </annotation>

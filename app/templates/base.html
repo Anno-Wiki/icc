@@ -37,7 +37,10 @@
             <a href="{{ url_for("login") }}">login</a>
         {%- else %}
             {% if current_user.has_right("create_tags") -%}
-            <a href="{{ url_for("create_tag") }}">create tag</a>,
+            <a href="{{ url_for("create_tag") }}">create tag</a>
+            {% endif %}
+            {% if current_user.has_right("view_deleted_annotations") -%}
+            <a href="{{ url_for("view_deleted_annotations") }}">view deleted annotations</a>
             {% endif %}
 
             {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}

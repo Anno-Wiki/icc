@@ -21,7 +21,8 @@ from app.funky import preplines, is_filled
 @app.route("/index/")
 def index():
     page = request.args.get('page', 1, type=int)
-    annotations = Annotation.query.order_by(Annotation.added.desc()
+    annotations = Annotation.query.filter_by(active=True
+            ).order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     next_url = url_for("index", page=annotations.next_num) \
             if annotations.has_next else None
@@ -666,3 +667,35 @@ def edit_line(line_id):
             flash("Line updated.")
             return redirect(next_page)
     return render_template("edit_line.html", title="Edit Line", form=form)
+
+@app.route("/admin/delete/annotation/<anno_id>/")
+def delete(anno_id):
+    current_user.authorize_rights("delete_annotations")
+    annotation = Annotation.query.get_or_404(anno_id)
+    annotation.active = not annotation.active
+    db.session.commit()
+    if annotation.active:
+        flash(f"Annotation {annotation.id} activated")
+    else:
+        flash(f"Annotation {annotation.id} inactivated.")
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("index")
+    return redirect(next_page)
+
+@app.route("/admin/view/deleted_annotations/")
+def view_deleted_annotations():
+    page = request.args.get('page', 1, type=int)
+    current_user.authorize_rights("view_deleted_annotations")
+    annotations = Annotation.query.filter_by(active=False
+            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    next_url = url_for("view_deleted_annotations", page=annotations.next_num) \
+            if annotations.has_next else None
+    prev_url = url_for("view_deleted_annotations", page=annotations.prev_num) \
+            if annotations.has_prev else None
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("index.html", title="Deleted Annotations",
+            annotations=annotations.items, prev_url=prev_url, next_url=next_url,
+            uservotes=uservotes)
