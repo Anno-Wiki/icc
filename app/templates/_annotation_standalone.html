@@ -6,7 +6,7 @@
         </a></sup>
 
         on
-        <em><a href="{{ annotation.HEAD.get_lines()[0].get_url() }}#{{ annotation.HEAD.first_line_num }}">
+        <em><a href="{{ annotation.HEAD.lines[0].get_url() }}#{{ annotation.HEAD.first_line_num }}">
         {%- if annotation.HEAD.first_line_num == annotation.HEAD.last_line_num %}
             l.{{ annotation.HEAD.last_line_num }}
         {% else -%}

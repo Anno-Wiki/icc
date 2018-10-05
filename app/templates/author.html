@@ -2,13 +2,13 @@
 
 {% block content %}
 <h1>{{ author.name }}</h1>
-<h2>&times; {{ author.book_count() }} Books</h2>
+<h2>&times; {{ len(author.books)}} Books</h2>
 <div class="index">
 {% for book in author.books %}
 <div class="card">
     <a href="{{ url_for("book", book_url=book.url) }}"><h2>{{ book.title }}</h2></a>
     <div class="count">
-    &times; {{ book.line_count() }} lines
+    &times; {{ book.lines.count() }} lines
     </div>
 
     {% if len(book.summary) >= 127 %}

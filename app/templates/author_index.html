@@ -6,7 +6,7 @@
 {% for author in authors %}
 <div class="card">
     <a href="{{ url_for("author", name=author.url) }}"><h2>{{ author.name }}</h2></a>
-    Books &times; {{ author.book_count() }}
+    Books &times; {{ len(author.books) }}
     <br>
 
     {% if len(author.bio) >= 127 %}

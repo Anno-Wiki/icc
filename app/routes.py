@@ -7,7 +7,7 @@ from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
-        AnnotationVersion, Tag, EditVote, AdminRight
+        AnnotationVersion, Tag, EditVote, AdminRight, Vote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm
 from app.funky import preplines, is_filled
@@ -42,19 +42,16 @@ def index():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("index"))
-
     form = LoginForm()
 
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-
         if user is None or not user.check_password(form.password.data):
             flash("Invalid username or password")
             return redirect(url_for("login"))
         elif user.locked:
             flash("That account is locked.")
             return redirect(url_for("login"))
-
         login_user(user, remember=form.remember_me.data)
 
         next_page = request.args.get("next")
@@ -76,9 +73,7 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("index"))
-
     form = RegistrationForm()
-
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
@@ -86,21 +81,21 @@ def register():
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
         return redirect(url_for("login"))
-
     return render_template("register.html", title="Register", form=form)
 
 
 @app.route("/user/<user_id>/")
 def user(user_id):
     page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(id=user_id).first_or_404()
-    annotations = Annotation.query.filter_by(author=user
-            ).order_by(Annotation.added.desc()
+    user = User.query.get_or_404(user_id)
+    annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+
     next_url = url_for("user", user_id=user.id, page=annotations.next_num) \
             if annotations.has_next else None
     prev_url = url_for("user", user_id=user.id, page=annotations.prev_num) \
             if annotations.has_prev else None
+
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("user.html", title=user.username, user=user,
@@ -158,7 +153,7 @@ def book(book_url):
     ch_kind = Kind.query.filter_by(kind="ch").first()
 
     # get all the heierarchical chapter lines
-    hierarchy = Line.query.filter(Line.book_id==book.id,
+    hierarchy = book.lines.filter(
             or_(Line.kind==bk_kind, Line.kind==pt_kind, Line.kind==ch_kind)
             ).order_by(Line.l_num.asc()).all()
 
@@ -179,6 +174,22 @@ def tag_index():
     return render_template("tag_index.html", title="Tags",
             tags=tags.items, next_url=next_url, prev_url=prev_url)
 
+@app.route("/tag/<tag>/")
+def tag(tag):
+    page = request.args.get('page', 1, type=int)
+    tag = Tag.query.filter_by(tag=tag).first_or_404()
+    annotations = tag.annotations.order_by(Annotation.weight.desc()).paginate(page,
+            app.config["ANNOTATIONS_PER_PAGE"], False)
+
+    next_url = url_for("tag", tag=tag.tag, page=annotations.next_num) \
+            if annotations.has_next else None
+    prev_url = url_for("tag", tag=tag.tag, page=annotations.prev_num) \
+            if annotations.has_prev else None
+
+    return render_template("tag.html", title=tag.tag, tag=tag,
+            annotations=annotations.items,
+            next_url=next_url, prev_url=prev_url)
+
 
 ####################
 ## Reading Routes ##
@@ -186,20 +197,12 @@ def tag_index():
 
 @app.route("/annotation/<annotation_id>")
 def view_annotation(annotation_id):
-    annotation = Annotation.query.filter_by(id=annotation_id).first_or_404()
-    lines = annotation.HEAD.get_lines() # we call it now to query it later
+    annotation = Annotation.query.get_or_404(annotation_id)
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("annotation.html", title=annotation.book.title,
-            annotation=annotation, uservotes=uservotes, lines=lines)
+            annotation=annotation, uservotes=uservotes)
 
-@app.route("/tags/<tag>/")
-def tag(tag):
-    tag = Tag.query.filter_by(tag=tag).first_or_404()
-
-    annotations = tag.get_annotations() 
-    return render_template("tag.html", title=tag.tag, tag=tag,
-            annotations=annotations)
 
 @app.route("/read/<book_url>/book/<bk>/part/<pt>/chapter/<ch>/",
         defaults={"tag": None}, methods=["GET", "POST"])
@@ -208,16 +211,14 @@ def tag(tag):
 def read(book_url, bk, pt, ch, tag):
     book = Book.query.filter_by(url=book_url).first_or_404()
     if int(ch) != 0:
-        lines = Line.query.filter(Line.book_id==book.id,
+        lines = book.lines.filter(
                 Line.bk_num==bk, Line.pt_num==pt, Line.ch_num==ch
                 ).order_by(Line.l_num.asc()).all()
     elif int(pt) != 0:
-        lines = Line.query.filter(Line.book_id==book.id,
-                Line.bk_num==bk, Line.pt_num==pt
+        lines = book.lines.filter(Line.bk_num==bk, Line.pt_num==pt
                 ).order_by(Line.l_num.asc()).all()
     else:
-        lines = Line.query.filter(Line.book_id==book.id,
-                Line.bk_num==bk,
+        lines = book.lines.filter(Line.bk_num==bk,
                 ).order_by(Line.l_num.asc()).all()
 
     if len(lines) <= 0:
@@ -279,7 +280,7 @@ def read(book_url, bk, pt, ch, tag):
         annotations = book.annotations
         tags = []
         for a in annotations:
-            for t in a.get_tags():
+            for t in a.tags:
                 if t not in tags:
                     tags.append(t)
 
@@ -297,6 +298,8 @@ def read(book_url, bk, pt, ch, tag):
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
+    # I have to query this so I only make a db call once instead of each time
+    # for every line to find out if the user has edit_rights
     edit_right = AdminRight.query.filter_by(right="edit_lines").first()
 
     return render_template("read.html", title=book.title, form=form, book=book,
@@ -312,7 +315,7 @@ def read(book_url, bk, pt, ch, tag):
 @app.route("/edit/<anno_id>", methods=["GET", "POST"])
 @login_required
 def edit(anno_id):
-    annotation = Annotation.query.filter_by(id=anno_id).first_or_404()
+    annotation = Annotation.query.get_or_404(anno_id)
 
     if annotation.locked == True and not \
             current_user.has_right("edit_locked_annotations"):
@@ -322,7 +325,7 @@ def edit(anno_id):
             next_page = lines[0].get_url()
         return redirect(next_page)
 
-    lines = annotation.HEAD.get_lines()
+    lines = annotation.lines
     form = AnnotationForm()
 
     if form.cancel.data:
@@ -356,7 +359,7 @@ def edit(anno_id):
             lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
-        edit = AnnotationVersion(book=annotation.HEAD.book,
+        edit = AnnotationVersion(book=annotation.book,
                 editor_id=current_user.id, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
                 approved=approved,
@@ -428,8 +431,8 @@ def annotate(book_url, first_line, last_line):
         last_line = 1
 
     book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = Line.query.filter(Line.book_id==book.id, Line.l_num>=first_line,
-            Line.l_num<=last_line).all()
+    lines = book.lines.filter(
+            Line.l_num>=first_line, Line.l_num<=last_line).all()
     form = AnnotationForm()
 
     if lines == None:
@@ -467,10 +470,9 @@ def annotate(book_url, first_line, last_line):
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
-        commit = AnnotationVersion(book=book, approved=True,
-                editor=current_user,
-                first_line_num=fl,
-                last_line_num=ll,
+        commit = AnnotationVersion(
+                book=book, approved=True, editor=current_user,
+                first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 annotation=form.annotation.data,
@@ -507,25 +509,25 @@ def annotate(book_url, first_line, last_line):
 @app.route("/upvote/<anno_id>/")
 @login_required
 def upvote(anno_id):
-    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+    annotation = Annotation.query.get_or_404(anno_id)
 
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
-        next_page = anno.HEAD.get_lines()[0].get_url()
+        next_page = annotation.lines[0].get_url()
 
-    if current_user.already_voted(anno):
-        vote = current_user.get_vote(anno)
+    if current_user.already_voted(annotation):
+        vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         if vote.is_up():
-            anno.rollback(vote)
+            annotation.rollback(vote)
             db.session.commit()
             return redirect(next_page)
         else:
-            anno.rollback(vote)
-    elif current_user == anno.author:
-        flash("You cannot vote on your own annotation.")
+            annotation.rollback(vote)
+    elif current_user == annotation.author:
+        flash("You cannot vote on your own annotations.")
         return redirect(next_page)
 
-    anno.upvote(current_user)
+    annotation.upvote(current_user)
     db.session.commit()
 
     return redirect(next_page)
@@ -533,25 +535,25 @@ def upvote(anno_id):
 @app.route("/downvote/<anno_id>/")
 @login_required
 def downvote(anno_id):
-    anno = Annotation.query.filter_by(id=anno_id).first_or_404()
+    annotation = Annotation.query.get_or_404(anno_id)
 
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
-        next_page = anno.HEAD.get_lines()[0].get_url()
+        next_page = annotation.lines[0].get_url()
 
-    if current_user.already_voted(anno):
-        vote = current_user.get_vote(anno)
+    if current_user.already_voted(annotation):
+        vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         if not vote.is_up():
-            anno.rollback(vote)
+            annotation.rollback(vote)
             db.session.commit()
             return redirect(next_page)
         else:
-            anno.rollback(vote)
-    elif current_user == anno.author:
+            annotation.rollback(vote)
+    elif current_user == annotation.author:
         flash("You cannot vote on your own annotation.")
         return redirect(next_page)
 
-    anno.downvote(current_user)
+    annotation.downvote(current_user)
     db.session.commit()
 
     return redirect(next_page)
@@ -647,7 +649,7 @@ def rescind(edit_hash):
 @app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
 def edit_line(line_id):
     current_user.authorize_rights("edit_lines")
-    line = Line.query.filter_by(id=line_id).first_or_404()
+    line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
 
