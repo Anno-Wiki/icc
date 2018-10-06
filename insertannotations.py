@@ -31,6 +31,8 @@ else:
 
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
+tags = [original_tag, author_tag]
+
 for line in fin:
     fields = line.split("@")
     l = Line.query.filter_by(line=fields[1][:-1]).first()
@@ -39,7 +41,7 @@ for line in fin:
             first_line_num=l.l_num, last_line_num=l.l_num,
             first_char_idx=0, last_char_idx=-1,
             annotation=fields[0],
-            tag_1=original_tag, tag_2=author_tag)
+            tags=tags)
 
     # Create the annotation pointer with HEAD pointing to anno
     head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)
