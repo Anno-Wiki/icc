@@ -33,6 +33,7 @@ fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
 tags = [original_tag, author_tag]
 
+cnt = 0
 for line in fin:
     fields = line.split("@")
     l = Line.query.filter_by(line=fields[1][:-1]).first()
@@ -40,16 +41,22 @@ for line in fin:
     commit = AnnotationVersion(book_id=book_id, approved=True, editor=user,
             first_line_num=l.l_num, last_line_num=l.l_num,
             first_char_idx=0, last_char_idx=-1,
-            annotation=fields[0],
-            tags=tags)
+            annotation=fields[0], tags=tags)
 
     # Create the annotation pointer with HEAD pointing to anno
     head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)
 
-    # add anno, commit it
+    # add commit and head, commit both
     db.session.add(commit)
+    db.session.add(head)
     db.session.commit()
 
-    # make anno's pointer point to the 
+    # point the commit to head (This prevents the circular reference)
     commit.pointer = head
     db.session.commit()
+
+    cnt += 1
+    if cnt % 25 == 0:
+        print(cnt)
+
+print(f"{cnt} annotations added.")
