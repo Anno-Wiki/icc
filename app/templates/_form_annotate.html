@@ -33,42 +33,9 @@
             </td>
         </tr>
         <tr>
-            <th colspan=1>
-                {{ form.tag_1(size=10) }}
-                <br>
-            </th><th colspan=1>
-                {{ form.tag_2(size=10) }}
-                <br>
-            </th><th colspan=1>
-                {{ form.tag_3(size=10) }}
-                <br>
-            </th><th colspan=1>
-                {{ form.tag_4(size=10) }}
-                <br>
-            </th><th colspan=1>
-                {{ form.tag_5(size=10) }}
-                <br>
-            </th>
-        </tr>
-        <tr>
             <th colspan=5>
-                {% for error in form.tag_1.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                <br>
-                {% endfor %}
-                {% for error in form.tag_2.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                <br>
-                {% endfor %}
-                {% for error in form.tag_3.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                <br>
-                {% endfor %}
-                {% for error in form.tag_4.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                <br>
-                {% endfor %}
-                {% for error in form.tag_5.errors %}
+                {{ form.tags(size=64) }}
+                {% for error in form.tags.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 <br>
                 {% endfor %}

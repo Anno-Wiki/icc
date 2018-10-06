@@ -82,70 +82,22 @@
 
     <tags>
     Old tags:
-        {% if annotation.pointer.HEAD.tag_1 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.pointer.HEAD.tag_1.tag) }}">
-        <tag>{{ annotation.pointer.HEAD.tag_1.tag }}</tag>
+        {% for t in annotation.pointer.HEAD.tags %}
+        <a href="{{ url_for("tag", tag=t.tag) }}">
+        <tag>{{ t.tag }}</tag>
         </a>
-        {%- endif -%}
-
-        {%- if annotation.pointer.HEAD.tag_2 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.pointer.HEAD.tag_2.tag) }}">
-        <tag>{{ annotation.pointer.HEAD.tag_2.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.pointer.HEAD.tag_3 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.pointer.HEAD.tag_3.tag) }}">
-        <tag>{{ annotation.pointer.HEAD.tag_3.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.pointer.HEAD.tag_4 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.pointer.HEAD.tag_4.tag) }}">
-        <tag>{{ annotation.pointer.HEAD.tag_4.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.pointer.HEAD.tag_5 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.pointer.HEAD.tag_5.tag) }}">
-        <tag>{{ annotation.pointer.HEAD.tag_5.tag }}</tag>
-        </a>
-        {%- endif %}
+        {% endfor %}
     </tags>
 
     <br>
 
     <tags>
     New Tags:
-        {% if annotation.tag_1 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.tag_1.tag) }}">
-        <tag>{{ annotation.tag_1.tag }}</tag>
+        {% for t in annotation.tags %}
+        <a href="{{ url_for("tag", tag=t.tag) }}">
+        <tag>{{ t.tag }}</tag>
         </a>
-        {%- endif -%}
-
-        {%- if annotation.tag_2 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.tag_2.tag) }}">
-        <tag>{{ annotation.tag_2.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.tag_3 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.tag_3.tag) }}">
-        <tag>{{ annotation.tag_3.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.tag_4 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.tag_4.tag) }}">
-        <tag>{{ annotation.tag_4.tag }}</tag>
-        </a>
-        {%- endif -%}
-
-        {%- if annotation.tag_5 != None -%}
-        <a href="{{ url_for("tag", tag=annotation.tag_5.tag) }}">
-        <tag>{{ annotation.tag_5.tag }}</tag>
-        </a>
-        {%- endif %}
+        {% endfor %}
     </tags>
 
     <br>

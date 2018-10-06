@@ -283,7 +283,7 @@ def read(book_url):
         annotations = book.annotations
         tags = []
         for a in annotations:
-            for t in a.tags:
+            for t in a.HEAD.tags:
                 if t not in tags:
                     tags.append(t)
 
@@ -349,11 +349,15 @@ def edit(anno_id):
             fl = 1
             ll = 1
 
-        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
-        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
-        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
-        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
-        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
+        # Process all the tags
+        raw_tags = form.tags.data.split()
+        tags = []
+        for t in raw_tags:
+            tags.append(Tag.query.filter_by(tag=t).first())
+
+        if len(tags) > 5:
+            flash("There is a five tag limit.")
+            return redirect(url_for("edit", anno_id=annotation.id))
 
         approved = current_user.has_right("immediate_edits")
 
@@ -369,8 +373,7 @@ def edit(anno_id):
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data,
-                tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
+                annotation=form.annotation.data, tags=tags)
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
@@ -396,21 +399,15 @@ def edit(anno_id):
         return redirect(next_page)
 
     elif not annotation.edit_pending:
+        tag_strings = []
+        for t in annotation.HEAD.tags:
+            tag_strings.append(t.tag)
         form.first_line.data = annotation.HEAD.first_line_num
         form.last_line.data = annotation.HEAD.last_line_num
         form.first_char_idx.data = annotation.HEAD.first_char_idx
         form.last_char_idx.data = annotation.HEAD.last_char_idx
         form.annotation.data = annotation.HEAD.annotation
-        tag1 = annotation.HEAD.tag_1.tag if annotation.HEAD.tag_1 else None
-        tag2 = annotation.HEAD.tag_2.tag if annotation.HEAD.tag_2 else None
-        tag3 = annotation.HEAD.tag_3.tag if annotation.HEAD.tag_3 else None
-        tag4 = annotation.HEAD.tag_4.tag if annotation.HEAD.tag_4 else None
-        tag5 = annotation.HEAD.tag_5.tag if annotation.HEAD.tag_5 else None
-        form.tag_1.data = tag1
-        form.tag_2.data = tag2
-        form.tag_3.data = tag3
-        form.tag_4.data = tag4
-        form.tag_5.data = tag5
+        form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
 
     return render_template("annotate.html", title=annotation.HEAD.book.title,
@@ -441,12 +438,6 @@ def annotate(book_url, first_line, last_line):
     if lines == None:
         abort(404)
 
-    tag1 = None
-    tag2 = None
-    tag3 = None
-    tag4 = None
-    tag5 = None
-
     if form.cancel.data:
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
@@ -465,11 +456,14 @@ def annotate(book_url, first_line, last_line):
             ll = 1
 
         # Process all the tags
-        tag1 = Tag.query.filter_by(tag=form.tag_1.data).first()
-        tag2 = Tag.query.filter_by(tag=form.tag_2.data).first()
-        tag3 = Tag.query.filter_by(tag=form.tag_3.data).first()
-        tag4 = Tag.query.filter_by(tag=form.tag_4.data).first()
-        tag5 = Tag.query.filter_by(tag=form.tag_5.data).first()
+        raw_tags = form.tags.data.split()
+        tags = []
+        for t in raw_tags:
+            tags.append(Tag.query.filter_by(tag=t).first())
+
+        if len(tags) > 5:
+            flash("There is a five tag limit.")
+            return redirect(url_for("edit", anno_id=annotation.id))
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
@@ -478,14 +472,14 @@ def annotate(book_url, first_line, last_line):
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data,
-                tag_1=tag1, tag_2=tag2, tag_3=tag3, tag_4=tag4, tag_5=tag5)
+                annotation=form.annotation.data, tags=tags)
 
         # Create the annotation pointer with HEAD pointing to anno
         head = Annotation(book=book, HEAD=commit, author=current_user)
 
         # add anno, commit it
         db.session.add(commit)
+        db.session.add(head)
         db.session.commit()
 
         # make anno's pointer point to the 

@@ -7,9 +7,17 @@ from app import app, db, login
 from sqlalchemy import or_, func
 from flask import url_for, abort
 
-####################
-## User Functions ##
-####################
+
+############
+## Tables ##
+############
+
+tags = db.Table(
+        "tags",
+        db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
+        db.Column("annotation_version_id", db.Integer,
+            db.ForeignKey("annotation_version.id"))
+        )
 
 conferred_right = db.Table(
         "conferred_rights",
@@ -17,12 +25,9 @@ conferred_right = db.Table(
         db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
         )
 
-class AdminRight(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    right = db.Column(db.String(128), index=True)
-
-    def __repr__(self):
-        return self.right
+####################
+## User Functions ##
+####################
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -169,9 +174,10 @@ class EditVote(db.Model):
     def is_up(self):
         return self.delta > 0
 
-###############
-## Meta Data ##
-###############
+
+##################
+## Content Data ##
+##################
 
 class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -213,6 +219,10 @@ class Book(db.Model):
     def __repr__(self):
         return f"<Book {self.id}: {self.title} by {self.author}>"
 
+###################
+## Site Metadata ##
+###################
+
 class Kind(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     kind = db.Column(db.String(12), index=True)
@@ -226,18 +236,22 @@ class Tag(db.Model):
     admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
 
-    annotations = db.relationship("Annotation", secondary="annotation_version",
-            secondaryjoin="and_(Annotation.head_id==AnnotationVersion.id,"
-            "Annotation.active==True)",
-            primaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
-            "Tag.id==AnnotationVersion.tag_2_id,"
-            "Tag.id==AnnotationVersion.tag_3_id,"
-            "Tag.id==AnnotationVersion.tag_4_id,"
-            "Tag.id==AnnotationVersion.tag_5_id)", lazy="dynamic")
+    annotations = db.relationship("Annotation",
+            secondary="join(AnnotationVersion, tags,"
+                "AnnotationVersion.id==tags.c.annotation_version_id)",
+            primaryjoin="Tag.id==tags.c.tag_id",
+            secondaryjoin="Annotation.head_id==AnnotationVersion.id",
+            lazy="dynamic")
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
 
+class AdminRight(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    right = db.Column(db.String(128), index=True)
+
+    def __repr__(self):
+        return self.right
 
 ####################
 ## Content Models ##
@@ -335,13 +349,13 @@ class Annotation(db.Model):
     author = db.relationship("User")
     book = db.relationship("Book")
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
-    tags = db.relationship("Tag", secondary="annotation_version",
-            primaryjoin="Annotation.head_id==AnnotationVersion.id",
-            secondaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
-            "Tag.id==AnnotationVersion.tag_2_id,"
-            "Tag.id==AnnotationVersion.tag_3_id,"
-            "Tag.id==AnnotationVersion.tag_4_id,"
-            "Tag.id==AnnotationVersion.tag_5_id)")
+#    tags = db.relationship("Tag", secondary="annotation_version",
+#            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+#            secondaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
+#            "Tag.id==AnnotationVersion.tag_2_id,"
+#            "Tag.id==AnnotationVersion.tag_3_id,"
+#            "Tag.id==AnnotationVersion.tag_4_id,"
+#            "Tag.id==AnnotationVersion.tag_5_id)")
     lines = db.relationship("Line", secondary="annotation_version",
         primaryjoin="Annotation.head_id==AnnotationVersion.id",
         secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
@@ -372,11 +386,6 @@ class Annotation(db.Model):
             self.author.rollback_downvote()
         db.session.delete(vote)
 
-
-###########
-## Edits ##
-###########
-
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
@@ -394,28 +403,14 @@ class AnnotationVersion(db.Model):
     last_char_idx = db.Column(db.Integer)
     annotation = db.Column(db.Text)
     modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    tag_1_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_2_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_3_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_4_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
-    tag_5_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
 
     editor = db.relationship("User")
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
     book = db.relationship("Book")
     previous = db.relationship("AnnotationVersion", remote_side=[id])
-    tag_1 = db.relationship("Tag", foreign_keys=[tag_1_id])
-    tag_2 = db.relationship("Tag", foreign_keys=[tag_2_id])
-    tag_3 = db.relationship("Tag", foreign_keys=[tag_3_id])
-    tag_4 = db.relationship("Tag", foreign_keys=[tag_4_id])
-    tag_5 = db.relationship("Tag", foreign_keys=[tag_5_id])
-    tags = db.relationship("Tag",
-            primaryjoin="or_(AnnotationVersion.tag_1_id==Tag.id,"
-            "AnnotationVersion.tag_2_id==Tag.id,"
-            "AnnotationVersion.tag_3_id==Tag.id,"
-            "AnnotationVersion.tag_4_id==Tag.id,"
-            "AnnotationVersion.tag_5_id==Tag.id)", 
-            uselist=True)
+
+    tags = db.relationship("Tag", secondary=tags)
+
     lines = db.relationship("Line",
         primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
             "Line.l_num<=AnnotationVersion.last_line_num,"
@@ -424,11 +419,10 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        tags = [self.tag_1, self.tag_2, self.tag_3, self.tag_4, self.tag_5]
         s = f"{self.book}," \
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
-                f"{self.annotation},{tags}"
+                f"{self.annotation},{self.tags}"
         print(s)
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
