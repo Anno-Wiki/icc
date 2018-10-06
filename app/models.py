@@ -423,7 +423,6 @@ class AnnotationVersion(db.Model):
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tags}"
-        print(s)
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):
