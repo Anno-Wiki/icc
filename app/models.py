@@ -236,13 +236,6 @@ class Tag(db.Model):
     admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
 
-    annotations = db.relationship("Annotation",
-            secondary="join(AnnotationVersion, tags,"
-                "AnnotationVersion.id==tags.c.annotation_version_id)",
-            primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="Annotation.head_id==AnnotationVersion.id",
-            lazy="dynamic")
-
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
 
@@ -339,7 +332,6 @@ class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
     weight = db.Column(db.Integer, default=0)
     added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     edit_pending = db.Column(db.Boolean, index=True, default=False)
@@ -348,20 +340,11 @@ class Annotation(db.Model):
 
     author = db.relationship("User")
     book = db.relationship("Book")
-    HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
-#    tags = db.relationship("Tag", secondary="annotation_version",
-#            primaryjoin="Annotation.head_id==AnnotationVersion.id",
-#            secondaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
-#            "Tag.id==AnnotationVersion.tag_2_id,"
-#            "Tag.id==AnnotationVersion.tag_3_id,"
-#            "Tag.id==AnnotationVersion.tag_4_id,"
-#            "Tag.id==AnnotationVersion.tag_5_id)")
-    lines = db.relationship("Line", secondary="annotation_version",
-        primaryjoin="Annotation.head_id==AnnotationVersion.id",
-        secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
-            "Line.l_num<=AnnotationVersion.last_line_num,"
-            "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
-            uselist=True)
+
+    annotations = db.relationship("Tag", secondary="annotation_version",
+            primaryjoin="AnnotationVersion.pointer_id==Annotation.id",
+            secondaryjoin="and_(annotation_version.c.id==tags.c.annotation_version_id,"
+            "Tag.id==tags.c.tag_id)")
 
     def upvote(self, voter):
         weight = voter.up_power()
@@ -403,6 +386,7 @@ class AnnotationVersion(db.Model):
     last_char_idx = db.Column(db.Integer)
     annotation = db.Column(db.Text)
     modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    active = db.Column(db.Boolean, index=True, default=False)
 
     editor = db.relationship("User")
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
@@ -423,7 +407,6 @@ class AnnotationVersion(db.Model):
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tags}"
-        print(s)
         self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):

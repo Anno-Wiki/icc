@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4b5eb11760ea
+Revision ID: 90bf367c4abd
 Revises: 
-Create Date: 2018-10-05 16:42:23.715614
+Create Date: 2018-10-06 16:25:13.619891
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4b5eb11760ea'
+revision = '90bf367c4abd'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -92,6 +92,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['right_id'], ['admin_right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
+    op.create_table('annotation',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('author_id', sa.Integer(), nullable=True),
+    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('added', sa.DateTime(), nullable=True),
+    sa.Column('edit_pending', sa.Boolean(), nullable=True),
+    sa.Column('locked', sa.Boolean(), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['author_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_annotation_added'), 'annotation', ['added'], unique=False)
+    op.create_index(op.f('ix_annotation_author_id'), 'annotation', ['author_id'], unique=False)
+    op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
+    op.create_index(op.f('ix_annotation_edit_pending'), 'annotation', ['edit_pending'], unique=False)
+    op.create_index(op.f('ix_annotation_locked'), 'annotation', ['locked'], unique=False)
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=True),
@@ -120,6 +138,7 @@ def upgrade():
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('pointer_id', sa.Integer(), nullable=True),
     sa.Column('hash_id', sa.String(length=40), nullable=True),
     sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('previous_id', sa.Integer(), nullable=True),
@@ -129,40 +148,35 @@ def upgrade():
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
     sa.Column('annotation', sa.Text(), nullable=True),
     sa.Column('modified', sa.DateTime(), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.l_num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.l_num'], ),
+    sa.ForeignKeyConstraint(['pointer_id'], ['annotation.id'], ),
     sa.ForeignKeyConstraint(['previous_id'], ['annotation_version.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_annotation_version_active'), 'annotation_version', ['active'], unique=False)
     op.create_index(op.f('ix_annotation_version_approved'), 'annotation_version', ['approved'], unique=False)
     op.create_index(op.f('ix_annotation_version_book_id'), 'annotation_version', ['book_id'], unique=False)
     op.create_index(op.f('ix_annotation_version_editor_id'), 'annotation_version', ['editor_id'], unique=False)
     op.create_index(op.f('ix_annotation_version_hash_id'), 'annotation_version', ['hash_id'], unique=False)
     op.create_index(op.f('ix_annotation_version_last_line_num'), 'annotation_version', ['last_line_num'], unique=False)
     op.create_index(op.f('ix_annotation_version_modified'), 'annotation_version', ['modified'], unique=False)
+    op.create_index(op.f('ix_annotation_version_pointer_id'), 'annotation_version', ['pointer_id'], unique=False)
     op.create_index(op.f('ix_annotation_version_rejected'), 'annotation_version', ['rejected'], unique=False)
-    op.create_table('annotation',
+    op.create_table('vote',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('book_id', sa.Integer(), nullable=True),
-    sa.Column('head_id', sa.Integer(), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
-    sa.Column('added', sa.DateTime(), nullable=True),
-    sa.Column('edit_pending', sa.Boolean(), nullable=True),
-    sa.Column('locked', sa.Boolean(), nullable=True),
-    sa.Column('active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
-    sa.ForeignKeyConstraint(['head_id'], ['annotation_version.id'], ),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('delta', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_annotation_added'), 'annotation', ['added'], unique=False)
-    op.create_index(op.f('ix_annotation_author_id'), 'annotation', ['author_id'], unique=False)
-    op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
-    op.create_index(op.f('ix_annotation_edit_pending'), 'annotation', ['edit_pending'], unique=False)
-    op.create_index(op.f('ix_annotation_locked'), 'annotation', ['locked'], unique=False)
+    op.create_index(op.f('ix_vote_annotation_id'), 'vote', ['annotation_id'], unique=False)
+    op.create_index(op.f('ix_vote_user_id'), 'vote', ['user_id'], unique=False)
     op.create_table('edit_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -180,42 +194,27 @@ def upgrade():
     sa.ForeignKeyConstraint(['annotation_version_id'], ['annotation_version.id'], ),
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], )
     )
-    op.create_table('vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
-    sa.Column('delta', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_vote_annotation_id'), 'vote', ['annotation_id'], unique=False)
-    op.create_index(op.f('ix_vote_user_id'), 'vote', ['user_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index(op.f('ix_vote_user_id'), table_name='vote')
-    op.drop_index(op.f('ix_vote_annotation_id'), table_name='vote')
-    op.drop_table('vote')
     op.drop_table('tags')
     op.drop_index(op.f('ix_edit_vote_user_id'), table_name='edit_vote')
     op.drop_index(op.f('ix_edit_vote_edit_id'), table_name='edit_vote')
     op.drop_table('edit_vote')
-    op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_edit_pending'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_book_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_author_id'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_added'), table_name='annotation')
-    op.drop_table('annotation')
+    op.drop_index(op.f('ix_vote_user_id'), table_name='vote')
+    op.drop_index(op.f('ix_vote_annotation_id'), table_name='vote')
+    op.drop_table('vote')
     op.drop_index(op.f('ix_annotation_version_rejected'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_pointer_id'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_modified'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_last_line_num'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_hash_id'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_editor_id'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_book_id'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_approved'), table_name='annotation_version')
+    op.drop_index(op.f('ix_annotation_version_active'), table_name='annotation_version')
     op.drop_table('annotation_version')
     op.drop_index(op.f('ix_line_pt_num'), table_name='line')
     op.drop_index(op.f('ix_line_l_num'), table_name='line')
@@ -225,6 +224,12 @@ def downgrade():
     op.drop_index(op.f('ix_line_book_id'), table_name='line')
     op.drop_index(op.f('ix_line_bk_num'), table_name='line')
     op.drop_table('line')
+    op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_edit_pending'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_book_id'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_author_id'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_added'), table_name='annotation')
+    op.drop_table('annotation')
     op.drop_table('conferred_rights')
     op.drop_index(op.f('ix_book_url'), table_name='book')
     op.drop_index(op.f('ix_book_title'), table_name='book')

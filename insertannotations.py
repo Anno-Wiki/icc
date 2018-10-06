@@ -44,12 +44,9 @@ for line in fin:
             tags=tags)
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)
+    head = Annotation(book_id=book_id, author=user, locked=True)
+    commit.pointer = head
 
     # add anno, commit it
     db.session.add(commit)
-    db.session.commit()
-
-    # make anno's pointer point to the 
-    commit.pointer = head
     db.session.commit()
