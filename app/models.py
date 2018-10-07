@@ -236,12 +236,35 @@ class Tag(db.Model):
     admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
 
+    # This next relationship was incredibly hard to model, but I achieved it
+    # after a lengthy meditation and an attempt to stop thinking about it. I
+    # modelled the following SQL query in MySQL and then treated it as the very
+    # thing to copy into sqlalchemy: Just figure out which is the middle join
+    # and make it the secondary table: It's the join between the tables
+    # annotation_version and tags:
+    #
+    #    SELECT 
+    #        annotation.id
+    #    FROM
+    #        tag
+    #    JOIN
+    #        tags ON tag.id=tags.tag_id
+    #    JOIN
+    #        annotation_version ON tags.annotation_version_id=annotation_version.id <-- The Middle!
+    #    JOIN
+    #        annotation ON annotation.head_id=annotation_version.id
+    #    WHERE
+    #        tag=<id>
+    #
+    # That said, the count is still wrong.
+
     annotations = db.relationship("Annotation",
-            secondary="join(AnnotationVersion, tags,"
-                "AnnotationVersion.id==tags.c.annotation_version_id)",
+            secondary="join(tags, AnnotationVersion,"
+            "tags.c.annotation_version_id==AnnotationVersion.id)",
             primaryjoin="Tag.id==tags.c.tag_id",
             secondaryjoin="Annotation.head_id==AnnotationVersion.id",
             lazy="dynamic")
+
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
