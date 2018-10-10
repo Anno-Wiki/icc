@@ -104,18 +104,16 @@ class User(UserMixin, db.Model):
                 EditVote.user==self).first()
 
     def up_power(self):
-        if self.reputation <= 10:
+        if self.reputation <= 1:
             return 1
-        elif self.reputation == 10**int(l(self.reputation)):
-            log = int(l(self.reputation) - (l(11) - int(l(11))))
-            return int(self.reputation / 10**log) + 10*log - 10
-        log = int(l(self.reputation))
-        return int(self.reputation / 10**log) + 10*log - 10
+        else:
+            return int(10*l(self.reputation))
 
     def down_power(self):
-        if self.reputation <= 10:
+        if self.up_power() / 2 <= 1:
             return 1
-        return round(self.up_power() / 2)
+        else:
+            return int(self.up_power()/2)
 
     def authorize_rep(self, min_rep):
         if self.reputation < min_rep:
