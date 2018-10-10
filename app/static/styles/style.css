@@ -200,7 +200,7 @@ tags {
 }
 tag {
     display: inline-block;
-    margin: 10px 0 0 15px;
+    margin: 10px 15px 0 0;
     padding: 3px 10px 3px 10px;
     background-color: var(--base22);
     color: var(--base011);
@@ -386,7 +386,7 @@ textarea {
     content: "...";
 }
 .card h2 {
-    margin: 3px;
+    margin: 0 0 3px 0;
     font-size: 20px;
     color: var(--base00);
 }
