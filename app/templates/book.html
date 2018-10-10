@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>
-        {{ book.title|safe }}
-</h1>
-<h2>
-    by
+<h1>{{ book.title|safe }}</h1>
+<h2>by
     <a href="{{ url_for("author", name=book.author.url) }}">
         {{ book.author.name|safe }}
     </a>
@@ -13,7 +10,7 @@
 
 <div id="summary">
 {{ book.summary|markdown }}
-</p>
+</div>
 
 <!--------------table of contents------>
 <table class="table_of_contents">
