@@ -52,7 +52,7 @@
             <a href="{{ url_for("user", user_id=current_user.id) }}">
                 {{ current_user.username }}
             </a>
-            {% include "_reputation_current_user.html" %}
+            {% include "/includes/_reputation_current_user.html" %}
             |
         <a href="{{ url_for("logout") }}">logout</a>
         {%- endif %}

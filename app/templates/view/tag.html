@@ -6,7 +6,7 @@
         {{ tag.description|markdown }}
     {% endif %}
     {% for annotation in annotations %}
-        {% include "_annotation_standalone.html" %}
+        {% include "includes/_annotation_standalone.html" %}
     {% endfor %}
 
 {% if prev_url %}

@@ -2,11 +2,11 @@
 
 {% block content %}
 <h1>{{ user.username }}
-    {% include "_reputation.html" %}
+    {% include "includes/_reputation_user.html" %}
 </h1>
 
 {% for annotation in annotations %}
-    {% include "_annotation_standalone.html" %}
+    {% include "includes/_annotation_standalone.html" %}
 {% endfor %}
 
 {% if prev_url %}

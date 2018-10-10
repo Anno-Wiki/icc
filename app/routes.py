@@ -83,7 +83,7 @@ def register():
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
         return redirect(url_for("login"))
-    return render_template("register.html", title="Register", form=form)
+    return render_template("forms/register.html", title="Register", form=form)
 
 
 @app.route("/user/<user_id>/")
@@ -100,7 +100,7 @@ def user(user_id):
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("user.html", title=user.username, user=user,
+    return render_template("view/user.html", title=user.username, user=user,
             annotations=annotations.items, uservotes=uservotes,
             next_url=next_url, prev_url=prev_url)
 
@@ -120,14 +120,14 @@ def author_index():
     prev_url = url_for("author_index", page=authors.prev_num) \
             if authors.has_prev else None
 
-    return render_template("author_index.html", title="Authors",
+    return render_template("indexes/authors.html", title="Authors",
             authors=authors.items, next_url=next_url, prev_url=prev_url)
 
 
 @app.route("/author/<name>/")
 def author(name):
     author = Author.query.filter_by(url=name).first_or_404()
-    return render_template("author.html", title=author.name, author=author)
+    return render_template("view/author.html", title=author.name, author=author)
 
 
 @app.route("/list/books/")
@@ -141,7 +141,7 @@ def book_index():
     prev_url = url_for("book_index", page=books.prev_num) \
             if books.has_prev else None
 
-    return render_template("book_index.html", title="Books",
+    return render_template("indexes/books.html", title="Books",
             books=books.items, next_url=next_url, prev_url=prev_url)
 
 
@@ -159,7 +159,7 @@ def book(book_url):
             or_(Line.kind==bk_kind, Line.kind==pt_kind, Line.kind==ch_kind)
             ).order_by(Line.l_num.asc()).all()
 
-    return render_template("book.html", title=book.title, book=book,
+    return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
 
 @app.route("/list/tags/")
@@ -173,7 +173,7 @@ def tag_index():
     prev_url = url_for("tag_index", page=tags.prev_num) \
             if tags.has_prev else None
 
-    return render_template("tag_index.html", title="Tags",
+    return render_template("indexes/tags.html", title="Tags",
             tags=tags.items, next_url=next_url, prev_url=prev_url)
 
 @app.route("/tag/<tag>/")
@@ -188,7 +188,7 @@ def tag(tag):
     prev_url = url_for("tag", tag=tag.tag, page=annotations.prev_num) \
             if annotations.has_prev else None
 
-    return render_template("tag.html", title=tag.tag, tag=tag,
+    return render_template("view/tag.html", title=tag.tag, tag=tag,
             annotations=annotations.items,
             next_url=next_url, prev_url=prev_url)
 
@@ -202,7 +202,7 @@ def view_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("annotation.html", title=annotation.book.title,
+    return render_template("view/annotation.html", title=annotation.book.title,
             annotation=annotation, uservotes=uservotes)
 
 
@@ -411,7 +411,7 @@ def edit(anno_id):
         form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
 
-    return render_template("annotate.html", title=annotation.HEAD.book.title,
+    return render_template("forms/annotation.html", title=annotation.HEAD.book.title,
             form=form, book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
@@ -500,7 +500,7 @@ def annotate(book_url, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template("annotate.html", title=book.title, form=form,
+    return render_template("forms/annotation.html", title=book.title, form=form,
              book=book, lines=lines)
 
 
@@ -575,7 +575,7 @@ def create_tag():
             flash("Tag created.")
             return redirect(url_for("index"))
 
-    return render_template("create_tag.html", title="Create Tag", form=form)
+    return render_template("forms/tag.html", title="Create Tag", form=form)
 
 
 @app.route("/admin/queue/edits/")
@@ -586,7 +586,7 @@ def edit_review_queue():
             rejected=False).all()
     votes = current_user.edit_votes
 
-    return render_template("queue.html", title="Edit Queue", edits=edits,
+    return render_template("indexes/edits.html", title="Edit Queue", edits=edits,
         votes=votes)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
@@ -663,7 +663,7 @@ def edit_line(line_id):
             db.session.commit()
             flash("Line updated.")
             return redirect(next_page)
-    return render_template("edit_line.html", title="Edit Line", form=form)
+    return render_template("forms/line.html", title="Edit Line", form=form)
 
 @app.route("/admin/delete/annotation/<anno_id>/")
 def delete(anno_id):
@@ -716,7 +716,7 @@ def book_request():
         db.session.commit()
         flash("Book request created and your vote has been applied.")
         return redirect(url_for("index"))
-    return render_template("create_book_request.html", title="Request Book",
+    return render_template("forms/book_request.html", title="Request Book",
             form=form)
 
 @app.route("/list/book_requests/")
@@ -728,13 +728,13 @@ def book_request_index():
             if requests.has_next else None
     prev_url = url_for("book_request_index", page=requests.prev_num) \
             if requests.has_prev else None
-    return render_template("book_request_index.html", title="Book Requests",
+    return render_template("indexes/book_requests.html", title="Book Requests",
             next_url=next_url, prev_url=prev_url, requests=requests.items)
 
 @app.route("/book_request/<book_request_id>/")
 def view_book_request(book_request_id):
     request = BookRequest.query.get_or_404(book_request_id)
-    return render_template("book_request.html", request=request)
+    return render_template("view/book_request.html", request=request)
 
 @app.route("/edit/book_request/<book_request_id>/", methods=["GET", "POST"])
 @login_required
@@ -763,5 +763,5 @@ def edit_book_request(book_request_id):
         form.description.data = request.description
         form.wikipedia.data = request.wikipedia
         form.gutenberg.data = request.gutenberg
-    return render_template("create_book_request.html", title="Edit Book Request",
+    return render_template("forms/book_request.html", title="Edit Book Request",
             form=form)

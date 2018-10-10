@@ -14,11 +14,11 @@
     <div id="content">
         <div class="selection">
         {% for line in annotation.lines %}
-            {% include "_line.html" %}
+            {% include "includes/_line.html" %}
         {% endfor %}
         </div>
 
-        {% include "_annotation_standalone.html" %}
+        {% include "includes/_annotation_standalone.html" %}
     </div>
 
 {% endblock %}
