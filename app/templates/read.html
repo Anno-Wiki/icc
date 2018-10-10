@@ -48,15 +48,13 @@
     <hr>
     <div id="content">
     {%- for line in lines %}
-        {%- include "_popen.html" -%}
-
         <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
 
         {% if line.l_num % 5 == 0 %}
             <span class="linenum">{{ line.l_num }}</span>
         {% endif %}
 
-        {%- include "_line2.html" -%}
+        {%- include "includes/_line.html" -%}
 
         {% if current_user.is_authenticated and edit_right in current_user.rights %}
         <span class="body_annotation">
@@ -76,8 +74,6 @@
         {% endif %}
 
         </line>
-
-        {%- include "_pclose.html" -%}
     {% endfor -%}
     </div>
 
@@ -85,7 +81,7 @@
     {% for i in range(lines[0].l_num, lines[-1].l_num) %}
         {% if i in annotations_idx %}
             {% for annotation in annotations_idx[i] %}
-                {% include "_annotation.html" %}
+                {% include "includes/_annotation.html" %}
             {% endfor %}
         {% endif %}
     {% endfor %}

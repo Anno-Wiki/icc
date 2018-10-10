@@ -274,14 +274,10 @@ hr.book_separator {
     border: 0;
     height: 70px;
 }
-paragraph{
-    display: block;
-    font-family: 'EB Garamond', serif;
-    font-size: 18px;
-    color: var(--base00);
-    margin: 20px 0 0 0;
-}
 line {
+    font-size: 18px;
+    font-family: 'EB Garamond', serif;
+    color: var(--base00);
     display: block;
     width: 100%;
 }
@@ -291,6 +287,15 @@ line:hover {
 }
 
 /* main tags */
+.fl {
+    margin: 20px 0 0 0;
+}
+.sl {
+    margin: 20px 0 20px 0;
+}
+.ll {
+    margin: 0 0 20px 0;
+}
 .ch, .pt, .bk, .stg {
     font-family: "Playfair Display", serif;
     color: var(--base01);

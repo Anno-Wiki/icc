@@ -210,9 +210,9 @@ def view_annotation(annotation_id):
 def read(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
     tag = request.args.get("tag", None, type=str)
-    bk = request.args.get("bk", 0, type=int)
-    pt = request.args.get("pt", 0, type=int)
-    ch = request.args.get("ch", 0, type=int)
+    bk = request.args.get("book", 0, type=int)
+    pt = request.args.get("part", 0, type=int)
+    ch = request.args.get("chapter", 0, type=int)
 
     if ch != 0:
         lines = book.lines.filter(
@@ -235,11 +235,9 @@ def read(book_url):
             lines[-1].get_next_section()
     prev_page = lines[0].get_prev_section()
     if next_page != None:
-        next_page = url_for("read", book_url=book.url, bk=next_page.bk_num,
-                pt=next_page.pt_num, ch=next_page.ch_num, tag=tag)
+        next_page = next_page.get_url()
     if prev_page != None:
-        prev_page = url_for("read", book_url=book.url, bk=prev_page.bk_num,
-                pt=prev_page.pt_num, ch=prev_page.ch_num, tag=tag)
+        prev_page = prev_page.get_url()
 
     if form.validate_on_submit():
         # line number boiler plate
