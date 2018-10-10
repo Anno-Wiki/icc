@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Book Requests</h1>
+<div class="index">
+{% for request in requests %}
+<div class="card">
+<a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
+    <h2>{{ request.title }}</h2>
+</a>
+    by {{ request.author }}<br>
+    <div class="externals">
+    <a href="{{ request.wikipedia }}">Wikipedia</a>,
+    <a href="{{ request.gutenberg }}">Project Gutenberg</a>
+    </div>
+    {% if len(request.description) >= 127 %}
+    <div class="card_text_cutoff">
+    {% else %}
+    <div>
+    {% endif %}
+    {{ request.description[:127]|markdown }}
+    <br>
+<a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
+    View More
+</a>
+</div>
+{% endfor %}
+</div>
+
+{% if prev_url %}
+<a href="{{ prev_url }}">Next Page</a>
+{% endif %}
+{% if next_url %}
+<a href="{{ next_url }}">Previous Page</a>
+{% endif %}
+
+{% endblock %}

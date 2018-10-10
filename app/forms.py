@@ -84,3 +84,21 @@ class LineForm(FlaskForm):
     def validate_line(self, line):
         if len(line.data) > 200:
             raise ValidationError(f"The maximum length for a line is 200 characters")
+
+class BookRequestForm(FlaskForm):
+    title = StringField("Title", validators=[InputRequired()],
+            render_kw={"placeholder":"Title"})
+    author = StringField("Author", validators=[InputRequired()],
+            render_kw={"placeholder":"Author"})
+    notes = TextAreaField("Notes", render_kw={"placeholder":"Enter notes for"
+            " special consideration here."})
+    description = TextAreaField("Notes", render_kw={"placeholder":"Enter a"
+        " description of the book, it’s significance, and why it belongs on"
+        " Annopedia."})
+    wikipedia = StringField("Wikipedia", render_kw={"placeholder":"URL to"
+        " Wikipedia page for the book"})
+    gutenberg = StringField("Gutenberg", render_kw={"placeholder":"URL to"
+            " Project Gutenberg copy of the book."})
+
+    submit = SubmitField("Submit")
+    cancel = SubmitField("Cancel")

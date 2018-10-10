@@ -123,7 +123,7 @@ class User(UserMixin, db.Model):
 
     def authorize_rights(self, right):
         r = AdminRight.query.filter_by(right=right).first()
-        if not r:
+        if not r in self.rights:
             abort(403)
 
     def has_right(self, right):
@@ -174,6 +174,21 @@ class EditVote(db.Model):
     def is_up(self):
         return self.delta > 0
 
+class BookRequestVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    book_request_id = db.Column(db.Integer, db.ForeignKey("book_request.id"),
+            index=True)
+    delta = db.Column(db.Integer)
+
+    user = db.relationship("User")
+    book_request = db.relationship("BookRequest")
+
+    def __repr__(self):
+        return f"<{self.user.username} {self.delta} on {self.annotation}>"
+
+    def is_up(self):
+        return self.delta > 0
 
 ##################
 ## Content Data ##
@@ -372,13 +387,6 @@ class Annotation(db.Model):
     author = db.relationship("User")
     book = db.relationship("Book")
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
-#    tags = db.relationship("Tag", secondary="annotation_version",
-#            primaryjoin="Annotation.head_id==AnnotationVersion.id",
-#            secondaryjoin="or_(Tag.id==AnnotationVersion.tag_1_id,"
-#            "Tag.id==AnnotationVersion.tag_2_id,"
-#            "Tag.id==AnnotationVersion.tag_3_id,"
-#            "Tag.id==AnnotationVersion.tag_4_id,"
-#            "Tag.id==AnnotationVersion.tag_5_id)")
     lines = db.relationship("Line", secondary="annotation_version",
         primaryjoin="Annotation.head_id==AnnotationVersion.id",
         secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
@@ -470,3 +478,27 @@ class AnnotationVersion(db.Model):
         self.weight -= 1
         vote = EditVote(user=voter, edit=self, delta=-1)
         db.session.add(vote)
+
+##############
+## Requests ##
+##############
+
+class BookRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(127), index=True)
+    author = db.Column(db.String(127), index=True)
+    weight = db.Column(db.Integer, default=0, index=True)
+    approved = db.Column(db.Boolean, default=False, index=True)
+    rejected = db.Column(db.Boolean, default=False, index=True)
+    description = db.Column(db.Text)
+    notes = db.Column(db.Text)
+    wikipedia = db.Column(db.String(127), default=None)
+    gutenberg = db.Column(db.String(127), default=None)
+    requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
+    requested = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    approved = db.Column(db.DateTime, index=True, default=None)
+    rejected = db.Column(db.DateTime, index=True, default=None)
+
+    requester = db.relationship("User", backref="book_requests")
+    book = db.relationship("Book", backref="request")

@@ -7,9 +7,10 @@ from werkzeug.urls import url_parse
 from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
-        AnnotationVersion, Tag, EditVote, AdminRight, Vote
+        AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
+        BookRequestVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm, TagForm, LineForm
+        LineNumberForm, TagForm, LineForm, BookRequestForm
 from app.funky import preplines, is_filled
 
 
@@ -108,7 +109,7 @@ def user(user_id):
 ## Content Indexes ##
 #####################
 
-@app.route("/authors/")
+@app.route("/list/authors/")
 def author_index():
     page = request.args.get("page", 1, type=int)
     authors = Author.query.order_by(Author.last_name
@@ -123,13 +124,13 @@ def author_index():
             authors=authors.items, next_url=next_url, prev_url=prev_url)
 
 
-@app.route("/authors/<name>/")
+@app.route("/author/<name>/")
 def author(name):
     author = Author.query.filter_by(url=name).first_or_404()
     return render_template("author.html", title=author.name, author=author)
 
 
-@app.route("/books/")
+@app.route("/list/books/")
 def book_index():
     page = request.args.get("page", 1, type=int)
     books = Book.query.order_by(Book.sort_title
@@ -144,7 +145,7 @@ def book_index():
             books=books.items, next_url=next_url, prev_url=prev_url)
 
 
-@app.route("/books/<book_url>/", methods=["GET", "POST"])
+@app.route("/book/<book_url>/", methods=["GET", "POST"])
 def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
 
@@ -161,7 +162,7 @@ def book(book_url):
     return render_template("book.html", title=book.title, book=book,
             hierarchy=hierarchy)
 
-@app.route("/tags/")
+@app.route("/list/tags/")
 def tag_index():
     page = request.args.get("page", 1, type=int)
     tags = Tag.query.order_by(Tag.tag
@@ -680,7 +681,7 @@ def delete(anno_id):
         next_page = url_for("index")
     return redirect(next_page)
 
-@app.route("/admin/view/deleted_annotations/")
+@app.route("/admin/list/deleted_annotations/")
 def view_deleted_annotations():
     page = request.args.get("page", 1, type=int)
     current_user.authorize_rights("view_deleted_annotations")
@@ -695,3 +696,72 @@ def view_deleted_annotations():
     return render_template("index.html", title="Deleted Annotations",
             annotations=annotations.items, prev_url=prev_url, next_url=next_url,
             uservotes=uservotes)
+
+@app.route("/request/book/", methods=["GET", "POST"])
+@login_required
+def book_request():
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
+    form = BookRequestForm()
+    if form.cancel.data:
+        return redirect(url_for("index"))
+    if form.validate_on_submit():
+        book_request = BookRequest(title=form.title.data,
+                author=form.author.data, notes=form.notes.data,
+                description=form.description.data,
+                wikipedia=form.wikipedia.data, gutenberg=form.gutenberg.data,
+                weight=1)
+        vote = BookRequestVote(user=current_user, book_request=book_request)
+        db.session.add(book_request)
+        db.session.add(vote)
+        db.session.commit()
+        flash("Book request created and your vote has been applied.")
+        return redirect(url_for("index"))
+    return render_template("create_book_request.html", title="Request Book",
+            form=form)
+
+@app.route("/list/book_requests/")
+def book_request_index():
+    page = request.args.get("page", 1, type=int)
+    requests = BookRequest.query.order_by(BookRequest.weight
+            ).paginate(page, app.config["BOOK_REQUESTS_PER_PAGE"], False)
+    next_url = url_for("book_request_index", page=requests.next_num) \
+            if requests.has_next else None
+    prev_url = url_for("book_request_index", page=requests.prev_num) \
+            if requests.has_prev else None
+    return render_template("book_request_index.html", title="Book Requests",
+            next_url=next_url, prev_url=prev_url, requests=requests.items)
+
+@app.route("/book_request/<book_request_id>/")
+def view_book_request(book_request_id):
+    request = BookRequest.query.get_or_404(book_request_id)
+    return render_template("book_request.html", request=request)
+
+@app.route("/edit/book_request/<book_request_id>/", methods=["GET", "POST"])
+@login_required
+def edit_book_request(book_request_id):
+    current_user.authorize_rights("edit_book_requests")
+    request = BookRequest.query.get_or_404(book_request_id)
+    form = BookRequestForm()
+    if form.cancel.data:
+        return redirect(url_for("view_book_request",
+            book_request_id=book_request_id))
+    if form.validate_on_submit():
+        request.title = form.title.data
+        request.author = form.author.data
+        request.notes = form.notes.data
+        request.description = form.description.data
+        request.wikipedia = form.wikipedia.data
+        request.gutenberg = form.gutenberg.data
+        db.session.commit()
+        flash("Book request edit complete.")
+        return redirect(url_for("view_book_request",
+            book_request_id=book_request_id))
+    else:
+        form.title.data = request.title
+        form.author.data = request.author
+        form.notes.data = request.notes
+        form.description.data = request.description
+        form.wikipedia.data = request.wikipedia
+        form.gutenberg.data = request.gutenberg
+    return render_template("create_book_request.html", title="Edit Book Request",
+            form=form)
