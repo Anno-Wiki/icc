@@ -297,7 +297,7 @@ class Tag(db.Model):
     #    JOIN
     #        annotation ON annotation.head_id=annotation_version.id
     #    WHERE
-    #        tag=<id>
+    #        tag.id=<id>
     #
     # That said, the count is still wrong.
 
