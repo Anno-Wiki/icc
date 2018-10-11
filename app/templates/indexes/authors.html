@@ -5,7 +5,14 @@
 <div class="index">
 {% for author in authors %}
 <div class="card">
-    <a href="{{ url_for("author", name=author.url) }}"><h2>{{ author.name }}</h2></a>
+    <a href="{{ url_for("author", name=author.url) }}"><h2>
+            {{ author.name }}
+    {% if author.birth_date.year %}
+    <div class="life_years">
+    {{ author.birth_date.year }}-{{ author.death_date.year }}
+    </div>
+    {% endif %}
+    </h2></a>
     Books &times; {{ len(author.books) }}
     <br>
 

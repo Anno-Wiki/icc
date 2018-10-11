@@ -373,6 +373,14 @@ textarea {
     margin: 15px;
     padding: 10px;
 }
+.card .life_years {
+    margin-left: 30px;
+    margin: -3px 0 5px 5px;
+    font-family: Playfair Display, serif;
+    color: var(--base01); 
+    font-weight: normal;
+    font-size: 20px;
+}
 .card .count {
     margin: 0 0 0 3px;
 }
