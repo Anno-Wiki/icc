@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
         IntegerField, TextAreaField
-from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, Optional
+from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, \
+    Optional, URL
 from app.models import User, Tag
 
 ################
@@ -95,10 +96,18 @@ class BookRequestForm(FlaskForm):
     description = TextAreaField("Notes", render_kw={"placeholder":"Enter a"
         " description of the book, it’s significance, and why it belongs on"
         " Annopedia."})
-    wikipedia = StringField("Wikipedia", render_kw={"placeholder":"URL to"
-        " Wikipedia page for the book"})
-    gutenberg = StringField("Gutenberg", render_kw={"placeholder":"URL to"
-            " Project Gutenberg copy of the book."})
+    wikipedia = StringField("Wikipedia", validators=[URL(require_tld=True)],
+            render_kw={"placeholder":"URL to Wikipedia page for the book"})
+    gutenberg = StringField("Gutenberg", validators=[URL(require_tld=True)],
+            render_kw={"placeholder":"URL to Project Gutenberg copy of the book."})
 
     submit = SubmitField("Submit")
     cancel = SubmitField("Cancel")
+
+    def validate_wikipedia(self, wikipedia):
+        if "wikipedia" not in wikipedia.data:
+            raise ValidationError(f"{wikipedia.data} is not a link to a Wikipedia page.")
+
+    def validate_gutenberg(self, gutenberg):
+        if "gutenberg" not in gutenberg.data:
+            raise ValidationError(f"{gutenberg.data} is not a link to a Project Gutenberg page.")

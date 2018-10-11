@@ -707,7 +707,7 @@ def book_request():
                 author=form.author.data, notes=form.notes.data,
                 description=form.description.data,
                 wikipedia=form.wikipedia.data, gutenberg=form.gutenberg.data,
-                weight=1)
+                weight=0)
         db.session.add(book_request)
         book_request.upvote(current_user)
         db.session.commit()
@@ -719,7 +719,7 @@ def book_request():
 @app.route("/list/book_requests/")
 def book_request_index():
     page = request.args.get("page", 1, type=int)
-    requests = BookRequest.query.order_by(BookRequest.weight
+    requests = BookRequest.query.order_by(BookRequest.weight.desc()
             ).paginate(page, app.config["BOOK_REQUESTS_PER_PAGE"], False)
     next_url = url_for("book_request_index", page=requests.next_num) \
             if requests.has_next else None
