@@ -39,81 +39,46 @@ class User(UserMixin, db.Model):
     cumulative_positive = db.Column(db.Integer, default=0)
     locked = db.Column(db.Boolean, default=False)
 
+    # user meta information relationships
+    rights = db.relationship("AdminRight", secondary=conferred_right,
+            backref="admins")
+
+    # annotation relationship
     annotations = db.relationship("Annotation",
-        primaryjoin="and_(User.id==Annotation.author_id,"
-        "Annotation.active==True)", lazy="dynamic")
+            primaryjoin="and_(User.id==Annotation.author_id,"
+            "Annotation.active==True)", lazy="dynamic")
     ballots = db.relationship("Vote", primaryjoin="User.id==Vote.user_id",
             lazy="dynamic")
     votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==Vote.user_id",
             secondaryjoin="Annotation.id==Vote.annotation_id",
             backref="voters", lazy="dynamic")
+
+    # edit relationships
     edit_votes = db.relationship("AnnotationVersion", secondary="edit_vote",
             primaryjoin="User.id==EditVote.user_id",
             secondaryjoin="AnnotationVersion.id==EditVote.edit_id",
             backref="edit_voters", lazy="dynamic")
-    rights = db.relationship("AdminRight", secondary=conferred_right,
-            backref="admins")
 
-
+    # book request relationships
+    book_request_ballots = db.relationship("BookRequestVote",
+            primaryjoin="User.id==BookRequestVote.user_id", lazy="dynamic")
+    book_request_votes = db.relationship("BookRequest",
+            secondary="book_request_vote",
+            primaryjoin="BookRequestVote.user_id==User.id",
+            secondaryjoin="BookRequestVote.book_request_id==BookRequest.id",
+            backref="voters", lazy="dynamic")
 
     def __repr__(self):
         return "<User {}>".format(self.username)
+
+    # Utilities
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-    def upvote(self):
-        self.reputation += 5
-        self.cumulative_positive += 5
-
-    def rollback_upvote(self):
-        self.reputation -= 5
-        if self.reputation <= 0:
-            self.reputation = 0
-        self.cumulative_positive -= 5
-
-    def downvote(self):
-        self.reputation -= 2
-        if self.reputation <= 0:
-            self.reputation = 0
-        self.cumulative_negative -= 2
-
-    def rollback_downvote(self):
-        self.reputation += 2
-        self.cumulative_negative += 2
-
-    def already_voted(self, annotation):
-        return annotation in self.votes
-
-    def get_vote(self, annotation):
-        return self.ballots.filter(Vote.annotation==annotation).first()
-                
-
-    def get_vote_dict(self):
-        v = {}
-        for vote in self.ballots:
-            v[vote.annotation.id] = vote.is_up()
-        return v
-
-    def get_edit_vote(self, edit):
-        return self.edit_votes.filter(EditVote.edit==edit,
-                EditVote.user==self).first()
-
-    def up_power(self):
-        if self.reputation <= 1:
-            return 1
-        else:
-            return int(10*l(self.reputation))
-
-    def down_power(self):
-        if self.up_power() / 2 <= 1:
-            return 1
-        else:
-            return int(self.up_power()/2)
 
     def authorize_rep(self, min_rep):
         if self.reputation < min_rep:
@@ -130,6 +95,71 @@ class User(UserMixin, db.Model):
 
     def is_authorized(self, min_rep):
         return self.reputation >= min_rep
+
+    # Annotation utilities
+    def upvote(self):
+        self.reputation += 5
+        self.cumulative_positive += 5
+
+    def downvote(self):
+        self.reputation -= 2
+        if self.reputation <= 0:
+            self.reputation = 0
+        self.cumulative_negative -= 2
+
+    def rollback_upvote(self):
+        self.reputation -= 5
+        if self.reputation <= 0:
+            self.reputation = 0
+        self.cumulative_positive -= 5
+
+    def rollback_downvote(self):
+        self.reputation += 2
+        self.cumulative_negative += 2
+
+    def up_power(self):
+        if self.reputation <= 1:
+            return 1
+        else:
+            return int(10*l(self.reputation))
+
+    def down_power(self):
+        if self.up_power() / 2 <= 1:
+            return 1
+        else:
+            return int(self.up_power()/2)
+
+    def already_voted(self, annotation):
+        return annotation in self.votes
+
+    def get_vote(self, annotation):
+        return self.ballots.filter(Vote.annotation==annotation).first()
+                
+    def get_vote_dict(self):
+        v = {}
+        for vote in self.ballots:
+            v[vote.annotation.id] = vote.is_up()
+        return v
+
+    # book request vote utilities
+    def get_book_request_vote_dict(self):
+        v = {}
+        for vote in self.book_request_ballots:
+            v[vote.book_request.id] = vote.is_up()
+        return v
+
+    def already_voted_book_request(self, book_request):
+        return book_request in self.book_request_votes
+
+    def get_book_request_vote(self, book_request):
+        return self.book_request_ballots.filter(
+                BookRequestVote.book_request==book_request).first()
+
+    # edit vote utilities
+    def get_edit_vote(self, edit):
+        return self.edit_votes.filter(EditVote.edit==edit,
+                EditVote.user==self).first()
+
 
 @login.user_loader
 def load_user(id):
@@ -500,3 +530,19 @@ class BookRequest(db.Model):
 
     requester = db.relationship("User", backref="book_requests")
     book = db.relationship("Book", backref="request")
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        db.session.delete(vote)
+
+    def upvote(self, voter):
+        weight = 1
+        self.weight += weight
+        vote = BookRequestVote(user=voter, book_request=self, delta=weight)
+        db.session.add(vote)
+
+    def downvote(self, voter):
+        weight = -1
+        self.weight += weight
+        vote = BookRequestVote(user=voter, book_request=self, delta=weight)
+        db.session.add(vote)

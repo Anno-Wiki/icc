@@ -726,40 +726,89 @@ def book_request_index():
             if requests.has_next else None
     prev_url = url_for("book_request_index", page=requests.prev_num) \
             if requests.has_prev else None
+    uservotes = current_user.get_book_request_vote_dict() \
+            if current_user.is_authenticated else None
     return render_template("indexes/book_requests.html", title="Book Requests",
-            next_url=next_url, prev_url=prev_url, requests=requests.items)
+            next_url=next_url, prev_url=prev_url, requests=requests.items,
+            uservotes=uservotes)
 
 @app.route("/book_request/<book_request_id>/")
 def view_book_request(book_request_id):
-    request = BookRequest.query.get_or_404(book_request_id)
-    return render_template("view/book_request.html", request=request)
+    book_request = BookRequest.query.get_or_404(book_request_id)
+    return render_template("view/book_request.html", book_request=book_request)
 
 @app.route("/edit/book_request/<book_request_id>/", methods=["GET", "POST"])
 @login_required
 def edit_book_request(book_request_id):
     current_user.authorize_rights("edit_book_requests")
-    request = BookRequest.query.get_or_404(book_request_id)
+    book_request = BookRequest.query.get_or_404(book_request_id)
     form = BookRequestForm()
     if form.cancel.data:
         return redirect(url_for("view_book_request",
             book_request_id=book_request_id))
     if form.validate_on_submit():
-        request.title = form.title.data
-        request.author = form.author.data
-        request.notes = form.notes.data
-        request.description = form.description.data
-        request.wikipedia = form.wikipedia.data
-        request.gutenberg = form.gutenberg.data
+        book_request.title = form.title.data
+        book_request.author = form.author.data
+        book_request.notes = form.notes.data
+        book_request.description = form.description.data
+        book_request.wikipedia = form.wikipedia.data
+        book_request.gutenberg = form.gutenberg.data
         db.session.commit()
         flash("Book request edit complete.")
         return redirect(url_for("view_book_request",
             book_request_id=book_request_id))
     else:
-        form.title.data = request.title
-        form.author.data = request.author
-        form.notes.data = request.notes
-        form.description.data = request.description
-        form.wikipedia.data = request.wikipedia
-        form.gutenberg.data = request.gutenberg
+        form.title.data = book_request.title
+        form.author.data = book_request.author
+        form.notes.data = book_request.notes
+        form.description.data = book_request.description
+        form.wikipedia.data = book_request.wikipedia
+        form.gutenberg.data = book_request.gutenberg
     return render_template("forms/book_request.html", title="Edit Book Request",
             form=form)
+
+@app.route("/upvote/book_request/<book_request_id>/")
+@login_required
+def upvote_book_request(book_request_id):
+    book_request = BookRequest.query.get_or_404(book_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book_request_index")
+
+    if current_user.already_voted_book_request(book_request):
+        vote = current_user.book_request_ballots.filter(
+                BookRequestVote.book_request==book_request).first()
+        rd = True if vote.is_up() else False
+        book_request.rollback(vote)
+        db.session.commit()
+        if rd:
+            return redirect(next_page)
+
+    book_request.upvote(current_user)
+    db.session.commit()
+
+    return redirect(next_page)
+
+@app.route("/downvote/book_request/<book_request_id>/")
+@login_required
+def downvote_book_request(book_request_id):
+    book_request = BookRequest.query.get_or_404(book_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book_request_index")
+
+    if current_user.already_voted_book_request(book_request):
+        vote = current_user.book_request_ballots.filter(
+                BookRequestVote.book_request==book_request).first()
+        rd = True if not vote.is_up() else False
+        book_request.rollback(vote)
+        db.session.commit()
+        if rd:
+            return redirect(next_page)
+
+    book_request.downvote(current_user)
+    db.session.commit()
+
+    return redirect(next_page)

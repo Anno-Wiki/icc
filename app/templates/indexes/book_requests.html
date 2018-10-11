@@ -2,9 +2,31 @@
 
 {% block content %}
 <h1>Book Requests</h1>
+{% if current_user.is_authenticated and
+    current_user.is_authorized(vars["AUTHORIZATION"]["BOOK_REQUEST"]) %}
+<a href="{{ url_for("book_request") }}">Request a book</a>
+{% endif %}
 <div class="index">
 {% for request in requests %}
 <div class="card">
+<div class="weight">
+    {{ request.weight }}
+    {% if uservotes and request.id in uservotes and uservotes[request.id] %}
+    <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}"
+        class="voted">up</a>
+    {% else %}
+    <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}"
+        class="notvoted">up</a>
+    {% endif %}
+    /
+    {% if uservotes and request.id in uservotes and not uservotes[request.id] %}
+    <a href="{{ url_for("downvote_book_request", book_request_id=request.id)
+        }}" class="voted">down</a>
+    {% else %}
+    <a href="{{ url_for("downvote_book_request", book_request_id=request.id) }}"
+        class="notvoted">down</a>
+    {% endif %}
+</div>
 <a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
     <h2>{{ request.title }}</h2>
 </a>

@@ -393,6 +393,9 @@ textarea {
 .card .externals {
     font-size: 12px;
 }
+.card .weight {
+    font-size: 20px;
+}
 
 .tag_card {
     display: inline-block;
