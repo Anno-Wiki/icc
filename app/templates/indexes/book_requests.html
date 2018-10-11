@@ -4,7 +4,9 @@
 <h1>Book Requests</h1>
 {% if current_user.is_authenticated and
     current_user.is_authorized(vars["AUTHORIZATION"]["BOOK_REQUEST"]) %}
-<a href="{{ url_for("book_request") }}">Request a book</a>
+<h4>Don't see what you're looking for? <a href="{{ url_for("book_request")
+    }}">Try requesting it</a>.
+</h4>
 {% endif %}
 <div class="index">
 {% for request in requests %}
@@ -45,6 +47,7 @@
 <a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
     View More
 </a>
+</div>
 </div>
 {% endfor %}
 </div>

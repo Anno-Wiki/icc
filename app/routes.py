@@ -701,19 +701,18 @@ def book_request():
     current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
     form = BookRequestForm()
     if form.cancel.data:
-        return redirect(url_for("index"))
+        return redirect(url_for("book_request_index"))
     if form.validate_on_submit():
         book_request = BookRequest(title=form.title.data,
                 author=form.author.data, notes=form.notes.data,
                 description=form.description.data,
                 wikipedia=form.wikipedia.data, gutenberg=form.gutenberg.data,
                 weight=1)
-        vote = BookRequestVote(user=current_user, book_request=book_request)
         db.session.add(book_request)
-        db.session.add(vote)
+        book_request.upvote(current_user)
         db.session.commit()
         flash("Book request created and your vote has been applied.")
-        return redirect(url_for("index"))
+        return redirect(url_for("book_request_index"))
     return render_template("forms/book_request.html", title="Request Book",
             form=form)
 

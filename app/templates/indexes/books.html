@@ -2,6 +2,8 @@
 
 {% block content %}
 <h1>Books</h1>
+<h4>Don’t see what you’re looking for? Upvote it among our
+    <a href="{{ url_for("book_request_index") }}">book requests</a>.</h4>
 <div class="index">
 {% for book in books %}
 <div class="card">

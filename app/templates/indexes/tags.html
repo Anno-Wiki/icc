@@ -2,6 +2,11 @@
 
 {% block content %}
 <h1>Tags</h1>
+{% if current_user.is_authenticated and current_user.has_right("create_tags") %}
+    <h4>You have the appropriate permissions to <a href="{{
+        url_for("create_tag") }}">create a tag</a>.</h4>
+{% endif %}
+<h4>Don't see what you're looking for? Try requesting it.</h4>
 <div class="index">
 {% for tag in tags %}
 <div class="card">

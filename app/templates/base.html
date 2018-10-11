@@ -30,19 +30,15 @@
         <a href="{{ url_for("book_index") }}">BOOKS</a>
         |
         <a href="{{ url_for("tag_index") }}">TAGS</a>
-        |
-        <a href="{{ url_for("book_request_index") }}">BOOK REQUESTS</a>
     </nav>
 
     <div class="user_info">
         {%- if current_user.is_anonymous -%}
             <a href="{{ url_for("login") }}">login</a>
         {%- else %}
-            {% if current_user.has_right("create_tags") -%}
-            <a href="{{ url_for("create_tag") }}">create tag</a>
-            {% endif %}
             {% if current_user.has_right("view_deleted_annotations") -%}
             <a href="{{ url_for("view_deleted_annotations") }}">view deleted annotations</a>
+            |
             {% endif %}
 
             {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
