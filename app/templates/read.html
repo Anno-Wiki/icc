@@ -31,11 +31,13 @@
 
 
     {% if prev_page %}
-        <a href="{{ prev_page }}">Previous Page</a>
+        <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
     {% endif %}
-
+    {% if prev_page and next_page %}
+    |
+    {% endif %}
     {% if next_page %}
-        <a href="{{ next_page }}">Next Page</a>
+        <a href="{{ next_page }}">Next Page &gt;&gt;</a>
     {% endif %}
 
     <form action="" method="POST">
@@ -89,13 +91,6 @@
     <hr>
 
     <!--Page Counter-->
-    {% if prev_page %}
-    <a href="{{ prev_page }}">Previous</a>
-    {% endif %}
-    {% if next_page %}
-    <a href="{{ next_page }}">Next</a>
-    {% endif %}
-
     <div class="running_head">
         <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
 

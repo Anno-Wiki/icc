@@ -67,6 +67,16 @@
 <div id="container">
 {% block content %}
 {% endblock %}
+    {% if prev_page %}
+    <a href="{{ prev_page }}">&lt;&lt; Previous</a>
+    {% endif %}
+    {% if next_page and prev_page %}
+    |
+    {% endif %}
+    {% if next_page %}
+    <a href="{{ next_page }}">Next &gt;&gt;</a>
+    {% endif %}
+
 </div>
 
 </body>

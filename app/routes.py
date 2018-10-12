@@ -25,15 +25,15 @@ def index():
     annotations = Annotation.query.filter_by(active=True
             ).order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    next_url = url_for("index", page=annotations.next_num) \
+    next_page = url_for("index", page=annotations.next_num) \
             if annotations.has_next else None
-    prev_url = url_for("index", page=annotations.prev_num) \
+    prev_page = url_for("index", page=annotations.prev_num) \
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("index.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
-            next_url=next_url, prev_url=prev_url)
+            next_page=next_page, prev_page=prev_page)
 
 
 ####################
@@ -93,16 +93,16 @@ def user(user_id):
     annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
 
-    next_url = url_for("user", user_id=user.id, page=annotations.next_num) \
+    next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
             if annotations.has_next else None
-    prev_url = url_for("user", user_id=user.id, page=annotations.prev_num) \
+    prev_page = url_for("user", user_id=user.id, page=annotations.prev_num) \
             if annotations.has_prev else None
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("view/user.html", title=user.username, user=user,
             annotations=annotations.items, uservotes=uservotes,
-            next_url=next_url, prev_url=prev_url)
+            next_page=next_page, prev_page=prev_page)
 
 
 #####################
@@ -115,13 +115,13 @@ def author_index():
     authors = Author.query.order_by(Author.last_name
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
-    next_url = url_for("author_index", page=authors.next_num) \
+    next_page = url_for("author_index", page=authors.next_num) \
             if authors.has_next else None
-    prev_url = url_for("author_index", page=authors.prev_num) \
+    prev_page = url_for("author_index", page=authors.prev_num) \
             if authors.has_prev else None
 
     return render_template("indexes/authors.html", title="Authors",
-            authors=authors.items, next_url=next_url, prev_url=prev_url)
+            authors=authors.items, next_page=next_page, prev_page=prev_page)
 
 
 @app.route("/author/<name>/")
@@ -136,13 +136,13 @@ def book_index():
     books = Book.query.order_by(Book.sort_title
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
-    next_url = url_for("book_index", page=books.next_num) \
+    next_page = url_for("book_index", page=books.next_num) \
             if books.has_next else None
-    prev_url = url_for("book_index", page=books.prev_num) \
+    prev_page = url_for("book_index", page=books.prev_num) \
             if books.has_prev else None
 
     return render_template("indexes/books.html", title="Books",
-            books=books.items, next_url=next_url, prev_url=prev_url)
+            books=books.items, prev_page=prev_page, next_page=next_page)
 
 
 @app.route("/book/<book_url>/", methods=["GET", "POST"])
@@ -168,13 +168,13 @@ def tag_index():
     tags = Tag.query.order_by(Tag.tag
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
-    next_url = url_for("tag_index", page=tags.next_num) \
+    next_page = url_for("tag_index", page=tags.next_num) \
             if tags.has_next else None
-    prev_url = url_for("tag_index", page=tags.prev_num) \
+    prev_page = url_for("tag_index", page=tags.prev_num) \
             if tags.has_prev else None
 
     return render_template("indexes/tags.html", title="Tags",
-            tags=tags.items, next_url=next_url, prev_url=prev_url)
+            tags=tags.items, next_page=next_page, prev_page=prev_page)
 
 @app.route("/tag/<tag>/")
 def tag(tag):
@@ -183,14 +183,14 @@ def tag(tag):
     annotations = tag.annotations.order_by(Annotation.weight.desc()).paginate(page,
             app.config["ANNOTATIONS_PER_PAGE"], False)
 
-    next_url = url_for("tag", tag=tag.tag, page=annotations.next_num) \
+    next_page = url_for("tag", tag=tag.tag, page=annotations.next_num) \
             if annotations.has_next else None
-    prev_url = url_for("tag", tag=tag.tag, page=annotations.prev_num) \
+    prev_page = url_for("tag", tag=tag.tag, page=annotations.prev_num) \
             if annotations.has_prev else None
 
     return render_template("view/tag.html", title=tag.tag, tag=tag,
             annotations=annotations.items,
-            next_url=next_url, prev_url=prev_url)
+            next_page=next_page, prev_page=prev_page)
 
 
 ####################
@@ -685,15 +685,15 @@ def view_deleted_annotations():
     current_user.authorize_rights("view_deleted_annotations")
     annotations = Annotation.query.filter_by(active=False
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    next_url = url_for("view_deleted_annotations", page=annotations.next_num) \
+    next_page = url_for("view_deleted_annotations", page=annotations.next_num) \
             if annotations.has_next else None
-    prev_url = url_for("view_deleted_annotations", page=annotations.prev_num) \
+    prev_page = url_for("view_deleted_annotations", page=annotations.prev_num) \
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("index.html", title="Deleted Annotations",
-            annotations=annotations.items, prev_url=prev_url, next_url=next_url,
-            uservotes=uservotes)
+            annotations=annotations.items, prev_page=prev_page,
+            next_page=next_page, uservotes=uservotes)
 
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
@@ -721,14 +721,14 @@ def book_request_index():
     page = request.args.get("page", 1, type=int)
     requests = BookRequest.query.order_by(BookRequest.weight.desc()
             ).paginate(page, app.config["BOOK_REQUESTS_PER_PAGE"], False)
-    next_url = url_for("book_request_index", page=requests.next_num) \
+    next_page = url_for("book_request_index", page=requests.next_num) \
             if requests.has_next else None
-    prev_url = url_for("book_request_index", page=requests.prev_num) \
+    prev_page = url_for("book_request_index", page=requests.prev_num) \
             if requests.has_prev else None
     uservotes = current_user.get_book_request_vote_dict() \
             if current_user.is_authenticated else None
     return render_template("indexes/book_requests.html", title="Book Requests",
-            next_url=next_url, prev_url=prev_url, requests=requests.items,
+            next_page=next_page, prev_page=prev_page, requests=requests.items,
             uservotes=uservotes)
 
 @app.route("/book_request/<book_request_id>/")
