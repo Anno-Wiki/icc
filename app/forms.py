@@ -93,10 +93,11 @@ class BookRequestForm(FlaskForm):
             render_kw={"placeholder":"Author"})
     notes = TextAreaField("Notes", render_kw={"placeholder":"Enter notes for"
             " special consideration here."})
-    description = TextAreaField("Notes", render_kw={"placeholder":"Enter a"
-        " description of the book, it’s significance, and why it belongs on"
-        " Annopedia."})
-    wikipedia = StringField("Wikipedia", validators=[URL(require_tld=True)],
+    description = TextAreaField("Notes", 
+            render_kw={"placeholder":"Enter a description of the book, it’s"
+                " significance, and why it belongs on Annopedia."})
+    wikipedia = StringField("Wikipedia",
+            validators=[URL(require_tld=True), InputRequired()],
             render_kw={"placeholder":"URL to Wikipedia page for the book"})
     gutenberg = StringField("Gutenberg", validators=[URL(require_tld=True)],
             render_kw={"placeholder":"URL to Project Gutenberg copy of the book."})
@@ -111,3 +112,22 @@ class BookRequestForm(FlaskForm):
     def validate_gutenberg(self, gutenberg):
         if "gutenberg" not in gutenberg.data:
             raise ValidationError(f"{gutenberg.data} is not a link to a Project Gutenberg page.")
+
+class TagRequestForm(FlaskForm):
+    tag = StringField("Title", validators=[InputRequired()],
+            render_kw={"placeholder":"Tag Name"})
+    notes = TextAreaField("Notes", 
+            render_kw={"placeholder":"Enter notes for special consideration here."})
+    description = TextAreaField("Notes",
+            render_kw={"placeholder":"Enter a description of the book, it’s"
+                " significance, and why it belongs on Annopedia."})
+    wikipedia = StringField("Wikipedia", 
+            validators=[URL(require_tld=True), InputRequired()],
+            render_kw={"placeholder":"URL to a relevant Wikipedia page."})
+
+    submit = SubmitField("Submit")
+    cancel = SubmitField("Cancel")
+
+    def validate_wikipedia(self, wikipedia):
+        if "wikipedia" not in wikipedia.data:
+            raise ValidationError(f"{wikipedia.data} is not a link to a Wikipedia page.")

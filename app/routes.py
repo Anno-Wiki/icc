@@ -8,9 +8,9 @@ from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
-        BookRequestVote
+        BookRequestVote, TagRequest, TagRequestVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm, TagForm, LineForm, BookRequestForm
+        LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm
 from app.funky import preplines, is_filled
 
 
@@ -558,23 +558,6 @@ def downvote(anno_id):
 ## Administration Routes ##
 ###########################
 
-@app.route("/admin/tags/create", methods=["GET","POST"])
-@login_required
-def create_tag():
-    current_user.authorize_rights("create_tags")
-    form = TagForm()
-    if form.cancel.data:
-        return redirect(url_for("index"))
-    if form.validate_on_submit():
-        if form.tag.data != None and form.description.data != None:
-            tag = Tag(tag=form.tag.data, description=form.description.data)
-            db.session.add(tag)
-            db.session.commit()
-            flash("Tag created.")
-            return redirect(url_for("index"))
-
-    return render_template("forms/tag.html", title="Create Tag", form=form)
-
 
 @app.route("/admin/queue/edits/")
 @login_required
@@ -695,6 +678,10 @@ def view_deleted_annotations():
             annotations=annotations.items, prev_page=prev_page,
             next_page=next_page, uservotes=uservotes)
 
+###################
+## Book Requests ##
+###################
+
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
 def book_request():
@@ -720,7 +707,7 @@ def book_request():
 def book_request_index():
     page = request.args.get("page", 1, type=int)
     requests = BookRequest.query.order_by(BookRequest.weight.desc()
-            ).paginate(page, app.config["BOOK_REQUESTS_PER_PAGE"], False)
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     next_page = url_for("book_request_index", page=requests.next_num) \
             if requests.has_next else None
     prev_page = url_for("book_request_index", page=requests.prev_num) \
@@ -808,6 +795,176 @@ def downvote_book_request(book_request_id):
             return redirect(next_page)
 
     book_request.downvote(current_user)
+    db.session.commit()
+
+    return redirect(next_page)
+
+##################
+## Tag Requests ##
+##################
+
+@app.route("/request/tag/", methods=["GET", "POST"])
+@login_required
+def tag_request():
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
+    form = TagRequestForm()
+    if form.cancel.data:
+        return redirect(url_for("tag_request_index"))
+    if form.validate_on_submit():
+        tag_request = TagRequest(tag=form.tag.data,
+                notes=form.notes.data, description=form.description.data,
+                wikipedia=form.wikipedia.data, weight=0)
+        db.session.add(tag_request)
+        tag_request.upvote(current_user)
+        db.session.commit()
+        flash("Tag request created and your vote has been applied.")
+        return redirect(url_for("tag_request_index"))
+    return render_template("forms/tag_request.html", title="Request Tag",
+            form=form)
+
+@app.route("/list/tag_requests/")
+def tag_request_index():
+    page = request.args.get("page", 1, type=int)
+    tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    next_page = url_for("tag_request_index", page=tag_requests.next_num) \
+            if tag_requests.has_next else None
+    prev_page = url_for("tag_request_index", page=tag_requests.prev_num) \
+            if tag_requests.has_prev else None
+    uservotes = current_user.get_tag_request_vote_dict() \
+            if current_user.is_authenticated else None
+    return render_template("indexes/tag_requests.html", title="Tag Requests",
+            next_page=next_page, prev_page=prev_page,
+            tag_requests=tag_requests.items, uservotes=uservotes)
+
+@app.route("/tag_request/<tag_request_id>/")
+def view_tag_request(tag_request_id):
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+    return render_template("view/tag_request.html", tag_request=tag_request)
+
+@app.route("/edit/tag_request/<tag_request_id>/", methods=["GET", "POST"])
+@login_required
+def edit_tag_request(tag_request_id):
+    current_user.authorize_rights("edit_tag_requests")
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+    form = TagRequestForm()
+    if form.cancel.data:
+        return redirect(url_for("view_tag_request",
+            tag_request_id=tag_request_id))
+    if form.validate_on_submit():
+        tag_request.title = form.title.data
+        tag_request.author = form.author.data
+        tag_request.notes = form.notes.data
+        tag_request.description = form.description.data
+        tag_request.wikipedia = form.wikipedia.data
+        tag_request.gutenberg = form.gutenberg.data
+        db.session.commit()
+        flash("Tag request edit complete.")
+        return redirect(url_for("view_tag_request",
+            tag_request_id=tag_request_id))
+    else:
+        form.title.data = tag_request.title
+        form.author.data = tag_request.author
+        form.notes.data = tag_request.notes
+        form.description.data = tag_request.description
+        form.wikipedia.data = tag_request.wikipedia
+        form.gutenberg.data = tag_request.gutenberg
+    return render_template("forms/tag_request.html", title="Edit Tag Request",
+            form=form)
+
+@app.route("/upvote/tag_request/<tag_request_id>/")
+@login_required
+def upvote_tag_request(tag_request_id):
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag_request_index")
+
+    if current_user.already_voted_tag_request(tag_request):
+        vote = current_user.tag_request_ballots.filter(
+                TagRequestVote.tag_request==tag_request).first()
+        rd = True if vote.is_up() else False
+        tag_request.rollback(vote)
+        db.session.commit()
+        if rd:
+            return redirect(next_page)
+
+    tag_request.upvote(current_user)
+    db.session.commit()
+
+    return redirect(next_page)
+
+@app.route("/downvote/tag_request/<tag_request_id>/")
+@login_required
+def downvote_tag_request(tag_request_id):
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag_request_index")
+
+    if current_user.already_voted_tag_request(tag_request):
+        vote = current_user.tag_request_ballots.filter(
+                TagRequestVote.tag_request==tag_request).first()
+        rd = True if not vote.is_up() else False
+        tag_request.rollback(vote)
+        db.session.commit()
+        if rd:
+            return redirect(next_page)
+
+    tag_request.downvote(current_user)
+    db.session.commit()
+
+    return redirect(next_page)
+
+@app.route("/admin/tags/create/", methods=["GET","POST"],
+        defaults={"tag_request_id":None})
+@app.route("/admin/tags/create/<tag_request_id>", methods=["GET","POST"])
+@login_required
+def create_tag(tag_request_id):
+    current_user.authorize_rights("create_tags")
+
+    if tag_request_id:
+        tag_request = TagRequest.query.get_or_404(tag_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag_request_index")
+
+    form = TagForm()
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.tag.data != None and form.description.data != None:
+            tag = Tag(tag=form.tag.data, description=form.description.data)
+            db.session.add(tag)
+            db.session.commit()
+            flash("Tag created.")
+            return redirect(next_page)
+    elif tag_request:
+            tag = Tag(tag=tag_request.tag, description=tag_request.description)
+            tag_request.created_tag = tag
+            tag_request.approved = True
+            db.session.add(tag)
+            db.session.commit()
+            flash("Tag created.")
+            return redirect(next_page)
+
+    return render_template("forms/tag.html", title="Create Tag", form=form)
+
+@app.route("/admin/tags/reject/<tag_request_id>")
+@login_required
+def reject_tag(tag_request_id):
+    current_user.authorize_rights("create_tags")
+
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag_request_index")
+
+    tag_request.rejected = True
     db.session.commit()
 
     return redirect(next_page)

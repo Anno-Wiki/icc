@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Tag Requests</h1>
+
+    {% if current_user.is_authenticated and
+            current_user.is_authorized(vars["AUTHORIZATION"]["TAG_REQUEST"]) %}
+
+        <h4>
+            Don't see what you’re looking for? 
+            <a href="{{ url_for("tag_request") }}">Try requesting it</a>.
+        </h4>
+
+    {% endif %}
+
+    {% if current_user.is_authenticated and
+            current_user.has_right("create_tags") %}
+
+        <h4>
+            You have the appropriate permissions to
+            <a href="{{ url_for("create_tag") }}">create a tag</a>.
+        </h4>
+
+    {% endif %}
+
+    <div class="index">
+        {% for tag_request in tag_requests %}
+            <div class="tag_card">
+                <h2>
+                    {% if not tag_request.approved %}
+                        <a href="{{ url_for("view_tag_request",
+                                tag_request_id=tag_request.id) }}">
+                            <tag>{{ tag_request.tag }}</tag>
+                        </a>
+                    {% elif not tag_request.rejected %}
+                        <a href="{{ url_for("tag",
+                                tag=tag_request.created_tag.tag) }}">
+                            <tag>{{ tag_request.tag }}</tag>
+                        </a>
+                    {% endif %}
+
+                    {% if tag_request.approved %}
+                        ✓
+                    {% elif tag_request.rejected %}
+                        ❌
+                    {% endif %}
+                </h2>
+
+                {% if current_user.is_authenticated and
+                        current_user.has_right("create_tags") and not
+                        tag_request.approved and not tag_request.rejected %}
+                    <a href="{{ url_for("create_tag",
+                            tag_request_id=tag_request.id) }}">accept</a>
+                    /
+                    <a href="{{ url_for("reject_tag",
+                            tag_request_id=tag_request.id) }}">reject</a>
+                {% endif %}
+
+                <div class="weight">
+                    {{ tag_request.weight }}
+
+                    {% if uservotes and tag_request.id in uservotes and
+                            uservotes[tag_request.id] %}
+                        <a href="{{ url_for("upvote_tag_request",
+                               tag_request_id=tag_request.id) }}" class="voted">
+                            up
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for("upvote_tag_request",
+                               tag_request_id=tag_request.id) }}" class="notvoted">
+                            up
+                        </a>
+                    {% endif %}
+
+                    /
+
+                    {% if uservotes and tag_request.id in uservotes and not
+                            uservotes[tag_request.id] %}
+                        <a href="{{ url_for("downvote_tag_request",
+                                tag_request_id=tag_request.id) }}" class="voted">
+                            down
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for("downvote_tag_request",
+                               tag_request_id=tag_request.id) }}" class="notvoted">
+                            down
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="externals">
+                    <a href="{{ tag_request.wikipedia }}">Wikipedia</a>
+                </div>
+
+                {% if len(tag_request.description) >= 127 %}
+                    <div class="card_text_cutoff">
+                        {% if not tag_request.approved and not
+                                tag_request.rejected %}
+                            Description:
+                            {{ tag_request.description[:127]|markdown }}
+                        {% else %}
+                            Notes:
+                            {{ tag_request.notes[:127]|markdown }}
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div>
+                        {% if not tag_request.approved and not
+                                tag_request.rejected %}
+                            Description:<br>
+                            {{ tag_request.description[:127]|markdown }}
+                        {% else %}
+                            Notes:<br>
+                            {{ tag_request.notes[:127]|markdown }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <a href="{{ url_for("view_tag_request",
+                        tag_request_id=tag_request.id) }}">
+                    View More
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -43,11 +43,10 @@
     <div>
     {% endif %}
     {{ request.description[:127]|markdown }}
-    <br>
+</div>
 <a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
     View More
 </a>
-</div>
 </div>
 {% endfor %}
 </div>

@@ -414,7 +414,23 @@ textarea {
 .tag_card p {
     font-size: 16px;
     color: var(--base00);
+    margin: 5px;
+    display: inline-block;
+}
+.tag_card .card_text_cutoff p:after {
+    content: "...";
 }
 .tag_card tag {
     margin-left: 0px;
+}
+.tag_card h2 {
+    margin: 0 0 3px 0;
+    font-size: 20px;
+    color: var(--base00);
+}
+.tag_card .externals {
+    font-size: 12px;
+}
+.tag_card .weight {
+    font-size: 20px;
 }

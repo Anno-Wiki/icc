@@ -69,6 +69,14 @@ class User(UserMixin, db.Model):
             secondaryjoin="BookRequestVote.book_request_id==BookRequest.id",
             backref="voters", lazy="dynamic")
 
+    tag_request_ballots = db.relationship("TagRequestVote",
+            primaryjoin="User.id==TagRequestVote.user_id", lazy="dynamic")
+    tag_request_votes = db.relationship("TagRequest",
+            secondary="tag_request_vote",
+            primaryjoin="TagRequestVote.user_id==User.id",
+            secondaryjoin="TagRequestVote.tag_request_id==TagRequest.id",
+            backref="voters", lazy="dynamic")
+
     def __repr__(self):
         return "<User {}>".format(self.username)
 
@@ -155,6 +163,20 @@ class User(UserMixin, db.Model):
         return self.book_request_ballots.filter(
                 BookRequestVote.book_request==book_request).first()
 
+    # tag request vote utilities
+    def get_tag_request_vote_dict(self):
+        v = {}
+        for vote in self.tag_request_ballots:
+            v[vote.tag_request.id] = vote.is_up()
+        return v
+
+    def already_voted_tag_request(self, tag_request):
+        return tag_request in self.tag_request_votes
+
+    def get_tag_request_vote(self, tag_request):
+        return self.tag_request_ballots.filter(
+                TagRequestVote.tag_request==tag_request).first()
+
     # edit vote utilities
     def get_edit_vote(self, edit):
         return self.edit_votes.filter(EditVote.edit==edit,
@@ -198,22 +220,6 @@ class EditVote(db.Model):
 
     def __repr__(self):
         return f"<{self.user.username} {self.delta} on {self.edit}>"
-
-    def is_up(self):
-        return self.delta > 0
-
-class BookRequestVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    book_request_id = db.Column(db.Integer, db.ForeignKey("book_request.id"),
-            index=True)
-    delta = db.Column(db.Integer)
-
-    user = db.relationship("User")
-    book_request = db.relationship("BookRequest")
-
-    def __repr__(self):
-        return f"<{self.user.username} {self.delta} on {self.annotation}>"
 
     def is_up(self):
         return self.delta > 0
@@ -511,6 +517,11 @@ class AnnotationVersion(db.Model):
 ## Requests ##
 ##############
 
+
+###################
+## Book Requests ##
+###################
+
 class BookRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(127), index=True)
@@ -525,11 +536,12 @@ class BookRequest(db.Model):
     requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     requested = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    approved = db.Column(db.DateTime, index=True, default=None)
-    rejected = db.Column(db.DateTime, index=True, default=None)
 
     requester = db.relationship("User", backref="book_requests")
     book = db.relationship("Book", backref="request")
+
+    def __repr__(self):
+        return f"<Request for {self.title}>"
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -546,3 +558,73 @@ class BookRequest(db.Model):
         self.weight += weight
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
+
+class BookRequestVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    book_request_id = db.Column(db.Integer, db.ForeignKey("book_request.id"),
+            index=True)
+    delta = db.Column(db.Integer)
+
+    user = db.relationship("User")
+    book_request = db.relationship("BookRequest")
+
+    def __repr__(self):
+        return f"<{self.user.username} {self.delta} on {self.book_request}>"
+
+    def is_up(self):
+        return self.delta > 0
+
+##################
+## Tag Requests ##
+##################
+
+class TagRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(127), index=True)
+    weight = db.Column(db.Integer, default=0, index=True)
+    approved = db.Column(db.Boolean, default=False, index=True)
+    rejected = db.Column(db.Boolean, default=False, index=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    description = db.Column(db.Text)
+    notes = db.Column(db.Text)
+    wikipedia = db.Column(db.String(127), default=None)
+    requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    requested = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    requester = db.relationship("User", backref="tag_requests")
+    created_tag = db.relationship("Tag", backref="tag_request")
+
+
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        db.session.delete(vote)
+
+    def upvote(self, voter):
+        weight = 1
+        self.weight += weight
+        vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
+        db.session.add(vote)
+
+    def downvote(self, voter):
+        weight = -1
+        self.weight += weight
+        vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
+        db.session.add(vote)
+
+class TagRequestVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    tag_request_id = db.Column(db.Integer, db.ForeignKey("tag_request.id"),
+            index=True)
+    delta = db.Column(db.Integer)
+
+    user = db.relationship("User")
+    tag_request = db.relationship("TagRequest")
+
+    def __repr__(self):
+        return f"<{self.user.username} {self.delta} on {self.annotation}>"
+
+    def is_up(self):
+        return self.delta > 0
