@@ -1,84 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta charset="utf-8" />
-{% if title %}
-    <title>{{ title }} - Annopedia</title>
-{% else %}
-    <title>Welcome to Annopedia</title>
-{% endif %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="styles/style.css") }}">
-    <link rel="shortcut icon" href="{{ url_for("static", filename="favicon.ico") }}?v=3">
-    <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i" rel="stylesheet">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8" />
+        {% if title %}
+            <title>{{ title }} - Annopedia</title>
+        {% else %}
+            <title>Welcome to Annopedia</title>
+        {% endif %}
+        <link rel="stylesheet" type="text/css"
+                href="{{ url_for("static", filename="styles/style.css") }}">
+        <link rel="shortcut icon"
+                href="{{ url_for("static", filename="favicon.ico") }}?v=3">
+        <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i"
+                rel="stylesheet">
+    </head>
 
-</head>
+    <body>
+        <div class="header">
 
-<body>
-<div class="header">
+            <div class="logo">
+                <a href="{{ url_for("index") }}">
+                    <img src="{{ url_for("static", filename="images/n2.png")}}">
+                </a>
+                <a href="{{ url_for("index") }}">Annopedia</a>
+            </div>
 
-    <div class="logo">
-        <a href="{{ url_for("index") }}"><img src="{{ url_for("static", filename="images/n2.png")}}"></a>
-        <a href="{{ url_for("index") }}">Annopedia</a>
-    </div>
+            <nav>
+                <a href="{{ url_for("index") }}">HOME</a>
+                |
+                <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                |
+                <a href="{{ url_for("book_index") }}">BOOKS</a>
+                |
+                <a href="{{ url_for("tag_index") }}">TAGS</a>
+            </nav>
 
-    <nav>
-        <a href="{{ url_for("index") }}">HOME</a>
-        |
-        <a href="{{ url_for("author_index") }}">AUTHORS</a>
-        |
-        <a href="{{ url_for("book_index") }}">BOOKS</a>
-        |
-        <a href="{{ url_for("tag_index") }}">TAGS</a>
-    </nav>
+            <div class="user_info">
+                {%- if current_user.is_anonymous -%}
+                    <a href="{{ url_for("login") }}">login</a>
+                {%- else %}
+                    {% if current_user.has_right("view_deleted_annotations") -%}
+                        <a href="{{ url_for("view_deleted_annotations") }}">
+                            view deleted annotations
+                        </a>
+                        |
+                    {% endif %}
 
-    <div class="user_info">
-        {%- if current_user.is_anonymous -%}
-            <a href="{{ url_for("login") }}">login</a>
-        {%- else %}
-            {% if current_user.has_right("view_deleted_annotations") -%}
-            <a href="{{ url_for("view_deleted_annotations") }}">view deleted annotations</a>
-            |
+                    {% if current_user.is_authorized(
+                            vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
+                        <a href="{{ url_for("edit_review_queue") }}">
+                            review edits
+                        </a>
+                        |
+                    {% endif %}
+
+                    <a href="{{ url_for("user", user_id=current_user.id) }}">
+                        {{ current_user.username }}
+                    </a>
+                    {% include "/includes/_reputation_current_user.html" %}
+                    |
+                    <a href="{{ url_for("logout") }}">logout</a>
+                {%- endif %}
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
+        {% endwith %}
 
-            {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
-            <a href="{{ url_for("edit_review_queue") }}">review edits</a>
-            |
+        <div id="container">
+            {% block content %}
+            {% endblock %}
+
+            {% if prev_page %}
+                <a href="{{ prev_page }}">&lt;&lt; Previous</a>
             {% endif %}
-            <a href="{{ url_for("user", user_id=current_user.id) }}">
-                {{ current_user.username }}
-            </a>
-            {% include "/includes/_reputation_current_user.html" %}
-            |
-        <a href="{{ url_for("logout") }}">logout</a>
-        {%- endif %}
-    </div>
-</div>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul class="flash">
-{% for message in messages %}
-    <li>{{ message }}</li>
-{% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-<div id="container">
-{% block content %}
-{% endblock %}
-    {% if prev_page %}
-    <a href="{{ prev_page }}">&lt;&lt; Previous</a>
-    {% endif %}
-    {% if next_page and prev_page %}
-    |
-    {% endif %}
-    {% if next_page %}
-    <a href="{{ next_page }}">Next &gt;&gt;</a>
-    {% endif %}
-
-</div>
-
-</body>
-
+            {% if next_page and prev_page %}
+                |
+            {% endif %}
+            {% if next_page %}
+                <a href="{{ next_page }}">Next &gt;&gt;</a>
+            {% endif %}
+        </div>
+    </body>
 </html>

@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="POST" novalidate>
-    {{ form.hidden_tag() }}
-    {{ form.line(size=200) }}
-    <br>
-    {% for error in form.line.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    <br>
-    <br>
-    {{ form.submit }}
-    {{ form.cancel }}
-</form>
+    <form action="" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        {{ form.line(size=200) }}
+        <br>
+        {% for error in form.line.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        <br>
+        <br>
+        {{ form.submit }}
+        {{ form.cancel }}
+    </form>
 {% endblock %}

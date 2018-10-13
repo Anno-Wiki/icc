@@ -1,84 +1,122 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script src="{{ url_for('static', filename='scripts/get_selected.js') }}"></script>
-
     <!--Header/Running Head-->
-
     <div class="running_head">
         <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
-         by <a href="{{ url_for("author", name=book.author.url) }}">
-            {{ book.author.name }} </a>
+        by
+        <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }}
+        </a>
     </div>
 
-
     <hr>
+    <!--Selection-->
     {% if annotation and annotation.edit_pending %}
-        <h2>An edit is already pending</h2>
-        <p>A new edit suggestion cannot be submitted until the currently pending
-        edit suggestion is either approved or rejected.</p>
-        <p>Please try again later.</p>
+        <h1>An edit is already pending</h1>
+        <p>
+            A new edit suggestion cannot be submitted until the currently pending
+            edit suggestion is either approved or rejected.
+        </p>
+        <p>
+            Please try again later.
+        </p>
     {% else %}
-        <h1>Selection:</h1>
+        <h3>Selection:</h3>
         <div id="content">
-            {%- for line in lines -%}
-                {%- include "includes/_line.html" -%}
-            {%- endfor -%}
+            {% if len(lines) > 1 %}
+                <h1>
+                    Annotating
+                    <em>ll. {{ lines[0].l_num }}-{{ lines[-1].l_num }}</em>
+                    of War and Peace
+                </h1>
+            {% else %}
+                <h1>
+                    Annotating <em>l. {{ lines[0].l_num }}</em> of War and Peace
+                </h1>
+            {% endif %}
+            <div class="selection">
+                <h3>Context:</h3>
+                {% for line in context %}
+                    {% if line in lines %}
+                        <div class="highlight">
+                            <line class="{{ line.kind.kind }}"
+                                    id="{{ line.l_num }}">
+                                <span class="linenum">{{ line.l_num }}</span>
+                                {% include "includes/_line.html" %}
+                            </line>
+                        </div>
+                    {% else %}
+                        <line class="{{ line.kind.kind }}"
+                                id="{{ line.l_num }}">
+                            {% include "includes/_line.html" %}
+                        </line>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
         </div>
-        <hr class="book_separator">
 
-<form action="" method="POST" novalidate>
-    {{ form.hidden_tag() }}
-    <span style="display:none;">
-    {{ form.first_char_idx(size=1) }}
-    {{ form.last_char_idx(size=1) }}
-    </span>
-    <table>
-        <tr>
-            <th>
-                {{ form.first_line.label }}:
-                {{ form.first_line(size=1) }}<br>
-                {% for error in form.first_line.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </th>
-            <th>
-                {{ form.last_line.label }}:
-                {{ form.last_line(size=1) }}<br>
-                {% for error in form.last_line.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </th>
-            <th>
-                {% if current_user.has_right("lock_annotations") %}
-                    {{ form.locked.label }}
-                    {{ form.locked }}
-                {% endif %}
-            </th>
-        </tr>
-        <tr>
-            <td colspan=5>
-                {{ form.annotation(rows=10, cols=70) }}<br>
-            </td>
-        </tr>
-        <tr>
-            <th colspan=5>
-                {{ form.tags(size=64) }}
-                {% for error in form.tags.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                <br>
-                {% endfor %}
-            </th>
-        </tr>
-        <tr>
-            <th colspan=5>
-                {{ form.submit }}
-                {{ form.cancel }}
-            </th>
-        </tr>
-    </table>
-</form>
-
+        <form action="" method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            <span style="display:none;">
+                {{ form.first_char_idx(size=1) }}
+                {{ form.last_char_idx(size=1) }}
+            </span>
+            <table>
+                <tr>
+                    <th>
+                        {{ form.first_line.label }}:
+                        {{ form.first_line(size=1) }}
+                        <br>
+                        {% for error in form.first_line.errors %}
+                            <span style="color: red;">
+                                [{{ error }}]
+                            </span>
+                        {% endfor %}
+                    </th>
+                    <th>
+                        {{ form.last_line.label }}:
+                        {{ form.last_line(size=1) }}
+                        <br>
+                        {% for error in form.last_line.errors %}
+                            <span style="color: red;">
+                                [{{ error }}]
+                            </span>
+                        {% endfor %}
+                    </th>
+                    <th>
+                        {% if current_user.has_right(
+                                "lock_annotations") %}
+                            {{ form.locked.label }}
+                            {{ form.locked }}
+                        {% endif %}
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan=5>
+                        {{ form.annotation(rows=10, cols=70) }}
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan=5>
+                        {{ form.tags(size=64) }}
+                        {% for error in form.tags.errors %}
+                            <span style="color: red;">
+                                [{{ error }}]
+                            </span>
+                            <br>
+                        {% endfor %}
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan=5>
+                        {{ form.submit }}
+                        {{ form.cancel }}
+                    </th>
+                </tr>
+            </table>
+        </form>
     {% endif %}
-
 {% endblock %}

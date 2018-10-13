@@ -430,8 +430,10 @@ def annotate(book_url, first_line, last_line):
         last_line = 1
 
     book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines.filter(
-            Line.l_num>=first_line, Line.l_num<=last_line).all()
+    lines = book.lines.filter(Line.l_num>=first_line,
+            Line.l_num<=last_line).all()
+    context = book.lines.filter(Line.l_num>=int(first_line)-5,
+            Line.l_num<=int(last_line)+5).all()
     form = AnnotationForm()
 
     if lines == None:
@@ -499,7 +501,7 @@ def annotate(book_url, first_line, last_line):
         form.last_char_idx.data = -1
 
     return render_template("forms/annotation.html", title=book.title, form=form,
-             book=book, lines=lines)
+             book=book, lines=lines, context=context)
 
 
 @app.route("/upvote/<anno_id>/")

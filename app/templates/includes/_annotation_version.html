@@ -1,14 +1,18 @@
 <annotation id="a{{ annotation.pointer.id }}">
-
     <div class="annotation_head">
         Version: {{ annotation.hash_id }}
-        <sup><a href="{{ url_for("view_annotation", annotation_id=annotation.pointer.id) }}">
-        [{{ annotation.pointer.id }}]
-        </a></sup>
+        <sup>
+            <a href="{{ url_for("view_annotation",
+                    annotation_id=annotation.pointer.id) }}">
+                [{{ annotation.pointer.id }}]
+            </a>
+        </sup>
         on
-        <em><a href="{{ url_for("book", book_url=annotation.book.url) }}">
-            {{ annotation.book.title }}
-        </a></em>
+        <em>
+            <a href="{{ url_for("book", book_url=annotation.book.url) }}">
+                {{ annotation.book.title }}
+            </a>
+        </em>
         by
         <a href="{{ url_for("author", name=annotation.book.author.url) }}">
             {{ annotation.book.author.name }}
@@ -19,54 +23,62 @@
 
         <a href="{{ url_for("reject", edit_hash=annotation.hash_id) }}">
             Click here to vote for the original on 
-
-        <em>
-        {%- if annotation.pointer.HEAD.first_line_num == annotation.pointer.HEAD.last_line_num %}
-            l.{{ annotation.pointer.HEAD.last_line_num }}
-        {% else -%}
-            ll.{{ annotation.pointer.HEAD.first_line_num }}-{{ annotation.pointer.HEAD.last_line_num }}
-        {% endif -%}
-        </em>
+            <em>
+                {%- if annotation.pointer.HEAD.first_line_num == 
+                        annotation.pointer.HEAD.last_line_num %}
+                    l.{{ annotation.pointer.HEAD.last_line_num }}
+                {% else -%}
+                    ll.{{ annotation.pointer.HEAD.first_line_num }}
+                    -
+                    {{ annotation.pointer.HEAD.last_line_num }}
+                {% endif -%}
+            </em>
         </a>
 
         <br>
         <br>
 
         <a href="{{ url_for("approve", edit_hash=annotation.hash_id) }}">
-            Click here to vote for the new version
-        on
-        <em>
-        {%- if annotation.first_line_num == annotation.last_line_num %}
-            l.{{ annotation.last_line_num }}
-        {% else -%}
-            ll.{{ annotation.first_line_num }}-{{ annotation.last_line_num }}
-        {% endif -%}
-        </em>
+            Click here to vote for the new version on
+            <em>
+                {%- if annotation.first_line_num == annotation.last_line_num %}
+                    l.{{ annotation.last_line_num }}
+                {% else -%}
+                    ll.{{ annotation.first_line_num }}
+                    -
+                    {{ annotation.last_line_num }}
+                {% endif -%}
+            </em>
         </a>
 
         {% if annotation.weight > 0 -%}
-        {%- if annotation.weight >= 1000000 -%}
-        <weight class="up">{{ round(annotation.weight / 1000000, 1) }}m</weight>
-        {%- elif annotation.weight >= 1000 -%}
-        <weight class="up">{{ round(annotation.weight / 1000, 1) }}k</weight>
-        {%- else -%}
-        <weight class="up">{{ annotation.weight }}</weight>
-        {%- endif -%}
-
+            {%- if annotation.weight >= 1000000 -%}
+                <weight class="up">
+                    {{ round(annotation.weight / 1000000, 1) }}m
+                </weight>
+            {%- elif annotation.weight >= 1000 -%}
+                <weight class="up">
+                    {{ round(annotation.weight / 1000, 1) }}k
+                </weight>
+            {%- else -%}
+                <weight class="up">
+                    {{ annotation.weight }}
+                </weight>
+            {%- endif -%}
         {%- elif annotation.weight == 0 -%}
-
-        <weight class="nil">{{ annotation.weight }}</weight>
-
+            <weight class="nil">{{ annotation.weight }}</weight>
         {%- else -%}
-
-        {%- if annotation.weight <= -1000000 -%}
-        <weight class="down">{{ round(annotation.weight / 1000000, 1) }}m</weight>
-        {%- elif annotation.weight <= -1000 -%}
-        <weight class="down">{{ round(annotation.weight / 1000, 1) }}k</weight>
-        {%- else -%}
-        <weight class="down">{{ annotation.weight }}</weight>
-        {%- endif -%}
-
+            {%- if annotation.weight <= -1000000 -%}
+                <weight class="down">
+                    {{ round(annotation.weight / 1000000, 1) }}m
+                </weight>
+            {%- elif annotation.weight <= -1000 -%}
+                <weight class="down">
+                    {{ round(annotation.weight / 1000, 1) }}k
+                </weight>
+            {%- else -%}
+                <weight class="down">{{ annotation.weight }}</weight>
+            {%- endif -%}
         {%- endif -%}
     </div>
 
@@ -74,29 +86,30 @@
     <div class="annotation_content">
         {{ annotation.pointer.HEAD.annotation|markdown }}
     </div>
-    
+
     New text:
     <div class="annotation_content">
         {{ annotation.annotation|markdown }}
     </div>
 
     <tags>
-    Old tags:
+
+        Old tags:
         {% for t in annotation.pointer.HEAD.tags %}
-        <a href="{{ url_for("tag", tag=t.tag) }}">
-        <tag>{{ t.tag }}</tag>
-        </a>
+            <a href="{{ url_for("tag", tag=t.tag) }}">
+                <tag>{{ t.tag }}</tag>
+            </a>
         {% endfor %}
     </tags>
 
     <br>
 
     <tags>
-    New Tags:
+        New Tags:
         {% for t in annotation.tags %}
-        <a href="{{ url_for("tag", tag=t.tag) }}">
-        <tag>{{ t.tag }}</tag>
-        </a>
+            <a href="{{ url_for("tag", tag=t.tag) }}">
+                <tag>{{ t.tag }}</tag>
+            </a>
         {% endfor %}
     </tags>
 
@@ -104,7 +117,7 @@
 
     edited by 
     <a href="{{ url_for("user", user_id=annotation.editor.id) }}">
-    {{ annotation.editor.username }}
+        {{ annotation.editor.username }}
     </a>
     {% include "_reputation_editor_edit.html" %}
 

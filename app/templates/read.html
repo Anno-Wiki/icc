@@ -1,45 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     <!--Header/Running Head-->
     <div class="running_head">
         <a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a> 
-         by <a href="{{ url_for("author", name=book.author.url) }}">
-            {{ book.author.name }} </a>
+        by
+        <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }}
+        </a>
     </div>
-
-    <!--Pagination-->
+    <!--Tag limitation controls-->
     {% if tags %}
-    <div class="tag_limit">
-        Limit visible annotations to tag:
-        {% for tag in tags %}
-            <a href="{{ url_for("read", book_url=book.url,
-                bk=lines[0].bk_num, pt=lines[0].pt_num, ch=lines[0].ch_num,
-                tag=tag.tag) }}">
-                <tag>
-                    {{ tag.tag }}
-                </tag>
-            </a>
-        {% endfor %}
-    </div>
-    {% else %}
+        <div class="tag_limit">
+            Limit visible annotations to tag:
+            {% for tag in tags %}
+                <a href="{{ url_for("read", book_url=book.url,
+                        bk=lines[0].bk_num, pt=lines[0].pt_num,
+                        ch=lines[0].ch_num, tag=tag.tag) }}">
+                    <tag>
+                        {{ tag.tag }}
+                    </tag>
+                </a>
+            {% endfor %}
+        </div>
+    {% elif annotations %}
         <a href="{{ url_for("read", book_url=book.url, bk=lines[0].bk_num,
-            pt=lines[0].pt_num, ch=lines[0].ch_num) }}">Show all tags</a>
+                pt=lines[0].pt_num, ch=lines[0].ch_num) }}">
+            Show all tags
+        </a>
         <br>
     {% endif %}
 
-
+    <!--Pagination-->
     {% if prev_page %}
         <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
     {% endif %}
     {% if prev_page and next_page %}
-    |
+        |
     {% endif %}
     {% if next_page %}
         <a href="{{ next_page }}">Next Page &gt;&gt;</a>
     {% endif %}
-
+    
+    <!--Line number entry for annotation form-->
     <form action="" method="POST">
         {{ form.hidden_tag() }}
         {{ form.first_line(size=4) }}
@@ -48,35 +51,42 @@
     </form>
 
     <hr>
+
+    <!--Text of the page-->
     <div id="content">
-    {%- for line in lines %}
-        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+        {%- for line in lines %}
+            <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                {% if line.l_num % 5 == 0 %}
+                    <!--Line number-->
+                    <span class="linenum">{{ line.l_num }}</span>
+                {% endif %}
 
-        {% if line.l_num % 5 == 0 %}
-            <span class="linenum">{{ line.l_num }}</span>
-        {% endif %}
+                <!--Actual line-->
+                {%- include "includes/_line.html" -%}
 
-        {%- include "includes/_line.html" -%}
+                {% if current_user.is_authenticated and
+                        edit_right in current_user.rights %}
+                    <span class="body_annotation">
+                        <a href="{{ url_for("edit_line", line_id=line.id,
+                                next=request.path) }}">
+                            edit
+                        </a>
+                    </span>
+                {% endif %}
 
-        {% if current_user.is_authenticated and edit_right in current_user.rights %}
-        <span class="body_annotation">
-            <a href="{{ url_for("edit_line", line_id=line.id, next=request.path)
-                }}">edit</a>
-        </span>
-        {% endif %}
+                {% if line.l_num in annotations_idx %}
+                    <!--Footnote marker-->
+                    <span class="body_annotation">
+                        {% for a in annotations_idx[line.l_num] %}
+                            <a href="#a{{ a.id }}">
+                                [{{ a.id }}]
+                            </a>
+                        {% endfor %}
+                    </span>
+                {% endif %}
 
-        {% if line.l_num in annotations_idx %}
-            <span class="body_annotation">
-            {% for a in annotations_idx[line.l_num] %}
-            <a href="#a{{ a.id }}">
-                [{{ a.id }}]
-            </a>
-            {% endfor %}
-            </span>
-        {% endif %}
-
-        </line>
-    {% endfor -%}
+            </line>
+        {% endfor -%}
     </div>
 
     <!--Annotations-->
@@ -90,13 +100,13 @@
 
     <hr>
 
-    <!--Page Counter-->
+    <!--Contrary to class name, running foot-->
     <div class="running_head">
-        <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }}</a> 
-
-         by <a href="{{ url_for("author", name=book.author.url) }}">
-            {{ book.author.name }} </a>
+        <a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a> 
+        by
+        <a href="{{ url_for("author", name=book.author.url) }}">
+            {{ book.author.name }}
+        </a>
     </div>
-
 
 {% endblock %}

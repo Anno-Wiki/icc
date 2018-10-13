@@ -1,111 +1,150 @@
-    <annotation id="a{{ annotation.id }}">
-
+<annotation id="a{{ annotation.id }}">
     <div class="annotation_head">
-        <sup><a href="{{ url_for("view_annotation", annotation_id=annotation.id) }}">
-        [{{ annotation.id }}]
-        </a></sup>
-        
+        <sup>
+            <a href="{{ url_for("view_annotation",
+                    annotation_id=annotation.id) }}">
+                [{{ annotation.id }}]
+            </a>
+        </sup>
         on
-        <em><a href="#{{ annotation.HEAD.first_line_num }}">
-        {%- if annotation.HEAD.first_line_num == annotation.HEAD.last_line_num %}
-            l.{{ annotation.HEAD.last_line_num }}
-        {% else %}
-            ll.{{ annotation.HEAD.first_line_num }}-{{ annotation.HEAD.last_line_num }}
-        {% endif -%}
-        </a></em>
+        <em>
+            <a href="#{{ annotation.HEAD.first_line_num }}">
+                {%- if annotation.HEAD.first_line_num == 
+                        annotation.HEAD.last_line_num %}
+                    l.{{ annotation.HEAD.last_line_num }}
+                {% else %}
+                    ll.
+                    {{ annotation.HEAD.first_line_num }}
+                    -
+                    {{ annotation.HEAD.last_line_num }}
+                {% endif -%}
+            </a>
+        </em>
 
+        <!--weight-->
         {% if annotation.weight > 0 %}
-
-        {% if annotation.weight >= 1000000 %}
-        <weight class="up">{{ round(annotation.weight / 1000000, 1) }}m</weight>
-        {% elif annotation.weight >= 1000 %}
-        <weight class="up">{{ round(annotation.weight / 1000, 1) }}k</weight>
-        {% else %}
-        <weight class="up">{{ annotation.weight }}</weight>
-        {% endif %}
-
+            {% if annotation.weight >= 1000000 %}
+                <weight class="up">
+                    {{ round(annotation.weight / 1000000, 1) }}m
+                </weight>
+            {% elif annotation.weight >= 1000 %}
+                <weight class="up">
+                    {{ round(annotation.weight / 1000, 1) }}k
+                </weight>
+            {% else %}
+                <weight class="up">
+                    {{ annotation.weight }}
+                </weight>
+            {% endif %}
         {% elif annotation.weight == 0 %}
-
-        <weight class="nil">{{ annotation.weight }}</weight>
-
+            <weight class="nil">{{ annotation.weight }}</weight>
         {% else %}
-
-        {% if annotation.weight <= -1000000 %}
-        <weight class="down">{{ round(annotation.weight / 1000000, 1) }}m</weight>
-        {% elif annotation.weight <= -1000 %}
-        <weight class="down">{{ round(annotation.weight / 1000, 1) }}k</weight>
-        {% else %}
-        <weight class="down">{{ annotation.weight }}</weight>
+            {% if annotation.weight <= -1000000 %}
+                <weight class="down">
+                    {{ round(annotation.weight / 1000000, 1) }}m
+                </weight>
+            {% elif annotation.weight <= -1000 %}
+                <weight class="down">
+                    {{ round(annotation.weight / 1000, 1) }}k
+                </weight>
+            {% else %}
+                <weight class="down">{{ annotation.weight }}</weight>
+            {% endif %}
         {% endif %}
-
-        {% endif %}
-
         {% if annotation.locked %}
-        🔒
+            🔒
         {% endif %}
     </div>
 
-
+    <!--The text of the annotation-->
     <div class="annotation_content">
         {%- if len(annotation.HEAD.annotation) < 255 -%}
-        {{ annotation.HEAD.annotation|markdown }}
+            {{ annotation.HEAD.annotation|markdown }}
         {%- else -%}
-        <span class="cutoff">
-            {{- annotation.HEAD.annotation[:255]|markdown -}}
-        </span>
-        <a href="{{ url_for("view_annotation", annotation_id=annotation.id) }}">
+            <span class="cutoff">
+                {{- annotation.HEAD.annotation[:255]|markdown -}}
+            </span>
+            <a href="{{ url_for("view_annotation",
+                    annotation_id=annotation.id) }}">
             View More
-        </a>
+            </a>
         {%- endif -%}
     </div>
 
+    <!--The tags-->
     <tags>
         {% for t in annotation.HEAD.tags %}
-        <a href="{{ url_for("tag", tag=t.tag) }}">
-        <tag>
-            {{ t.tag }}
-        </tag>
-        </a>
+            <a href="{{ url_for("tag", tag=t.tag) }}">
+                <tag>
+                    {{ t.tag }}
+                </tag>
+            </a>
         {% endfor %}
     </tags>
 
     <br>
-
+    
+    <!--The footer-->
     {%- if annotation.HEAD.previous_id == None %}
-    annotated by 
-    <a href="{{ url_for("user", user_id=annotation.author.id) }}">
-    {{ annotation.author.username }}
-    </a>
-    {% include "includes/_reputation_author.html" %}
+        annotated by 
+        <a href="{{ url_for("user", user_id=annotation.author.id) }}">
+            {{ annotation.author.username }}
+        </a>
+        {% include "includes/_reputation_author.html" %}
     {%- else -%}
-    last edited by 
-    <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
-    {{ annotation.HEAD.editor.username }}
-    </a>
-    {% include "includes/_reputation_editor.html" %}
+        last edited by 
+        <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
+            {{ annotation.HEAD.editor.username }}
+        </a>
+        {% include "includes/_reputation_editor.html" %}
     {% endif %}
 
     {{ annotation.added }}
+
     |
 
     {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
-    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="voted">up</a>
+        <a href="{{ url_for("upvote", anno_id=annotation.id,
+                next=request.full_path) }}" class="voted">
+            up
+        </a>
     {% else %}
-    <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">up</a>
+        <a href="{{ url_for("upvote", anno_id=annotation.id,
+                next=request.full_path) }}" class="notvoted">
+            up
+        </a>
     {% endif -%}
-    /
-    {%- if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
-    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="voted">down</a>
+
+        /
+
+    {%- if uservotes and annotation.id in uservotes and
+            not uservotes[annotation.id] %}
+        <a href="{{ url_for("downvote", anno_id=annotation.id,
+                next=request.full_path) }}" class="voted">
+            down
+        </a>
     {% else %}
-    <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">down</a>
+        <a href="{{ url_for("downvote", anno_id=annotation.id,
+                next=request.full_path) }}" class="notvoted">
+            down
+        </a>
     {% endif -%}
-    {% if current_user.is_authenticated and (current_user.has_right("edit_locked_annotations") or not annotation.locked) %}
-    |
-    <a href="{{ url_for("edit", anno_id=annotation.id, next=request.full_path) }}">edit</a>
+
+    {% if current_user.is_authenticated and
+            (current_user.has_right("edit_locked_annotations") or
+            not annotation.locked) %}
+        |
+        <a href="{{ url_for("edit", anno_id=annotation.id,
+                next=request.full_path) }}">
+            edit
+        </a>
     {% endif %}
     {% if current_user.is_authenticated and current_user.has_right("delete_annotations") %}
-    |
-    <a href="{{ url_for("delete", anno_id=annotation.id, next=request.full_path) }}">delete</a>
+        |
+        <a href="{{ url_for("delete", anno_id=annotation.id,
+                next=request.full_path) }}">
+            delete
+        </a>
     {% endif %}
 
 </annotation>

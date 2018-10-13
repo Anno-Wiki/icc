@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><tag>{{ tag.tag }}</tag></h1>
-<h4>used in {{ tag.annotations.count() }} annotations.</h4>
+    <h1><tag>{{ tag.tag }}</tag></h1>
+    <h4>used in {{ tag.annotations.count() }} annotations.</h4>
     {% if tag.description %}
         {{ tag.description|markdown }}
     {% endif %}
     {% for annotation in annotations %}
         {% include "includes/_annotation_standalone.html" %}
     {% endfor %}
-
 {% endblock %}
