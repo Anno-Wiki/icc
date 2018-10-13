@@ -20,6 +20,7 @@
     --red:          #dc322f;
     --violet:       #6c71c4;
     --yellow:       #b58900;
+    --tmp:          #
 }
 
 /******************************************************************************/
@@ -281,10 +282,25 @@ line {
     display: block;
     width: 100%;
 }
-
 line:hover {
     background-color: var(--base2);
 }
+
+
+/* turn off the hover highlight on the actual       *
+ * annotation page for the selection and make       *
+ * the highlight of the actual selection constant.  */
+
+.selection line:hover {
+    background-color: var(--base3);
+}
+.highlight {
+    background-color: var(--base2);
+}
+.highlight line:hover {
+    background-color: var(--base2);
+}
+
 
 /* main tags */
 .fl {

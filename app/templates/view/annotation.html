@@ -1,21 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!--Header/Running Head-->
-    <div class="running_head">
-        <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{
-            annotation.book.title }}</a>
-         by <a href="{{ url_for("author", name=annotation.book.author.url) }}">
-            {{ annotation.book.author.name }} </a>
-    </div>
 
-
-    <hr>
     <div id="content">
+        <h1>Annotation 136 on War and Peace</h1>
         <div class="selection">
-        {% for line in annotation.lines %}
-            {% include "includes/_line.html" %}
-        {% endfor %}
+            <h3>Context:</h3>
+            {% for line in annotation.context %}
+                {% if line in annotation.lines %}
+                    <div class="highlight">
+                        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                            <span class="linenum">{{ line.l_num }}</span>
+                            {% include "includes/_line.html" %}
+                        </line>
+                    </div>
+                {% else %}
+                    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                        {% include "includes/_line.html" %}
+                    </line>
+                {% endif %}
+            {% endfor %}
         </div>
 
         {% include "includes/_annotation_standalone.html" %}
