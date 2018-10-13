@@ -70,6 +70,8 @@
                 {% if line.l_num % 5 == 0 %}
                     <!--Line number-->
                     <span class="linenum">{{ line.l_num }}</span>
+                {% else %}
+                    <span class="hidden_linenum">{{ line.l_num }}</span>
                 {% endif %}
 
                 <!--Actual line-->
@@ -77,7 +79,7 @@
 
                 {% if current_user.is_authenticated and
                         edit_right in current_user.rights %}
-                    <span class="body_annotation">
+                    <span class="edit_line">
                         <a href="{{ url_for("edit_line", line_id=line.id,
                                 next=request.path) }}">
                             edit
@@ -87,7 +89,7 @@
 
                 {% if line.l_num in annotations_idx %}
                     <!--Footnote marker-->
-                    <span class="body_annotation">
+                    <span class="edit_line">
                         {% for a in annotations_idx[line.l_num] %}
                             <a href="#a{{ a.id }}">
                                 [{{ a.id }}]

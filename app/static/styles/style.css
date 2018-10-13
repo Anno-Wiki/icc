@@ -353,6 +353,29 @@ line:hover {
     user-select: none;              /* Non-prefixed version, currently
                                         supported by Chrome and Opera */
 }
+.hidden_linenum {
+    display: none;
+    margin: 0 0 0 -5em;
+    width: 4em;
+    line-height: 2;
+    float: left;
+    text-align: right;
+    font-family: "Playfair Display", serif;
+    font-size: 0.7em;
+    font-weight: 600;
+    color: var(--base1);
+    -webkit-touch-callout: none;    /* iOS Safari */
+    -webkit-user-select: none;      /* Safari */
+    -khtml-user-select: none;       /* Konqueror HTML */
+    -moz-user-select: none;         /* Firefox */
+    -ms-user-select: none;          /* Internet Explorer/Edge */
+    user-select: none;              /* Non-prefixed version, currently
+                                        supported by Chrome and Opera */
+}
+line:hover .hidden_linenum, line:hover .edit_line {
+    display: unset;
+}
+
 .body_annotation {
     line-height 2;
     float: right;
@@ -366,6 +389,22 @@ line:hover {
     user-select: none;              /* Non-prefixed version, currently
                                         supported by Chrome and Opera */
 }
+
+.edit_line {
+    display: none;
+    line-height 2;
+    float: right;
+    font-family: "Playfair Display", serif;
+    font-size: 16px;
+    -webkit-touch-callout: none;    /* iOS Safari */
+    -webkit-user-select: none;      /* Safari */
+    -khtml-user-select: none;       /* Konqueror HTML */
+    -moz-user-select: none;         /* Firefox */
+    -ms-user-select: none;          /* Internet Explorer/Edge */
+    user-select: none;              /* Non-prefixed version, currently
+                                        supported by Chrome and Opera */
+}
+
 
 /******************************************************************************/
 
