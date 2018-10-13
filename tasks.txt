@@ -1,45 +1,41 @@
 
-ID Age  P Project Tags         Description                                  Urg
--- ---- - ------- ------------ -------------------------------------------- ----
-17 2w   H web     feature      elasticsearch index on tag insertion         7.88
-18 2w   H web     feature      flagging of users and annotations            7.88
-21 12d  H web     bug          Figure out how to get previous Part and Book 7.87
-                               lines for each page
-23 10d  H web     feature      define bcrypt and salt for hashing function  7.85
-24 9d   H web     feature      User deletion                                7.85
-28 6d   H web     structure    see about eliminating pointer_id from        7.83
-                               annotation_version
-29 6d   H web     bug          Figure out how to get an accurate count of   7.83
-                               annotations from tag relationship
-31 1min H web     feature      follow annotations on book                    7.8
-32 1min H web     feature      follow annotations on tag                     7.8
-33 1min H web     feature      follow annotations on author                  7.8
-14 2w   H web                  Identify chapter/part/book in header and     7.11
-                               footer of read section view
- 8 5w   M web     feature      user about mes                               5.92
-15 2w   M web     feature      Help feature for markdown formatting         5.81
-16 2w   M web     feature      About page                                   5.81
-19 13d  M web     feature      edit summary view                            5.77
-20 12d  M web     feature      General help indicators                      5.77
-22 10d  M web     feature      edit author bio view                         5.75
-25 9d   M web     feature      Modify chapter hierarchies to be more        5.75
-                               general, e.g. level 1, level 2, level 3
-26 8d   M web     bug          find a way to order annotations based on     5.74
-                               last modified
-27 7d   M web     bug          Investigate whether explicitly passing       5.74
-                               current_user as a variable instead of
-                               relying on current_user in order to check
-                               line_edit rights on read.html would speed up
-                               page generation
-30 2d   M web     feature      convert admin links to drop down             5.71
- 3 8w   L web     JS feature   write javascript for pe char-level           4.04
-                               annotation
- 5 7w   L web     AJAX feature Write javascript for popup annotations on       4
-                               read view.
- 4 8w   L web     bug          find a way to index the annotations on a     3.91
-                               given page starting at 1; using the actual
-                               id of the annotation will become obnoxious
-                               when we have annotation [a100000000002354]
- 6 7w   L web     test         Test more formats!                            3.9
+ID Age P Project Tags         Description                                   Urg
+-- --- - ------- ------------ --------------------------------------------- ----
+16 2w  H web     feature      elasticsearch index on tag insertion          7.88
+17 2w  H web     feature      flagging of users and annotations             7.88
+20 13d H web     bug          Figure out how to get previous Part and Book  7.87
+                              lines for each page
+22 10d H web     feature      define bcrypt and salt for hashing function   7.85
+23 10d H web     feature      User deletion                                 7.85
+27 6d  H web     structure    see about eliminating pointer_id from         7.83
+                              annotation_version
+28 6d  H web     bug          Figure out how to get an accurate count of    7.83
+                              annotations from tag relationship
+29 4h  H web     feature      follow annotations on book                     7.8
+30 4h  H web     feature      follow annotations on tag                      7.8
+31 4h  H web     feature      follow annotations on author                   7.8
+ 8 5w  M web     feature      user about mes                                5.92
+14 3w  M web     feature      Help feature for markdown formatting          5.82
+15 3w  M web     feature      About page                                    5.82
+18 13d M web     feature      edit summary view                             5.77
+19 13d M web     feature      General help indicators                       5.77
+21 10d M web     feature      edit author bio view                          5.75
+24 9d  M web     feature      Modify chapter hierarchies to be more         5.75
+                              general, e.g. level 1, level 2, level 3
+25 8d  M web     bug          find a way to order annotations based on last 5.74
+                              modified
+26 8d  M web     bug          Investigate whether explicitly passing        5.74
+                              current_user as a variable instead of relying
+                              on current_user in order to check line_edit
+                              rights on read.html would speed up page
+                              generation
+ 3 9w  L web     JS feature   write javascript for pe char-level annotation 4.05
+ 5 7w  L web     AJAX feature Write javascript for popup annotations on        4
+                              read view.
+ 4 8w  L web     bug          find a way to index the annotations on a      3.91
+                              given page starting at 1; using the actual id
+                              of the annotation will become obnoxious when
+                              we have annotation [a100000000002354]
+ 6 7w  L web     test         Test more formats!                             3.9
 
-25 tasks
+23 tasks
