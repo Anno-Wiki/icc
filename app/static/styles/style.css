@@ -255,6 +255,10 @@ tag:hover {
     font-family: 'Playfair Display', serif;
 }
 
+.running_head h5 {
+    margin: 0 0 0 20px;
+}
+
 .tag_limit {
     margin: 20px 0 20px 0;
 }

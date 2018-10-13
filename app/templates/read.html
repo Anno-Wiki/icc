@@ -8,6 +8,17 @@
         <a href="{{ url_for("author", name=book.author.url) }}">
             {{ book.author.name }}
         </a>
+        <h5>
+            {% if lines[0].bk_num != 0 %}
+                Book {{ lines[0].bk_num }}
+            {% endif %}
+            {% if lines[0].pt_num != 0 %}
+                Part {{ lines[0].pt_num }}
+            {% endif %}
+            {% if lines[0].ch_num != 0 %}
+                Chapter {{ lines[0].ch_num }}
+            {% endif %}
+        </h5>
     </div>
     <!--Tag limitation controls-->
     {% if tags %}
@@ -102,6 +113,17 @@
 
     <!--Contrary to class name, running foot-->
     <div class="running_head">
+        <h5>
+            {% if lines[0].bk_num != 0 %}
+                Book {{ lines[0].bk_num }}
+            {% endif %}
+            {% if lines[0].pt_num != 0 %}
+                Part {{ lines[0].pt_num }}
+            {% endif %}
+            {% if lines[0].ch_num != 0 %}
+                Chapter {{ lines[0].ch_num }}
+            {% endif %}
+        </h5>
         <a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a> 
         by
         <a href="{{ url_for("author", name=book.author.url) }}">
