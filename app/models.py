@@ -314,6 +314,22 @@ class Tag(db.Model):
             secondaryjoin="Annotation.head_id==AnnotationVersion.id",
             lazy="dynamic")
 
+    annotations2 = db.relationship("Annotation",
+            secondary="join(tags, AnnotationVersion,"
+            "and_(tags.c.annotation_version_id==AnnotationVersion.id,"
+            "AnnotationVersion.current==True))",
+            primaryjoin="Tag.id==tags.c.tag_id",
+            secondaryjoin="AnnotationVersion.pointer_id==Annotation.id",
+            lazy="dynamic")
+
+#    annotations3 = db.relationship("Annotation",
+#            secondary="join(Tag, tags, Tag.id==tags.c.tag_id)"
+#            ".join(AnnotationVersion, tags,"
+#            "and_(tags.c.annotation_version_id==AnnotationVersion.id,"
+#            "AnnotationVersion.current==True))",
+#            primaryjoin="Annotation.id==AnnotationVersion.pointer_id",
+#            lazy="dynamic")
+
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
@@ -421,6 +437,10 @@ class Annotation(db.Model):
     author = db.relationship("User")
     book = db.relationship("Book")
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
+    head = db.relationship("AnnotationVersion",
+                primaryjoin="and_(AnnotationVersion.current==True,"
+                        "AnnotationVersion.pointer_id==Annotation.id)",
+                        uselist=False)
     lines = db.relationship("Line", secondary="annotation_version",
         primaryjoin="Annotation.head_id==AnnotationVersion.id",
         secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
@@ -474,6 +494,7 @@ class AnnotationVersion(db.Model):
     last_char_idx = db.Column(db.Integer)
     annotation = db.Column(db.Text)
     modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    current = db.Column(db.Boolean, default=False, index=True)
 
     editor = db.relationship("User")
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])

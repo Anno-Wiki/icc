@@ -41,7 +41,7 @@ for line in fin:
     commit = AnnotationVersion(book_id=book_id, approved=True, editor=user,
             first_line_num=l.l_num, last_line_num=l.l_num,
             first_char_idx=0, last_char_idx=-1,
-            annotation=fields[0], tags=tags)
+            annotation=fields[0], tags=tags, current=True)
 
     # Create the annotation pointer with HEAD pointing to anno
     head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)

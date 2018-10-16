@@ -372,7 +372,7 @@ def edit(anno_id):
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags)
+                annotation=form.annotation.data, tags=tags, current=True)
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
@@ -383,6 +383,8 @@ def edit(anno_id):
         else:
             annotation.edit_pending = not approved
             if approved:
+                annotation.HEAD.current = False
+                db.session.commit()
                 annotation.HEAD = edit
             db.session.add(edit)
             db.session.commit()
@@ -473,7 +475,7 @@ def annotate(book_url, first_line, last_line):
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags)
+                annotation=form.annotation.data, tags=tags, current=True)
 
         # Create the annotation pointer with HEAD pointing to anno
         head = Annotation(book=book, HEAD=commit, author=current_user)
