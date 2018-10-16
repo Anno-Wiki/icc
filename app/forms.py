@@ -33,6 +33,15 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
+class EditProfileForm(FlaskForm):
+    displayname = StringField("Display Name", validators=[InputRequired()],
+            render_kw={"placeholder":"Enter a display name."})
+    about_me = TextAreaField("About me", validators=[Length(min=0, max=140)],
+            render_kw={"placeholder":"Enter a description of yourself.",
+                        "maxlength":140})
+    submit = SubmitField("Submit")
+    cancel = SubmitField("Cancel")
+
 ###################
 ## Content Forms ##
 ###################
@@ -127,12 +136,3 @@ class TagRequestForm(FlaskForm):
     def validate_wikipedia(self, wikipedia):
         if "wikipedia" not in wikipedia.data:
             raise ValidationError(f"{wikipedia.data} is not a link to a Wikipedia page.")
-
-class EditProfileForm(FlaskForm):
-    displayname = StringField("Display Name", validators=[InputRequired()],
-            render_kw={"placeholder":"Enter a display name."})
-    about_me = TextAreaField("About me", validators=[Length(min=0, max=140)],
-            render_kw={"placeholder":"Enter a description of yourself.",
-                        "maxlength":140})
-    submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
