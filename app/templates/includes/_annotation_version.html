@@ -117,7 +117,7 @@
 
     edited by 
     <a href="{{ url_for("user", user_id=annotation.editor.id) }}">
-        {{ annotation.editor.username }}
+        {{ annotation.editor.displayname }}
     </a>
     {% include "_reputation_editor_edit.html" %}
 

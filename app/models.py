@@ -1,4 +1,4 @@
-import hashlib
+from hashlib import sha1, md5
 from math import log10 as l
 from datetime import datetime
 from flask_login import UserMixin
@@ -31,13 +31,15 @@ conferred_right = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
+    displayname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     reputation = db.Column(db.Integer, default=0)
     cumulative_negative = db.Column(db.Integer, default=0)
     cumulative_positive = db.Column(db.Integer, default=0)
     locked = db.Column(db.Boolean, default=False)
+    about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     # user meta information relationships
     rights = db.relationship("AdminRight", secondary=conferred_right,
@@ -78,7 +80,7 @@ class User(UserMixin, db.Model):
             backref="voters", lazy="dynamic")
 
     def __repr__(self):
-        return "<User {}>".format(self.username)
+        return "<User {}>".format(self.displayname)
 
     # Utilities
 
@@ -87,6 +89,10 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
+        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
 
     def authorize_rep(self, min_rep):
         if self.reputation < min_rep:
@@ -203,7 +209,7 @@ class Vote(db.Model):
     annotation = db.relationship("Annotation")
 
     def __repr__(self):
-        return f"<{self.user.username} {self.delta} on {self.annotation}>"
+        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
 
     def is_up(self):
         return self.delta > 0
@@ -219,7 +225,7 @@ class EditVote(db.Model):
     edit = db.relationship("AnnotationVersion", backref="edit_ballots")
 
     def __repr__(self):
-        return f"<{self.user.username} {self.delta} on {self.edit}>"
+        return f"<{self.user.displayname} {self.delta} on {self.edit}>"
 
     def is_up(self):
         return self.delta > 0
@@ -515,7 +521,7 @@ class AnnotationVersion(db.Model):
                 f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tags}"
-        self.hash_id = hashlib.sha1(s.encode("utf8")).hexdigest()
+        self.hash_id = sha1(s.encode("utf8")).hexdigest()
 
     def __repr__(self):
         return f"<Ann {self.id} on book {self.book.title}>"
@@ -597,7 +603,7 @@ class BookRequestVote(db.Model):
     book_request = db.relationship("BookRequest")
 
     def __repr__(self):
-        return f"<{self.user.username} {self.delta} on {self.book_request}>"
+        return f"<{self.user.displayname} {self.delta} on {self.book_request}>"
 
     def is_up(self):
         return self.delta > 0
@@ -651,7 +657,7 @@ class TagRequestVote(db.Model):
     tag_request = db.relationship("TagRequest")
 
     def __repr__(self):
-        return f"<{self.user.username} {self.delta} on {self.annotation}>"
+        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
 
     def is_up(self):
         return self.delta > 0

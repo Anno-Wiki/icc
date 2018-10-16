@@ -4,9 +4,9 @@ import sys
 import codecs
 
 book_id = None
-user = User.query.filter_by(username="Community").first()
+user = User.query.filter_by(displayname="Community").first()
 if user == None:
-    user = User(username="Community", email="community@annopedia.org",
+    user = User(displayname="Community", email="community@annopedia.org",
             password_hash="***", locked=True,
             reputation=0, cumulative_negative=0, cumulative_positive=0)
     db.session.add(user)

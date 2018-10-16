@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b8cce998489a
+Revision ID: 024191eedc44
 Revises: 
-Create Date: 2018-10-16 12:51:26.387535
+Create Date: 2018-10-16 15:16:46.467172
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b8cce998489a'
+revision = '024191eedc44'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -59,17 +59,19 @@ def upgrade():
     op.create_index(op.f('ix_tag_tag'), 'tag', ['tag'], unique=True)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=64), nullable=True),
+    sa.Column('displayname', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=128), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.Column('reputation', sa.Integer(), nullable=True),
     sa.Column('cumulative_negative', sa.Integer(), nullable=True),
     sa.Column('cumulative_positive', sa.Integer(), nullable=True),
     sa.Column('locked', sa.Boolean(), nullable=True),
+    sa.Column('about_me', sa.String(length=140), nullable=True),
+    sa.Column('last_seen', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_displayname'), 'user', ['displayname'], unique=True)
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
-    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('book',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=128), nullable=True),
@@ -328,8 +330,8 @@ def downgrade():
     op.drop_index(op.f('ix_book_sort_title'), table_name='book')
     op.drop_index(op.f('ix_book_author_id'), table_name='book')
     op.drop_table('book')
-    op.drop_index(op.f('ix_user_username'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_index(op.f('ix_user_displayname'), table_name='user')
     op.drop_table('user')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')

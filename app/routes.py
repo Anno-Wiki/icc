@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 import hashlib
 from flask import render_template, flash, redirect, url_for, request, Markup, \
         abort
@@ -10,9 +11,15 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
         BookRequestVote, TagRequest, TagRequestVote
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm
+        LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
+        EditProfileForm
 from app.funky import preplines, is_filled
 
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
 
 ###########
 ## Index ##
@@ -47,9 +54,9 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash("Invalid username or password")
+            flash("Invalid email or password")
             return redirect(url_for("login"))
         elif user.locked:
             flash("That account is locked.")
@@ -77,7 +84,7 @@ def register():
         return redirect(url_for("index"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(displayname=form.displayname.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -85,6 +92,23 @@ def register():
         return redirect(url_for("login"))
     return render_template("forms/register.html", title="Register", form=form)
 
+@app.route("/user/edit_profile/", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        current_user.displayname = form.displayname.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash("Your changes have been saved.")
+        return redirect(url_for("user", user_id=current_user.id))
+    elif request.method == "GET":
+        form.displayname.data = current_user.displayname
+        form.about_me.data = current_user.about_me
+    return render_template("forms/edit_profile.html", title="Edit Profile",
+                           form=form)
 
 @app.route("/user/<user_id>/")
 def user(user_id):
@@ -100,8 +124,8 @@ def user(user_id):
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("view/user.html", title=user.username, user=user,
-            annotations=annotations.items, uservotes=uservotes,
+    return render_template("view/user.html", title=f"User {user.displayname}",
+            user=user, annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page)
 
 

@@ -96,13 +96,13 @@
     {%- if annotation.HEAD.previous_id == None %}
         annotated by
         <a href="{{ url_for("user", user_id=annotation.author.id) }}">
-            {{ annotation.author.username }}
+            {{ annotation.author.displayname }}
         </a>
         {% include "/includes/_reputation_author.html" %}
     {%- else -%}
         last edited by 
         <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
-            {{ annotation.HEAD.editor.username }}
+            {{ annotation.HEAD.editor.displayname }}
         </a>
         {% include "/includes/_reputation_editor.html" %}
     {% endif %}
