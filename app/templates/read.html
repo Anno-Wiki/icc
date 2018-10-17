@@ -26,17 +26,17 @@
             Limit visible annotations to tag:
             {% for tag in tags %}
                 <a href="{{ url_for("read", book_url=book.url,
-                        bk=lines[0].bk_num, pt=lines[0].pt_num,
-                        ch=lines[0].ch_num, tag=tag.tag) }}">
+                        book=lines[0].bk_num, part=lines[0].pt_num,
+                        chapter=lines[0].ch_num, tag=tag.tag) }}">
                     <tag>
                         {{ tag.tag }}
                     </tag>
                 </a>
             {% endfor %}
         </div>
-    {% elif annotations %}
-        <a href="{{ url_for("read", book_url=book.url, bk=lines[0].bk_num,
-                pt=lines[0].pt_num, ch=lines[0].ch_num) }}">
+    {% elif annotations_idx %}
+        <a href="{{ url_for("read", book_url=book.url, book=lines[0].bk_num,
+                part=lines[0].pt_num, chapter=lines[0].ch_num) }}">
             Show all tags
         </a>
         <br>
