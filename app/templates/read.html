@@ -67,6 +67,7 @@
     <div id="content">
         {%- for line in lines %}
             <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+
                 {% if line.l_num % 5 == 0 %}
                     <!--Line number-->
                     <span class="linenum">{{ line.l_num }}</span>
@@ -87,9 +88,9 @@
                     </span>
                 {% endif %}
 
-                {% if line.l_num in annotations_idx %}
+                {% if annotations_idx[line.l_num] %}
                     <!--Footnote marker-->
-                    <span class="edit_line">
+                    <span class="body_annotation">
                         {% for a in annotations_idx[line.l_num] %}
                             <a href="#a{{ a.id }}">
                                 [{{ a.id }}]
