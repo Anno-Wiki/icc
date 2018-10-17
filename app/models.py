@@ -317,14 +317,16 @@ class Tag(db.Model):
             secondary="join(tags, AnnotationVersion,"
             "tags.c.annotation_version_id==AnnotationVersion.id)",
             primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="Annotation.head_id==AnnotationVersion.id")
+            secondaryjoin="Annotation.head_id==AnnotationVersion.id",
+            lazy="dynamic")
 
     annotations2 = db.relationship("Annotation",
             secondary="join(tags, AnnotationVersion,"
             "and_(tags.c.annotation_version_id==AnnotationVersion.id,"
             "AnnotationVersion.current==True))",
             primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="AnnotationVersion.pointer_id==Annotation.id")
+            secondaryjoin="AnnotationVersion.pointer_id==Annotation.id",
+            lazy="dynamic")
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
