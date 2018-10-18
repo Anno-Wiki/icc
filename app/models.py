@@ -31,7 +31,7 @@ conferred_right = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    displayname = db.Column(db.String(64), index=True, unique=True)
+    displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     reputation = db.Column(db.Integer, default=0)

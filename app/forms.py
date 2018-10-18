@@ -23,11 +23,6 @@ class RegistrationForm(FlaskForm):
         EqualTo("password")])
     submit = SubmitField("Register")
 
-    def validate_displayname(self, displayname):
-        user = User.query.filter_by(displayname=displayname.data).first()
-        if user is not None:
-            raise ValidationError("Please use a different displayname.")
-
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
