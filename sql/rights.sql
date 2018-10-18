@@ -5,4 +5,7 @@ INSERT INTO admin_right (`right`) VALUES
     ('lock_user_accounts'),
     ('lock_annotations'),
     ('edit_lines'),
-    ('immediate_edits');
+    ('immediate_edits'),
+    ('view_deleted_annotations'),
+    ('delete_annotations'),
+    ('edit_book_requests');
