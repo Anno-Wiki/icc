@@ -37,6 +37,16 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField("Submit")
     cancel = SubmitField("Cancel")
 
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField("Email", validators=[InputRequired(), Email()])
+    submit = SubmitField("Request Password Reset")
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("Password", validators=[InputRequired()])
+    password2 = PasswordField("Repeat Password", validators=[InputRequired(),
+        EqualTo("password")])
+    submit = SubmitField("Request Password Reset")
+
 ###################
 ## Content Forms ##
 ###################

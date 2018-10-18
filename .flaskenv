@@ -1,3 +1,5 @@
 FLASK_APP=icc.py
 FLASK_DEBUG=1
 FLASK_ENV=development
+MAIL_SERVER=localhost
+MAIL_PORT=8025

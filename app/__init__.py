@@ -7,6 +7,7 @@ from flaskext.markdown import Markdown
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+from flask_mail import Mail
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -15,6 +16,10 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 md = Markdown(app)
 login.login_view = "login"
+mail = Mail(app)
+
+
+# jinja environment variables
 app.jinja_env.globals["round"] = round
 app.jinja_env.globals["vars"] = app.config
 app.jinja_env.globals["len"] = len
