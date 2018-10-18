@@ -8,6 +8,7 @@ import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 from flask_mail import Mail
+from elasticsearch import Elasticsearch
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,6 +18,8 @@ login = LoginManager(app)
 md = Markdown(app)
 login.login_view = "login"
 mail = Mail(app)
+elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
+        if app.config["ELASTICSEARCH_URL"] else None
 
 
 # jinja environment variables

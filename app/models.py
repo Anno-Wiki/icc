@@ -8,7 +8,48 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from sqlalchemy import or_, func
 from flask import url_for, abort
+from app.search import *
 
+class SearchableMixin(object):
+    @classmethod
+    def search(cls, expression, page, per_page):
+        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        if total == 0:
+            return cls.query.filter_by(id=0), 0
+        when = []
+        for i in range(len(ids)):
+            when.append((ids[i], i))
+        return cls.query.filter(cls.id.in_(ids)).order_by(
+                db.case(when, value=cls.id)), total
+
+    @classmethod
+    def before_commit(cls, session):
+        session._changes = {
+                "add": list(session.new),
+                "update": list(session.dirty),
+                "delete": list(session.deleted)
+                }
+
+    @classmethod
+    def after_commit(cls, session):
+        for obj in session._changes["add"]:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes["update"]:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes["delete"]:
+            if isinstance(obj, SearchableMixin):
+                remove_from_index(obj.__tablename__, obj)
+        session._changes = None
+
+    @classmethod
+    def reindex(cls):
+        for obj in cls.query:
+            add_to_index(cls.__tablename__, obj)
+
+db.event.listen(db.session, "before_commit", SearchableMixin.before_commit)
+db.event.listen(db.session, "after_commit", SearchableMixin.after_commit)
 
 ############
 ## Tables ##
@@ -270,7 +311,8 @@ class Author(db.Model):
     def __repr__(self):
         return f"<Author: {self.name}>"
 
-class Book(db.Model):
+class Book(SearchableMixin, db.Model):
+    __searchable__ = ["title", "author_name"]
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
@@ -284,11 +326,18 @@ class Book(db.Model):
     lines = db.relationship("Line", primaryjoin="Line.book_id==Book.id",
         lazy="dynamic")
     annotations = db.relationship("Annotation",
-        primaryjoin="and_(Book.id==Annotation.book_id, Annotation.active==True)",
+        primaryjoin="and_(Book.id==Annotation.book_id,"
+        "Annotation.active==True)",
         lazy="dynamic")
 
     def __repr__(self):
         return f"<Book {self.id}: {self.title} by {self.author}>"
+
+    def __getattr__(self, attr):
+        if attr.startswith("author_"):
+            return getattr(self.author, attr.replace("author_", "", 1))
+        else:
+            raise AttributeError(f"No such attribute {attr}")
 
 ###################
 ## Site Metadata ##
@@ -301,7 +350,9 @@ class Kind(db.Model):
     def __repr__(self):
         return f"<k {self.id}: {self.kind}>"
 
-class Tag(db.Model):
+class Tag(SearchableMixin, db.Model):
+    __searchable__ = ["tag", "description"]
+
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     admin = db.Column(db.Boolean, default=False)
@@ -359,6 +410,7 @@ class AdminRight(db.Model):
 ####################
 
 class Line(db.Model):
+    __searchable__ = ["line", "book_title"]
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     l_num = db.Column(db.Integer, index=True)
@@ -375,6 +427,12 @@ class Line(db.Model):
 
     def __repr__(self):
         return f"<l {self.id}: {self.l_num} of {self.book.title} [{self.kind.kind}]>"
+
+    def __getattr__(self, attr):
+        if attr.startswith("book_"):
+            return getattr(self.book, attr.replace("book_", "", 1))
+        else:
+            raise AttributeError(f"No such attribute {attr}")
 
     def get_prev_section(self):     # cleverer than expected
         if self.ch_num != 0:        # decrementing by chapters
