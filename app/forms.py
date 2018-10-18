@@ -10,7 +10,7 @@ from app.models import User, Tag
 ## User Forms ##
 ################
 class LoginForm(FlaskForm):
-    displayname = StringField("Username", validators=[InputRequired()])
+    email = StringField("Email", validators=[InputRequired()])
     password = PasswordField("Password", validators=[InputRequired()])
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Sign In")
