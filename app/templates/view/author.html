@@ -3,6 +3,7 @@
 {% block content %}
     <h1>{{ author.name }}</h1>
     <h2>&times; {{ len(author.books)}} Books</h2>
+    {{ author.bio|markdown }}
     <div class="index">
         {% for book in author.books %}
             <div class="card">
