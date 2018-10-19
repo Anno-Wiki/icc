@@ -302,8 +302,8 @@ def read(book_url):
         # line number boiler plate
         if not is_filled(form.first_line.data) and not is_filled(form.last_line.data):
             flash("Please enter a first and last line number to annotate a selection.")
-            return redirect(url_for("read", book_url=book.url, bk=bk, pt=pt,
-                ch=ch, tag=tag))
+            return redirect(url_for("read", book_url=book.url, book=bk, part=pt,
+                chapter=ch, tag=tag))
         elif not is_filled(form.first_line.data):
             ll = int(form.last_line.data)
             fl = ll
@@ -327,8 +327,8 @@ def read(book_url):
         # page. Multi-layered nested return statement. Read carefully.
         return redirect(url_for("annotate", book_url=book_url,
             first_line=fl, last_line=ll,
-            next=url_for("read", book_url=book.url, bk=bk, pt=pt, ch=ch,
-                tag=tag)
+            next=url_for("read", book_url=book.url, book=bk, part=pt,
+                chapter=ch, tag=tag)
                 )
             )
 
