@@ -362,6 +362,8 @@ def read(book_url):
     # for every line to find out if the user has edit_rights
     edit_right = AdminRight.query.filter_by(right="edit_lines").first()
 
+    preplines(lines)
+
     return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
             tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
