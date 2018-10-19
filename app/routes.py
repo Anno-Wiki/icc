@@ -353,8 +353,6 @@ def read(book_url):
                 a.HEAD.last_line_num <= lines[-1].l_num:
             annotations_idx[a.HEAD.last_line_num].append(a)
 
-    # replace markdown-style _ with <em> and </em>
-    preplines(lines)
 
     # to darken up/down voted annotations
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \

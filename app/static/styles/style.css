@@ -292,6 +292,9 @@ line {
 line:hover {
     background-color: var(--base2);
 }
+line p {
+    display: inline;
+}
 
 
 /* turn off the hover highlight on the actual       *

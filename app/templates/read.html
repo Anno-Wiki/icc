@@ -81,7 +81,7 @@
                 {%- if line.kind.kind == 'hr' -%}
                     <hr class="book_separator">
                 {%- else -%}
-                    {{ line.line|safe }}
+                    {{ line.line|markdown }}
                 {%- endif -%}
 
                 {% if current_user.is_authenticated and
