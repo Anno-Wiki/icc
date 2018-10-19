@@ -20,6 +20,26 @@
             {% endif %}
         </h5>
     </div>
+
+    <!--Pagination-->
+    {% if prev_page %}
+        <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
+    {% endif %}
+    {% if prev_page and next_page %}
+        |
+    {% endif %}
+    {% if next_page %}
+        <a href="{{ next_page }}">Next Page &gt;&gt;</a>
+    {% endif %}
+    
+    <!--Line number entry for annotation form-->
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.first_line(size=4) }}
+        {{ form.last_line(size=4) }}
+        {{ form.submit() }}
+    </form>
+
     <!--Tag limitation controls-->
     {% if tags %}
         <div class="tag_limit">
@@ -41,25 +61,6 @@
         </a>
         <br>
     {% endif %}
-
-    <!--Pagination-->
-    {% if prev_page %}
-        <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
-    {% endif %}
-    {% if prev_page and next_page %}
-        |
-    {% endif %}
-    {% if next_page %}
-        <a href="{{ next_page }}">Next Page &gt;&gt;</a>
-    {% endif %}
-    
-    <!--Line number entry for annotation form-->
-    <form action="" method="POST">
-        {{ form.hidden_tag() }}
-        {{ form.first_line(size=4) }}
-        {{ form.last_line(size=4) }}
-        {{ form.submit() }}
-    </form>
 
     <hr>
 

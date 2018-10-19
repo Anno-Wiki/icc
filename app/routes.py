@@ -338,12 +338,13 @@ def read(book_url):
         annotations = tag.annotations.filter(Annotation.book_id==book.id).all()
         tags = None
     else:
-        annotations = book.annotations
+        annotations = book.annotations.all()
         tags = []
         for a in annotations:
-            for t in a.HEAD.tags:
-                if t not in tags:
-                    tags.append(t)
+            if a.HEAD.first_line_num >= lines[0].l_num and a.HEAD.last_line_num <= lines[-1].l_num:
+                for t in a.HEAD.tags:
+                    if t not in tags:
+                        tags.append(t)
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
