@@ -75,8 +75,13 @@
                     <span class="hidden_linenum">{{ line.l_num }}</span>
                 {% endif %}
 
-                <!--Actual line-->
-                {%- include "includes/_line.html" -%}
+                <!--Actual line (not modularizing because speed)-->
+
+                {%- if line.kind.kind == 'hr' -%}
+                    <hr class="book_separator">
+                {%- else -%}
+                    {{ line.line|safe }}
+                {%- endif -%}
 
                 {% if current_user.is_authenticated and
                         edit_right in current_user.rights %}
