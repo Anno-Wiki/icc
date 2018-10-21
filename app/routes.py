@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 import hashlib
 from flask import render_template, flash, redirect, url_for, request, Markup, \
-        abort
+        abort, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_
@@ -1032,3 +1032,16 @@ def reject_tag(tag_request_id):
     db.session.commit()
 
     return redirect(next_page)
+
+@app.route("/autocomplete/tags/", methods=["POST"])
+def ajax_tags():
+    tagstr = request.form.get("tags")
+    tags = tagstr.split()
+    results = Tag.query.filter(Tag.tag.startswith(tags[-1])).all()
+    if not results:
+        return jsonify({"success": False, "tags": []})
+    tag_list = {}
+    for t in results:
+        tag_list[t.tag] = t.description
+    
+    return jsonify({"success": True, "tags": tag_list})
