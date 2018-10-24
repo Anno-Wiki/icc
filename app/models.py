@@ -129,10 +129,26 @@ class User(UserMixin, db.Model):
             secondaryjoin="TagRequestVote.tag_request_id==TagRequest.id",
             backref="voters", lazy="dynamic")
 
+    flags = db.relationship("UserFlag",
+            secondary="user_flag_event",
+            primaryjoin="UserFlagEvent.user_id==User.id",
+            secondaryjoin="UserFlagEvent.user_flag_id==UserFlag.id",
+            backref="users")
+    flag_history = db.relationship("UserFlagEvent",
+            primaryjoin="UserFlagEvent.user_id==User.id")
+    active_flags = db.relationship("UserFlagEvent",
+            primaryjoin="and_(UserFlagEvent.user_id==User.id,"
+                "UserFlagEvent.resolved_by==None)")
+
     def __repr__(self):
         return "<User {}>".format(self.displayname)
 
     # Utilities
+
+    def flag_user(self, flag, thrower):
+        event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
+        db.session.add(event)
+        db.session.commit()
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -721,3 +737,36 @@ class TagRequestVote(db.Model):
 
     def is_up(self):
         return self.delta > 0
+
+class UserFlag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    flag = db.Column(db.String(127))
+
+    def __repr__(self):
+        return f"<UserFlag {self.flag}>"
+
+class UserFlagEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_flag_id = db.Column(db.Integer, db.ForeignKey("user_flag.id"),
+            index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
+    resolved = db.Column(db.DateTime)
+    resolved_by = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+
+    user = db.relationship("User", foreign_keys=[user_id])
+    thrower = db.relationship("User", foreign_keys=[thrower_id])
+    flag = db.relationship("UserFlag")
+    resolver = db.relationship("User", foreign_keys=[resolved_by])
+
+    def __repr__(self):
+        if self.resolved:
+            return f"<X UserFlag: {self.flag.flag} at {self.time_thrown}>"
+        else:
+            return f"<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>"
+   
+    def resolve(self, resolver):
+        self.resolved = datetime.utcnow()
+        self.resolver = resolver
+        db.session.commit()

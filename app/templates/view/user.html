@@ -13,6 +13,12 @@
             {% if user.last_seen %}
                 <p>Last seen on: {{ user.last_seen }}</p>
             {% endif %}
+            {% for flag in flags %}
+                <a href="{{ url_for("flag_user", flag_id=flag.id,
+                    user_id=user.id, next=request.full_path) }}">
+                    {{ flag.flag }}
+                </a>
+            {% endfor %}
         </td>
     </tr>
 </table>

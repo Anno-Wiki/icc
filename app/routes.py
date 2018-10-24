@@ -9,7 +9,7 @@ from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
-        BookRequestVote, TagRequest, TagRequestVote
+        BookRequestVote, TagRequest, TagRequestVote, UserFlag
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
@@ -151,6 +151,7 @@ def user(user_id):
     user = User.query.get_or_404(user_id)
     annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    flags = UserFlag.query.all()
 
     next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
             if annotations.has_next else None
@@ -161,7 +162,7 @@ def user(user_id):
             else None
     return render_template("view/user.html", title=f"User {user.displayname}",
             user=user, annotations=annotations.items, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page)
+            next_page=next_page, prev_page=prev_page, flags=flags)
 
 
 #####################
@@ -1045,3 +1046,18 @@ def ajax_tags():
         tag_list[t.tag] = t.description
     
     return jsonify({"success": True, "tags": tag_list})
+
+@app.route("/admin/flag/<flag_id>/user/<user_id>/")
+@login_required
+def flag_user(flag_id, user_id):
+    user = User.query.get_or_404(user_id)
+    flag = UserFlag.query.get_or_404(flag_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+
+    user.flag_user(flag, current_user)
+    db.session.commit()
+    flash(f"User {user.displayname} flagged \"{flag.flag}\"")
+    return redirect(next_page)
