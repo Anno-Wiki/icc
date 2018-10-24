@@ -72,6 +72,13 @@ conferred_right = db.Table(
 ## User Functions ##
 ####################
 
+class AdminRight(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    right = db.Column(db.String(128), index=True)
+
+    def __repr__(self):
+        return self.right
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
@@ -250,43 +257,6 @@ class User(UserMixin, db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
-
-###########
-## Votes ##
-###########
-
-class Vote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id"),
-            index=True)
-    delta = db.Column(db.Integer)
-
-    user = db.relationship("User")
-    annotation = db.relationship("Annotation")
-
-    def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
-
-    def is_up(self):
-        return self.delta > 0
-
-class EditVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    edit_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
-            index=True)
-    delta = db.Column(db.Integer)
-
-    user = db.relationship("User", backref="edit_ballots")
-    edit = db.relationship("AnnotationVersion", backref="edit_ballots")
-
-    def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.edit}>"
-
-    def is_up(self):
-        return self.delta > 0
-
 ##################
 ## Content Data ##
 ##################
@@ -339,16 +309,9 @@ class Book(SearchableMixin, db.Model):
         else:
             raise AttributeError(f"No such attribute {attr}")
 
-###################
-## Site Metadata ##
-###################
-
-class Kind(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    kind = db.Column(db.String(12), index=True)
-
-    def __repr__(self):
-        return f"<k {self.id}: {self.kind}>"
+################
+## Tag System ##
+################
 
 class Tag(SearchableMixin, db.Model):
     __searchable__ = ["tag", "description"]
@@ -398,16 +361,16 @@ class Tag(SearchableMixin, db.Model):
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
 
-class AdminRight(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    right = db.Column(db.String(128), index=True)
-
-    def __repr__(self):
-        return self.right
-
 ####################
 ## Content Models ##
 ####################
+
+class Kind(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    kind = db.Column(db.String(12), index=True)
+
+    def __repr__(self):
+        return f"<k {self.id}: {self.kind}>"
 
 class Line(db.Model):
     __searchable__ = ["line", "book_title"]
@@ -494,6 +457,22 @@ class Line(db.Model):
 ## Annotations ##
 #################
 
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id"),
+            index=True)
+    delta = db.Column(db.Integer)
+
+    user = db.relationship("User")
+    annotation = db.relationship("Annotation")
+
+    def __repr__(self):
+        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+
+    def is_up(self):
+        return self.delta > 0
+
 class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
@@ -547,6 +526,22 @@ class Annotation(db.Model):
         else:
             self.author.rollback_downvote()
         db.session.delete(vote)
+
+class EditVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    edit_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
+            index=True)
+    delta = db.Column(db.Integer)
+
+    user = db.relationship("User", backref="edit_ballots")
+    edit = db.relationship("AnnotationVersion", backref="edit_ballots")
+
+    def __repr__(self):
+        return f"<{self.user.displayname} {self.delta} on {self.edit}>"
+
+    def is_up(self):
+        return self.delta > 0
 
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
