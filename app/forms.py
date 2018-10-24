@@ -141,3 +141,9 @@ class TagRequestForm(FlaskForm):
     def validate_wikipedia(self, wikipedia):
         if "wikipedia" not in wikipedia.data:
             raise ValidationError(f"{wikipedia.data} is not a link to a Wikipedia page.")
+
+class TextForm(FlaskForm):
+    text = TextAreaField("Text",
+            render_kw={"placeholder":"Edit text here."})
+    submit = SubmitField("Submit")
+    cancel = SubmitField("Cancel")

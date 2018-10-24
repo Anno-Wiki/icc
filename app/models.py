@@ -77,7 +77,7 @@ class AdminRight(db.Model):
     right = db.Column(db.String(128), index=True)
 
     def __repr__(self):
-        return self.right
+        return f"<Right to {self.right}>"
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -12,7 +12,7 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
         BookRequestVote, TagRequest, TagRequestVote, UserFlag
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
-        EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm
+        EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 
@@ -655,6 +655,7 @@ def approve(edit_hash):
     return redirect(url_for("edit_review_queue"))
 
 @app.route("/admin/reject/edit/<edit_hash>/")
+@login_required
 def reject(edit_hash):
     current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
@@ -672,6 +673,7 @@ def reject(edit_hash):
     return redirect(url_for("edit_review_queue"))
 
 @app.route("/admin/rescind_vote/edit/<edit_hash>/")
+@login_required
 def rescind(edit_hash):
     current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
@@ -691,6 +693,7 @@ def rescind(edit_hash):
     return redirect(url_for("edit_review_queue"))
 
 @app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
+@login_required
 def edit_line(line_id):
     current_user.authorize_rights("edit_lines")
     line = Line.query.get_or_404(line_id)
@@ -712,6 +715,7 @@ def edit_line(line_id):
     return render_template("forms/line.html", title="Edit Line", form=form)
 
 @app.route("/admin/delete/annotation/<anno_id>/")
+@login_required
 def delete(anno_id):
     current_user.authorize_rights("delete_annotations")
     annotation = Annotation.query.get_or_404(anno_id)
@@ -728,6 +732,7 @@ def delete(anno_id):
     return redirect(next_page)
 
 @app.route("/admin/list/deleted_annotations/")
+@login_required
 def view_deleted_annotations():
     page = request.args.get("page", 1, type=int)
     current_user.authorize_rights("view_deleted_annotations")
@@ -1061,3 +1066,30 @@ def flag_user(flag_id, user_id):
     db.session.commit()
     flash(f"User {user.displayname} flagged \"{flag.flag}\"")
     return redirect(next_page)
+
+@app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
+@login_required
+def edit_bio(author_id):
+    current_user.authorize_rights("edit_bios")
+    author = Author.query.get_or_404(author_id)
+    form = TextForm()
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("author", name=author.url)
+
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.text.data != None:
+            author.bio = form.text.data
+            print(author.bio)
+            print("=====")
+            print(form.text.data)
+            db.session.commit()
+            flash("Bio updated.")
+            return redirect(next_page)
+    else:
+        form.text.data = author.bio
+
+    return render_template("forms/text.html", title="Edit Bio", form=form)
