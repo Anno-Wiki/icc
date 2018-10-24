@@ -412,12 +412,29 @@ def edit(anno_id):
         # Process all the tags
         raw_tags = form.tags.data.split()
         tags = []
-        for t in raw_tags:
-            tags.append(Tag.query.filter_by(tag=t).first())
+        fail = False
+        for tag in raw_tags:
+            t = Tag.query.filter_by(tag=tag).first()
+            if t:
+                tags.append(t)
+            else:
+                fail = True
+                flash(f"tag {tag} does not exist.")
 
-        if len(tags) > 5:
+        # In both of these cases we want to retain the form entered so the user
+        # can edit it; therefore we re-render the template instead of
+        # redirecting
+        if fail:
+            return render_template("forms/annotation.html",
+                    title=annotation.HEAD.book.title, form=form,
+                    book=annotation.HEAD.book, lines=lines,
+                    annotation=annotation)
+        elif len(tags) > 5:
             flash("There is a five tag limit.")
-            return redirect(url_for("edit", anno_id=annotation.id))
+            return render_template("forms/annotation.html",
+                    title=annotation.HEAD.book.title, form=form,
+                    book=annotation.HEAD.book, lines=lines,
+                    annotation=annotation)
 
         approved = current_user.has_right("immediate_edits")
 
@@ -522,12 +539,22 @@ def annotate(book_url, first_line, last_line):
         # Process all the tags
         raw_tags = form.tags.data.split()
         tags = []
-        for t in raw_tags:
-            tags.append(Tag.query.filter_by(tag=t).first())
+        fail = False
+        for tag in raw_tags:
+            t = Tag.query.filter_by(tag=tag).first()
+            if t:
+                tags.append(t)
+            else:
+                flash(f"tag {tag} does not exist.")
+                fail = True
 
-        if len(tags) > 5:
+        if fail:
+            return render_template("forms/annotation.html", title=book.title,
+                    form=form, book=book, lines=lines, context=context)
+        elif len(tags) > 5:
             flash("There is a five tag limit.")
-            return redirect(url_for("edit", anno_id=annotation.id))
+            return render_template("forms/annotation.html", title=book.title,
+                    form=form, book=book, lines=lines, context=context)
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
