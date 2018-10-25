@@ -3,7 +3,7 @@ from time import time
 from hashlib import sha1, md5
 from math import log10 as l
 from datetime import datetime
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from sqlalchemy import or_, func
@@ -24,6 +24,8 @@ class SearchableMixin(object):
 
     @classmethod
     def before_commit(cls, session):
+        if current_user.is_authenticated:
+            current_user.last_seen = datetime.utcnow()
         session._changes = {
                 "add": list(session.new),
                 "update": list(session.dirty),
