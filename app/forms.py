@@ -147,3 +147,7 @@ class TextForm(FlaskForm):
             render_kw={"placeholder":"Edit text here."})
     submit = SubmitField("Submit")
     cancel = SubmitField("Cancel")
+
+class AreYouSureForm(FlaskForm):
+    submit = SubmitField("Yes, I am sure.")
+    cancel = SubmitField("No, I changed my mind.")

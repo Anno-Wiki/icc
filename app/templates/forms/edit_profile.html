@@ -21,4 +21,10 @@
         {{ form.submit() }}
         {{ form.cancel() }}
     </form>
+    <br><br>
+    <p>
+        <a href="{{ url_for("delete_account_check", next=request.path) }}">
+            delete account
+        </a>
+    </p>
 {% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Are you sure?</h1>
+    <p>
+        You have clicked the link to delete your account. This page serves as a
+        double check to make sure that you’re really sure you want to delete your
+        account. You will not be able to undo this. Annopedia is not like
+        Facebook. We don’t secretly keep your personal information so you can
+        reactivate your account later on. If you delete it, it’s done.
+    </p>
+    <p>
+        Please note, however, that the account itself will not be expunged from
+        our database. Annopedia is a collaborative effort, and we therefore
+        reserve the right to retain all of your contributions. This deletion is
+        an anonymization of your account. Your display name, email address, and
+        about me will all be erased and anonymized. Every interaction you have
+        ever made with the site will be associated with an account which cannot
+        be logged into and whose display name will be “<i>deleted_user_{{
+        current_user.id }}</i>.” But you will never be able to log back in and
+        retrieve your account.
+    </p>
+    <p>
+        If you’re really sure about this, click the button “Yes, I’m sure.”
+        Otherwise, click “No, I changed my mind,” or press back in your browser,
+        or <i>close</i> your browser, or even pull the power cord from the back
+        of your computer. Because if you click “Yes, I’m sure,” your account is
+        gone.
+    </p>
+    <form action="" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        {{ form.submit }}
+        {{ form.cancel }}
+    </form>
+{% endblock %}

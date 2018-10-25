@@ -12,7 +12,8 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
         BookRequestVote, TagRequest, TagRequestVote, UserFlag
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
-        EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm
+        EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
+        AreYouSureForm
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 
@@ -1153,3 +1154,33 @@ def lock_user(user_id):
     db.session.commit()
     flash(f"User account {user.displayname} locked.")
     return redirect(next_page)
+
+@app.route("/user/delete_account/")
+@login_required
+def delete_account():
+    current_user.displayname = f"deleted_user_{current_user.id}"
+    current_user.email = ""
+    current_user.password_hash = "***"
+    current_user.about_me = ""
+    db.session.commit()
+    logout_user()
+    flash("Account anonymized.")
+    return redirect(url_for("index"))
+
+@app.route("/user/delete_account_check/", methods=["GET", "POST"])
+@login_required
+def delete_account_check():
+    form = AreYouSureForm()
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+
+    if form.cancel.data:
+        flash("Phew, you almost pulled the trigger!")
+        return redirect(next_page)
+    elif form.validate_on_submit():
+        return redirect(url_for("delete_account"))
+
+    return render_template("forms/delete_account_check.html", form=form,
+            title="Are you sure?")
