@@ -597,7 +597,10 @@ def upvote(anno_id):
     if not next_page or url_parse(next_page).netloc != "":
         next_page = annotation.lines[0].get_url()
 
-    if current_user.already_voted(annotation):
+    if current_user == annotation.author:
+        flash("You cannot vote on your own annotations.")
+        return redirect(next_page)
+    elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         if vote.is_up():
             annotation.rollback(vote)
@@ -605,9 +608,6 @@ def upvote(anno_id):
             return redirect(next_page)
         else:
             annotation.rollback(vote)
-    elif current_user == annotation.author:
-        flash("You cannot vote on your own annotations.")
-        return redirect(next_page)
 
     annotation.upvote(current_user)
     db.session.commit()
@@ -623,7 +623,10 @@ def downvote(anno_id):
     if not next_page or url_parse(next_page).netloc != "":
         next_page = annotation.lines[0].get_url()
 
-    if current_user.already_voted(annotation):
+    if current_user == annotation.author:
+        flash("You cannot vote on your own annotation.")
+        return redirect(next_page)
+    elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         if not vote.is_up():
             annotation.rollback(vote)
@@ -631,9 +634,6 @@ def downvote(anno_id):
             return redirect(next_page)
         else:
             annotation.rollback(vote)
-    elif current_user == annotation.author:
-        flash("You cannot vote on your own annotation.")
-        return redirect(next_page)
 
     annotation.downvote(current_user)
     db.session.commit()
