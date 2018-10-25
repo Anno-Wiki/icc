@@ -19,6 +19,18 @@
                     {{ flag.flag }}
                 </a>
             {% endfor %}
+            {% if current_user.is_authenticated and
+                    current_user.has_right("lock_users") %}
+                {% if user.locked %}
+                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                        Unlock User Account
+                    </a>
+                {% else %}
+                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                        Lock User Account
+                    </a>
+                {% endif %}
+            {% endif %}
         </td>
     </tr>
 </table>

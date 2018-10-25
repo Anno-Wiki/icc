@@ -1135,3 +1135,14 @@ def edit_summary(book_id):
         form.text.data = book.summary
 
     return render_template("forms/text.html", title=f"Edit Summary", form=form)
+
+@app.route("/admin/lock/user/<user_id>/")
+@login_required
+def lock_user(user_id):
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+    current_user.authorize_rights("lock_users")
+    user = User.query.get_or_404(user_id)
+    user.locked = not user.locked
+    return redirect(next_page)
