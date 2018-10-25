@@ -13,24 +13,30 @@
             {% if user.last_seen %}
                 <p>Last seen on: {{ user.last_seen }}</p>
             {% endif %}
-            {% for flag in flags %}
-                <a href="{{ url_for("flag_user", flag_id=flag.id,
-                    user_id=user.id, next=request.full_path) }}">
-                    {{ flag.flag }}
-                </a>
-            {% endfor %}
-            {% if current_user.is_authenticated and
-                    current_user.has_right("lock_users") %}
-                {% if user.locked %}
-                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
-                        Unlock User Account
-                    </a>
-                {% else %}
-                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
-                        Lock User Account
-                    </a>
+                {% if current_user.is_authenticated and
+                        current_user.has_right("lock_users") %}
+                    {% if user.locked %}
+                        <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                            unlock
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                            lock
+                        </a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+                |
+                <div class="dropdown">
+                    <a class="dropbtn">flag</a>
+                    <div class="dropdown-content">
+                        {% for flag in flags %}
+                            <a href="{{ url_for("flag_user", flag_id=flag.id,
+                                user_id=user.id, next=request.full_path) }}">
+                                {{ flag.flag }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
         </td>
     </tr>
 </table>

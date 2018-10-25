@@ -16,6 +16,11 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 
+@app.before_request
+def before_request():
+    if current_user.is_authenticated and current_user.locked:
+        logout_user()
+
 ###########
 ## Index ##
 ###########
@@ -1139,10 +1144,12 @@ def edit_summary(book_id):
 @app.route("/admin/lock/user/<user_id>/")
 @login_required
 def lock_user(user_id):
+    current_user.authorize_rights("lock_users")
+    user = User.query.get_or_404(user_id)
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("user", user_id=user.id)
-    current_user.authorize_rights("lock_users")
-    user = User.query.get_or_404(user_id)
     user.locked = not user.locked
+    db.session.commit()
+    flash(f"User account {user.displayname} locked.")
     return redirect(next_page)
