@@ -16,12 +16,6 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 
-@app.before_request
-def before_request():
-    if current_user.is_authenticated:
-        current_user.last_seen = datetime.utcnow()
-        db.session.commit()
-
 ###########
 ## Index ##
 ###########
@@ -1110,9 +1104,6 @@ def edit_bio(author_id):
     if form.validate_on_submit():
         if form.text.data != None:
             author.bio = form.text.data
-            print(author.bio)
-            print("=====")
-            print(form.text.data)
             db.session.commit()
             flash("Bio updated.")
             return redirect(next_page)
@@ -1120,3 +1111,27 @@ def edit_bio(author_id):
         form.text.data = author.bio
 
     return render_template("forms/text.html", title="Edit Bio", form=form)
+
+@app.route("/admin/edit/book_summary/<book_id>/", methods=["GET", "POST"])
+@login_required
+def edit_summary(book_id):
+    current_user.authorize_rights("edit_summaries")
+    book = Book.query.get_or_404(book_id)
+    form = TextForm()
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book", book_url=book.url)
+
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.text.data != None:
+            book.summary = form.text.data
+            db.session.commit()
+            flash("Summary updated.")
+            return redirect(next_page)
+    else:
+        form.text.data = book.summary
+
+    return render_template("forms/text.html", title=f"Edit Summary", form=form)

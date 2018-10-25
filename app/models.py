@@ -36,8 +36,11 @@ class SearchableMixin(object):
             if isinstance(obj, SearchableMixin):
                 add_to_index(obj.__tablename__, obj)
         for obj in session._changes["update"]:
+            print("update for")
             if isinstance(obj, SearchableMixin):
+                print("update if")
                 add_to_index(obj.__tablename__, obj)
+                print("update if 2")
         for obj in session._changes["delete"]:
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
@@ -144,6 +147,10 @@ class User(UserMixin, db.Model):
         return "<User {}>".format(self.displayname)
 
     # Utilities
+
+    def update_last_seen(self):
+        self.last_seen = datetime.utcnow()
+        db.session.commit()
 
     def flag_user(self, flag, thrower):
         event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
@@ -308,7 +315,12 @@ class Book(SearchableMixin, db.Model):
     published = db.Column(db.Date)
     added = db.Column(db.DateTime)
 
-    author = db.relationship("Author")
+    # we have to lazy="joined" author relationship for the sake of getattr()
+    # during __searchable__ indexing because if we do not, when we access
+    # author_name, we end up with an error from issuing sql after modification
+    # of the book before committing. If we load it immediately, which is no skin
+    # off our processor's back, we don't have to issue any sql!
+    author = db.relationship("Author", lazy="joined")
     lines = db.relationship("Line", primaryjoin="Line.book_id==Book.id",
         lazy="dynamic")
     annotations = db.relationship("Annotation",

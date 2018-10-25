@@ -3,8 +3,10 @@
 {% block content %}
     <h1>{{ author.name }}</h1>
     <h2>&times; {{ len(author.books)}} Books</h2>
-    {{ author.bio|markdown }}
-    {% if current_user.has_right("edit_bios") %}
+    <div id="bio">
+        {{ author.bio|markdown }}
+    </div>
+    {% if current_user.is_authenticated and current_user.has_right("edit_bios") %}
         <a href="{{ url_for("edit_bio", author_id=author.id,
                 next=request.full_path) }}">edit</a>
     {% endif %}
