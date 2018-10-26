@@ -1,46 +1,55 @@
 
-ID Age P Project Tags         Description                                   Urg
--- --- - ------- ------------ --------------------------------------------- ----
-15 3w  H web     bug          Figure out how to get previous Part and Book  7.94
-                              lines for each page
-16 3w  H web     feature      define bcrypt and salt for hashing function   7.92
-19 2w  H web     structure    see about eliminating pointer_id from          7.9
-                              annotation_version
-20 12d H web     feature      follow annotations on book                    7.87
-21 12d H web     feature      follow annotations on tag                     7.87
-22 12d H web     feature      follow annotations on author                  7.87
-24 8d  H web     bug          bug whereby a user can put a last line num    7.84
-                              less than first line num
-29 6d  H web     feature      edit history.monthly page                     7.83
-30 6d  H web     feature      edit rollback                                 7.83
-35 1d  H web     feature      annotation flags                              7.81
-12 4w  M web     feature      Help feature for markdown formatting          5.88
-13 4w  M web     feature      About page                                    5.88
-14 3w  M web     feature      General help indicators                       5.84
-17 3w  M web     feature      Modify chapter hierarchies to be more         5.82
-                              general, e.g. level 1, level 2, level 3
-18 2w  M web     bug          find a way to order annotations based on last 5.81
-                              modified
-23 9d  M web     feature      Add css rule for quotations                   5.75
-25 8d  M web     bug          pagination on index results in uneven         5.74
-                              pagination ie the same annotation ending up
-                              on multiple pages
-31 1d  M web     feature      regular search                                5.71
-32 1d  M web     feature      complete autocomplete on tag insertion        5.71
-33 1d  M web     feature      add more user flags and institutionalize them 5.71
-34 1d  M web     bug          create drop down on flags instead of listing  5.71
-                              them all
- 3 10w L web     JS feature   write javascript for pe char-level annotation 4.11
- 4 9w  L web     AJAX feature Write javascript for popup annotations on     4.07
-                              read view.
- 5 9w  L web     test         Test more formats!                            3.97
-26 6d  L web     optimize     optimize the tag list creation double for     3.63
-                              loop see about relationship
-27 6d  L web     feature      see about tag intersection                    3.63
-28 6d  L web     feature      think about increasing or unlimiting          3.63
-                              annotation selection range
-36 1d    web     bug          Investigate user repuation but in the         1.81
-                              beginning of user reputation that causes user
-                              to have +2 rep without anything happening
+ID Age  P Project Tags         Description                                  Urg
+-- ---- - ------- ------------ -------------------------------------------- ----
+18 2w   H web     structure    see about eliminating pointer_id from         7.9
+                               annotation_version
+20 9d   H web     bug          bug whereby a user can put a last line num   7.85
+                               less than first line num
+24 6d   H web     feature      edit history                                 7.83
+25 6d   H web     feature      edit rollback                                7.83
+29 1d   H web     feature      annotation flags                             7.81
+31 4min H web     feature      recent annotations v top annotations          7.8
+32 3min H web     feature      view all annotations for book author etc      7.8
+33 3min H web     feature      user list                                     7.8
+42 1min H web     feature      edit tags                                     7.8
+43 1min H web     admin        immediate edit approval                       7.8
+44 1min H web     bug          immediate edit for annotation owner           7.8
+45 39s  H web     feature      anonymous edits and annotations               7.8
+46 24s  H web     feature      anonymous annotation approval                 7.8
+12 4w   M web     feature      Help feature for markdown formatting         5.88
+13 4w   M web     feature      About page                                   5.88
+14 3w   M web     feature      General help indicators                      5.84
+16 3w   M web     feature      Modify chapter hierarchies to be more        5.82
+                               general, e.g. level 1, level 2, level 3
+17 2w   M web     bug          find a way to order annotations based on     5.81
+                               last modified
+19 9d   M web     feature      Add css rule for quotations                  5.75
+21 6d   M web     optimize     optimize the tag list creation double for    5.73
+                               loop see about relationship
+26 1d   M web     feature      regular search                               5.71
+27 1d   M web     feature      complete autocomplete on tag insertion       5.71
+28 1d   M web     feature      add more user flags and institutionalize     5.71
+                               them
+35 2min M web     feature      add footer                                    5.7
+36 2min M web     feature      add footer about                              5.7
+37 2min M web     feature      add footer privacy statement                  5.7
+38 2min M web     feature      add footer guidelines or faq                  5.7
+39 2min M web     feature      add footer contact                            5.7
+40 2min M web     feature      add footer news                               5.7
+41 1min M web     feature      add footer terms                              5.7
+ 3 10w  L web     JS feature   write javascript for pe char-level           4.11
+                               annotation
+ 4 9w   L web     AJAX feature Write javascript for popup annotations on    4.07
+                               read view.
+ 5 9w   L web     test         Test more formats!                           3.97
+15 3w   L web     feature      define bcrypt and salt for hashing function  3.73
+22 6d   L web     feature      see about tag intersection                   3.63
+23 6d   L web     feature      think about increasing or unlimiting         3.63
+                               annotation selection range
+30 1d   L web     bug          Investigate user repuation but in the        3.61
+                               beginning of user reputation that causes
+                               user to have +2 rep without anything
+                               happening
+34 2min L web     bug          clean up css drop downs                       3.6
 
-28 tasks
+38 tasks
