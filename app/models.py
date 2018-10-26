@@ -609,6 +609,10 @@ class AnnotationVersion(db.Model):
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tags}"
         self.hash_id = sha1(s.encode("utf8")).hexdigest()
+        if self.first_line_num > self.last_line_num:
+            tmp = self.last_line_num
+            self.last_line_num = self.first_line_num
+            self.first_line_num = tmp
 
     def __repr__(self):
         return f"<Ann {self.id} on book {self.book.title}>"
