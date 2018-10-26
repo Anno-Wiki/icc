@@ -92,7 +92,10 @@
         </a>
         {% include "includes/_reputation_author.html" %}
     {%- else -%}
-        last edited by 
+        <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
+            last edited
+        </a>
+        by 
         <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
             {{ annotation.HEAD.editor.displayname }}
         </a>

@@ -554,6 +554,15 @@ class Annotation(db.Model):
             self.author.rollback_downvote()
         db.session.delete(vote)
 
+    def get_history(self):
+        history = []
+        edit = self.HEAD
+        while edit.previous != None:
+            history.append(edit)
+            edit = edit.previous
+        return history
+        
+
 class EditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)

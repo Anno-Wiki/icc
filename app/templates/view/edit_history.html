@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div id="content">
+        <h1>
+            <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
+                Annotation {{ annotation.id }} on War and Peace
+            </a>
+        </h1>
+        <h2>Current</h2>
+        <div class="selection">
+            <h3>Context:</h3>
+            {% for line in annotation.context %}
+                {% if line in annotation.lines %}
+                    <div class="highlight">
+                        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                            <span class="linenum">{{ line.l_num }}</span>
+                            {% include "includes/_line.html" %}
+                        </line>
+                    </div>
+                {% else %}
+                    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                        {% include "includes/_line.html" %}
+                    </line>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% include "includes/_annotation_full.html" %}
+
+        {% for edit in history %}
+            <hr>
+            <h2>Version {{ edit.id }}</h2>
+            <br>
+            {% if edit.first_line_num != annotation.HEAD.first_line_num or
+                    edit.last_line_num != annotation.HEAD.last_line_num %}
+                <div class="selection">
+                    {% for line in edit.lines %}
+                        <div class="highlight">
+                            <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                                <span class="linenum">{{ line.l_num }}</span>
+                                {% include "includes/_line.html" %}
+                            </line>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% include "includes/_edit.html" %}
+
+        {% endfor %}
+    </div>
+{% endblock %}

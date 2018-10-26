@@ -115,7 +115,10 @@
 
     <br>
 
-    edited by 
+    <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
+        edited
+    </a>
+    by 
     <a href="{{ url_for("user", user_id=annotation.editor.id) }}">
         {{ annotation.editor.displayname }}
     </a>

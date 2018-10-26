@@ -252,11 +252,6 @@ def tag(tag):
             annotations=annotations.items,
             next_page=next_page, prev_page=prev_page)
 
-
-####################
-## Reading Routes ##
-####################
-
 @app.route("/annotation/<annotation_id>")
 def view_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
@@ -265,6 +260,17 @@ def view_annotation(annotation_id):
     return render_template("view/annotation.html", title=annotation.book.title,
             annotation=annotation, uservotes=uservotes)
 
+@app.route("/annotation/<annotation_id>/edit_history/")
+def edit_history(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    history = annotation.get_history()
+    return render_template("view/edit_history.html", title=f"Edit History",
+            history=history, annotation=annotation)
+
+
+####################
+## Reading Routes ##
+####################
 
 @app.route("/read/<book_url>", methods=["GET", "POST"])
 def read(book_url):
