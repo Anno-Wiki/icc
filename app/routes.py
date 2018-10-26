@@ -268,6 +268,7 @@ def edit_history(annotation_id):
             history=history, annotation=annotation)
 
 
+
 ####################
 ## Reading Routes ##
 ####################
@@ -381,6 +382,58 @@ def read(book_url):
 ## Creation Routes ##
 #####################
 
+@app.route("/user/rollback/edit/<annotation_id>/<edit_id>/")
+@login_required
+def rollback_edit(annotation_id, edit_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    edit = AnnotationVersion.query.get_or_404(edit_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("edit_history", annotation_id=annotation.id)
+
+    if annotation.HEAD == edit:
+        flash("You can't roll back an annotation to it's current version.")
+        return redirect(next_page)
+
+    if annotation.locked == True and not \
+            current_user.has_right("edit_locked_annotations"):
+        flash("That annotation is locked from editing.")
+        return redirect(next_page)
+
+    approved = current_user.has_right("immediate_edits")
+    new_edit = AnnotationVersion(
+            editor_id=current_user.id,
+            pointer_id=annotation.id,
+            book_id=annotation.book_id,
+            previous_id=annotation.HEAD.id,
+            first_line_num=edit.first_line_num,
+            last_line_num=edit.last_line_num,
+            first_char_idx=edit.first_char_idx,
+            last_char_idx=edit.last_char_idx,
+            annotation=edit.annotation,
+            modified=datetime.utcnow(),
+            approved=approved
+            )
+
+
+    # if the approved is true (i.e., the user has immediate_edit rights),
+    # then the value of edit_pending needs to be not true, and vice versa.
+    annotation.edit_pending = not approved
+    if approved:
+        edit.current = False
+        new_edit.current = True
+        new_edit.approved = True
+        annotation.HEAD = new_edit
+    db.session.commit()
+
+    if approved:
+        flash("Edit complete.")
+    else:
+        flash("Edit submitted for review.")
+
+    return redirect(next_page)
+
 @app.route("/edit/<anno_id>", methods=["GET", "POST"])
 @login_required
 def edit(anno_id):
@@ -444,6 +497,9 @@ def edit(anno_id):
 
         lockchange = False
         if current_user.has_right("lock_annotations"):
+            # the lock changes if the annotation's lock value is different from
+            # the form's locked data. We have to specify this because this won't
+            # show up in edit's hash_id and will fail the uniqueness test.
             lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
@@ -1186,3 +1242,4 @@ def delete_account_check():
 
     return render_template("forms/delete_account_check.html", form=form,
             title="Are you sure?")
+

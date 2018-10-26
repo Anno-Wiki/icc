@@ -555,11 +555,17 @@ class Annotation(db.Model):
         db.session.delete(vote)
 
     def get_history(self):
-        history = []
-        edit = self.HEAD
+        history_list = []
+        edit = self.HEAD.previous
         while edit.previous != None:
-            history.append(edit)
+            history_list.append(edit)
             edit = edit.previous
+        history_list.append(edit)
+        history = {}
+        i = len(history_list)
+        for edit in history_list:
+            history[i] = edit
+            i -= 1
         return history
         
 

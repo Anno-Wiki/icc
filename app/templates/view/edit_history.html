@@ -9,6 +9,7 @@
             </a>
         </h1>
         <h2>Current</h2>
+        <h3>Version {{ annotation.HEAD.id }}</h3>
         <div class="selection">
             <h3>Context:</h3>
             {% for line in annotation.context %}
@@ -29,10 +30,15 @@
 
         {% include "includes/_annotation_full.html" %}
 
-        {% for edit in history %}
+        {% for number, edit in history.items() %}
             <hr>
-            <h2>Version {{ edit.id }}</h2>
-            <br>
+            <h2>Version {{ number }}</h2>
+            <h3>
+                <a href="{{ url_for("rollback_edit",
+                        annotation_id=annotation.id, edit_id=edit.id) }}">
+                    Rollback annotation to this version
+                </a>
+            </h3>
             {% if edit.first_line_num != annotation.HEAD.first_line_num or
                     edit.last_line_num != annotation.HEAD.last_line_num %}
                 <div class="selection">
