@@ -401,8 +401,6 @@ def edit(anno_id):
         # line number boilerplate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
-        if ll - fl > 5:
-            fl = ll - 4
         if fl < 1:
             fl = 1
         if ll < 1:
@@ -502,11 +500,10 @@ def annotate(book_url, first_line, last_line):
         tmp = first_line
         first_line = last_line
         last_line = tmp
-    elif int(last_line) - int(first_line) > 5:
-        first_line = int(last_line) - 5
     if int(first_line) < 1:
         first_line = 1
     if int(last_line) < 1:
+        first_line = 1
         last_line = 1
 
     book = Book.query.filter_by(url=book_url).first_or_404()
@@ -529,12 +526,11 @@ def annotate(book_url, first_line, last_line):
         # line number boiler plate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
-        if ll - fl > 5:
-            fl = ll - 5
         if fl < 1:
             fl = 1
         if ll < 1:
             ll = 1
+            fl = 1
 
         # Process all the tags
         raw_tags = form.tags.data.split()
