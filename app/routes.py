@@ -153,29 +153,54 @@ def reset_password(token):
         return redirect(url_for("login"))
     return render_template("forms/reset_password.html", form=form)
 
-@app.route("/user/<user_id>/")
-def user(user_id):
-    page = request.args.get("page", 1, type=int)
+@app.route("/flag/<flag_id>/user/<user_id>/")
+@login_required
+def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
-    annotations = user.annotations.order_by(Annotation.added.desc()
-            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    userflags = UserFlag.query.all()
+    flag = UserFlag.query.get_or_404(flag_id)
 
-    next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
-            if annotations.has_next else None
-    prev_page = url_for("user", user_id=user.id, page=annotations.prev_num) \
-            if annotations.has_prev else None
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-            else None
-    return render_template("view/user.html", title=f"User {user.displayname}",
-            user=user, annotations=annotations.items, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page, userflags=userflags)
+    user.flag(flag, current_user)
+    db.session.commit()
+    flash(f"User {user.displayname} flagged \"{flag.flag}\"")
+    return redirect(next_page)
 
+@app.route("/user/delete_account/")
+@login_required
+def delete_account():
+    current_user.displayname = f"deleted_user_{current_user.id}"
+    current_user.email = ""
+    current_user.password_hash = "***"
+    current_user.about_me = ""
+    db.session.commit()
+    logout_user()
+    flash("Account anonymized.")
+    return redirect(url_for("index"))
 
-#####################
-## Content Indexes ##
-#####################
+@app.route("/user/delete_account_check/", methods=["GET", "POST"])
+@login_required
+def delete_account_check():
+    form = AreYouSureForm()
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+
+    if form.cancel.data:
+        flash("Phew, you almost pulled the trigger!")
+        return redirect(next_page)
+    elif form.validate_on_submit():
+        return redirect(url_for("delete_account"))
+
+    return render_template("forms/delete_account_check.html", form=form,
+            title="Are you sure?")
+
+#############
+## Indexes ##
+#############
 
 @app.route("/list/authors/")
 def author_index():
@@ -191,13 +216,6 @@ def author_index():
     return render_template("indexes/authors.html", title="Authors",
             authors=authors.items, next_page=next_page, prev_page=prev_page)
 
-
-@app.route("/author/<name>/")
-def author(name):
-    author = Author.query.filter_by(url=name).first_or_404()
-    return render_template("view/author.html", title=author.name, author=author)
-
-
 @app.route("/list/books/")
 def book_index():
     page = request.args.get("page", 1, type=int)
@@ -212,6 +230,28 @@ def book_index():
     return render_template("indexes/books.html", title="Books",
             books=books.items, prev_page=prev_page, next_page=next_page)
 
+@app.route("/list/tags/")
+def tag_index():
+    page = request.args.get("page", 1, type=int)
+    tags = Tag.query.order_by(Tag.tag
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    next_page = url_for("tag_index", page=tags.next_num) \
+            if tags.has_next else None
+    prev_page = url_for("tag_index", page=tags.prev_num) \
+            if tags.has_prev else None
+
+    return render_template("indexes/tags.html", title="Tags",
+            tags=tags.items, next_page=next_page, prev_page=prev_page)
+
+#######################
+## Single Item Views ##
+#######################
+
+@app.route("/author/<name>/")
+def author(name):
+    author = Author.query.filter_by(url=name).first_or_404()
+    return render_template("view/author.html", title=author.name, author=author)
 
 @app.route("/book/<book_url>/", methods=["GET", "POST"])
 def book(book_url):
@@ -229,20 +269,6 @@ def book(book_url):
 
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
-
-@app.route("/list/tags/")
-def tag_index():
-    page = request.args.get("page", 1, type=int)
-    tags = Tag.query.order_by(Tag.tag
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-
-    next_page = url_for("tag_index", page=tags.next_num) \
-            if tags.has_next else None
-    prev_page = url_for("tag_index", page=tags.prev_num) \
-            if tags.has_prev else None
-
-    return render_template("indexes/tags.html", title="Tags",
-            tags=tags.items, next_page=next_page, prev_page=prev_page)
 
 @app.route("/tag/<tag>/")
 def tag(tag):
@@ -279,7 +305,24 @@ def edit_history(annotation_id):
             history=history, annotation=annotation,
             annotationflags=annotationflags)
 
+@app.route("/user/<user_id>/")
+def user(user_id):
+    page = request.args.get("page", 1, type=int)
+    user = User.query.get_or_404(user_id)
+    annotations = user.annotations.order_by(Annotation.added.desc()
+            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    userflags = UserFlag.query.all()
 
+    next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
+            if annotations.has_next else None
+    prev_page = url_for("user", user_id=user.id, page=annotations.prev_num) \
+            if annotations.has_prev else None
+
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("view/user.html", title=f"User {user.displayname}",
+            user=user, annotations=annotations.items, uservotes=uservotes,
+            next_page=next_page, prev_page=prev_page, userflags=userflags)
 
 ####################
 ## Reading Routes ##
@@ -390,62 +433,106 @@ def read(book_url):
             tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
             edit_right=edit_right, annotationflags=annotationflags)
 
+#######################
+## Annotation System ##
+#######################
 
-#####################
-## Creation Routes ##
-#####################
-
-@app.route("/rollback/edit/<annotation_id>/<edit_id>/")
+@app.route("/annotate/<book_url>/<first_line>/<last_line>/",
+        methods=["GET", "POST"])
 @login_required
-def rollback_edit(annotation_id, edit_id):
-    annotation = Annotation.query.get_or_404(annotation_id)
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+def annotate(book_url, first_line, last_line):
+    if int(first_line) > int(last_line):
+        tmp = first_line
+        first_line = last_line
+        last_line = tmp
+    if int(first_line) < 1:
+        first_line = 1
+    if int(last_line) < 1:
+        first_line = 1
+        last_line = 1
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("edit_history", annotation_id=annotation.id)
+    book = Book.query.filter_by(url=book_url).first_or_404()
+    lines = book.lines.filter(Line.l_num>=first_line,
+            Line.l_num<=last_line).all()
+    context = book.lines.filter(Line.l_num>=int(first_line)-5,
+            Line.l_num<=int(last_line)+5).all()
+    form = AnnotationForm()
 
-    if annotation.HEAD == edit:
-        flash("You can't roll back an annotation to it's current version.")
+    if lines == None:
+        abort(404)
+
+    if form.cancel.data:
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
-    if annotation.locked == True and not \
-            current_user.has_right("edit_locked_annotations"):
-        flash("That annotation is locked from editing.")
+    elif form.validate_on_submit():
+        # line number boiler plate
+        fl = int(form.first_line.data)
+        ll = int(form.last_line.data)
+        if fl < 1:
+            fl = 1
+        if ll < 1:
+            ll = 1
+            fl = 1
+
+        # Process all the tags
+        raw_tags = form.tags.data.split()
+        tags = []
+        fail = False
+        for tag in raw_tags:
+            t = Tag.query.filter_by(tag=tag).first()
+            if t:
+                tags.append(t)
+            else:
+                flash(f"tag {tag} does not exist.")
+                fail = True
+
+        if fail:
+            return render_template("forms/annotation.html", title=book.title,
+                    form=form, book=book, lines=lines, context=context)
+        elif len(tags) > 5:
+            flash("There is a five tag limit.")
+            return render_template("forms/annotation.html", title=book.title,
+                    form=form, book=book, lines=lines, context=context)
+
+        # I'll use the language of git
+        # Create the inital transient sqlalchemy AnnotationVersion object
+        commit = AnnotationVersion(
+                book=book, approved=True, editor=current_user,
+                first_line_num=fl, last_line_num=ll,
+                first_char_idx=form.first_char_idx.data,
+                last_char_idx=form.last_char_idx.data,
+                annotation=form.annotation.data, tags=tags, current=True)
+
+        # Create the annotation pointer with HEAD pointing to anno
+        head = Annotation(book=book, HEAD=commit, author=current_user)
+
+        # add anno, commit it
+        db.session.add(commit)
+        db.session.add(head)
+        db.session.commit()
+
+        # make anno's pointer point to the 
+        commit.pointer = head
+        db.session.commit()
+
+        flash("Annotation Submitted")
+
+        next_page = request.args.get("next")
+        if not next_page or url_parse(next_page).netloc != "":
+            next_page = lines[0].get_url()
         return redirect(next_page)
 
-    approved = current_user.has_right("immediate_edits")
-    new_edit = AnnotationVersion(
-            editor_id=current_user.id,
-            pointer_id=annotation.id,
-            book_id=annotation.book_id,
-            previous_id=annotation.HEAD.id,
-            first_line_num=edit.first_line_num,
-            last_line_num=edit.last_line_num,
-            first_char_idx=edit.first_char_idx,
-            last_char_idx=edit.last_char_idx,
-            annotation=edit.annotation,
-            modified=datetime.utcnow(),
-            approved=approved
-            )
-
-
-    # if the approved is true (i.e., the user has immediate_edit rights),
-    # then the value of edit_pending needs to be not true, and vice versa.
-    annotation.edit_pending = not approved
-    if approved:
-        edit.current = False
-        new_edit.current = True
-        new_edit.approved = True
-        annotation.HEAD = new_edit
-    db.session.commit()
-
-    if approved:
-        flash("Edit complete.")
     else:
-        flash("Edit submitted for review.")
+        form.first_line.data = first_line
+        form.last_line.data = last_line
+        form.first_char_idx.data = 0
+        form.last_char_idx.data = -1
 
-    return redirect(next_page)
+    return render_template("forms/annotation.html", title=book.title, form=form,
+             book=book, lines=lines, context=context)
 
 @app.route("/edit/<anno_id>", methods=["GET", "POST"])
 @login_required
@@ -566,104 +653,49 @@ def edit(anno_id):
             form=form, book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
-
-@app.route("/annotate/<book_url>/<first_line>/<last_line>/",
-        methods=["GET", "POST"])
+@app.route("/rollback/edit/<annotation_id>/<edit_id>/")
 @login_required
-def annotate(book_url, first_line, last_line):
-    if int(first_line) > int(last_line):
-        tmp = first_line
-        first_line = last_line
-        last_line = tmp
-    if int(first_line) < 1:
-        first_line = 1
-    if int(last_line) < 1:
-        first_line = 1
-        last_line = 1
-
-    book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines.filter(Line.l_num>=first_line,
-            Line.l_num<=last_line).all()
-    context = book.lines.filter(Line.l_num>=int(first_line)-5,
-            Line.l_num<=int(last_line)+5).all()
-    form = AnnotationForm()
-
-    if lines == None:
-        abort(404)
-
-    if form.cancel.data:
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
+def rollback_edit(annotation_id, edit_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    edit = AnnotationVersion.query.get_or_404(edit_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("edit_history", annotation_id=annotation.id)
+    if annotation.HEAD == edit:
+        flash("You can't roll back an annotation to it's current version.")
         return redirect(next_page)
-
-    elif form.validate_on_submit():
-        # line number boiler plate
-        fl = int(form.first_line.data)
-        ll = int(form.last_line.data)
-        if fl < 1:
-            fl = 1
-        if ll < 1:
-            ll = 1
-            fl = 1
-
-        # Process all the tags
-        raw_tags = form.tags.data.split()
-        tags = []
-        fail = False
-        for tag in raw_tags:
-            t = Tag.query.filter_by(tag=tag).first()
-            if t:
-                tags.append(t)
-            else:
-                flash(f"tag {tag} does not exist.")
-                fail = True
-
-        if fail:
-            return render_template("forms/annotation.html", title=book.title,
-                    form=form, book=book, lines=lines, context=context)
-        elif len(tags) > 5:
-            flash("There is a five tag limit.")
-            return render_template("forms/annotation.html", title=book.title,
-                    form=form, book=book, lines=lines, context=context)
-
-        # I'll use the language of git
-        # Create the inital transient sqlalchemy AnnotationVersion object
-        commit = AnnotationVersion(
-                book=book, approved=True, editor=current_user,
-                first_line_num=fl, last_line_num=ll,
-                first_char_idx=form.first_char_idx.data,
-                last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags, current=True)
-
-        # Create the annotation pointer with HEAD pointing to anno
-        head = Annotation(book=book, HEAD=commit, author=current_user)
-
-        # add anno, commit it
-        db.session.add(commit)
-        db.session.add(head)
-        db.session.commit()
-
-        # make anno's pointer point to the 
-        commit.pointer = head
-        db.session.commit()
-
-        flash("Annotation Submitted")
-
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
+    if annotation.locked == True and not \
+            current_user.has_right("edit_locked_annotations"):
+        flash("That annotation is locked from editing.")
         return redirect(next_page)
-
+    approved = current_user.has_right("immediate_edits")
+    new_edit = AnnotationVersion(
+            editor_id=current_user.id,
+            pointer_id=annotation.id,
+            book_id=annotation.book_id,
+            previous_id=annotation.HEAD.id,
+            first_line_num=edit.first_line_num,
+            last_line_num=edit.last_line_num,
+            first_char_idx=edit.first_char_idx,
+            last_char_idx=edit.last_char_idx,
+            annotation=edit.annotation,
+            modified=datetime.utcnow(),
+            approved=approved
+            )
+    # if the approved is true (i.e., the user has immediate_edit rights),
+    # then the value of edit_pending needs to be not true, and vice versa.
+    annotation.edit_pending = not approved
+    if approved:
+        edit.current = False
+        new_edit.current = True
+        new_edit.approved = True
+        annotation.HEAD = new_edit
+    db.session.commit()
+    if approved:
+        flash("Edit complete.")
     else:
-        form.first_line.data = first_line
-        form.last_line.data = last_line
-        form.first_char_idx.data = 0
-        form.last_char_idx.data = -1
-
-    return render_template("forms/annotation.html", title=book.title, form=form,
-             book=book, lines=lines, context=context)
-
+        flash("Edit submitted for review.")
+    return redirect(next_page)
 
 @app.route("/upvote/<anno_id>/")
 @login_required
@@ -717,10 +749,43 @@ def downvote(anno_id):
 
     return redirect(next_page)
 
-###########################
-## Administration Routes ##
-###########################
+@app.route("/flag/<flag_id>/annotation/<annotation_id>/")
+@login_required
+def flag_annotation(flag_id, annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    flag = AnnotationFlag.query.get_or_404(flag_id)
 
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("annotation", annotation_id=annotation.id)
+
+    annotation.flag(flag, current_user)
+    db.session.commit()
+    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
+    return redirect(next_page)
+
+#################################
+#################################
+## ## Administration Routes ## ##
+#################################
+#################################
+
+@app.route("/admin/lock/user/<user_id>/")
+@login_required
+def lock_user(user_id):
+    current_user.authorize_rights("lock_users")
+    user = User.query.get_or_404(user_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+    user.locked = not user.locked
+    db.session.commit()
+    flash(f"User account {user.displayname} locked.")
+    return redirect(next_page)
+
+#################
+## Edit Review ##
+#################
 
 @app.route("/admin/queue/edits/")
 @login_required
@@ -729,9 +794,8 @@ def edit_review_queue():
     edits = AnnotationVersion.query.filter_by(approved=False,
             rejected=False).all()
     votes = current_user.edit_votes
-
-    return render_template("indexes/edits.html", title="Edit Queue", edits=edits,
-        votes=votes)
+    return render_template("indexes/edits.html", title="Edit Queue",
+            edits=edits, votes=votes)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
@@ -790,6 +854,10 @@ def rescind(edit_hash):
     flash("Vote rescinded")
     return redirect(url_for("edit_review_queue"))
 
+#####################
+## Content Editing ##
+#####################
+
 @app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
 @login_required
 def edit_line(line_id):
@@ -797,11 +865,9 @@ def edit_line(line_id):
     line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("index")
-
     if form.cancel.data:
         return redirect(next_page)
     if form.validate_on_submit():
@@ -811,6 +877,53 @@ def edit_line(line_id):
             flash("Line updated.")
             return redirect(next_page)
     return render_template("forms/line.html", title="Edit Line", form=form)
+
+@app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
+@login_required
+def edit_bio(author_id):
+    current_user.authorize_rights("edit_bios")
+    author = Author.query.get_or_404(author_id)
+    form = TextForm()
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("author", name=author.url)
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.text.data != None:
+            author.bio = form.text.data
+            db.session.commit()
+            flash("Bio updated.")
+            return redirect(next_page)
+    else:
+        form.text.data = author.bio
+
+    return render_template("forms/text.html", title="Edit Bio", form=form)
+
+@app.route("/admin/edit/book_summary/<book_id>/", methods=["GET", "POST"])
+@login_required
+def edit_summary(book_id):
+    current_user.authorize_rights("edit_summaries")
+    book = Book.query.get_or_404(book_id)
+    form = TextForm()
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book", book_url=book.url)
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.text.data != None:
+            book.summary = form.text.data
+            db.session.commit()
+            flash("Summary updated.")
+            return redirect(next_page)
+    else:
+        form.text.data = book.summary
+    return render_template("forms/text.html", title=f"Edit Summary", form=form)
+
+###############################
+## Annotation Administration ##
+###############################
 
 @app.route("/admin/delete/annotation/<anno_id>/")
 @login_required
@@ -860,6 +973,26 @@ def view_deleted_annotations():
 ## Book Requests ##
 ###################
 
+@app.route("/list/book_requests/")
+def book_request_index():
+    page = request.args.get("page", 1, type=int)
+    requests = BookRequest.query.order_by(BookRequest.weight.desc()
+            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    next_page = url_for("book_request_index", page=requests.next_num) \
+            if requests.has_next else None
+    prev_page = url_for("book_request_index", page=requests.prev_num) \
+            if requests.has_prev else None
+    uservotes = current_user.get_book_request_vote_dict() \
+            if current_user.is_authenticated else None
+    return render_template("indexes/book_requests.html", title="Book Requests",
+            next_page=next_page, prev_page=prev_page, requests=requests.items,
+            uservotes=uservotes)
+
+@app.route("/book_request/<book_request_id>/")
+def view_book_request(book_request_id):
+    book_request = BookRequest.query.get_or_404(book_request_id)
+    return render_template("view/book_request.html", book_request=book_request)
+
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
 def book_request():
@@ -880,26 +1013,6 @@ def book_request():
         return redirect(url_for("book_request_index"))
     return render_template("forms/book_request.html", title="Request Book",
             form=form)
-
-@app.route("/list/book_requests/")
-def book_request_index():
-    page = request.args.get("page", 1, type=int)
-    requests = BookRequest.query.order_by(BookRequest.weight.desc()
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-    next_page = url_for("book_request_index", page=requests.next_num) \
-            if requests.has_next else None
-    prev_page = url_for("book_request_index", page=requests.prev_num) \
-            if requests.has_prev else None
-    uservotes = current_user.get_book_request_vote_dict() \
-            if current_user.is_authenticated else None
-    return render_template("indexes/book_requests.html", title="Book Requests",
-            next_page=next_page, prev_page=prev_page, requests=requests.items,
-            uservotes=uservotes)
-
-@app.route("/book_request/<book_request_id>/")
-def view_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    return render_template("view/book_request.html", book_request=book_request)
 
 @app.route("/edit/book_request/<book_request_id>/", methods=["GET", "POST"])
 @login_required
@@ -935,11 +1048,9 @@ def edit_book_request(book_request_id):
 @login_required
 def upvote_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("book_request_index")
-
     if current_user.already_voted_book_request(book_request):
         vote = current_user.book_request_ballots.filter(
                 BookRequestVote.book_request==book_request).first()
@@ -948,21 +1059,17 @@ def upvote_book_request(book_request_id):
         db.session.commit()
         if rd:
             return redirect(next_page)
-
     book_request.upvote(current_user)
     db.session.commit()
-
     return redirect(next_page)
 
 @app.route("/downvote/book_request/<book_request_id>/")
 @login_required
 def downvote_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("book_request_index")
-
     if current_user.already_voted_book_request(book_request):
         vote = current_user.book_request_ballots.filter(
                 BookRequestVote.book_request==book_request).first()
@@ -971,34 +1078,13 @@ def downvote_book_request(book_request_id):
         db.session.commit()
         if rd:
             return redirect(next_page)
-
     book_request.downvote(current_user)
     db.session.commit()
-
     return redirect(next_page)
 
 ##################
 ## Tag Requests ##
 ##################
-
-@app.route("/request/tag/", methods=["GET", "POST"])
-@login_required
-def tag_request():
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
-    form = TagRequestForm()
-    if form.cancel.data:
-        return redirect(url_for("tag_request_index"))
-    if form.validate_on_submit():
-        tag_request = TagRequest(tag=form.tag.data,
-                notes=form.notes.data, description=form.description.data,
-                wikipedia=form.wikipedia.data, weight=0)
-        db.session.add(tag_request)
-        tag_request.upvote(current_user)
-        db.session.commit()
-        flash("Tag request created and your vote has been applied.")
-        return redirect(url_for("tag_request_index"))
-    return render_template("forms/tag_request.html", title="Request Tag",
-            form=form)
 
 @app.route("/list/tag_requests/")
 def tag_request_index():
@@ -1019,6 +1105,25 @@ def tag_request_index():
 def view_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     return render_template("view/tag_request.html", tag_request=tag_request)
+
+@app.route("/request/tag/", methods=["GET", "POST"])
+@login_required
+def tag_request():
+    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
+    form = TagRequestForm()
+    if form.cancel.data:
+        return redirect(url_for("tag_request_index"))
+    if form.validate_on_submit():
+        tag_request = TagRequest(tag=form.tag.data,
+                notes=form.notes.data, description=form.description.data,
+                wikipedia=form.wikipedia.data, weight=0)
+        db.session.add(tag_request)
+        tag_request.upvote(current_user)
+        db.session.commit()
+        flash("Tag request created and your vote has been applied.")
+        return redirect(url_for("tag_request_index"))
+    return render_template("forms/tag_request.html", title="Request Tag",
+            form=form)
 
 @app.route("/edit/tag_request/<tag_request_id>/", methods=["GET", "POST"])
 @login_required
@@ -1102,14 +1207,11 @@ def downvote_tag_request(tag_request_id):
 @login_required
 def create_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
-
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("tag_request_index")
-
     form = TagForm()
     if form.cancel.data:
         return redirect(next_page)
@@ -1128,24 +1230,25 @@ def create_tag(tag_request_id):
             db.session.commit()
             flash("Tag created.")
             return redirect(next_page)
-
     return render_template("forms/tag.html", title="Create Tag", form=form)
 
 @app.route("/admin/tags/reject/<tag_request_id>")
 @login_required
 def reject_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
-
     tag_request = TagRequest.query.get_or_404(tag_request_id)
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("tag_request_index")
-
     tag_request.rejected = True
     db.session.commit()
-
     return redirect(next_page)
+
+#######################
+#######################
+## ## Ajax Routes ## ##
+#######################
+#######################
 
 @app.route("/autocomplete/tags/", methods=["POST"])
 def ajax_tags():
@@ -1159,130 +1262,3 @@ def ajax_tags():
         tag_list[t.tag] = t.description
     
     return jsonify({"success": True, "tags": tag_list})
-
-@app.route("/flag/<flag_id>/user/<user_id>/")
-@login_required
-def flag_user(flag_id, user_id):
-    user = User.query.get_or_404(user_id)
-    flag = UserFlag.query.get_or_404(flag_id)
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
-
-    user.flag(flag, current_user)
-    db.session.commit()
-    flash(f"User {user.displayname} flagged \"{flag.flag}\"")
-    return redirect(next_page)
-
-@app.route("/flag/<flag_id>/annotation/<annotation_id>/")
-@login_required
-def flag_annotation(flag_id, annotation_id):
-    annotation = Annotation.query.get_or_404(annotation_id)
-    flag = AnnotationFlag.query.get_or_404(flag_id)
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation", annotation_id=annotation.id)
-
-    annotation.flag(flag, current_user)
-    db.session.commit()
-    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
-    return redirect(next_page)
-
-@app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
-@login_required
-def edit_bio(author_id):
-    current_user.authorize_rights("edit_bios")
-    author = Author.query.get_or_404(author_id)
-    form = TextForm()
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("author", name=author.url)
-
-    if form.cancel.data:
-        return redirect(next_page)
-    if form.validate_on_submit():
-        if form.text.data != None:
-            author.bio = form.text.data
-            db.session.commit()
-            flash("Bio updated.")
-            return redirect(next_page)
-    else:
-        form.text.data = author.bio
-
-    return render_template("forms/text.html", title="Edit Bio", form=form)
-
-@app.route("/admin/edit/book_summary/<book_id>/", methods=["GET", "POST"])
-@login_required
-def edit_summary(book_id):
-    current_user.authorize_rights("edit_summaries")
-    book = Book.query.get_or_404(book_id)
-    form = TextForm()
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book", book_url=book.url)
-
-    if form.cancel.data:
-        return redirect(next_page)
-    if form.validate_on_submit():
-        if form.text.data != None:
-            book.summary = form.text.data
-            db.session.commit()
-            flash("Summary updated.")
-            return redirect(next_page)
-    else:
-        form.text.data = book.summary
-
-    return render_template("forms/text.html", title=f"Edit Summary", form=form)
-
-@app.route("/admin/lock/user/<user_id>/")
-@login_required
-def lock_user(user_id):
-    current_user.authorize_rights("lock_users")
-    user = User.query.get_or_404(user_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
-    user.locked = not user.locked
-    db.session.commit()
-    flash(f"User account {user.displayname} locked.")
-    return redirect(next_page)
-
-
-####################
-## Delete account ##
-####################
-
-@app.route("/user/delete_account/")
-@login_required
-def delete_account():
-    current_user.displayname = f"deleted_user_{current_user.id}"
-    current_user.email = ""
-    current_user.password_hash = "***"
-    current_user.about_me = ""
-    db.session.commit()
-    logout_user()
-    flash("Account anonymized.")
-    return redirect(url_for("index"))
-
-@app.route("/user/delete_account_check/", methods=["GET", "POST"])
-@login_required
-def delete_account_check():
-    form = AreYouSureForm()
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
-
-    if form.cancel.data:
-        flash("Phew, you almost pulled the trigger!")
-        return redirect(next_page)
-    elif form.validate_on_submit():
-        return redirect(url_for("delete_account"))
-
-    return render_template("forms/delete_account_check.html", form=form,
-            title="Are you sure?")
-
