@@ -133,6 +133,21 @@
         </a>
     {% endif -%}
 
+    |
+    <div class="dropdown">
+        <a class="dropbtn">flag</a>
+        <div class="dropdown-content">
+            {% for annotationflag in annotationflags %}
+                <a href="{{ url_for("flag_annotation",
+                        flag_id=annotationflag.id, annotation_id=annotation.id,
+                        next=request.full_path) }}">
+                    {{ annotationflag.flag }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+
     {% if current_user.is_authenticated and
             (current_user.has_right("edit_locked_annotations") or
             not annotation.locked) %}

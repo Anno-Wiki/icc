@@ -9,7 +9,7 @@ from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
-        BookRequestVote, TagRequest, TagRequestVote, UserFlag
+        BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -33,6 +33,7 @@ def index():
     annotations = Annotation.query.filter_by(active=True
             ).order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    annotationflags = AnnotationFlag.query.all()
     next_page = url_for("index", page=annotations.next_num) \
             if annotations.has_next else None
     prev_page = url_for("index", page=annotations.prev_num) \
@@ -41,7 +42,8 @@ def index():
             else None
     return render_template("index.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page)
+            next_page=next_page, prev_page=prev_page,
+            annotationflags=annotationflags)
 
 
 ####################
@@ -151,7 +153,7 @@ def user(user_id):
     user = User.query.get_or_404(user_id)
     annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    flags = UserFlag.query.all()
+    userflags = UserFlag.query.all()
 
     next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
             if annotations.has_next else None
@@ -162,7 +164,7 @@ def user(user_id):
             else None
     return render_template("view/user.html", title=f"User {user.displayname}",
             user=user, annotations=annotations.items, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page, flags=flags)
+            next_page=next_page, prev_page=prev_page, userflags=userflags)
 
 
 #####################
@@ -255,17 +257,21 @@ def tag(tag):
 @app.route("/annotation/<annotation_id>")
 def view_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
+    annotationflags = AnnotationFlag.query.all()
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("view/annotation.html", title=annotation.book.title,
-            annotation=annotation, uservotes=uservotes)
+            annotation=annotation, uservotes=uservotes,
+            annotationflags=annotationflags)
 
 @app.route("/annotation/<annotation_id>/edit_history/")
 def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
+    annotationflags = AnnotationFlag.query.all()
     history = annotation.get_history()
     return render_template("view/edit_history.html", title=f"Edit History",
-            history=history, annotation=annotation)
+            history=history, annotation=annotation,
+            annotationflags=annotationflags)
 
 
 
@@ -280,6 +286,7 @@ def read(book_url):
     bk = request.args.get("book", 0, type=int)
     pt = request.args.get("part", 0, type=int)
     ch = request.args.get("chapter", 0, type=int)
+    annotationflags = AnnotationFlag.query.all()
 
     if ch != 0:
         lines = book.lines.filter(
@@ -375,14 +382,14 @@ def read(book_url):
     return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
             tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
-            edit_right=edit_right)
+            edit_right=edit_right, annotationflags=annotationflags)
 
 
 #####################
 ## Creation Routes ##
 #####################
 
-@app.route("/user/rollback/edit/<annotation_id>/<edit_id>/")
+@app.route("/rollback/edit/<annotation_id>/<edit_id>/")
 @login_required
 def rollback_edit(annotation_id, edit_id):
     annotation = Annotation.query.get_or_404(annotation_id)
@@ -1137,7 +1144,7 @@ def ajax_tags():
     
     return jsonify({"success": True, "tags": tag_list})
 
-@app.route("/admin/flag/<flag_id>/user/<user_id>/")
+@app.route("/flag/<flag_id>/user/<user_id>/")
 @login_required
 def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
@@ -1147,9 +1154,24 @@ def flag_user(flag_id, user_id):
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("user", user_id=user.id)
 
-    user.flag_user(flag, current_user)
+    user.flag(flag, current_user)
     db.session.commit()
     flash(f"User {user.displayname} flagged \"{flag.flag}\"")
+    return redirect(next_page)
+
+@app.route("/flag/<flag_id>/annotation/<annotation_id>/")
+@login_required
+def flag_annotation(flag_id, annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    flag = AnnotationFlag.query.get_or_404(flag_id)
+
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("annotation", annotation_id=annotation.id)
+
+    annotation.flag(flag, current_user)
+    db.session.commit()
+    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
     return redirect(next_page)
 
 @app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
@@ -1212,6 +1234,11 @@ def lock_user(user_id):
     db.session.commit()
     flash(f"User account {user.displayname} locked.")
     return redirect(next_page)
+
+
+####################
+## Delete account ##
+####################
 
 @app.route("/user/delete_account/")
 @login_required

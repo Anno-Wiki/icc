@@ -151,7 +151,7 @@ class User(UserMixin, db.Model):
         self.last_seen = datetime.utcnow()
         db.session.commit()
 
-    def flag_user(self, flag, thrower):
+    def flag(self, flag, thrower):
         event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
         db.session.add(event)
         db.session.commit()
@@ -567,7 +567,11 @@ class Annotation(db.Model):
             history[i] = edit
             i -= 1
         return history
-        
+
+    def flag(self, flag, thrower):
+        event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
+        db.session.add(event)
+        db.session.commit()
 
 class EditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -795,6 +799,41 @@ class UserFlagEvent(db.Model):
             return f"<X UserFlag: {self.flag.flag} at {self.time_thrown}>"
         else:
             return f"<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>"
+   
+    def resolve(self, resolver):
+        self.resolved = datetime.utcnow()
+        self.resolver = resolver
+        db.session.commit()
+
+class AnnotationFlag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    flag = db.Column(db.String(127))
+
+    def __repr__(self):
+        return f"<AnnotationFlag {self.flag}>"
+
+class AnnotationFlagEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    annotation_flag_id = db.Column(db.Integer,
+            db.ForeignKey("annotation_flag.id"), index=True)
+    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id"),
+            index=True)
+    thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
+    resolved = db.Column(db.DateTime)
+    resolved_by = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+
+    annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
+    thrower = db.relationship("User", foreign_keys=[thrower_id])
+    flag = db.relationship("AnnotationFlag")
+    resolver = db.relationship("User", foreign_keys=[resolved_by])
+
+    def __repr__(self):
+        if self.resolved:
+            return f"<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>"
+        else:
+            return f"<AnnotationFlag thrown: {self.flag.flag} at" \
+                        " {self.time_thrown}>"
    
     def resolve(self, resolver):
         self.resolved = datetime.utcnow()
