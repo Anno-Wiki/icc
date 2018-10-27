@@ -807,7 +807,8 @@ def lock_user(user_id):
 @app.route("/admin/queue/edits/")
 @login_required
 def edit_review_queue():
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    if not current_user.has_right("review_edits"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edits = AnnotationVersion.query.filter_by(approved=False,
             rejected=False).all()
     votes = current_user.edit_votes
@@ -817,7 +818,8 @@ def edit_review_queue():
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
 def approve(edit_hash):
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    if not current_user.has_right("review_edits"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.hash_id}")
@@ -826,7 +828,8 @@ def approve(edit_hash):
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("edit_review_queue"))
     edit.approve(current_user)
-    if edit.weight >= app.config["MIN_APPROVAL_RATING"]:
+    if edit.weight >= app.config["MIN_APPROVAL_RATING"] or \
+            current_user.has_right("approve_edits"):
         edit.approved = True
         edit.pointer.HEAD = edit
         edit.pointer.edit_pending = False
@@ -836,7 +839,8 @@ def approve(edit_hash):
 @app.route("/admin/reject/edit/<edit_hash>/")
 @login_required
 def reject(edit_hash):
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    if not current_user.has_right("review_edits"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.hash_id}")
@@ -845,7 +849,8 @@ def reject(edit_hash):
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("edit_review_queue"))
     edit.reject(current_user)
-    if edit.weight <= app.config["MIN_REJECTION_RATING"]:
+    if edit.weight <= app.config["MIN_REJECTION_RATING"] or \
+            current_user.has_right("approve_edits"):
         edit.pointer.edit_pending = False
         edit.rejected = True
     db.session.commit()
@@ -854,7 +859,8 @@ def reject(edit_hash):
 @app.route("/admin/rescind_vote/edit/<edit_hash>/")
 @login_required
 def rescind(edit_hash):
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    if not current_user.has_right("review_edits"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")

@@ -7,6 +7,7 @@ from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from sqlalchemy import or_, func
+from sqlalchemy.orm import backref
 from flask import url_for, abort
 from app.search import *
 
@@ -271,9 +272,8 @@ class User(UserMixin, db.Model):
 
     # edit vote utilities
     def get_edit_vote(self, edit):
-        return self.edit_votes.filter(EditVote.edit==edit,
+        return self.edit_ballots.filter(EditVote.edit==edit,
                 EditVote.user==self).first()
-
 
 @login.user_loader
 def load_user(id):
@@ -580,8 +580,10 @@ class EditVote(db.Model):
             index=True)
     delta = db.Column(db.Integer)
 
-    user = db.relationship("User", backref="edit_ballots")
-    edit = db.relationship("AnnotationVersion", backref="edit_ballots")
+    user = db.relationship("User", 
+            backref=backref("edit_ballots", lazy="dynamic"))
+    edit = db.relationship("AnnotationVersion", 
+            backref=backref("edit_ballots", lazy="dynamic"))
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.edit}>"
@@ -656,10 +658,11 @@ class AnnotationVersion(db.Model):
         vote = EditVote(user=voter, edit=self, delta=-1)
         db.session.add(vote)
 
-##############
-## Requests ##
-##############
-
+####################
+####################
+## ## Requests ## ##
+####################
+####################
 
 ###################
 ## Book Requests ##
