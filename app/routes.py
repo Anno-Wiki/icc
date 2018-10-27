@@ -30,9 +30,15 @@ def before_request():
 @app.route("/index/")
 def index():
     page = request.args.get("page", 1, type=int)
-    annotations = Annotation.query.filter_by(active=True
-            ).order_by(Annotation.added.desc()
-            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sort = request.args.get("sort", "new", type=str)
+    if sort == "new":
+        annotations = Annotation.query.filter_by(active=True
+                ).order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = Annotation.query.filter_by(active=True
+                ).order_by(Annotation.weight.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     annotationflags = AnnotationFlag.query.all()
     next_page = url_for("index", page=annotations.next_num) \
             if annotations.has_next else None
@@ -43,7 +49,7 @@ def index():
     return render_template("index.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags)
+            annotationflags=annotationflags, sort=sort)
 
 
 ####################
