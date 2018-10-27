@@ -6,6 +6,9 @@
     <div id="bio">
         {{ author.bio|markdown }}
     </div>
+    <a href="{{ url_for("author_annotations", name=author.url) }}">
+        view all annotations
+    </a>
     {% if current_user.is_authenticated and current_user.has_right("edit_bios") %}
         <a href="{{ url_for("edit_bio", author_id=author.id,
                 next=request.full_path) }}">edit</a>

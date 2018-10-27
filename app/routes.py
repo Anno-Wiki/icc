@@ -270,6 +270,31 @@ def author(name):
     author = Author.query.filter_by(url=name).first_or_404()
     return render_template("view/author.html", title=author.name, author=author)
 
+@app.route("/author/<name>/annotations/")
+def author_annotations(name):
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "weight", type=str)
+    author = Author.query.filter_by(url=name).first_or_404()
+    if sort == "date":
+        annotations = author.annotations.order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = author.annotations.order_by(Annotation.weight.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sorts = {
+            "date": url_for("author_annotations", name=author.url,
+                sort="date", page=page),
+            "weight": url_for("author_annotations", name=author.url,
+                sort="weight", page=page)
+            }
+    next_page = url_for("author_annotations", name=author.url, sort=sort,
+            page=annotations.next_num) if annotations.has_next else None
+    prev_page = url_for("author_annotations", name=author.url, sort=sort,
+            page=annotations.prev_num) if annotations.has_prev else None
+    return render_template("indexes/annotation_list.html",
+            title=f"{author.name} - Annotations", annotations=annotations.items,
+            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page)
+
 @app.route("/book/<book_url>/")
 def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
