@@ -114,7 +114,7 @@ nav a:hover {
 #container {
     background-color: var(--base3);
     margin: 0px;
-    padding: 30px 50px 10px 50px;
+    padding: 30px 50px 50px 50px;
 }
 
 /* flashed messages */
