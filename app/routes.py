@@ -610,7 +610,8 @@ def edit(anno_id):
                     book=annotation.HEAD.book, lines=lines,
                     annotation=annotation)
 
-        approved = current_user.has_right("immediate_edits")
+        approved = current_user.has_right("immediate_edits") or \
+                annotation.author == current_user
 
         lockchange = False
         if current_user.has_right("lock_annotations"):
