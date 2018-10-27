@@ -34,10 +34,11 @@ body {
 body a {
     text-decoration: none;
     color: var(--base03);
+    padding: 5px;
 }
-body a:visited {
+/*body a:visited {
     color: var(--base1);
-}
+}*/
 body h1, h2, h3, h4, h5, h6 {
     font-family: "Playfair Display", serif;
 }
@@ -47,6 +48,11 @@ table h1, h2 {
 body li {
     font-size: 20px;
     margin: 10px 0 0 0;
+}
+
+.active {
+    padding: 5px;
+    background-color: var(--base22);
 }
 
 /******************************************************************************/
