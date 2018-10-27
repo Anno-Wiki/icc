@@ -1036,7 +1036,7 @@ def delete(anno_id):
     if annotation.active:
         flash(f"Annotation {annotation.id} activated")
     else:
-        flash(f"Annotation {annotation.id} inactivated.")
+        flash(f"Annotation {annotation.id} deactivated.")
 
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
@@ -1046,9 +1046,10 @@ def delete(anno_id):
 @app.route("/admin/list/deleted_annotations/")
 @login_required
 def view_deleted_annotations():
-    sort = request.args.get("sort", "new", type=str)
+    current_user.authorize_rights("view_deleted_annotations")
+    sort = request.args.get("sort", "added", type=str)
     page = request.args.get("page", 1, type=int)
-    if sort == "new":
+    if sort == "added":
         annotations = Annotation.query.filter_by(active=False
                 ).order_by(Annotation.added.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
@@ -1056,19 +1057,20 @@ def view_deleted_annotations():
         annotations = Annotation.query.filter_by(active=False
                 ).order_by(Annotation.weight.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    current_user.authorize_rights("view_deleted_annotations")
-    annotations = Annotation.query.filter_by(active=False
-            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    next_page = url_for("view_deleted_annotations", page=annotations.next_num) \
-            if annotations.has_next else None
-    prev_page = url_for("view_deleted_annotations", page=annotations.prev_num) \
-            if annotations.has_prev else None
+    sorts = {
+            "added": url_for("view_deleted_annotations", page=page, sort="added"),
+            "weight": url_for("view_deleted_annotations", page=page, sort="weight")
+            }
+    next_page = url_for("view_deleted_annotations", page=annotations.next_num,
+            sort=sort) if annotations.has_next else None
+    prev_page = url_for("view_deleted_annotations", page=annotations.prev_num,
+            sort=sort) if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("indexes/deleted_annotations.html",
+    return render_template("indexes/annotation_list.html",
             title="Deleted Annotations", annotations=annotations.items,
             prev_page=prev_page, next_page=next_page, uservotes=uservotes,
-            sort=sort)
+            sort=sort, sorts=sorts)
 
 ###################
 ## Book Requests ##
