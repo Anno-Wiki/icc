@@ -45,6 +45,8 @@
                     <a href="{{ url_for("book_index") }}">BOOKS</a>
                     |
                     <a href="{{ url_for("tag_index") }}">TAGS</a>
+                    |
+                    <a href="{{ url_for("user_index") }}">USERS</a>
                 {% elif request.path == url_for("book_index") %}
                     <a href="{{ url_for("author_index") }}">AUTHORS</a>
                     |
@@ -53,6 +55,8 @@
                     </a>
                     |
                     <a href="{{ url_for("tag_index") }}">TAGS</a>
+                    |
+                    <a href="{{ url_for("user_index") }}">USERS</a>
                 {% elif request.path == url_for("tag_index") %}
                     <a href="{{ url_for("author_index") }}">AUTHORS</a>
                     |
@@ -61,12 +65,26 @@
                     <a href="{{ url_for("tag_index") }}" class="active">
                         TAGS
                     </a>
+                    |
+                    <a href="{{ url_for("user_index") }}">USERS</a>
+                {% elif request.path == url_for("user_index") %}
+                    <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                    |
+                    <a href="{{ url_for("book_index") }}">BOOKS</a>
+                    |
+                    <a href="{{ url_for("tag_index") }}">TAGS</a>
+                    |
+                    <a href="{{ url_for("user_index") }}" class="active">
+                        USERS
+                    </a>
                 {% else %}
                     <a href="{{ url_for("author_index") }}">AUTHORS</a>
                     |
                     <a href="{{ url_for("book_index") }}">BOOKS</a>
                     |
                     <a href="{{ url_for("tag_index") }}">TAGS</a>
+                    |
+                    <a href="{{ url_for("user_index") }}">USERS</a>
                 {% endif %}
 
             </nav>

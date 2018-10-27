@@ -235,14 +235,31 @@ def tag_index():
     page = request.args.get("page", 1, type=int)
     tags = Tag.query.order_by(Tag.tag
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-
     next_page = url_for("tag_index", page=tags.next_num) \
             if tags.has_next else None
     prev_page = url_for("tag_index", page=tags.prev_num) \
             if tags.has_prev else None
-
     return render_template("indexes/tags.html", title="Tags",
             tags=tags.items, next_page=next_page, prev_page=prev_page)
+
+@app.route("/list/users/")
+def user_index():
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "reputation", type=str)
+    if sort == "reputation":
+        users = User.query.order_by(User.reputation.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "name":
+        users = User.query.order_by(User.displayname.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    next_page = url_for("user_index", page=users.next_num) \
+            if users.has_next else None
+    prev_page = url_for("user_index", page=users.prev_num) \
+            if users.has_prev else None
+    return render_template("indexes/users.html", title="Users",
+            users=users.items, next_page=next_page, prev_page=prev_page,
+            sort=sort)
+
 
 #######################
 ## Single Item Views ##
