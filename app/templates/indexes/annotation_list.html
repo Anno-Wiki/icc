@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    sort by:
+    {% for type, url in sorts.items() %}
+        {% if type == sort %}
+            <a href="{{ url }}" class="active">{{ type }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ type }}</a>
+        {% endif %}
+    {% endfor %}
+    {% for annotation in annotations %}
+        {% include "/includes/_annotation_standalone.html" %}
+    {% endfor %}
+{% endblock %}

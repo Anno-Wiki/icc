@@ -270,7 +270,7 @@ def author(name):
     author = Author.query.filter_by(url=name).first_or_404()
     return render_template("view/author.html", title=author.name, author=author)
 
-@app.route("/book/<book_url>/", methods=["GET", "POST"])
+@app.route("/book/<book_url>/")
 def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
 
@@ -286,6 +286,33 @@ def book(book_url):
 
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
+
+@app.route("/book/<book_url>/annotations/")
+def book_annotations(book_url):
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "weight", type=str)
+    book = Book.query.filter_by(url=book_url).first_or_404()
+    if sort == "date":
+        annotations = Annotation.query.filter_by(book_id=book.id
+                ).order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = Annotation.query.filter_by(book_id=book.id
+                ).order_by(Annotation.weight.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sorts = {
+            "date": url_for("book_annotations", book_url=book.url,
+                sort="date", page=page),
+            "weight": url_for("book_annotations", book_url=book.url,
+                sort="weight", page=page)
+            }
+    next_page = url_for("book_annotations", book_url=book.url, sort=sort,
+            page=annotations.next_num) if annotations.has_next else None
+    prev_page = url_for("book_annotations", book_url=book_url, sort=sort,
+            page=annotations.prev_num) if annotations.has_prev else None
+    return render_template("indexes/annotation_list.html",
+            title=f"{book.title} - Annotations", annotations=annotations.items,
+            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page)
 
 @app.route("/tag/<tag>/")
 def tag(tag):
