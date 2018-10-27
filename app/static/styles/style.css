@@ -23,6 +23,11 @@
     --tmp:          #
 }
 
+.active {
+    padding: 5px;
+    background-color: var(--base23);
+}
+
 /******************************************************************************/
 
 /* general body styles */
@@ -48,11 +53,6 @@ table h1, h2 {
 body li {
     font-size: 20px;
     margin: 10px 0 0 0;
-}
-
-.active {
-    padding: 5px;
-    background-color: var(--base22);
 }
 
 /******************************************************************************/

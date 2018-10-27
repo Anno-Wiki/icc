@@ -832,7 +832,16 @@ def delete(anno_id):
 @app.route("/admin/list/deleted_annotations/")
 @login_required
 def view_deleted_annotations():
+    sort = request.args.get("sort", "new", type=str)
     page = request.args.get("page", 1, type=int)
+    if sort == "new":
+        annotations = Annotation.query.filter_by(active=False
+                ).order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = Annotation.query.filter_by(active=False
+                ).order_by(Annotation.weight.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     current_user.authorize_rights("view_deleted_annotations")
     annotations = Annotation.query.filter_by(active=False
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
@@ -842,9 +851,10 @@ def view_deleted_annotations():
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("index.html", title="Deleted Annotations",
-            annotations=annotations.items, prev_page=prev_page,
-            next_page=next_page, uservotes=uservotes)
+    return render_template("indexes/deleted_annotations.html",
+            title="Deleted Annotations", annotations=annotations.items,
+            prev_page=prev_page, next_page=next_page, uservotes=uservotes,
+            sort=sort)
 
 ###################
 ## Book Requests ##

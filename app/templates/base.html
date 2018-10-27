@@ -19,43 +19,79 @@
     <body>
         <div class="header">
 
-            <div class="logo">
-                <a href="{{ url_for("index") }}">
-                    <img src="{{ url_for("static", filename="images/n2.png")}}">
-                </a>
-                <a href="{{ url_for("index") }}">Annopedia</a>
-            </div>
+            {% if request.path == url_for("index") %}
+                <div class="logo active"> 
+                    <a href="{{ url_for("index") }}"> 
+                        <img src="{{ url_for("static",
+                                filename="images/n2.png")}}">
+                    </a>
+                    <a href="{{ url_for("index") }}">Annopedia</a>
+                </div>
+            {% else %}
+                <div class="logo">
+                    <a href="{{ url_for("index") }}">
+                        <img src="{{ url_for("static", filename="images/n2.png")}}">
+                    </a>
+                    <a href="{{ url_for("index") }}">Annopedia</a>
+                </div>
+            {% endif %}
 
             <nav>
-                <a href="{{ url_for("author_index") }}">AUTHORS</a>
-                |
-                <a href="{{ url_for("book_index") }}">BOOKS</a>
-                |
-                <a href="{{ url_for("tag_index") }}">TAGS</a>
+                {% if request.path == url_for("author_index") %}
+                    <a href="{{ url_for("author_index") }}" class="active">
+                        AUTHORS
+                    </a>
+                    |
+                    <a href="{{ url_for("book_index") }}">BOOKS</a>
+                    |
+                    <a href="{{ url_for("tag_index") }}">TAGS</a>
+                {% elif request.path == url_for("book_index") %}
+                    <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                    |
+                    <a href="{{ url_for("book_index") }}" class="active">
+                        BOOKS
+                    </a>
+                    |
+                    <a href="{{ url_for("tag_index") }}">TAGS</a>
+                {% elif request.path == url_for("tag_index") %}
+                    <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                    |
+                    <a href="{{ url_for("book_index") }}">BOOKS</a>
+                    |
+                    <a href="{{ url_for("tag_index") }}" class="active">
+                        TAGS
+                    </a>
+                {% else %}
+                    <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                    |
+                    <a href="{{ url_for("book_index") }}">BOOKS</a>
+                    |
+                    <a href="{{ url_for("tag_index") }}">TAGS</a>
+                {% endif %}
+
             </nav>
 
             <div class="user_info">
                 {%- if current_user.is_anonymous -%}
                     <a href="{{ url_for("login") }}">login</a>
                 {%- else %}
-
                     {% if current_user.has_right("view_deleted_annotations") or current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) %}
                         <div class="dropdown">
                             <a class="dropbtn">admin</a>
 
                             <div class="dropdown-content">
 
-                            {% if current_user.has_right("view_deleted_annotations") -%}
-                                <a href="{{ url_for("view_deleted_annotations") }}">
-                                    deleted annotations
-                                </a>
-                            {% endif %}
+                                {% if current_user.has_right("view_deleted_annotations") -%}
+                                    <a href="{{ url_for("view_deleted_annotations") }}">
+                                        deleted annotations
+                                    </a>
+                                {% endif %}
 
-                            {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
-                                <a href="{{ url_for("edit_review_queue") }}">
-                                    review edits
-                                </a>
-                            {% endif %}
+                                {% if current_user.is_authorized(vars["AUTHORIZATION"]["EDIT_QUEUE"]) -%}
+                                    <a href="{{ url_for("edit_review_queue") }}">
+                                        review edits
+                                    </a>
+                                {% endif %}
 
                             </div>
                         </div>
