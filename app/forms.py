@@ -87,7 +87,7 @@ class TagForm(FlaskForm):
 
     def validate_tag(self, tag):
         tag = Tag.query.filter_by(tag=tag.data).first()
-        if tag is not None:
+        if tag is not None and self.description == tag.description:
             raise ValidationError("This tag already exists!")
 
 class LineForm(FlaskForm):

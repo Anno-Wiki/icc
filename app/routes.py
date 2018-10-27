@@ -936,7 +936,32 @@ def edit_summary(book_id):
             return redirect(next_page)
     else:
         form.text.data = book.summary
-    return render_template("forms/text.html", title=f"Edit Summary", form=form)
+    return render_template("forms/text.html", title="Edit Summary", form=form)
+
+@app.route("/admin/edit/tag/<tag_id>/", methods=["GET", "POST"])
+@login_required
+def edit_tag(tag_id):
+    current_user.authorize_rights("edit_tags")
+    tag = Tag.query.get_or_404(tag_id)
+    form = TagForm()
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag", tag=tag.tag)
+    if form.cancel.data:
+        return redirect(next_page)
+    if form.validate_on_submit():
+        if form.tag.data != None and form.description.data != None:
+            tag.tag = form.tag.data
+            tag.description = form.description.data
+            db.session.commit()
+            flash("Tag updated.")
+            # we have to reinitiate tag url bc tag changed
+            next_page = url_for("tag", tag=tag.tag)
+            return redirect(next_page)
+    else:
+        form.tag.data = tag.tag
+        form.description.data = tag.description
+    return render_template("forms/tag.html", title="Edit Tag", form=form)
 
 ###############################
 ## Annotation Administration ##
@@ -1224,6 +1249,7 @@ def downvote_tag_request(tag_request_id):
 @login_required
 def create_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
+    tag_request = None
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
     next_page = request.args.get("next")
