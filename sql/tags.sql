@@ -12,5 +12,5 @@ insert into tag (tag, description, admin) values
     ("reference", "For explanations of references to other works", 0),
     ("shakespeare", "For references to Shakespeare", 0),
     ("technical-issues", "For descriptions of complications with textual history (i.e., conflicting manuscripts, etc.)", 0),
-    ("translation", "For translation of foreign phrases"),
-    ("context", "For providing context to modern audiences");
+    ("translation", "For translation of foreign phrases", 0),
+    ("context", "For providing context to modern audiences", 0);
