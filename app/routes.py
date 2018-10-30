@@ -46,8 +46,6 @@ def index():
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    print(request.environ.get("HTTP_X_REAL_IP", request.remote_addr))
-    print(request.environ["REMOTE_ADDR"])
     return render_template("index.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page,
