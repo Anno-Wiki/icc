@@ -1,7 +1,8 @@
 from app import app, db
 from app.models import AdminRight, User, Vote, EditVote, Book, Author, Line, \
     Kind, Tag, Annotation, AnnotationVersion, BookRequest, BookRequestVote, \
-    UserFlag, UserFlagEvent, AnnotationFlag, AnnotationFlagEvent
+    UserFlag, UserFlagEvent, AnnotationFlag, AnnotationFlagEvent, \
+    NotificationType, NotificationEvent
 
 @app.shell_context_processor
 def make_shell_context():
@@ -14,4 +15,6 @@ def make_shell_context():
             "BookRequest": BookRequest, "BookRequestVote": BookRequestVote,
             "UserFlag": UserFlag, "UserFlagEvent": UserFlagEvent,
             "AnnotationFlag": AnnotationFlag,
-            "AnnotationFlagEvent": AnnotationFlagEvent }
+            "AnnotationFlagEvent": AnnotationFlagEvent,
+            "NotificationType": NotificationType,
+            "NotificationEvent": NotificationEvent }

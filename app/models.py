@@ -197,6 +197,13 @@ class User(UserMixin, db.Model):
     def is_authorized(self, min_rep):
         return self.reputation >= min_rep
 
+    def notify(self, notification, link, hash_string, information):
+        evt = NotificationEvent(time=datetime.utcnow(),
+                notification=notification, user=self, information=information,
+                link=link, hash_id=sha1(hash_string.encode("utf8")).hexdigest())
+        db.session.add(evt)
+        db.session.commit()
+
     # Annotation utilities
     def upvote(self):
         self.reputation += 5
@@ -490,12 +497,13 @@ class Vote(db.Model):
     annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id"),
             index=True)
     delta = db.Column(db.Integer)
+    time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     annotation = db.relationship("Annotation")
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+        return f"<{self.user.id} {self.delta} on {self.annotation}>"
 
     def is_up(self):
         return self.delta > 0
@@ -536,6 +544,11 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.upvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
+        note_type = NotificationType.query.filter_by(event="upvote").first()
+        hash_string = f"{vote}"
+        self.author.notify(note_type, url_for("view_annotation",
+            annotation_id=self.id), hash_string,
+            information=f"Upvote on annotation on {self.book.title}")
         db.session.add(vote)
 
     def downvote(self, voter):
@@ -544,6 +557,11 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.downvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
+        note_type = NotificationType.query.filter_by(event="upvote").first()
+        hash_string = f"{vote}"
+        self.author.notify(note_type, url_for("view_annotation",
+            annotation_id=self.id), hash_string,
+            information=f"Downvote on annotation on {self.book.title}")
         db.session.add(vote)
 
     def rollback(self, vote):
@@ -553,6 +571,11 @@ class Annotation(db.Model):
         else:
             self.author.rollback_downvote()
         db.session.delete(vote)
+        hash_string = f"{vote}"
+        evt = NotificationEvent.query.filter_by(
+                hash_id=sha1(hash_string.encode("utf8")).hexdigest()
+                ).first()
+        db.session.delete(evt)
 
     def get_history(self):
         history_list = []
@@ -579,6 +602,7 @@ class EditVote(db.Model):
     edit_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
             index=True)
     delta = db.Column(db.Integer)
+    time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User", 
             backref=backref("edit_ballots", lazy="dynamic"))
@@ -711,6 +735,7 @@ class BookRequestVote(db.Model):
     book_request_id = db.Column(db.Integer, db.ForeignKey("book_request.id"),
             index=True)
     delta = db.Column(db.Integer)
+    time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     book_request = db.relationship("BookRequest")
@@ -741,8 +766,6 @@ class TagRequest(db.Model):
     requester = db.relationship("User", backref="tag_requests")
     created_tag = db.relationship("Tag", backref="tag_request")
 
-
-
     def rollback(self, vote):
         self.weight -= vote.delta
         db.session.delete(vote)
@@ -765,6 +788,7 @@ class TagRequestVote(db.Model):
     tag_request_id = db.Column(db.Integer, db.ForeignKey("tag_request.id"),
             index=True)
     delta = db.Column(db.Integer)
+    time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     tag_request = db.relationship("TagRequest")
@@ -841,4 +865,39 @@ class AnnotationFlagEvent(db.Model):
     def resolve(self, resolver):
         self.resolved = datetime.utcnow()
         self.resolver = resolver
+        db.session.commit()
+
+class NotificationType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event = db.Column(db.String(64), index=True)
+
+    def __repr__(self):
+        return f"<Notification {self.event}>"
+
+class NotificationEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.DateTime, default=datetime.utcnow())
+    notification_id = db.Column(db.Integer, db.ForeignKey("notification_type.id"))
+    seen = db.Column(db.Boolean, default=False)
+    seen_on = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    information = db.Column(db.Text)
+    hash_id = db.Column(db.String(128))
+    link = db.Column(db.String(128))
+
+    notification = db.relationship("NotificationType",
+            foreign_keys=[notification_id])
+    user = db.relationship("User", foreign_keys=[user_id])
+
+    def __repr__(self):
+        return f"<{self.notification.event} for {self.user} on {self.time}>"
+
+    def mark_read(self):
+        self.seen = True
+        self.seen_on = datetime.utcnow()
+        db.session.commit()
+    
+    def mark_unread(self):
+        self.seen = False
+        self.seen_on = None
         db.session.commit()

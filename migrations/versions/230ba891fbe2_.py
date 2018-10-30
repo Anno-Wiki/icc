@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 024191eedc44
+Revision ID: 230ba891fbe2
 Revises: 
-Create Date: 2018-10-16 15:16:46.467172
+Create Date: 2018-10-30 14:56:59.801349
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '024191eedc44'
+revision = '230ba891fbe2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,6 +24,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_admin_right_right'), 'admin_right', ['right'], unique=False)
+    op.create_table('annotation_flag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('flag', sa.String(length=127), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('author',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -49,6 +54,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_kind_kind'), 'kind', ['kind'], unique=False)
+    op.create_table('notification_type',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('event', sa.String(length=64), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_notification_type_event'), 'notification_type', ['event'], unique=False)
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('tag', sa.String(length=128), nullable=True),
@@ -70,8 +81,13 @@ def upgrade():
     sa.Column('last_seen', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_user_displayname'), 'user', ['displayname'], unique=True)
+    op.create_index(op.f('ix_user_displayname'), 'user', ['displayname'], unique=False)
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_table('user_flag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('flag', sa.String(length=127), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('book',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=128), nullable=True),
@@ -93,6 +109,19 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['right_id'], ['admin_right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
+    op.create_table('notification_event',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('time', sa.DateTime(), nullable=True),
+    sa.Column('notification_id', sa.Integer(), nullable=True),
+    sa.Column('seen', sa.Boolean(), nullable=True),
+    sa.Column('seen_on', sa.DateTime(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('information', sa.Text(), nullable=True),
+    sa.Column('link', sa.String(length=128), nullable=True),
+    sa.ForeignKeyConstraint(['notification_id'], ['notification_type.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('tag_request',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -117,6 +146,24 @@ def upgrade():
     op.create_index(op.f('ix_tag_request_tag'), 'tag_request', ['tag'], unique=False)
     op.create_index(op.f('ix_tag_request_tag_id'), 'tag_request', ['tag_id'], unique=False)
     op.create_index(op.f('ix_tag_request_weight'), 'tag_request', ['weight'], unique=False)
+    op.create_table('user_flag_event',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_flag_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('time_thrown', sa.DateTime(), nullable=True),
+    sa.Column('resolved', sa.DateTime(), nullable=True),
+    sa.Column('resolved_by', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['resolved_by'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_flag_id'], ['user_flag.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_flag_event_resolved_by'), 'user_flag_event', ['resolved_by'], unique=False)
+    op.create_index(op.f('ix_user_flag_event_thrower_id'), 'user_flag_event', ['thrower_id'], unique=False)
+    op.create_index(op.f('ix_user_flag_event_user_flag_id'), 'user_flag_event', ['user_flag_id'], unique=False)
+    op.create_index(op.f('ix_user_flag_event_user_id'), 'user_flag_event', ['user_id'], unique=False)
     op.create_table('book_request',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=127), nullable=True),
@@ -255,6 +302,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['annotation_version_id'], ['annotation_version.id'], ),
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], )
     )
+    op.create_table('annotation_flag_event',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('annotation_flag_id', sa.Integer(), nullable=True),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('time_thrown', sa.DateTime(), nullable=True),
+    sa.Column('resolved', sa.DateTime(), nullable=True),
+    sa.Column('resolved_by', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['annotation_flag_id'], ['annotation_flag.id'], ),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
+    sa.ForeignKeyConstraint(['resolved_by'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_annotation_flag_event_annotation_flag_id'), 'annotation_flag_event', ['annotation_flag_id'], unique=False)
+    op.create_index(op.f('ix_annotation_flag_event_annotation_id'), 'annotation_flag_event', ['annotation_id'], unique=False)
+    op.create_index(op.f('ix_annotation_flag_event_resolved_by'), 'annotation_flag_event', ['resolved_by'], unique=False)
+    op.create_index(op.f('ix_annotation_flag_event_thrower_id'), 'annotation_flag_event', ['thrower_id'], unique=False)
     op.create_table('vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -274,6 +339,11 @@ def downgrade():
     op.drop_index(op.f('ix_vote_user_id'), table_name='vote')
     op.drop_index(op.f('ix_vote_annotation_id'), table_name='vote')
     op.drop_table('vote')
+    op.drop_index(op.f('ix_annotation_flag_event_thrower_id'), table_name='annotation_flag_event')
+    op.drop_index(op.f('ix_annotation_flag_event_resolved_by'), table_name='annotation_flag_event')
+    op.drop_index(op.f('ix_annotation_flag_event_annotation_id'), table_name='annotation_flag_event')
+    op.drop_index(op.f('ix_annotation_flag_event_annotation_flag_id'), table_name='annotation_flag_event')
+    op.drop_table('annotation_flag_event')
     op.drop_table('tags')
     op.drop_index(op.f('ix_edit_vote_user_id'), table_name='edit_vote')
     op.drop_index(op.f('ix_edit_vote_edit_id'), table_name='edit_vote')
@@ -316,6 +386,11 @@ def downgrade():
     op.drop_index(op.f('ix_book_request_author'), table_name='book_request')
     op.drop_index(op.f('ix_book_request_approved'), table_name='book_request')
     op.drop_table('book_request')
+    op.drop_index(op.f('ix_user_flag_event_user_id'), table_name='user_flag_event')
+    op.drop_index(op.f('ix_user_flag_event_user_flag_id'), table_name='user_flag_event')
+    op.drop_index(op.f('ix_user_flag_event_thrower_id'), table_name='user_flag_event')
+    op.drop_index(op.f('ix_user_flag_event_resolved_by'), table_name='user_flag_event')
+    op.drop_table('user_flag_event')
     op.drop_index(op.f('ix_tag_request_weight'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_tag_id'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_tag'), table_name='tag_request')
@@ -324,17 +399,21 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_rejected'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_approved'), table_name='tag_request')
     op.drop_table('tag_request')
+    op.drop_table('notification_event')
     op.drop_table('conferred_rights')
     op.drop_index(op.f('ix_book_url'), table_name='book')
     op.drop_index(op.f('ix_book_title'), table_name='book')
     op.drop_index(op.f('ix_book_sort_title'), table_name='book')
     op.drop_index(op.f('ix_book_author_id'), table_name='book')
     op.drop_table('book')
+    op.drop_table('user_flag')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_index(op.f('ix_user_displayname'), table_name='user')
     op.drop_table('user')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
+    op.drop_index(op.f('ix_notification_type_event'), table_name='notification_type')
+    op.drop_table('notification_type')
     op.drop_index(op.f('ix_kind_kind'), table_name='kind')
     op.drop_table('kind')
     op.drop_index(op.f('ix_author_url'), table_name='author')
@@ -345,6 +424,7 @@ def downgrade():
     op.drop_index(op.f('ix_author_birth_date'), table_name='author')
     op.drop_index(op.f('ix_author_added'), table_name='author')
     op.drop_table('author')
+    op.drop_table('annotation_flag')
     op.drop_index(op.f('ix_admin_right_right'), table_name='admin_right')
     op.drop_table('admin_right')
     # ### end Alembic commands ###
