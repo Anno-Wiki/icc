@@ -46,6 +46,8 @@ def index():
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
+    print(request.environ.get("HTTP_X_REAL_IP", request.remote_addr))
+    print(request.environ["REMOTE_ADDR"])
     return render_template("index.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page,
@@ -250,7 +252,7 @@ def user_index():
         users = User.query.order_by(User.reputation.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "name":
-        users = User.query.order_by(User.displayname.desc()
+        users = User.query.order_by(User.displayname.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     next_page = url_for("user_index", page=users.next_num) \
             if users.has_next else None
