@@ -9,7 +9,8 @@ from sqlalchemy import or_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
-        BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag
+        BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
+        NotificationType, NotificationEvent
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -118,6 +119,28 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template("forms/edit_profile.html", title="Edit Profile",
                            form=form)
+
+@app.route("/user/inbox/")
+@login_required
+def inbox():
+    notifications = current_user.notifications.order_by(
+            NotificationEvent.time.desc()
+            ).all()
+
+    return render_template("view/inbox.html", notifications=notifications)
+
+@app.route("/user/inbox/mark/read/<event_id>/")
+@login_required
+def mark_notification_read(event_id):
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("inbox")
+    notification = NotificationEvent.query.get_or_404(event_id)
+    if notification.seen:
+        notification.mark_unread()
+    else:
+        notification.mark_read()
+    return redirect(next_page)
 
 @app.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():

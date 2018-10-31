@@ -550,7 +550,7 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.upvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
-        note_type = NotificationType.query.filter_by(event="upvote").first()
+        note_type = NotificationType.query.filter_by(code="upvote").first()
         hash_string = f"{vote}"
         self.author.notify(note_type, url_for("view_annotation",
             annotation_id=self.id), hash_string,
@@ -563,7 +563,7 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.downvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
-        note_type = NotificationType.query.filter_by(event="upvote").first()
+        note_type = NotificationType.query.filter_by(code="upvote").first()
         hash_string = f"{vote}"
         self.author.notify(note_type, url_for("view_annotation",
             annotation_id=self.id), hash_string,
@@ -581,7 +581,8 @@ class Annotation(db.Model):
         evt = NotificationEvent.query.filter_by(
                 hash_id=sha1(hash_string.encode("utf8")).hexdigest()
                 ).first()
-        db.session.delete(evt)
+        if evt:
+            db.session.delete(evt)
 
     def get_history(self):
         history_list = []
@@ -879,7 +880,8 @@ class AnnotationFlagEvent(db.Model):
 
 class NotificationType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    event = db.Column(db.String(64), index=True)
+    code = db.Column(db.String(64), index=True)
+    description = db.Column(db.String(64))
 
     def __repr__(self):
         return f"<Notification {self.event}>"

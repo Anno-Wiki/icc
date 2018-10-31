@@ -551,3 +551,17 @@ textarea {
 .dropdown:hover .dropbtn {
     background-color: var(--base22);
 }
+
+/* Inbox table */
+.inbox {
+    width: 100%;
+}
+.inbox .header {
+    font-family: "Playfair Display", serif;
+}
+.inbox .unread a {
+    color: var(--base1);
+}
+.inbox .read a {
+    color: var(--base0);
+}
