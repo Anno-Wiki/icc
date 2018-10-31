@@ -115,6 +115,10 @@
 
                     {% endif %}
 
+                    {% if current_user.new_notifications %}
+                        (unread messages)
+                    {% endif %}
+
                     <div class="dropdown">
                         <a href="{{ url_for("user", user_id=current_user.id) }}" class="dropbtn">
                             {{ current_user.displayname }}

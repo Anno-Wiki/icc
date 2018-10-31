@@ -142,6 +142,12 @@ class User(UserMixin, db.Model):
     active_flags = db.relationship("UserFlagEvent",
             primaryjoin="and_(UserFlagEvent.user_id==User.id,"
                 "UserFlagEvent.resolved_by==None)")
+    notifications = db.relationship("NotificationEvent",
+            primaryjoin="NotificationEvent.user_id==User.id", lazy="dynamic")
+    new_notifications = db.relationship("NotificationEvent",
+            primaryjoin="and_(NotificationEvent.user_id==User.id,"
+            "NotificationEvent.seen==False)",
+            lazy="joined")
 
     def __repr__(self):
         return "<User {}>".format(self.displayname)
@@ -866,6 +872,10 @@ class AnnotationFlagEvent(db.Model):
         self.resolved = datetime.utcnow()
         self.resolver = resolver
         db.session.commit()
+
+##################
+## Notifactions ##
+##################
 
 class NotificationType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
