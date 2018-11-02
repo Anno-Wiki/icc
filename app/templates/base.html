@@ -90,7 +90,7 @@
                         or current_user.has_right("create_new_tags") %}
 
                     <div class="dropdown">
-                        <a class="dropbtn">admin</a>
+                        <a class="dropbtn">admin&#x25BE;</a>
                         <div class="dropdown-content">
                         {% if current_user.has_right("view_deleted_annotations") %}
                             <a href="{{ url_for("view_deleted_annotations") }}">
@@ -116,12 +116,14 @@
                     {% endif %}
 
                     {% if current_user.new_notifications %}
-                        (unread messages)
+                        <a href="{{ url_for("inbox") }}" class="new_messages">
+                            (unread messages)
+                        </a>
                     {% endif %}
 
                     <div class="dropdown">
                         <a href="{{ url_for("user", user_id=current_user.id) }}" class="dropbtn">
-                            {{ current_user.displayname }}
+                            {{ current_user.displayname }}&#x25BE;
                         </a>
                         <div class="dropdown-content">
                             <a href="{{ url_for("inbox") }}">inbox</a>

@@ -569,3 +569,7 @@ textarea {
 .read:hover, .unread:hover {
     background-color: var(--base2);
 }
+.new_messages {
+    color: var(--red)!important;
+    font-weight: bold;
+}
