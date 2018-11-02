@@ -6,6 +6,14 @@
         Don’t see what you’re looking for? Upvote it among our
         <a href="{{ url_for("book_request_index") }}">book requests</a>.
     </h4>
+    sort by:
+    {% for type, url in sorts.items() %}
+        {% if type == sort %}
+            <a href="{{ url }}" class="active">{{ type }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ type }}</a>
+        {% endif %}
+    {% endfor %}
     <div class="index">
         {% for book in books %}
             <div class="card">

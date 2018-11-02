@@ -268,7 +268,7 @@ def delete_account_check():
 @app.route("/list/authors/")
 def author_index():
     page = request.args.get("page", 1, type=int)
-    sort = request.args.get("sort", "weight", type=str)
+    sort = request.args.get("sort", "last name", type=str)
     if sort == "last name":
         authors = Author.query.order_by(Author.last_name
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
@@ -279,12 +279,10 @@ def author_index():
             "last name": url_for("author_index", sort="last name", page=page),
             "name": url_for("author_index", sort="name", page=page),
             }
-    authors = Author.query.order_by(Author.last_name
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
-    next_page = url_for("author_index", page=authors.next_num) \
+    next_page = url_for("author_index", page=authors.next_num, sort=sort) \
             if authors.has_next else None
-    prev_page = url_for("author_index", page=authors.prev_num) \
+    prev_page = url_for("author_index", page=authors.prev_num, sort=sort) \
             if authors.has_prev else None
 
     return render_template("indexes/authors.html", title="Authors",
@@ -294,16 +292,38 @@ def author_index():
 @app.route("/list/books/")
 def book_index():
     page = request.args.get("page", 1, type=int)
-    books = Book.query.order_by(Book.sort_title
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    sort = request.args.get("sort", "title", type=str)
+    if sort == "title":
+        books = Book.query.order_by(Book.sort_title.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "author":
+        books = Book.query.join(Author).order_by(Author.last_name.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "oldest":
+        books = Book.query.order_by(Book.published.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "newest":
+        books = Book.query.order_by(Book.published.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        books = Book.query.order_by(Book.sort_title.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
-    next_page = url_for("book_index", page=books.next_num) \
+    sorts = {
+            "title": url_for("book_index", sort="title", page=page),
+            "author": url_for("book_index", sort="author", page=page),
+            "oldest": url_for("book_index", sort="oldest", page=page),
+            "newest": url_for("book_index", sort="newest", page=page)
+    }
+
+    next_page = url_for("book_index", page=books.next_num, sort=sort) \
             if books.has_next else None
-    prev_page = url_for("book_index", page=books.prev_num) \
+    prev_page = url_for("book_index", page=books.prev_num, sort=sort) \
             if books.has_prev else None
 
     return render_template("indexes/books.html", title="Books",
-            books=books.items, prev_page=prev_page, next_page=next_page)
+            books=books.items, prev_page=prev_page, next_page=next_page,
+            sorts=sorts, sort=sort)
 
 @app.route("/list/tags/")
 def tag_index():
