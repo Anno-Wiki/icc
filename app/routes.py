@@ -344,6 +344,7 @@ def author_annotations(name):
     elif sort == "weight":
         annotations = author.annotations.order_by(Annotation.weight.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    annotationflags = AnnotationFlag.query.all()
     sorts = {
             "date": url_for("author_annotations", name=author.url,
                 sort="date", page=page),
@@ -356,7 +357,8 @@ def author_annotations(name):
             page=annotations.prev_num) if annotations.has_prev else None
     return render_template("indexes/annotation_list.html",
             title=f"{author.name} - Annotations", annotations=annotations.items,
-            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page)
+            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
+            annotationflags=annotationflags)
 
 @app.route("/book/<book_url>/")
 def book(book_url):
@@ -388,6 +390,7 @@ def book_annotations(book_url):
         annotations = Annotation.query.filter_by(book_id=book.id
                 ).order_by(Annotation.weight.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    annotationflags = AnnotationFlag.query.all()
     sorts = {
             "date": url_for("book_annotations", book_url=book.url,
                 sort="date", page=page),
@@ -400,7 +403,8 @@ def book_annotations(book_url):
             page=annotations.prev_num) if annotations.has_prev else None
     return render_template("indexes/annotation_list.html",
             title=f"{book.title} - Annotations", annotations=annotations.items,
-            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page)
+            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
+            annotationflags=annotationflags)
 
 @app.route("/tag/<tag>/")
 def tag(tag):
@@ -408,6 +412,7 @@ def tag(tag):
     tag = Tag.query.filter_by(tag=tag).first_or_404()
     annotations = tag.annotations.order_by(Annotation.weight.desc()).paginate(page,
             app.config["ANNOTATIONS_PER_PAGE"], False)
+    annotationflags = AnnotationFlag.query.all()
 
     next_page = url_for("tag", tag=tag.tag, page=annotations.next_num) \
             if annotations.has_next else None
@@ -416,7 +421,8 @@ def tag(tag):
 
     return render_template("view/tag.html", title=tag.tag, tag=tag,
             annotations=annotations.items,
-            next_page=next_page, prev_page=prev_page)
+            next_page=next_page, prev_page=prev_page,
+            annotationflags=annotationflags)
 
 @app.route("/annotation/<annotation_id>")
 def view_annotation(annotation_id):
@@ -444,6 +450,7 @@ def user(user_id):
     annotations = user.annotations.order_by(Annotation.added.desc()
             ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     userflags = UserFlag.query.all()
+    annotationflags = AnnotationFlag.query.all()
 
     next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
             if annotations.has_next else None
@@ -454,7 +461,8 @@ def user(user_id):
             else None
     return render_template("view/user.html", title=f"User {user.displayname}",
             user=user, annotations=annotations.items, uservotes=uservotes,
-            next_page=next_page, prev_page=prev_page, userflags=userflags)
+            next_page=next_page, prev_page=prev_page, userflags=userflags,
+            annotationflags=annotationflags)
 
 ####################
 ## Reading Routes ##
