@@ -6,6 +6,14 @@
 <a href="{{ url_for("tag_request_index") }}">tag requests.</a>
 </h4>
 
+sort by:
+{% for type, url in sorts.items() %}
+    {% if type == sort %}
+        <a href="{{ url }}" class="active">{{ type }}</a>
+    {% else %}
+        <a href="{{ url }}">{{ type }}</a>
+    {% endif %}
+{% endfor %}
 <div class="index">
 {% for tag in tags %}
 <div class="card">

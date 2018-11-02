@@ -339,14 +339,30 @@ def book_index():
 @app.route("/list/tags/")
 def tag_index():
     page = request.args.get("page", 1, type=int)
-    tags = Tag.query.order_by(Tag.tag
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-    next_page = url_for("tag_index", page=tags.next_num) \
+    sort = request.args.get("sort", "tag", type=str)
+    if sort == "tag":
+        tags = Tag.query.order_by(Tag.tag
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "annotations":
+        # This doesn't do anything but the same sort yet
+        tags = Tag.query.order_by(Tag.tag
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        tags = Tag.query.order_by(Tag.tag
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    sorts = {
+            "tag": url_for("tag_index", sort="tag", page=page),
+            "annotations": url_for("tag_index", sort="annotations", page=page)
+            }
+
+    next_page = url_for("tag_index", page=tags.next_num, sort=sort) \
             if tags.has_next else None
-    prev_page = url_for("tag_index", page=tags.prev_num) \
+    prev_page = url_for("tag_index", page=tags.prev_num, sort=sort) \
             if tags.has_prev else None
     return render_template("indexes/tags.html", title="Tags",
-            tags=tags.items, next_page=next_page, prev_page=prev_page)
+            tags=tags.items, next_page=next_page, prev_page=prev_page,
+            sorts=sorts, sort=sort)
 
 @app.route("/list/users/")
 def user_index():
