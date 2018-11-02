@@ -270,14 +270,25 @@ def author_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "last name", type=str)
     if sort == "last name":
-        authors = Author.query.order_by(Author.last_name
+        authors = Author.query.order_by(Author.last_name.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "name":
-        authors = Author.query.order_by(Author.name
+        authors = Author.query.order_by(Author.name.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "oldest":
+        authors = Author.query.order_by(Author.birth_date.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "youngest":
+        authors = Author.query.order_by(Author.birth_date.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        authors = Author.query.order_by(Author.last_name.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     sorts = {
             "last name": url_for("author_index", sort="last name", page=page),
             "name": url_for("author_index", sort="name", page=page),
+            "oldest": url_for("author_index", sort="oldest", page=page),
+            "youngest": url_for("author_index", sort="youngest", page=page),
             }
 
     next_page = url_for("author_index", page=authors.next_num, sort=sort) \
