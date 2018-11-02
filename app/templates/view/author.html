@@ -9,9 +9,21 @@
     <a href="{{ url_for("author_annotations", name=author.url) }}">
         view all annotations
     </a>
+    |
+    {% if current_user.is_authenticated and author in current_user.followed_authors %}
+        <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}">
+            unfollow
+        </a>
+    {% else %}
+        <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}">
+            follow
+        </a>
+    {% endif %}
     {% if current_user.is_authenticated and current_user.has_right("edit_bios") %}
-        <a href="{{ url_for("edit_bio", author_id=author.id,
-                next=request.full_path) }}">edit</a>
+    |
+        <a href="{{ url_for("edit_bio", author_id=author.id, next=request.full_path) }}">
+            edit
+        </a>
     {% endif %}
     <div class="index">
         {% for book in author.books %}

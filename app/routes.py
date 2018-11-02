@@ -261,6 +261,80 @@ def delete_account_check():
     return render_template("forms/delete_account_check.html", form=form,
             title="Are you sure?")
 
+###################
+## follow routes ##
+###################
+
+@app.route("/user/follow/book/<book_id>/")
+@login_required
+def follow_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book", book_url=book.url)
+    if book in current_user.followed_books:
+        current_user.followed_books.remove(book)
+    else:
+        current_user.followed_books.append(book)
+    db.session.commit()
+    return redirect(next_page)
+
+@app.route("/user/follow/author/<author_id>/")
+@login_required
+def follow_author(author_id):
+    author = Author.query.get_or_404(author_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("author", name=author.url)
+    if author in current_user.followed_authors:
+        current_user.followed_authors.remove(author)
+    else:
+        current_user.followed_authors.append(author)
+    db.session.commit()
+    return redirect(next_page)
+
+@app.route("/user/follow/user/<user_id>/")
+@login_required
+def follow_user(user_id):
+    user = User.query.get_or_404(user_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user", user_id=user.id)
+    if user in current_user.followed_users:
+        current_user.followed_users.remove(user)
+    else:
+        current_user.followed_users.append(user)
+    db.session.commit()
+    return redirect(next_page)
+
+@app.route("/user/follow/tag/<tag_id>/")
+@login_required
+def follow_tag(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("tag", tag=tag.tag)
+    if tag in current_user.followed_tags:
+        current_user.followed_tags.remove(tag)
+    else:
+        current_user.followed_tags.append(tag)
+    db.session.commit()
+    return redirect(next_page)
+
+@app.route("/user/follow/annotation/<annotation_id>")
+@login_required
+def follow_annotation(annotation_id):
+    annotation = Book.query.get_or_404(annotation_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("annotation", annotation_id=annotation.id)
+    if annotation in current_user.followed_annotations:
+        current_user.followed_annotations.remove(annotation)
+    else:
+        current_user.followed_annotations.append(annotation)
+    db.session.commit()
+    return redirect(next_page)
+
 #############
 ## Indexes ##
 #############
@@ -435,20 +509,6 @@ def book(book_url):
 
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
-
-@app.route("/user/follow/book/<book_id>")
-@login_required
-def follow_book(book_id):
-    book = Book.query.get_or_404(book_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book", book_url=book.url)
-    if book in current_user.followed_books:
-        current_user.followed_books.remove(book)
-    else:
-        current_user.followed_books.append(book)
-    db.session.commit()
-    return redirect(next_page)
 
 @app.route("/book/<book_url>/annotations/")
 def book_annotations(book_url):

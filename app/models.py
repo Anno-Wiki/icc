@@ -77,6 +77,31 @@ book_followers = db.Table(
         db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
         )
 
+author_followers = db.Table(
+        "author_followers",
+        db.Column("author_id", db.Integer, db.ForeignKey("author.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+user_followers = db.Table(
+        "user_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+tag_followers = db.Table(
+        "tag_followers",
+        db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+annotation_followers = db.Table(
+        "annotation_followers",
+        db.Column("annotation_id", db.Integer, db.ForeignKey("annotation.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+
 ####################
 ## User Functions ##
 ####################
@@ -166,6 +191,34 @@ class User(UserMixin, db.Model):
             secondary="book_followers",
             primaryjoin="book_followers.c.user_id==User.id",
             secondaryjoin="book_followers.c.book_id==Book.id",
+            backref="followers")
+
+    # followed authors
+    followed_authors = db.relationship("Author",
+            secondary="author_followers",
+            primaryjoin="author_followers.c.user_id==User.id",
+            secondaryjoin="author_followers.c.author_id==Author.id",
+            backref="followers")
+    
+    # followed users
+    followed_users = db.relationship("User",
+            secondary="user_followers",
+            primaryjoin="user_followers.c.user_id==User.id",
+            secondaryjoin="user_followers.c.user_id==User.id",
+            backref="followers")
+
+    # followed tags
+    followed_tags = db.relationship("Tag",
+            secondary="tag_followers",
+            primaryjoin="tag_followers.c.user_id==User.id",
+            secondaryjoin="tag_followers.c.tag_id==Tag.id",
+            backref="followers")
+
+    # annotation watchers
+    followed_annotations = db.relationship("Annotation",
+            secondary="annotation_followers",
+            primaryjoin="annotation_followers.c.user_id==User.id",
+            secondaryjoin="annotation_followers.c.annotation_id==Annotation.id",
             backref="followers")
 
     def __repr__(self):

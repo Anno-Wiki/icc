@@ -3,6 +3,15 @@
 {% block content %}
     <h1><tag>{{ tag.tag }}</tag></h1>
     <h4>used in {{ tag.annotations.count() }} annotations.</h4>
+    {% if current_user.is_authenticated and tag in current_user.followed_tags %}
+        <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
+            unfollow
+        </a>
+    {% else %}
+        <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
+            follow
+        </a>
+    {% endif %}
     {% if tag.description %}
         {{ tag.description|markdown }}
     {% endif %}
