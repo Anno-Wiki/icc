@@ -16,12 +16,20 @@
     <a href="{{ url_for("book_annotations", book_url=book.url) }}">
     view all annotations
     </a>
+    |
+    {% if current_user.is_authenticated and book in current_user.followed_books %}
+        <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
+            unfollow
+        </a>
+    {% else %}
+        <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
+            follow
+        </a>
+    {% endif %}
 
-    {% if current_user.is_authenticated and
-            current_user.has_right("edit_summaries") %}
-        <br> 
-        <a href="{{ url_for("edit_summary", book_id=book.id,
-            next=request.full_path) }}">edit</a>
+    {% if current_user.is_authenticated and current_user.has_right("edit_summaries") %}
+        |
+        <a href="{{ url_for("edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
     {% endif %}
 
     <!--------------table of contents------>

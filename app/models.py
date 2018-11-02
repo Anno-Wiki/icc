@@ -71,6 +71,12 @@ conferred_right = db.Table(
         db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
         )
 
+book_followers = db.Table(
+        "book_followers",
+        db.Column("book_id", db.Integer, db.ForeignKey("book.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
 ####################
 ## User Functions ##
 ####################
@@ -110,6 +116,8 @@ class User(UserMixin, db.Model):
             backref="voters", lazy="dynamic")
 
     # edit relationships
+    edit_ballots = db.relationship("EditVote",
+            primaryjoin="User.id==EditVote.user_id", lazy="dynamic")
     edit_votes = db.relationship("AnnotationVersion", secondary="edit_vote",
             primaryjoin="User.id==EditVote.user_id",
             secondaryjoin="AnnotationVersion.id==EditVote.edit_id",
@@ -124,6 +132,7 @@ class User(UserMixin, db.Model):
             secondaryjoin="BookRequestVote.book_request_id==BookRequest.id",
             backref="voters", lazy="dynamic")
 
+    # tag request relationships
     tag_request_ballots = db.relationship("TagRequestVote",
             primaryjoin="User.id==TagRequestVote.user_id", lazy="dynamic")
     tag_request_votes = db.relationship("TagRequest",
@@ -132,6 +141,7 @@ class User(UserMixin, db.Model):
             secondaryjoin="TagRequestVote.tag_request_id==TagRequest.id",
             backref="voters", lazy="dynamic")
 
+    # flag relationships
     flags = db.relationship("UserFlag",
             secondary="user_flag_event",
             primaryjoin="UserFlagEvent.user_id==User.id",
@@ -142,12 +152,21 @@ class User(UserMixin, db.Model):
     active_flags = db.relationship("UserFlagEvent",
             primaryjoin="and_(UserFlagEvent.user_id==User.id,"
                 "UserFlagEvent.resolved_by==None)")
+
+    # notification relationships
     notifications = db.relationship("NotificationEvent",
             primaryjoin="NotificationEvent.user_id==User.id", lazy="dynamic")
     new_notifications = db.relationship("NotificationEvent",
             primaryjoin="and_(NotificationEvent.user_id==User.id,"
             "NotificationEvent.seen==False)",
             lazy="joined")
+
+    # followed books
+    followed_books = db.relationship("Book",
+            secondary="book_followers",
+            primaryjoin="book_followers.c.user_id==User.id",
+            secondaryjoin="book_followers.c.book_id==Book.id",
+            backref="followers")
 
     def __repr__(self):
         return "<User {}>".format(self.displayname)
@@ -611,8 +630,7 @@ class EditVote(db.Model):
     delta = db.Column(db.Integer)
     time = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User", 
-            backref=backref("edit_ballots", lazy="dynamic"))
+    user = db.relationship("User")
     edit = db.relationship("AnnotationVersion", 
             backref=backref("edit_ballots", lazy="dynamic"))
 

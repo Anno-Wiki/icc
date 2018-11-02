@@ -436,6 +436,20 @@ def book(book_url):
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
 
+@app.route("/user/follow/book/<book_id>")
+@login_required
+def follow_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("book", book_url=book.url)
+    if book in current_user.followed_books:
+        current_user.followed_books.remove(book)
+    else:
+        current_user.followed_books.append(book)
+    db.session.commit()
+    return redirect(next_page)
+
 @app.route("/book/<book_url>/annotations/")
 def book_annotations(book_url):
     page = request.args.get("page", 1, type=int)
