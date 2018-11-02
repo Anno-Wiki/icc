@@ -23,6 +23,15 @@
 
     {% endif %}
 
+    sort by:
+    {% for type, url in sorts.items() %}
+        {% if type == sort %}
+            <a href="{{ url }}" class="active">{{ type }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ type }}</a>
+        {% endif %}
+    {% endfor %}
+
     <div class="index">
         {% for tag_request in tag_requests %}
             <div class="tag_card">

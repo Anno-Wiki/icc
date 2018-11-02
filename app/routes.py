@@ -1348,17 +1348,40 @@ def downvote_book_request(book_request_id):
 @app.route("/list/tag_requests/")
 def tag_request_index():
     page = request.args.get("page", 1, type=int)
-    tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-    next_page = url_for("tag_request_index", page=tag_requests.next_num) \
-            if tag_requests.has_next else None
-    prev_page = url_for("tag_request_index", page=tag_requests.prev_num) \
-            if tag_requests.has_prev else None
+    sort = request.args.get("sort", "weight", type=str)
+    if sort == "tag":
+        tag_requests = TagRequest.query.order_by(TagRequest.tag.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "weight":
+        tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "oldest":
+        tag_requests = TagRequest.query.order_by(TagRequest.requested.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "newest":
+        tag_requests = TagRequest.query.order_by(TagRequest.requested.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    sorts = {
+            "tag": url_for("tag_request_index", sort="tag", page=page),
+            "weight": url_for("tag_request_index", sort="weight", page=page),
+            "oldest": url_for("tag_request_index", sort="oldest", page=page),
+            "newest": url_for("tag_request_index", sort="newest", page=page),
+            }
+
+    next_page = url_for("tag_request_index", page=tag_requests.next_num,
+            sort=sort) if tag_requests.has_next else None
+    prev_page = url_for("tag_request_index", page=tag_requests.prev_num,
+            sort=sort) if tag_requests.has_prev else None
     uservotes = current_user.get_tag_request_vote_dict() \
             if current_user.is_authenticated else None
     return render_template("indexes/tag_requests.html", title="Tag Requests",
             next_page=next_page, prev_page=prev_page,
-            tag_requests=tag_requests.items, uservotes=uservotes)
+            tag_requests=tag_requests.items, uservotes=uservotes,
+            sort=sort, sorts=sorts)
 
 @app.route("/tag_request/<tag_request_id>/")
 def view_tag_request(tag_request_id):
