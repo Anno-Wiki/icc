@@ -130,6 +130,7 @@ def inbox():
     return render_template("view/inbox.html", notifications=notifications)
 
 @app.route("/user/inbox/mark/read/<event_id>/")
+@app.route("/user/inbox/mark/unread/<event_id>/")
 @login_required
 def mark_notification_read(event_id):
     next_page = request.args.get("next")
@@ -141,6 +142,19 @@ def mark_notification_read(event_id):
     else:
         notification.mark_read()
     return redirect(next_page)
+
+@app.route("/user/inbox/mark/read/all/")
+@login_required
+def mark_all_read():
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("inbox")
+    notifications = current_user.new_notifications
+    for notification in notifications:
+        notification.mark_read()
+    db.session.commit()
+    return redirect(next_page)
+
 
 @app.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():
