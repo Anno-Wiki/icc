@@ -13,6 +13,7 @@
                 {% if user.last_seen %}
                     <p>Last seen on: {{ user.last_seen }}</p>
                 {% endif %}
+                <p>Number of annotations: {{ user.annotations.count() }}
                 {% if current_user.is_authenticated and
                         current_user.has_right("lock_users") %}
                     {% if user.locked %}
@@ -42,6 +43,14 @@
         </tr>
     </table>
 
+    sort by:
+    {% for type, url in sorts.items() %}
+        {% if type == sort %}
+            <a href="{{ url }}" class="active">{{ type }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ type }}</a>
+        {% endif %}
+    {% endfor %}
     {% for annotation in annotations %}
         {% include "includes/_annotation_standalone.html" %}
     {% endfor %}

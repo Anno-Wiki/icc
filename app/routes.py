@@ -41,9 +41,9 @@ def index():
                 ).order_by(Annotation.weight.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     annotationflags = AnnotationFlag.query.all()
-    next_page = url_for("index", page=annotations.next_num) \
+    next_page = url_for("index", page=annotations.next_num, sort=sort) \
             if annotations.has_next else None
-    prev_page = url_for("index", page=annotations.prev_num) \
+    prev_page = url_for("index", page=annotations.prev_num, sort=sort) \
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
@@ -374,9 +374,9 @@ def user_index():
     elif sort == "name":
         users = User.query.order_by(User.displayname.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-    next_page = url_for("user_index", page=users.next_num) \
+    next_page = url_for("user_index", page=users.next_num, sort=sort) \
             if users.has_next else None
-    prev_page = url_for("user_index", page=users.prev_num) \
+    prev_page = url_for("user_index", page=users.prev_num, sort=sort) \
             if users.has_prev else None
     return render_template("indexes/users.html", title="Users",
             users=users.items, next_page=next_page, prev_page=prev_page,
@@ -505,23 +505,40 @@ def edit_history(annotation_id):
 @app.route("/user/<user_id>/")
 def user(user_id):
     page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "newest", type=str)
     user = User.query.get_or_404(user_id)
-    annotations = user.annotations.order_by(Annotation.added.desc()
-            ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    if sort == "weight":
+        annotations = user.annotations.order_by(Annotation.weight.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "newest":
+        annotations = user.annotations.order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = user.annotations.order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    else:
+        annotations = user.annotations.order_by(Annotation.added.desc()
+                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+
+    sorts = {
+            "weight": url_for("user", user_id=user_id, sort="weight", page=page),
+            "newest": url_for("user", user_id=user_id, sort="newest", page=page),
+            "oldest": url_for("user", user_id=user_id, sort="oldest", page=page)
+            }
     userflags = UserFlag.query.all()
     annotationflags = AnnotationFlag.query.all()
 
-    next_page = url_for("user", user_id=user.id, page=annotations.next_num) \
-            if annotations.has_next else None
-    prev_page = url_for("user", user_id=user.id, page=annotations.prev_num) \
-            if annotations.has_prev else None
-
+    next_page = url_for("user", user_id=user.id, page=annotations.next_num,
+            sort=sort) if annotations.has_next else None
+    prev_page = url_for("user", user_id=user.id, page=annotations.prev_num,
+            sort=sort) if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
+
     return render_template("view/user.html", title=f"User {user.displayname}",
             user=user, annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page, userflags=userflags,
-            annotationflags=annotationflags)
+            annotationflags=annotationflags, sort=sort, sorts=sorts)
 
 ####################
 ## Reading Routes ##
@@ -1237,9 +1254,9 @@ def book_request_index():
             "author": url_for("book_request_index", sort="author", page=page)
             }
 
-    next_page = url_for("book_request_index", page=requests.next_num) \
+    next_page = url_for("book_request_index", page=requests.next_num, sort=sort) \
             if requests.has_next else None
-    prev_page = url_for("book_request_index", page=requests.prev_num) \
+    prev_page = url_for("book_request_index", page=requests.prev_num, sort=sort) \
             if requests.has_prev else None
     uservotes = current_user.get_book_request_vote_dict() \
             if current_user.is_authenticated else None
