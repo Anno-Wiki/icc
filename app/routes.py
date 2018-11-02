@@ -268,6 +268,17 @@ def delete_account_check():
 @app.route("/list/authors/")
 def author_index():
     page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "weight", type=str)
+    if sort == "last name":
+        authors = Author.query.order_by(Author.last_name
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "name":
+        authors = Author.query.order_by(Author.name
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    sorts = {
+            "last name": url_for("author_index", sort="last name", page=page),
+            "name": url_for("author_index", sort="name", page=page),
+            }
     authors = Author.query.order_by(Author.last_name
             ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
@@ -277,7 +288,8 @@ def author_index():
             if authors.has_prev else None
 
     return render_template("indexes/authors.html", title="Authors",
-            authors=authors.items, next_page=next_page, prev_page=prev_page)
+            authors=authors.items, next_page=next_page, prev_page=prev_page,
+            sorts=sorts, sort=sort)
 
 @app.route("/list/books/")
 def book_index():
