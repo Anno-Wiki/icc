@@ -1209,8 +1209,34 @@ def view_deleted_annotations():
 @app.route("/list/book_requests/")
 def book_request_index():
     page = request.args.get("page", 1, type=int)
-    requests = BookRequest.query.order_by(BookRequest.weight.desc()
-            ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    sort = request.args.get("sort", "weight", type=str)
+    if sort == "oldest":
+        requests = BookRequest.query.order_by(BookRequest.requested.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "newest":
+        requests = BookRequest.query.order_by(BookRequest.requested.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "weight":
+        requests = BookRequest.query.order_by(BookRequest.weight.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "title":
+        requests = BookRequest.query.order_by(BookRequest.title.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "author":
+        requests = BookRequest.query.order_by(BookRequest.author.asc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        requests = BookRequest.query.order_by(BookRequest.weight.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+
+    sorts = {
+            "oldest": url_for("book_request_index", sort="oldest", page=page),
+            "newest": url_for("book_request_index", sort="newest", page=page),
+            "weight": url_for("book_request_index", sort="weight", page=page),
+            "title": url_for("book_request_index", sort="title", page=page),
+            "author": url_for("book_request_index", sort="author", page=page)
+            }
+
     next_page = url_for("book_request_index", page=requests.next_num) \
             if requests.has_next else None
     prev_page = url_for("book_request_index", page=requests.prev_num) \
@@ -1219,7 +1245,7 @@ def book_request_index():
             if current_user.is_authenticated else None
     return render_template("indexes/book_requests.html", title="Book Requests",
             next_page=next_page, prev_page=prev_page, requests=requests.items,
-            uservotes=uservotes)
+            uservotes=uservotes, sort=sort, sorts=sorts)
 
 @app.route("/book_request/<book_request_id>/")
 def view_book_request(book_request_id):
