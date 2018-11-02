@@ -123,11 +123,37 @@ def edit_profile():
 @app.route("/user/inbox/")
 @login_required
 def inbox():
-    notifications = current_user.notifications.order_by(
-            NotificationEvent.time.desc()
-            ).all()
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "read", type=str)
+    if sort == "time":
+        notifications = current_user.notifications.order_by(
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "type":
+        notifications = current_user.notifications.join(NotificationType
+                ).order_by(
+                NotificationType.code.desc(),
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "information":
+        notifications = current_user.notifications.order_by(
+                NotificationEvent.information.asc(),
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        notifications = current_user.notifications.order_by(
+                NotificationEvent.seen.asc(),
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
-    return render_template("view/inbox.html", notifications=notifications)
+    next_page = url_for("inbox", page=notifications.next_num, sort=sort) \
+            if notifications.has_next else None
+    prev_page = url_for("inbox", page=notifications.prev_num, sort=sort) \
+            if notifications.has_prev else None
+
+    return render_template("indexes/inbox.html",
+            notifications=notifications.items, page=page, sort=sort,
+            next_page=next_page, prev_page=prev_page)
 
 @app.route("/user/inbox/mark/read/<event_id>/")
 @app.route("/user/inbox/mark/unread/<event_id>/")
@@ -166,7 +192,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-            flash("Check your email for the instructions ot request your "
+            flash("Check your email for the instructions to request your "
             "password.")
             return redirect(url_for("login"))
         else:

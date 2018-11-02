@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if current_user.new_notifications %}
+        <a href="{{ url_for("mark_all_read") }}">mark all read</a>
+    {% endif %}
+    <table class="inbox">
+        <tr class="header">
+            {% if sort == "read" %}
+                <td class="highlight">
+                    <a href="{{ url_for("inbox", sort="read", page=page) }}">
+                        Read
+                    </a>
+                </td>
+            {% else %}
+                <td>
+                    <a href="{{ url_for("inbox", sort="read", page=page) }}">
+                        Read
+                    </a>
+                </td>
+            {% endif %}
+            {% if sort == "type" %}
+                <td class="highlight">
+                    <a href="{{ url_for("inbox", sort="type", page=page) }}">
+                        Type
+                    </a>
+                </td>
+            {% else %}
+                <td>
+                    <a href="{{ url_for("inbox", sort="type", page=page) }}">
+                        Type
+                    </a>
+                </td>
+            {% endif %}
+            {% if sort == "time" %}
+                <td class="highlight">
+                    <a href="{{ url_for("inbox", sort="time", page=page) }}">
+                        Time
+                    </a>
+                </td>
+            {% else %}
+                <td>
+                    <a href="{{ url_for("inbox", sort="time", page=page) }}">
+                        Time
+                    </a>
+                </td>
+            {% endif %}
+            {% if sort == "information" %}
+                <td class="highlight">
+                    <a href="{{ url_for("inbox", sort="information", page=page) }}">
+                        More information
+                    </a>
+                </td>
+            {% else %}
+                <td>
+                    <a href="{{ url_for("inbox", sort="information", page=page) }}">
+                        More information
+                    </a>
+                </td>
+            {% endif %}
+        </tr>
+        {% if not notifications %}
+            <tr>
+                <td colspan=5>
+                    You have no notifications yet.
+                </td>
+            </tr>
+        {% endif %}
+        {% for notification in notifications %}
+            {% if notification.seen %}
+                <tr class="read">
+                    <td>
+                        <a href="{{ url_for("mark_notification_read", event_id=notification.id) }}">unmark</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.notification.description }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.time }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.information }}</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr class="unread">
+                    <td>
+                        <a href="{{ url_for("mark_notification_read", event_id=notification.id) }}">mark</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.notification.description }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.time }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ notification.link }}">{{ notification.information }}</a>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+{% endblock %}

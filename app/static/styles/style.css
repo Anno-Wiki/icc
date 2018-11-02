@@ -560,8 +560,12 @@ textarea {
     font-family: "Playfair Display", serif;
 }
 .inbox .unread a {
-    color: var(--base1);
+    color: var(--red);
+    font-weight: bold;
 }
 .inbox .read a {
     color: var(--base0);
+}
+.read:hover, .unread:hover {
+    background-color: var(--base2);
 }
