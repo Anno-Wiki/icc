@@ -23,3 +23,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     ADMINS = ["emails@futuretld.org"]
     ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL")
+    SQLALCHEMY_ECHO=1
