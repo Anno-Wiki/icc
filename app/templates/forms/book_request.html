@@ -37,6 +37,7 @@
             <tr>
                 <th colspan=5>
                     {{ form.wikipedia(size=64) }}
+                    <br>
                     {% for error in form.wikipedia.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         <br>
@@ -46,6 +47,7 @@
             <tr>
                 <th colspan=5>
                     {{ form.gutenberg(size=64) }}
+                    <br>
                     {% for error in form.gutenberg.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         <br>
