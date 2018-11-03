@@ -9,7 +9,6 @@
                     User: {{ user.displayname }}
                     {% include "includes/_reputation_user.html" %}
                 </h1>
-                {% if user.about_me %}{{ user.about_me|markdown }}{% endif %}
                 {% if user.last_seen %}
                     <p>Last seen on: {{ user.last_seen }}</p>
                 {% endif %}
@@ -39,9 +38,20 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% if current_user.is_authenticated and user in current_user.followed_users %}
+                    <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}">
+                        unfollow
+                    </a>
+                {% else %}
+                    <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}">
+                        follow
+                    </a>
+                {% endif %}
+
             </td>
         </tr>
     </table>
+                {% if user.about_me %}{{ user.about_me|markdown }}{% endif %}
 
     sort by:
     {% for type, url in sorts.items() %}

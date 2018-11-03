@@ -85,8 +85,8 @@ author_followers = db.Table(
 
 user_followers = db.Table(
         "user_followers",
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        db.Column("follower_id", db.Integer, db.ForeignKey("user.id")),
+        db.Column("followed_id", db.Integer, db.ForeignKey("user.id"))
         )
 
 tag_followers = db.Table(
@@ -201,11 +201,11 @@ class User(UserMixin, db.Model):
             backref="followers")
     
     # followed users
-    followed_users = db.relationship("User",
-            secondary="user_followers",
-            primaryjoin="user_followers.c.user_id==User.id",
-            secondaryjoin="user_followers.c.user_id==User.id",
-            backref="followers")
+    followed_users = db.relationship(
+            "User", secondary=user_followers,
+            primaryjoin=(user_followers.c.follower_id==id),
+            secondaryjoin=(user_followers.c.followed_id==id),
+            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
 
     # followed tags
     followed_tags = db.relationship("Tag",
