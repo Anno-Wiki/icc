@@ -327,7 +327,7 @@ def follow_tag(tag_id):
 @app.route("/user/follow/annotation/<annotation_id>")
 @login_required
 def follow_annotation(annotation_id):
-    annotation = Book.query.get_or_404(annotation_id)
+    annotation = Annotation.query.get_or_404(annotation_id)
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("annotation", annotation_id=annotation.id)
