@@ -10,19 +10,17 @@ if user == None:
             password_hash="***", locked=True,
             reputation=0, cumulative_negative=0, cumulative_positive=0,
             about_me=
-            """
-            Hi, 
-            
-            I’m not a real person. I’m an account used to author annotations by
-            non-members, such as the authors of the books hosted on Annopedia.
-            An example would be the annotations provided by [Constance
-            Garnett](https://en.wikipedia.org/wiki/War_and_Peace) in
-            her translations of classic Russian literature like War and Peace.
-            The original author of the annotations will always be tagged with a
-            special tag that will be locked to users.
-
-            I hope you enjoy their annotations!
-            """
+            "Hi, "
+            " "
+            "I’m not a real person. I’m an account used to author annotations by "
+            "non-members, such as the authors of the books hosted on Annopedia. "
+            "An example would be the annotations provided by [Constance "
+            "Garnett](https://en.wikipedia.org/wiki/War_and_Peace) in "
+            "her translations of classic Russian literature like War and Peace.  "
+            "The original author of the annotations will always be tagged with a "
+            "special tag that will be locked to users. "
+            " "
+            "I hope you enjoy their annotations! "
             )
     db.session.add(user)
     db.session.commit()
