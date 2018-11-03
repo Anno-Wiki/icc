@@ -276,9 +276,14 @@ class User(UserMixin, db.Model):
         return self.reputation >= min_rep
 
     def notify(self, notification, link, hash_string, information):
-        evt = NotificationEvent(time=datetime.utcnow(),
-                notification=notification, user=self, information=information,
-                link=link, hash_id=sha1(hash_string.encode("utf8")).hexdigest())
+        notification_type = NotificationType.query.filter_by(code=notification).first()
+        if notification_type:
+            evt = NotificationEvent(time=datetime.utcnow(),
+                    notification=notification_type, user=self,
+                    information=information, link=link,
+                    hash_id=sha1(hash_string.encode("utf8")).hexdigest())
+        else:
+            raise AttributeError(f"Notification type {notification} does not exist")
         db.session.add(evt)
         db.session.commit()
 
@@ -601,18 +606,17 @@ class Annotation(db.Model):
     book = db.relationship("Book")
     HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
     head = db.relationship("AnnotationVersion",
-                primaryjoin="and_(AnnotationVersion.current==True,"
-                        "AnnotationVersion.pointer_id==Annotation.id)",
-                        uselist=False)
+            primaryjoin="and_(AnnotationVersion.current==True,"
+            "AnnotationVersion.pointer_id==Annotation.id)", uselist=False)
     lines = db.relationship("Line", secondary="annotation_version",
-        primaryjoin="Annotation.head_id==AnnotationVersion.id",
-        secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
+            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+            secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
             "Line.l_num<=AnnotationVersion.last_line_num,"
             "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
             uselist=True)
     context = db.relationship("Line", secondary="annotation_version",
-        primaryjoin="Annotation.head_id==AnnotationVersion.id",
-        secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
+            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+            secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
             "Line.l_num<=AnnotationVersion.last_line_num+5,"
             "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
             uselist=True)
@@ -622,11 +626,10 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.upvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
-        note_type = NotificationType.query.filter_by(code="upvote").first()
         hash_string = f"{vote}"
-        self.author.notify(note_type, url_for("view_annotation",
-            annotation_id=self.id), hash_string,
-            information=f"Upvote on annotation on {self.book.title}")
+        self.author.notify("upvote",
+                url_for("annotation", annotation_id=self.id), hash_string,
+                information=f"Upvote on annotation {self.id} on {self.book.title}")
         db.session.add(vote)
 
     def downvote(self, voter):
@@ -635,11 +638,10 @@ class Annotation(db.Model):
         self.weight += weight
         self.author.downvote()
         vote = Vote(user=voter, annotation=self, delta=weight)
-        note_type = NotificationType.query.filter_by(code="upvote").first()
         hash_string = f"{vote}"
-        self.author.notify(note_type, url_for("view_annotation",
-            annotation_id=self.id), hash_string,
-            information=f"Downvote on annotation on {self.book.title}")
+        self.author.notify("downvote", 
+                url_for("annotation", annotation_id=self.id), hash_string,
+                information=f"Downvote on annotation {self.id} on {self.book.title}")
         db.session.add(vote)
 
     def rollback(self, vote):
@@ -674,6 +676,49 @@ class Annotation(db.Model):
         event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
         db.session.commit()
+
+    def notify_edit(self, notification, editor):
+        if self.author != editor:
+            # notify the author his annotation has been edited
+            # but only if he isn't the editor.
+            self.author.notify("edit_approved",
+                    url_for("annotation", annotation_id=self.id),
+                    f"newediton{self.id}at{datetime.utcnow()}",
+                    f"New edit on your annotation {self.id} on {self.book.title}.")
+        # notify all the annotation's followers of a new edit.
+        for follower in self.followers:
+            follower.notify("edit_approved",
+                    url_for("annotation", annotation_id=self.id),
+                    f"newediton{self.id}at{datetime.utcnow()}",
+                    f"New edit on followed annotation {self.id} on {self.book.title}.")
+    
+    def notify_new(self):
+        # followers of the annotation's book
+        for follower in self.book.followers:
+            follower.notify("new_annotation",
+                    url_for("annotation", annotation_id=self.id),
+                    f"new_annotation{self.id}on{self.book.id}",
+                    f"New annotation on followed book {self.book.title}.")
+        # follower of the annotation's book's author
+        for follower in self.book.author.followers:
+            follower.notify("new_annotation",
+                    url_for("annotation", annotation_id=self.id),
+                    f"new_annotation{self.id}on{self.book.id}",
+                    f"New annotation on book {self.book.title} from followed"
+                    f" author {self.book.author.name}.")
+        # followers of the annotator
+        for follower in self.author.followers:
+            follower.notify("new_annotation",
+                    url_for("annotation", annotation_id=self.id),
+                    f"new_annotation{self.id}on{self.book.id}",
+                    f"New annotation from followed annotator"
+                    f" {self.author.displayname}.")
+        for tag in self.HEAD.tags:
+            for follower in tag.followers:
+                follower.notify("new_annotation",
+                        url_for("annotation", annotation_id=self.id),
+                        f"new_annotation{self.id}on{self.book.id}",
+                        f"New annotation using followed tag {tag.tag}.")
 
 class EditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -759,6 +804,29 @@ class AnnotationVersion(db.Model):
         self.weight -= 1
         vote = EditVote(user=voter, edit=self, delta=-1)
         db.session.add(vote)
+
+    def notify_edit(self, notification):
+        if notification == "approved":
+            # notify the editor
+            self.editor.notify("edit_approved",
+                    url_for("annotation", annotation_id=self.pointer_id),
+                    f"edit_approved{self.id}on{self.pointer_id}",
+                    f"Edit {self.id} on annotation {self.pointer_id} approved.")
+            # notify all the editor's followers
+            for follower in self.editor.followers:
+                follower.notify("edit_approved",
+                        url_for("annotation", annotation_id=self.pointer_id),
+                        f"edit_approved{self.id}on{self.pointer_id}",
+                        f"New edit approved from followed annotatior"
+                        f" {self.editor.displayname}.")
+            # notify the annotation's followers
+            self.pointer.notify_edit("approved", self.editor)
+        elif notification == "rejected":
+            # if it's rejected, only notify the editor.
+            self.editor.notify("edit_rejected",
+                    url_for("annotation", annotation_id=self.pointer_id),
+                    f"edit_rejected{self.id}on{self.pointer_id}",
+                    f"Edit {self.id} on annotation {self.pointer_id} rejected.")
 
 ####################
 ####################
@@ -955,7 +1023,7 @@ class NotificationType(db.Model):
     description = db.Column(db.String(64))
 
     def __repr__(self):
-        return f"<Notification {self.event}>"
+        return f"<Notification {self.code}>"
 
 class NotificationEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)

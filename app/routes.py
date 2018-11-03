@@ -814,6 +814,9 @@ def annotate(book_url, first_line, last_line):
         commit.pointer = head
         db.session.commit()
 
+        head.notify_new()
+        db.session.commit()
+
         flash("Annotation Submitted")
 
         next_page = request.args.get("next")
@@ -925,6 +928,7 @@ def edit(anno_id):
             db.session.commit()
 
         if approved:
+            edit.notify_edit("approved")
             flash("Edit complete.")
         else:
             flash("Edit submitted for review.")
@@ -990,6 +994,7 @@ def rollback_edit(annotation_id, edit_id):
     db.session.commit()
     if approved:
         flash("Edit complete.")
+        edit.notify_edit("approved")
     else:
         flash("Edit submitted for review.")
     return redirect(next_page)
@@ -1113,6 +1118,7 @@ def approve(edit_hash):
         edit.approved = True
         edit.pointer.HEAD = edit
         edit.pointer.edit_pending = False
+        edit.notify_edit("approved")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
@@ -1133,6 +1139,7 @@ def reject(edit_hash):
             current_user.has_right("approve_edits"):
         edit.pointer.edit_pending = False
         edit.rejected = True
+        edit.notify_edit("rejected")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
