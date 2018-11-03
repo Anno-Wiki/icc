@@ -1,9 +1,8 @@
 INSERT INTO notification_type (code, description) VALUES
     ("upvote", "upvote"),
     ("downvote", "downvote"),
-    ("edit", "edited annotation"),
-    ("new_from_user", "new from user"),
-    ("new_from_book", "new from book"),
-    ("new_from_author", "new from author"),
-    ("new_from_tag", "new from tag"),
-    ("edit_approved", "edit approved");
+    ("edit_approved", "annotation edit approved"),
+    ("edit_rejected", "annotation edit rejected"),
+    ("new_annotation", "new annotation"),
+    ("new_annotation_flag", "new annotation flag"),
+    ("new_user_flag", "new user flag");
