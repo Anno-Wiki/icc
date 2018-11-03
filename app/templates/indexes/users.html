@@ -3,15 +3,13 @@
 {% block content %}
     <h1>Users</h1>
     sort by:
-    {% if sort == "name" %}
-        <a href="{{ url_for("user_index", sort="name") }}" class="active">name</a>
-        <a href="{{ url_for("user_index", sort="reputation") }}">reputation</a>
-    {% elif sort == "reputation" %}
-        <a href="{{ url_for("user_index", sort="name") }}">name</a>
-        <a href="{{ url_for("user_index", sort="reputation") }}" class="active">
-            reputation
-        </a>
-    {% endif %}
+    {% for type, url in sorts.items() %}
+        {% if type == sort %}
+            <a href="{{ url }}" class="active">{{ type }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ type }}</a>
+        {% endif %}
+    {% endfor %}
 
     <div class="index">
         {% for user in users %}

@@ -474,13 +474,25 @@ def user_index():
     elif sort == "name":
         users = User.query.order_by(User.displayname.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "annotations":
+        users = User.query.outerjoin(Annotation).group_by(User.id)\
+                .order_by(db.func.count(Annotation.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    else:
+        users = User.query.order_by(User.reputation.desc()
+                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    sorts = {
+            "reputation": url_for("user_index", page=page, sort="reputation"),
+            "name": url_for("user_index", page=page, sort="name"),
+            "annotations": url_for("user_index", page=page, sort="annotations"),
+            }
     next_page = url_for("user_index", page=users.next_num, sort=sort) \
             if users.has_next else None
     prev_page = url_for("user_index", page=users.prev_num, sort=sort) \
             if users.has_prev else None
     return render_template("indexes/users.html", title="Users",
             users=users.items, next_page=next_page, prev_page=prev_page,
-            sort=sort)
+            sort=sort, sorts=sorts)
 
 
 #######################
