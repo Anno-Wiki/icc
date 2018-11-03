@@ -401,6 +401,14 @@ def book_index():
     elif sort == "newest":
         books = Book.query.order_by(Book.published.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "length":
+        books = Book.query.outerjoin(Line).group_by(Book.id)\
+                .order_by(db.func.count(Line.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "annotations":
+        books = Book.query.outerjoin(Annotation).group_by(Book.id)\
+                .order_by(db.func.count(Annotation.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         books = Book.query.order_by(Book.sort_title.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
@@ -409,7 +417,9 @@ def book_index():
             "title": url_for("book_index", sort="title", page=page),
             "author": url_for("book_index", sort="author", page=page),
             "oldest": url_for("book_index", sort="oldest", page=page),
-            "newest": url_for("book_index", sort="newest", page=page)
+            "newest": url_for("book_index", sort="newest", page=page),
+            "length": url_for("book_index", sort="length", page=page),
+            "annotations": url_for("book_index", sort="annotations", page=page),
     }
 
     next_page = url_for("book_index", page=books.next_num, sort=sort) \
