@@ -300,14 +300,14 @@ def follow_user(user_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("user", user_id=user.id)
-    print(user)
-    if user in current_user.followed_users:
+    if user == current_user:
+        flash("You can't follow yourself.")
+        redirect(next_page)
+    elif user in current_user.followed_users:
         current_user.followed_users.remove(user)
     else:
         current_user.followed_users.append(user)
-        print(current_user.followed_users)
     db.session.commit()
-    print(current_user.followed_users)
     return redirect(next_page)
 
 @app.route("/user/follow/tag/<tag_id>/")
@@ -331,7 +331,10 @@ def follow_annotation(annotation_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("annotation", annotation_id=annotation.id)
-    if annotation in current_user.followed_annotations:
+    if annotation.author == current_user:
+        flash("You cannot follow your own annotation.")
+        redirect(next_page)
+    elif annotation in current_user.followed_annotations:
         current_user.followed_annotations.remove(annotation)
     else:
         current_user.followed_annotations.append(annotation)
