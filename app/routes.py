@@ -31,15 +31,43 @@ def before_request():
 @app.route("/index/")
 def index():
     page = request.args.get("page", 1, type=int)
-    sort = request.args.get("sort", "new", type=str)
-    if sort == "new":
-        annotations = Annotation.query.filter_by(active=True
-                ).order_by(Annotation.added.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sort = request.args.get("sort", "newest", type=str)
+    if sort == "newest":
+        annotations = Annotation.query.filter_by(active=True)\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
-        annotations = Annotation.query.filter_by(active=True
-                ).order_by(Annotation.weight.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+        annotations = Annotation.query.filter_by(active=True)\
+                .order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = Annotation.query.filter_by(active=True)\
+                .order_by(Annotation.added.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "modifiedpointer":
+        annotations = Annotation.query.outerjoin(AnnotationVersion,
+                and_(Annotation.id==AnnotationVersion.pointer_id,
+                    AnnotationVersion.current==True))\
+                .group_by(Annotation.id)\
+                .order_by(AnnotationVersion.modified.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "modifiedhead":
+        annotations = Annotation.query.outerjoin(AnnotationVersion,
+                Annotation.head_id==AnnotationVersion.id)\
+                .group_by(Annotation.id)\
+                .order_by(AnnotationVersion.modified.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    else:
+        annotations = Annotation.query.filter_by(active=True)\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sorts = {
+            "newest": url_for("index", page=page, sort="newest"),
+            "oldest": url_for("index", page=page, sort="oldest"),
+            "weight": url_for("index", page=page, sort="weight"),
+            "modifiedpointer": url_for("index", page=page, sort="modifiedpointer"),
+            "modifiedhead": url_for("index", page=page, sort="modifiedhead"),
+            }
     annotationflags = AnnotationFlag.query.all()
     next_page = url_for("index", page=annotations.next_num, sort=sort) \
             if annotations.has_next else None
@@ -47,10 +75,10 @@ def index():
             if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("index.html", title="Home",
+    return render_template("indexes/annotation_list.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags, sort=sort)
+            annotationflags=annotationflags, sort=sort, sorts=sorts)
 
 
 ####################
