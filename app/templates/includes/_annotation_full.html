@@ -90,6 +90,7 @@
             {{ annotation.author.displayname }}
         </a>
         {% include "/includes/_reputation_author.html" %}
+        {{ annotation.added }}
     {%- else -%}
         <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
         last edited
@@ -99,9 +100,9 @@
             {{ annotation.HEAD.editor.displayname }}
         </a>
         {% include "/includes/_reputation_editor.html" %}
+        {{ annotation.HEAD.modified }}
     {% endif %}
 
-    {{ annotation.added }}
 
     |
 
