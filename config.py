@@ -15,7 +15,7 @@ class Config(object):
     ANNOTATIONS_PER_PAGE = 5
     CARDS_PER_PAGE = 15
     NOTIFICATIONS_PER_PAGE = 15
-    USER_PAGE_AVATAR_SIZE = 128
+    USER_PAGE_AVATAR_SIZE = 255
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = int(os.environ.get("MAIL_PORT") or 25)
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS") is not None
@@ -23,4 +23,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     ADMINS = ["emails@futuretld.org"]
     ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL")
-    SQLALCHEMY_ECHO=1
+    SQLALCHEMY_ECHO=0
