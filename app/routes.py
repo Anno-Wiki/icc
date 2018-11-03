@@ -564,7 +564,7 @@ def tag(tag):
             annotationflags=annotationflags)
 
 @app.route("/annotation/<annotation_id>")
-def view_annotation(annotation_id):
+def annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlag.query.all()
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \

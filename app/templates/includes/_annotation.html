@@ -1,7 +1,7 @@
 <annotation id="a{{ annotation.id }}">
     <div class="annotation_head">
         <sup>
-            <a href="{{ url_for("view_annotation",
+            <a href="{{ url_for("annotation",
                     annotation_id=annotation.id) }}">
                 [{{ annotation.id }}]
             </a>
@@ -9,7 +9,7 @@
         on
         <em>
             <a href="#{{ annotation.HEAD.first_line_num }}">
-                {%- if annotation.HEAD.first_line_num == 
+                {%- if annotation.HEAD.first_line_num ==
                         annotation.HEAD.last_line_num %}
                     l.{{ annotation.HEAD.last_line_num }}
                 {% else %}
@@ -64,7 +64,7 @@
             <span class="cutoff">
                 {{- annotation.HEAD.annotation[:255]|markdown -}}
             </span>
-            <a href="{{ url_for("view_annotation",
+            <a href="{{ url_for("annotation",
                     annotation_id=annotation.id) }}">
             View More
             </a>
@@ -83,10 +83,10 @@
     </tags>
 
     <br>
-    
+
     <!--The footer-->
     {%- if annotation.HEAD.previous_id == None %}
-        annotated by 
+        annotated by
         <a href="{{ url_for("user", user_id=annotation.author.id) }}">
             {{ annotation.author.displayname }}
         </a>
@@ -95,7 +95,7 @@
         <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
             last edited
         </a>
-        by 
+        by
         <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
             {{ annotation.HEAD.editor.displayname }}
         </a>
@@ -159,7 +159,7 @@
     </a>
     {% endif %}
     {% endif %}
-    
+
 
     {% if current_user.is_authenticated and
             (current_user.has_right("edit_locked_annotations") or
