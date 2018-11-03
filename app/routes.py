@@ -654,7 +654,7 @@ def user(user_id):
         annotations = user.annotations.order_by(Annotation.added.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
-        annotations = user.annotations.order_by(Annotation.added.desc()
+        annotations = user.annotations.order_by(Annotation.added.asc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = user.annotations.order_by(Annotation.added.desc()
