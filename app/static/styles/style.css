@@ -573,3 +573,17 @@ textarea {
     color: var(--red)!important;
     font-weight: bold;
 }
+#master_div {
+    border: 1px solid black;
+    background: white;
+}
+#master_div input {
+    border: 0;
+    width: 99%;
+}
+#tag_spans, #input {
+    display: inline;
+}
+#tag_spans tag {
+    cursor: pointer;
+}

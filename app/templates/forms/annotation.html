@@ -105,7 +105,13 @@
                 </tr>
                 <tr>
                     <th colspan=5>
-                        {{ form.tags(size=64) }}
+                        <div id="master_div">
+                            <div id="tag_spans">
+                            </div>
+                            <div id="input">
+                                {{ form.tags }}
+                            </div>
+                        </div>
                         {% for error in form.tags.errors %}
                             <span style="color: red;">
                                 [{{ error }}]
