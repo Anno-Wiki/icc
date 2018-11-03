@@ -5,12 +5,12 @@ from flask import render_template, flash, redirect, url_for, request, Markup, \
         abort, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
         BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
-        NotificationType, NotificationEvent
+        NotificationType, NotificationEvent, tags as tags_table
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -425,8 +425,13 @@ def tag_index():
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "annotations":
         # This doesn't do anything but the same sort yet
-        tags = Tag.query.order_by(Tag.tag
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tags = Tag.query.outerjoin(tags_table)\
+                .outerjoin(AnnotationVersion, and_(
+                    AnnotationVersion.id==tags_table.c.annotation_version_id,
+                    AnnotationVersion.current==True))\
+                .group_by(Tag.id)\
+                .order_by(db.func.count(AnnotationVersion.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         tags = Tag.query.order_by(Tag.tag
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
