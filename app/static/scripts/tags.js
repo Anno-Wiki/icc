@@ -2,6 +2,8 @@ function $(sel) { return document.querySelector(sel); }
 
 window.onload = function () {
     initial_tag_creation();
+    submit = $("#submit");
+    submit.onclick = repopulate;
 };
 
 function initial_tag_creation() {
@@ -23,7 +25,7 @@ function initial_tag_creation() {
         tags.value = "";
     }
     tags.onkeyup = autocomplete;
-};
+}
 
 
 function autocomplete(event) {
@@ -58,9 +60,9 @@ function autocomplete(event) {
         request.onload = function () {
             const data = JSON.parse(request.responseText);
             if (data.success) {
-                console.log(data);
+                console.log("true");
             } else {
-                console.log("nope");
+                console.log("false");
             }
         };
 
@@ -68,4 +70,18 @@ function autocomplete(event) {
         data.append("tags", prefix);
         request.send(data);
     }
-};
+}
+
+function repopulate() {
+    var tags_input = $("#tags");
+    var tag_spans = $("#tag_spans");
+    var tags = tag_spans.children;
+    var tags_array = [];
+    var num_tags = tags.length;
+    for (var i = 0; i < num_tags; i++) {
+        tags_array[i] = tags[i].innerHTML.slice(0,-2);
+    }
+    var tag_string = tags_array.join(" ");
+    tags_input.value = tag_string;
+    tag_spans.innerHTML = "";
+}
