@@ -20,9 +20,17 @@
                 <a href="{{ url_for("book", book_url=book.url) }}">
                     <h2>{{ book.title }}</h2>
                 </a>
-                <div class="count">
-                    &times; {{ book.lines.count() }} lines
-                </div>
+                &times; {{ book.lines.count() }} lines
+                <br>
+                {% if current_user.is_authenticated and book in current_user.followed_books %}
+                <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
+                    unfollow
+                </a>
+                {% else %}
+                <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
+                    follow
+                </a>
+                {% endif %}
 
                 {% if len(book.summary) >= 127 %}
                     <div class="card_text_cutoff">

@@ -23,6 +23,15 @@ sort by:
     </h2></a>
     Books &times; {{ len(author.books) }}
     <br>
+    {% if current_user.is_authenticated and author in current_user.followed_authors %}
+    <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}">
+        unfollow
+    </a>
+    {% else %}
+    <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}">
+        follow
+    </a>
+    {% endif %}
 
     {% if len(author.bio) >= 127 %}
     <div class="card_text_cutoff">

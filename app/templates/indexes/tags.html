@@ -21,6 +21,16 @@ sort by:
     <br>
     &times; {{ tag.annotations.count() }}
     <br>
+    {% if current_user.is_authenticated and tag in current_user.followed_tags %}
+    <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
+        unfollow
+    </a>
+    {% else %}
+    <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
+        follow
+    </a>
+    {% endif %}
+
     {% if len(tag.description) > 127 %}
     <div class="card_text_cutoff">
     {% else %}
