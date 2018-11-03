@@ -361,6 +361,10 @@ def author_index():
     elif sort == "youngest":
         authors = Author.query.order_by(Author.birth_date.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "books":
+        authors = Author.query.outerjoin(Book).group_by(Author.id)\
+                .order_by(db.func.count(Book.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         authors = Author.query.order_by(Author.last_name.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
@@ -369,6 +373,7 @@ def author_index():
             "name": url_for("author_index", sort="name", page=page),
             "oldest": url_for("author_index", sort="oldest", page=page),
             "youngest": url_for("author_index", sort="youngest", page=page),
+            "books": url_for("author_index", sort="books", page=page),
             }
 
     next_page = url_for("author_index", page=authors.next_num, sort=sort) \
