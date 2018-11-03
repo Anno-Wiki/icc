@@ -825,6 +825,8 @@ def annotate(book_url, first_line, last_line):
             return render_template("forms/annotation.html", title=book.title,
                     form=form, book=book, lines=lines, context=context)
 
+        locked = form.locked.data and current_user.has_right("lock_annotations")
+
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
         commit = AnnotationVersion(
@@ -835,7 +837,8 @@ def annotate(book_url, first_line, last_line):
                 annotation=form.annotation.data, tags=tags, current=True)
 
         # Create the annotation pointer with HEAD pointing to anno
-        head = Annotation(book=book, HEAD=commit, author=current_user)
+        head = Annotation(book=book, HEAD=commit, author=current_user,
+                locked=locked)
 
         # add anno, commit it
         db.session.add(commit)
