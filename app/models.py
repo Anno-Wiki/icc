@@ -622,6 +622,11 @@ class Annotation(db.Model):
             "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
             uselist=True)
 
+    flag_history = db.relationship("AnnotationFlagEvent",
+            primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
+            lazy="dynamic")
+
+
     def upvote(self, voter):
         weight = voter.up_power()
         self.weight += weight
@@ -1015,6 +1020,10 @@ class AnnotationFlagEvent(db.Model):
     def resolve(self, resolver):
         self.resolved = datetime.utcnow()
         self.resolver = resolver
+
+    def unresolve(self):
+        self.resolved = None
+        self.resolver = None
 
 ##################
 ## Notifactions ##
