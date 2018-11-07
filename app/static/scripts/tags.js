@@ -17,8 +17,7 @@ function initial_tag_creation() {
             var tag = document.createElement("tag");
             tag.innerHTML = tags_array[i] + " &times;";
             tag.onclick = function() {
-                spans = $("#tag_spans");
-                this.parentNode.parentNode.removeChild(this.parentNode);
+                $("#tag_spans").removeChild(this);
             };
             div.appendChild(tag);
         }
@@ -26,7 +25,6 @@ function initial_tag_creation() {
     }
     tags.onkeyup = autocomplete;
 }
-
 
 function autocomplete(event) {
     var key = event.which || event.keyCode;
@@ -36,8 +34,7 @@ function autocomplete(event) {
         prefix = prefix.replace(/(^\s+|\s+$)/g, '');
         tag.innerHTML = prefix + " &times;";
         tag.onclick = function() {
-            spans = $("#tag_spans");
-            this.parentNode.parentNode.removeChild(this.parentNode);
+            $("#tag_spans").removeChild(this);
         };
         var div = $("#tag_spans");
         div.appendChild(tag);
