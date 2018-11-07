@@ -580,18 +580,19 @@ textarea {
 #master_div {
     border: 1px solid black;
     background: white;
+    width: 100%;
 }
 #master_div input {
     border: 0;
-    width: 99%;
 }
 #tag_spans, #input {
     display: inline;
 }
 #tag_spans tag {
     cursor: pointer;
+    margin: 3px;
 }
-
 #footer {
     background-color: var(--base21);
     padding: 5px 0 5px 0;
+}
