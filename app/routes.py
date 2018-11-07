@@ -157,15 +157,30 @@ def inbox():
         notifications = current_user.notifications.order_by(
                 NotificationEvent.time.desc()
                 ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        notifications = current_user.notifications.order_by(
+                NotificationEvent.time.asc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "type":
         notifications = current_user.notifications.join(NotificationType
                 ).order_by(
                 NotificationType.code.desc(),
                 NotificationEvent.time.desc()
                 ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "type_invert":
+        notifications = current_user.notifications.join(NotificationType
+                ).order_by(
+                NotificationType.code.asc(),
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "information":
         notifications = current_user.notifications.order_by(
                 NotificationEvent.information.asc(),
+                NotificationEvent.time.desc()
+                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "information_invert":
+        notifications = current_user.notifications.order_by(
+                NotificationEvent.information.desc(),
                 NotificationEvent.time.desc()
                 ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
@@ -174,6 +189,17 @@ def inbox():
                 NotificationEvent.time.desc()
                 ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
+    sorts = {
+            "read": url_for("inbox", sort="read", page=page),
+            "read_invert": url_for("inbox", sort="read_invert", page=page),
+            "time": url_for("inbox", sort="time", page=page),
+            "time_invert": url_for("inbox", sort="time_invert", page=page),
+            "type": url_for("inbox", sort="type", page=page),
+            "type_invert": url_for("inbox", sort="type_invert", page=page),
+            "information": url_for("inbox", sort="information", page=page),
+            "information_invert": url_for("inbox", sort="information_invert", page=page),
+            }
+
     next_page = url_for("inbox", page=notifications.next_num, sort=sort) \
             if notifications.has_next else None
     prev_page = url_for("inbox", page=notifications.prev_num, sort=sort) \
@@ -181,12 +207,11 @@ def inbox():
 
     return render_template("indexes/inbox.html",
             notifications=notifications.items, page=page, sort=sort,
-            next_page=next_page, prev_page=prev_page)
+            sorts=sorts, next_page=next_page, prev_page=prev_page)
 
-@app.route("/user/inbox/mark/read/<event_id>/")
-@app.route("/user/inbox/mark/unread/<event_id>/")
+@app.route("/user/inbox/mark/<event_id>/")
 @login_required
-def mark_notification_read(event_id):
+def mark_notification(event_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("inbox")
@@ -195,7 +220,7 @@ def mark_notification_read(event_id):
         notification.mark_unread()
     else:
         notification.mark_read()
-        db.session.commit()
+    db.session.commit()
     return redirect(next_page)
 
 @app.route("/user/inbox/mark/read/all/")

@@ -8,8 +8,16 @@
         <tr class="header">
             {% if sort == "read" %}
                 <td class="highlight">
-                    <a href="{{ url_for("inbox", sort="read", page=page) }}">
+                    <a href="{{ sorts["read_invert"] }}">
                         Read
+                        &#x25be;
+                    </a>
+                </td>
+            {% elif sort == "read_invert" %}
+                <td class="highlight">
+                    <a href="{{ sorts["read"] }}">
+                        Read
+                        &#x25b4;
                     </a>
                 </td>
             {% else %}
@@ -19,10 +27,19 @@
                     </a>
                 </td>
             {% endif %}
+
             {% if sort == "type" %}
                 <td class="highlight">
-                    <a href="{{ url_for("inbox", sort="type", page=page) }}">
+                    <a href="{{ sorts["type_invert"] }}">
                         Type
+                        &#x25be;
+                    </a>
+                </td>
+            {% elif sort == "type_invert" %}
+                <td class="highlight">
+                    <a href="{{ sorts["type"] }}">
+                        Type
+                        &#x25b4;
                     </a>
                 </td>
             {% else %}
@@ -32,10 +49,19 @@
                     </a>
                 </td>
             {% endif %}
+
             {% if sort == "time" %}
                 <td class="highlight">
-                    <a href="{{ url_for("inbox", sort="time", page=page) }}">
+                    <a href="{{ sorts["time_invert"] }}">
                         Time
+                        &#x25be;
+                    </a>
+                </td>
+            {% elif sort == "time_invert" %}
+                <td class="highlight">
+                    <a href="{{ sorts["time"] }}">
+                        Time
+                        &#x25b4;
                     </a>
                 </td>
             {% else %}
@@ -45,10 +71,19 @@
                     </a>
                 </td>
             {% endif %}
+
             {% if sort == "information" %}
                 <td class="highlight">
-                    <a href="{{ url_for("inbox", sort="information", page=page) }}">
+                    <a href="{{ sorts["information_invert"] }}">
                         More information
+                        &#x25be;
+                    </a>
+                </td>
+            {% elif sort == "information_invert" %}
+                <td class="highlight">
+                    <a href="{{ sorts["information"] }}">
+                        More information
+                        &#x25b4;
                     </a>
                 </td>
             {% else %}
@@ -70,31 +105,47 @@
             {% if notification.seen %}
                 <tr class="read">
                     <td>
-                        <a href="{{ url_for("mark_notification_read", event_id=notification.id) }}">unmark</a>
+                        <a href="{{ url_for("mark_notification", event_id=notification.id) }}">
+                            &#x2713;
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.notification.description }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.notification.description }}
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.time }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.time }}
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.information }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.information }}
+                        </a>
                     </td>
                 </tr>
             {% else %}
                 <tr class="unread">
                     <td>
-                        <a href="{{ url_for("mark_notification_read", event_id=notification.id) }}">mark</a>
+                        <a href="{{ url_for("mark_notification", event_id=notification.id) }}">
+                            x
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.notification.description }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.notification.description }}
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.time }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.time }}
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ notification.link }}">{{ notification.information }}</a>
+                        <a href="{{ notification.link }}">
+                            {{ notification.information }}
+                        </a>
                     </td>
                 </tr>
             {% endif %}
