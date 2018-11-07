@@ -591,3 +591,7 @@ textarea {
 #tag_spans tag {
     cursor: pointer;
 }
+
+#footer {
+    background-color: var(--base21);
+    padding: 5px 0 5px 0;
