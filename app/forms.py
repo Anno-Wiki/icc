@@ -64,7 +64,8 @@ class AnnotationForm(FlaskForm):
     last_char_idx = IntegerField("Last Char", validators=[InputRequired()])
 
     annotation = TextAreaField("Annotation", 
-            render_kw={"placeholder":"Type your annotation here."},
+            render_kw={"placeholder":"Type your annotation here.",
+                "style":"width: 600px;"},
             validators=[InputRequired()])
 
     tags = StringField("Tags", 
