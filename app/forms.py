@@ -67,8 +67,14 @@ class AnnotationForm(FlaskForm):
             render_kw={"placeholder":"Type your annotation here."},
             validators=[InputRequired()])
 
-    tags = StringField("Tags", render_kw={"placeholder":"e.g. "
-        "(explanation freudian reference)"}, validators=[Optional()])
+    tags = StringField("Tags", 
+            render_kw={"placeholder":"e.g. (explanation freudian reference)"}, 
+            validators=[Optional()])
+
+    reason = StringField("Reason",
+            render_kw={"placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
+                "style": "width: 100%;"},
+            validators=[InputRequired()])
 
     locked = BooleanField("Locked")
 

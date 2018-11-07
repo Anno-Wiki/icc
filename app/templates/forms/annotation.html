@@ -99,12 +99,16 @@
                 </tr>
                 <tr>
                     <td colspan=5>
+                        <strong>{{ form.annotation.label }}</strong>
+                        <br>
                         {{ form.annotation(rows=10, cols=70) }}
                         <br>
                     </td>
                 </tr>
                 <tr>
-                    <th colspan=5>
+                    <td colspan=5>
+                        <strong>{{ form.tags.label }}</strong>
+                        <br>
                         <div id="master_div">
                             <div id="tag_spans">
                             </div>
@@ -118,7 +122,19 @@
                             </span>
                             <br>
                         {% endfor %}
-                    </th>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=5>
+                        <strong>{{ form.reason.label }}</strong>
+                        <br>
+                        {{ form.reason }}
+                        {% for error in form.reason.errors %}
+                            <span style="color: red;">
+                                [{{ error }}]
+                            </span>
+                        {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <th colspan=5>
