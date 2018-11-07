@@ -556,6 +556,10 @@ textarea {
 .inbox {
     width: 100%;
 }
+.inbox a {
+    display: block;
+    text-decoration: none;
+}
 .inbox .header {
     font-family: "Playfair Display", serif;
 }

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>
+    User 
+    <a href="{{ url_for("user", user_id=user.id) }}">
+        {{ user.displayname }}
+    </a>
+    flags
+</h2>
+
+{% if flags %}
+<table class="inbox">
+    <tr class="header">
+        {% if sort == "marked" %}
+            <th class="highlight">
+                <a href="{{ sorts["marked_invert"] }}">
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "marked_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["marked"] }}">
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["marked"] }}">
+                    &nbsp;
+                </a>
+            </th>
+        {% endif %}
+
+        {% if sort == "flag" %}
+            <th class="highlight">
+                <a href="{{ sorts["flag_invert"] }}">
+                    Flag
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "flag_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["flag"] }}">
+                    Flag
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["flag"] }}">
+                    Flag
+                </a>
+            </th>
+        {% endif %}
+
+        {% if sort == "time" %}
+            <th class="highlight">
+                <a href="{{ sorts["time_invert"] }}">
+                    Time
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "time_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["time"] }}">
+                    Time
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["time"] }}">
+                    Time
+                </a>
+            </th>
+        {% endif %}
+
+        {% if sort == "thrower" %}
+            <th class="highlight">
+                <a href="{{ sorts["thrower_invert"] }}">
+                    Thrower
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "thrower_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["thrower"] }}">
+                    Thrower
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["thrower"] }}">
+                    Thrower
+                </a>
+            </th>
+        {% endif %}
+
+        {% if sort == "resolver" %}
+            <th class="highlight">
+                <a href="{{ sorts["resolver_invert"] }}">
+                    Resolver
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "resolver_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["resolver"] }}">
+                    Resolver
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["resolver"] }}">
+                    Resolver
+                </a>
+            </th>
+        {% endif %}
+
+        {% if sort == "resolved_at" %}
+            <th class="highlight">
+                <a href="{{ sorts["resolved_at_invert"] }}">
+                    Resolve Time
+                    &#x25be;
+                </a>
+            </th>
+        {% elif sort == "resolved_at_invert" %}
+            <th class="highlight">
+                <a href="{{ sorts["resolved_at"] }}">
+                    Resolve Time
+                    &#x25b4;
+                </a>
+            </th>
+        {% else %}
+            <th>
+                <a href="{{ sorts["resolved_at"] }}">
+                    Resolve Time
+                </a>
+            </th>
+        {% endif %}
+    </tr>
+    {% for flag in flags %}
+        {% if flag.resolved %}
+        <tr class="read">
+        {% else %}
+        <tr class="unread">
+        {% endif %}
+            <td>
+                <a href={{ url_for("mark_user_flag", flag_id=flag.id, next=request.full_path) }}">
+                    {% if flag.resolved_by %}
+                        &#x2713;
+                    {% else %}
+                            x
+                    {% endif %}
+                </a>
+            </td>
+            <td>
+                {{ flag.flag.flag }}
+            </td>
+            <td>
+                {{ flag.time_thrown }}
+            </td>
+            <td>
+                <a href="{{ url_for("user", user_id=flag.thrower.id) }}">
+                    {{ flag.thrower.displayname }}
+                </a>
+            </td>
+            <td>
+                {% if flag.resolved_by %}
+                    <a href="{{ url_for("user", user_id=flag.resolver.id) }}">
+                        {{ flag.resolver.displayname }}
+                    </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if flag.resolved %}
+                    {{ flag.resolved }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h3>User has no flag history yet.</h3>
+{% endif %}
+{% endblock %}

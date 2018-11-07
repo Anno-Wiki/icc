@@ -169,11 +169,12 @@ class User(UserMixin, db.Model):
     # flag relationships
     flags = db.relationship("UserFlag",
             secondary="user_flag_event",
-            primaryjoin="UserFlagEvent.user_id==User.id",
+            primaryjoin="and_(UserFlagEvent.user_id==User.id,"
+            "UserFlagEvent.resolved_by==None)",
             secondaryjoin="UserFlagEvent.user_flag_id==UserFlag.id",
             backref="users")
     flag_history = db.relationship("UserFlagEvent",
-            primaryjoin="UserFlagEvent.user_id==User.id")
+            primaryjoin="UserFlagEvent.user_id==User.id", lazy="dynamic")
     active_flags = db.relationship("UserFlagEvent",
             primaryjoin="and_(UserFlagEvent.user_id==User.id,"
                 "UserFlagEvent.resolved_by==None)")
@@ -976,7 +977,10 @@ class UserFlagEvent(db.Model):
     def resolve(self, resolver):
         self.resolved = datetime.utcnow()
         self.resolver = resolver
-        db.session.commit()
+
+    def unresolve(self):
+        self.resolved = None
+        self.resolver = None
 
 class AnnotationFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1011,7 +1015,6 @@ class AnnotationFlagEvent(db.Model):
     def resolve(self, resolver):
         self.resolved = datetime.utcnow()
         self.resolver = resolver
-        db.session.commit()
 
 ##################
 ## Notifactions ##
@@ -1046,9 +1049,7 @@ class NotificationEvent(db.Model):
     def mark_read(self):
         self.seen = True
         self.seen_on = datetime.utcnow()
-        db.session.commit()
     
     def mark_unread(self):
         self.seen = False
         self.seen_on = None
-        db.session.commit()

@@ -10,7 +10,7 @@ from app import app, db
 from app.models import User, Book, Author, Line, Kind, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
         BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
-        NotificationType, NotificationEvent, tags as tags_table
+        NotificationType, NotificationEvent, tags as tags_table, UserFlagEvent
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -195,6 +195,7 @@ def mark_notification_read(event_id):
         notification.mark_unread()
     else:
         notification.mark_read()
+        db.session.commit()
     return redirect(next_page)
 
 @app.route("/user/inbox/mark/read/all/")
@@ -1147,6 +1148,112 @@ def lock_user(user_id):
     db.session.commit()
     flash(f"User account {user.displayname} locked.")
     return redirect(next_page)
+
+@app.route("/admin/flags/user/<user_id>/")
+@login_required
+def user_flags(user_id):
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "marked", type=str)
+    current_user.authorize_rights("resolve_user_flags")
+    user = User.query.get_or_404(user_id)
+    if sort == "marked":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "marked_invert":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.resolved.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "flag":
+        flags = user.flag_history\
+                .outerjoin(UserFlag)\
+                .order_by(UserFlag.flag.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "flag_invert":
+        flags = user.flag_history\
+                .outerjoin(UserFlag)\
+                .order_by(UserFlag.flag.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.time_thrown.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.time_thrown.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "thrower":
+        flags = user.flag_history\
+                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "thrower_invert":
+        flags = user.flag_history\
+                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolver":
+        flags = user.flag_history\
+                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolver_invert":
+        flags = user.flag_history\
+                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolved_at":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolved_at_invert":
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.resolved.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        flags = user.flag_history\
+                .order_by(UserFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
+    sorts = {
+            "marked": url_for("user_flags", user_id=user.id, sort="marked", page=page),
+            "flag": url_for("user_flags", user_id=user.id, sort="flag", page=page),
+            "time": url_for("user_flags", user_id=user.id, sort="time", page=page),
+            "thrower": url_for("user_flags", user_id=user.id, sort="thrower", page=page),
+            "resolver": url_for("user_flags", user_id=user.id, sort="resolver", page=page),
+            "resolved_at": url_for("user_flags", user_id=user.id, sort="resolved_at", page=page),
+            "marked_invert": url_for("user_flags", user_id=user.id, sort="marked_invert", page=page),
+            "flag_invert": url_for("user_flags", user_id=user.id, sort="flag_invert", page=page),
+            "time_invert": url_for("user_flags", user_id=user.id, sort="time_invert", page=page),
+            "thrower_invert": url_for("user_flags", user_id=user.id, sort="thrower_invert", page=page),
+            "resolver_invert": url_for("user_flags", user_id=user.id, sort="resolver_invert", page=page),
+            "resolved_at_invert": url_for("user_flags", user_id=user.id, sort="resolved_at_invert", page=page),
+            }
+
+    next_page = url_for("user_flags", user_id=user.id, page=flags.next_num,
+            sort=sort) if flags.has_next else None
+    prev_page = url_for("user_flags", user_id=user.id, page=flags.prev_num,
+            sort=sort) if flags.has_prev else None
+    return render_template("indexes/user_flags.html", 
+            title=f"{user.displayname} flags", user=user, flags=flags.items,
+            sort=sort, sorts=sorts, next_page=next_page, prev_page=prev_page)
+
+@app.route("/admin/flags/mark/user_flag/<flag_id>/")
+@login_required
+def mark_user_flag(flag_id):
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user_flags", user_id=user.id)
+    current_user.authorize_rights("resolve_user_flags")
+    flag = UserFlagEvent.query.get_or_404(flag_id)
+    if flag.resolved:
+        flag.unresolve()
+    else:
+        flag.resolve(current_user)
+    db.session.commit()
+    return redirect(next_page)
+
+
 
 #################
 ## Edit Review ##
