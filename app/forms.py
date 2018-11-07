@@ -65,7 +65,7 @@ class AnnotationForm(FlaskForm):
 
     annotation = TextAreaField("Annotation", 
             render_kw={"placeholder":"Type your annotation here.",
-                "style":"width: 600px;"},
+                "style":"width: 700px;"},
             validators=[InputRequired()])
 
     tags = StringField("Tags", 
