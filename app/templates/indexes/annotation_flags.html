@@ -153,7 +153,7 @@
         <tr class="unread">
         {% endif %}
             <td>
-                <a href={{ url_for("mark_annotation_flag", flag_id=flag.id, next=request.full_path) }}">
+                <a href="{{ url_for("mark_annotation_flag", flag_id=flag.id, next=request.full_path) }}">
                     {% if flag.resolved_by %}
                         &#x2713;
                     {% else %}
