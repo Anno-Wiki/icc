@@ -1,55 +1,48 @@
 
 ID Age P Project Tags         Description                                   Urg
 -- --- - ------- ------------ --------------------------------------------- ----
-32 7d  H web     feature      flag resolution view                          7.84
-35 7d  H web     feature      sort edit review queue                        7.84
-36 7d  H web     feature      paginate edit history.monthly                 7.84
-38 1d  H web     feature      add notifications to book_request upvotes     7.81
-39 1d  H web     feature      add notifications to tag_request upvotes      7.81
-40 1d  H web     feature      add notifications to book_request approval    7.81
-41 1d  H web     feature      add notifications to tag_request approval     7.81
-42 3h  H web     feature      Edit reason                                    7.8
-43 3h  H web     feature      edit number to be incremented per edit         7.8
-44 3h  H web     feature      add notifications to user flags for following  7.8
+29 11d H web     feature      sort edit review queue                        7.86
+30 11d H web     feature      paginate edit history.monthly                 7.86
+32 5d  H web     feature      add notifications to book_request upvotes     7.83
+33 5d  H web     feature      add notifications to tag_request upvotes      7.83
+34 5d  H web     feature      add notifications to book_request approval    7.83
+35 5d  H web     feature      add notifications to tag_request approval     7.83
+36 4d  H web     feature      Edit reason                                   7.82
+37 4d  H web     feature      edit number to be incremented per edit        7.82
+38 4d  H web     feature      add notifications to user flags for following 7.82
                               admins
-45 3h  H web     feature      add notifications to annotation flags for      7.8
+39 4d  H web     feature      add notifications to annotation flags for     7.82
                               following admins
-46 3h  H web     feature      add notifications to all flags for following   7.8
+40 4d  H web     feature      add notifications to all flags for following  7.82
                               admins with see_all_flags right
-12 6w  M web     feature      Help feature for markdown formatting          5.93
-13 4w  M web     feature      General help indicators                       5.89
-14 4w  M web     feature      Modify chapter hierarchies to be more         5.86
+12 5w  M web     feature      Modify chapter hierarchies to be more         5.89
                               general, e.g. level 1, level 2, level 3
-15 4w  M web     bug          find a way to order annotations based on last 5.86
-                              modified
-16 2w  M web     feature      Add css rule for quotations                   5.79
-17 2w  M web     optimize     optimize the tag list creation double for     5.78
+13 3w  M web     feature      Add css rule for quotations                   5.82
+14 2w  M web     optimize     optimize the tag list creation double for      5.8
                               loop see about relationship
-19 10d M web     feature      regular search                                5.75
-20 10d M web     feature      complete autocomplete on tag insertion        5.75
-21 10d M web     feature      add more user flags and institutionalize them 5.75
-23 8d  M web     feature      add footer                                    5.74
-24 8d  M web     feature      add footer about                              5.74
-25 8d  M web     feature      add footer privacy statement                  5.74
-26 8d  M web     feature      add footer guidelines or faq                  5.74
-27 8d  M web     feature      add footer contact                            5.74
-28 8d  M web     feature      add footer news                               5.74
-29 8d  M web     feature      add footer terms                              5.74
-33 7d  M web     feature      create highlighting for current page in nav   5.74
-                              bar
-34 7d  M web     bug          prettify edit review queue                    5.74
-48 3h  M web     feature      flag reason comment                            5.7
- 3 12w L web     JS feature   write javascript for pe char-level annotation 4.16
- 4 10w L web     AJAX feature Write javascript for popup annotations on     4.12
+16 2w  M web     feature      regular search                                5.78
+17 2w  M web     feature      complete autocomplete on tag insertion        5.78
+18 2w  M web     feature      add more user flags and institutionalize them 5.78
+20 12d M web     feature      add footer about                              5.77
+21 12d M web     feature      add footer privacy statement                  5.77
+22 12d M web     feature      add footer guidelines or faq                  5.77
+23 12d M web     feature      add footer contact                            5.77
+24 12d M web     feature      add footer news                               5.77
+25 12d M web     feature      add footer terms                              5.77
+28 11d M web     bug          prettify edit review queue                    5.76
+42 4d  M web     feature      flag reason comment                           5.72
+43 4h  M web     bug          Fix the back button on 404 and other errors    5.7
+ 3 12w L web     JS feature   write javascript for pe char-level annotation 4.18
+ 4 11w L web     AJAX feature Write javascript for popup annotations on     4.14
                               read view.
- 5 10w L web     test         Test more formats!                            4.02
-18 2w  L web     feature      see about tag intersection                    3.68
-22 10d L web     bug          Investigate user repuation but in the         3.65
+ 5 11w L web     test         Test more formats!                            4.04
+15 2w  L web     feature      see about tag intersection                     3.7
+19 2w  L web     bug          Investigate user repuation but in the         3.68
                               beginning of user reputation that causes user
                               to have +2 rep without anything happening
-30 8d  L web     feature      anonymous edits and annotations               3.64
-31 8d  L web     feature      anonymous annotation approval                 3.64
-37 1d    web     bug          check book request form validators            1.81
-47 3h    web     feature      annotation locking notifications               1.8
+26 12d L web     feature      anonymous edits and annotations               3.67
+27 12d L web     feature      anonymous annotation approval                 3.67
+31 5d    web     bug          check book request form validators            1.83
+41 4d    web     feature      annotation locking notifications              1.82
 
-40 tasks
+35 tasks
