@@ -1375,11 +1375,11 @@ def user_flags(user_id):
 @app.route("/admin/flags/mark/user_flag/<flag_id>/")
 @login_required
 def mark_user_flag(flag_id):
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user_flags", user_id=user.id)
     current_user.authorize_rights("resolve_user_flags")
     flag = UserFlagEvent.query.get_or_404(flag_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user_flags", user_id=flag.user_id)
     if flag.resolved:
         flag.unresolve()
     else:
@@ -1387,7 +1387,18 @@ def mark_user_flag(flag_id):
     db.session.commit()
     return redirect(next_page)
 
-
+@app.route("/admin/flags/mark_all/<user_id>/")
+@login_required
+def mark_user_flags(user_id):
+    current_user.authorize_rights("resolve_user_flags")
+    user = User.query.get_or_404(user_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("user_flags", user_id=user.id)
+    for flag in user.active_flags:
+        flag.resolve(current_user)
+    db.session.commit()
+    return redirect(next_page)
 
 #################
 ## Edit Review ##
