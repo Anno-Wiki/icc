@@ -1,8 +1,7 @@
 <annotation id="a{{ annotation.id }}">
     <div class="annotation_head">
         <sup>
-            <a href="{{ url_for("annotation",
-                    annotation_id=annotation.id) }}">
+            <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
                 [{{ annotation.id }}]
             </a>
         </sup>
@@ -10,8 +9,7 @@
         on
         <em>
             <a href="{{ annotation.HEAD.lines[0].get_url() }}#{{ annotation.HEAD.first_line_num }}">
-                {%- if annotation.HEAD.first_line_num ==
-                        annotation.HEAD.last_line_num %}
+                {%- if annotation.HEAD.first_line_num == annotation.HEAD.last_line_num %}
                     l.{{ annotation.HEAD.last_line_num }}
                 {% else -%}
                     ll.{{ annotation.HEAD.first_line_num }}-{{ annotation.HEAD.last_line_num }}
@@ -66,7 +64,7 @@
         {%- endif -%}
 
         {% if annotation.locked %}
-            🔒
+            &#128274;
         {% endif %}
     </div>
 
@@ -116,44 +114,27 @@
     |
 
     {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id,
-                next=request.full_path) }}" class="voted">
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="voted">
             up
         </a>
     {% else %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id,
-                next=request.full_path) }}" class="notvoted">
+        <a href="{{ url_for("upvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">
             up
         </a>
     {% endif -%}
 
     /
 
-    {%- if uservotes and annotation.id in uservotes and
-            not uservotes[annotation.id] %}
+    {%- if uservotes and annotation.id in uservotes and not uservotes[annotation.id] %}
         <a href="{{ url_for("downvote", anno_id=annotation.id,
                 next=request.full_path) }}" class="voted">
             down
         </a>
     {% else %}
-        <a href="{{ url_for("downvote", anno_id=annotation.id,
-                next=request.full_path) }}" class="notvoted">
+        <a href="{{ url_for("downvote", anno_id=annotation.id, next=request.full_path) }}" class="notvoted">
             down
         </a>
     {% endif -%}
-    |
-    <div class="dropdown">
-        <a class="dropbtn">flag&#x25be;</a>
-        <div class="dropdown-content">
-            {% for annotationflag in annotationflags %}
-                <a href="{{ url_for("flag_annotation",
-                        flag_id=annotationflag.id, annotation_id=annotation.id,
-                        next=request.full_path) }}">
-                    {{ annotationflag.flag }}
-                </a>
-            {% endfor %}
-        </div>
-    </div>
 
     {% if current_user != annotation.author %}
     |
@@ -168,9 +149,28 @@
     {% endif %}
     {% endif %}
 
-    {% if current_user.is_authenticated and
-            (current_user.has_right("edit_locked_annotations")
-                    or not annotation.locked) %}
+    |
+    <div class="dropdown">
+        <a class="dropbtn">flag&#x25be;</a>
+        <div class="dropdown-content">
+            {% for annotationflag in annotationflags %}
+                <a href="{{ url_for("flag_annotation",
+                        flag_id=annotationflag.id, annotation_id=annotation.id,
+                        next=request.full_path) }}">
+                    {{ annotationflag.flag }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    {% if current_user.has_right("resolve_annotation_flags") %}
+    |
+    <a href="{{ url_for("annotation_flags", annotation_id=annotation.id) }}">
+        flags
+    </a>
+    {% endif %}
+    {% if  current_user.has_right("edit_locked_annotations") or not annotation.locked %}
         |
         <a href="{{ url_for("edit", anno_id=annotation.id,
                 next=request.full_path) }}">
@@ -178,8 +178,7 @@
         </a>
     {% endif %}
 
-    {% if current_user.is_authenticated and
-            current_user.has_right("delete_annotations") %}
+    {% if current_user.has_right("delete_annotations") %}
         |
         {% if annotation.active %}
             <a href="{{ url_for("delete", anno_id=annotation.id,
@@ -192,5 +191,7 @@
                 undelete
             </a>
         {% endif %}
+    {% endif %}
+
     {% endif %}
 </annotation>
