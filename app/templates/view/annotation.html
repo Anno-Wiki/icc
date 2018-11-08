@@ -2,27 +2,27 @@
 
 {% block content %}
 
-    <div id="content">
-        <h1>Annotation {{ annotation.id }} on War and Peace</h1>
-        <div class="selection">
-            <h3>Context:</h3>
-            {% for line in annotation.context %}
-                {% if line in annotation.lines %}
-                    <div class="highlight">
-                        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-                            <span class="linenum">{{ line.l_num }}</span>
-                            {% include "includes/_line.html" %}
-                        </line>
-                    </div>
-                {% else %}
+<div id="content">
+    <h1>Annotation {{ annotation.id }} on War and Peace</h1>
+    <div class="selection">
+        <h3>Context:</h3>
+        {% for line in annotation.context %}
+            {% if line in annotation.lines %}
+                <div class="highlight">
                     <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                        <span class="linenum">{{ line.l_num }}</span>
                         {% include "includes/_line.html" %}
                     </line>
-                {% endif %}
-            {% endfor %}
-        </div>
-
-        {% include "includes/_annotation_full.html" %}
+                </div>
+            {% else %}
+                <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                    {% include "includes/_line.html" %}
+                </line>
+            {% endif %}
+        {% endfor %}
     </div>
+
+    {% include "includes/_annotation_full.html" %}
+</div>
 
 {% endblock %}

@@ -1,85 +1,59 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ book.title|safe }}</h1>
-    <h2>
-        by
-        <a href="{{ url_for("author", name=book.author.url) }}">
-            {{ book.author.name|safe }}
-        </a>
-    </h2>
+<h1>{{ book.title|safe }}</h1>
+<h2> by <a href="{{ url_for("author", name=book.author.url) }}"> {{ book.author.name|safe }} </a> </h2>
 
-    <div id="summary">
-        {{ book.summary|markdown }}
-    </div>
+<div id="summary"> {{ book.summary|markdown }} </div>
 
-    <a href="{{ url_for("book_annotations", book_url=book.url) }}">
-    view all annotations
-    </a>
-    |
-    {% if current_user.is_authenticated and book in current_user.followed_books %}
-        <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
-            unfollow
-        </a>
+<a href="{{ url_for("book_annotations", book_url=book.url) }}"> view all annotations </a>
+
+{% if current_user.is_authenticated %}
+    {% if book in current_user.followed_books %}
+        | <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> unfollow </a>
     {% else %}
-        <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}">
-            follow
-        </a>
+        | <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> follow </a>
     {% endif %}
 
-    {% if current_user.is_authenticated and current_user.has_right("edit_summaries") %}
-        |
-        <a href="{{ url_for("edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
+    {% if current_user.has_right("edit_summaries") %}
+        | <a href="{{ url_for("edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
     {% endif %}
+{% endif %}
 
-    <!--------------table of contents------>
-    <table class="table_of_contents">
-        <tr class="toc_header">
-            <th align="left">
-                Section
-            </th>
-            <th align="right">
-                Line
-            </th>
-        </tr>
-        {% for section in hierarchy %}
-            {% if section.kind.kind == 'bk' %}
-                <tr class="book_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            Book {{ section.bk_num }}: {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.l_num }}
-                        </a>
-                    </td>
-            {% elif section.kind.kind == 'pt' %}
-                <tr class="part_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            Part {{ section.pt_num }}: {{ section.line }}
-                        </a>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.l_num }}
-                        </a>
-                    </th>
-            {% elif section.kind.kind == 'ch' %}
-                <tr class="chapter_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            Chapter {{ section.ch_num }}: {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.l_num }}
-                        </a>
-                    </td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+<!--------------table of contents------>
+<table class="table_of_contents">
+    <tr class="toc_header">
+        <th align="left"> Section </th>
+        <th align="right"> Line </th>
+    </tr>
+    {% for section in hierarchy %}
+        {% if section.kind.kind == 'bk' %}
+            <tr class="book_contents">
+                <td align="left">
+                    <a href="{{ section.get_url() }}"> Book {{ section.bk_num }}: {{ section.line }} </a>
+                </td>
+                <td align="right">
+                    <a href="{{ section.get_url() }}"> {{ section.l_num }} </a>
+                </td>
+            </tr>
+        {% elif section.kind.kind == 'pt' %}
+            <tr class="part_contents">
+                <td align="left">
+                    <a href="{{ section.get_url() }}"> Part {{ section.pt_num }}: {{ section.line }} </a>
+                <td align="right">
+                    <a href="{{ section.get_url() }}"> {{ section.l_num }} </a>
+                </th>
+            </tr>
+        {% elif section.kind.kind == 'ch' %}
+            <tr class="chapter_contents">
+                <td align="left">
+                    <a href="{{ section.get_url() }}"> Chapter {{ section.ch_num }}: {{ section.line }} </a>
+                </td>
+                <td align="right">
+                    <a href="{{ section.get_url() }}"> {{ section.l_num }} </a>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+</table>
 {% endblock %}

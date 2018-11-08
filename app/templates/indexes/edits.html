@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for annotation in edits %}
-        {% if annotation.editor == current_user %}
-            <p> {{ annotation.hash_id }} is your own edit; you cannot vote on it.</p>
-        {% elif not current_user.get_edit_vote(annotation) %}
-            {% include "includes/_annotation_version.html" %}
-        {% else %}
-            <p>You already voted on {{ annotation.hash_id }}. To rescind that vote,
-            <a href={{ url_for("rescind", edit_hash=annotation.hash_id) }}>click here</a>.
-            </p>
-        {% endif %}
-    {% endfor %}
+{% for annotation in edits %}
+    {% if annotation.editor == current_user %}
+        <p>
+            {{ annotation.hash_id }} is your own edit; you cannot vote on it.
+        </p>
+    {% elif not current_user.get_edit_vote(annotation) %}
+        {% include "includes/_annotation_version.html" %}
+    {% else %}
+        <p>
+            You already voted on {{ annotation.hash_id }}. To rescind that vote,
+            <a href={{ url_for("rescind", edit_hash=annotation.hash_id) }}> click here </a>.
+        </p>
+    {% endif %}
+{% endfor %}
 {% endblock %}

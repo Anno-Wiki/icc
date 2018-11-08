@@ -2,9 +2,7 @@
 
 {% block content %}
 <h1>Tags</h1>
-<h4>Don't see what you're looking for? Upvote it among our
-<a href="{{ url_for("tag_request_index") }}">tag requests.</a>
-</h4>
+<h4>Don't see what you're looking for? Upvote it among our <a href="{{ url_for("tag_request_index") }}">tag requests.</a> </h4>
 
 sort by:
 {% for type, url in sorts.items() %}
@@ -14,33 +12,30 @@ sort by:
         <a href="{{ url }}">{{ type }}</a>
     {% endif %}
 {% endfor %}
-<div class="index">
-{% for tag in tags %}
-<div class="card">
-    <a href="{{ url_for("tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>
-    <br>
-    &times; {{ tag.annotations.count() }}
-    <br>
-    {% if current_user.is_authenticated and tag in current_user.followed_tags %}
-    <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
-        unfollow
-    </a>
-    {% else %}
-    <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">
-        follow
-    </a>
-    {% endif %}
 
-    {% if len(tag.description) > 127 %}
-    <div class="card_text_cutoff">
-    {% else %}
-    <div>
-    {% endif %}
-        {{ tag.description[:127]|markdown }}
-    </div>
-    <a href="{{ url_for("tag", tag=tag.tag) }}">View More</a>
-</div>
-{% endfor %}
+<div class="index">
+    {% for tag in tags %}
+        <div class="card">
+            <a href="{{ url_for("tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>
+            <br>
+            &times; {{ tag.annotations.count() }}
+            <br>
+            {% if current_user.is_authenticated and tag in current_user.followed_tags %}
+                <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}"> unfollow </a>
+            {% else %}
+                <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}"> follow </a>
+            {% endif %}
+
+            {% if len(tag.description) > 127 %}
+            <div class="card_text_cutoff">
+            {% else %}
+            <div>
+            {% endif %}
+                {{ tag.description[:127]|markdown }}
+            </div>
+            <a href="{{ url_for("tag", tag=tag.tag) }}">View More</a>
+        </div>
+    {% endfor %}
 </div>
 
 {% endblock %}

@@ -1,47 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form action="" method="POST" novalidate>
-        {{ form.hidden_tag() }}
-        <table>
-            <tr>
-                <th>
-                    {{ form.tag.label }}:
-                    {{ form.tag(size=25) }}
-                    <br>
-                    {% for error in form.tag.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                    {% endfor %}
-                </th>
-            </tr>
-            <tr>
-                <td colspan=5>
-                    {{ form.description(rows=10, cols=70) }}
-                    <br>
-                </td>
-            </tr>
-            <tr>
-                <td colspan=5>
-                    {{ form.notes(rows=10, cols=70) }}
-                    <br>
-                </td>
-            </tr>
-            <tr>
-                <th colspan=5>
-                    {{ form.wikipedia(size=64) }}
-                    {% for error in form.wikipedia.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        <br>
-                    {% endfor %}
-                </th>
-            </tr>
-            <tr>
-                <th colspan=5>
-                    {{ form.submit }}
-                    {{ form.cancel }}
-                </th>
-            </tr>
-        </table>
-    </form>
+<form action="" method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    <table>
+        <tr>
+            <th>
+                {{ form.tag.label }}: {{ form.tag(size=25) }} <br>
+                {% for error in form.tag.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </th>
+        </tr>
+        <tr>
+            <td colspan=5> {{ form.description(rows=10, cols=70) }} <br> </td>
+        </tr>
+        <tr>
+            <td colspan=5> {{ form.notes(rows=10, cols=70) }} <br> </td>
+        </tr>
+        <tr>
+            <th colspan=5>
+                {{ form.wikipedia(size=64) }}
+                {% for error in form.wikipedia.errors %}
+                    <span style="color: red;">[{{ error }}]</span> <br>
+                {% endfor %}
+            </th>
+        </tr>
+        <tr>
+            <th colspan=5> {{ form.submit }} {{ form.cancel }} </th>
+        </tr>
+    </table>
+</form>
 
 {% endblock %}

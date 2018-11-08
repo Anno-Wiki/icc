@@ -2,8 +2,7 @@
     <div class="annotation_head">
         <em>
             <a href="{{ annotation.HEAD.lines[0].get_url() }}#{{ annotation.HEAD.first_line_num }}">
-                {%- if edit.first_line_num == 
-                        edit.last_line_num %}
+                {%- if edit.first_line_num == edit.last_line_num %}
                     l.{{ edit.last_line_num }}
                 {% else -%}
                     ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
@@ -12,20 +11,15 @@
         </em>
     </div>
 
-    <div class="annotation_content">
-        {{ edit.annotation|markdown }}
-    </div>
+    <div class="annotation_content"> {{ edit.annotation|markdown }} </div>
 
     <tags>
         {% for t in edit.tags %}
-            <a href="{{ url_for("tag", tag=t.tag) }}">
-                <tag>{{ t.tag }}</tag>
-            </a>
+            <a href="{{ url_for("tag", tag=t.tag) }}"> <tag>{{ t.tag }}</tag> </a>
         {% endfor %}
     </tags>
 
     <br>
 
-    edited by {{ edit.editor.displayname }}
-    on {{ edit.modified }}
+    edited by {{ edit.editor.displayname }} on {{ edit.modified }}
 </annotation>

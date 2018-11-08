@@ -2,195 +2,92 @@
 
 {% block content %}
 <h2>
-    Annotation
-    <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
-        [{{ annotation.id }}]
-    </a>
-    on
-    <a href="{{ url_for("book", book_url=annotation.book.url) }}">
-        {{ annotation.book.title }}
-    </a>
-    flags
+    Annotation <a href="{{ url_for("annotation", annotation_id=annotation.id) }}"> [{{ annotation.id }}] </a>
+    on <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{ annotation.book.title }} </a> flags
 </h2>
 
 {% if flags %}
-<a href="{{ url_for("mark_annotation_flags", annotation_id=annotation.id) }}">
-    mark all resolved
-</a>
-<table class="inbox">
-    <tr class="header">
-        {% if sort == "marked" %}
-            <th class="highlight">
-                <a href="{{ sorts["marked_invert"] }}">
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "marked_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["marked"] }}">
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["marked"] }}">
-                    &nbsp;
-                </a>
-            </th>
-        {% endif %}
+    <a href="{{ url_for("mark_annotation_flags", annotation_id=annotation.id) }}"> mark all resolved </a>
+    <table class="inbox">
+        <tr class="header">
+            {% if sort == "marked" %}
+                <th class="highlight"> <a href="{{ sorts["marked_invert"] }}"> &#9662; </a> </th>
+            {% elif sort == "marked_invert" %}
+                <th class="highlight"> <a href="{{ sorts["marked"] }}"> &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["marked"] }}"> &nbsp; </a> </th>
+            {% endif %}
 
-        {% if sort == "flag" %}
-            <th class="highlight">
-                <a href="{{ sorts["flag_invert"] }}">
-                    Flag
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "flag_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["flag"] }}">
-                    Flag
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["flag"] }}">
-                    Flag
-                </a>
-            </th>
-        {% endif %}
+            {% if sort == "flag" %}
+                <th class="highlight"> <a href="{{ sorts["flag_invert"] }}"> Flag &#9662; </a> </th>
+            {% elif sort == "flag_invert" %}
+                <th class="highlight"> <a href="{{ sorts["flag"] }}"> Flag &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["flag"] }}"> Flag </a> </th>
+            {% endif %}
 
-        {% if sort == "time" %}
-            <th class="highlight">
-                <a href="{{ sorts["time_invert"] }}">
-                    Time
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "time_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["time"] }}">
-                    Time
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["time"] }}">
-                    Time
-                </a>
-            </th>
-        {% endif %}
+            {% if sort == "time" %}
+                <th class="highlight"> <a href="{{ sorts["time_invert"] }}"> Time &#9662; </a> </th>
+            {% elif sort == "time_invert" %}
+                <th class="highlight"> <a href="{{ sorts["time"] }}"> Time &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["time"] }}"> Time </a> </th>
+            {% endif %}
 
-        {% if sort == "thrower" %}
-            <th class="highlight">
-                <a href="{{ sorts["thrower_invert"] }}">
-                    Thrower
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "thrower_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["thrower"] }}">
-                    Thrower
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["thrower"] }}">
-                    Thrower
-                </a>
-            </th>
-        {% endif %}
+            {% if sort == "thrower" %}
+                <th class="highlight"> <a href="{{ sorts["thrower_invert"] }}"> Thrower &#9662; </a> </th>
+            {% elif sort == "thrower_invert" %}
+                <th class="highlight"> <a href="{{ sorts["thrower"] }}"> Thrower &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["thrower"] }}"> Thrower </a> </th>
+            {% endif %}
 
-        {% if sort == "resolver" %}
-            <th class="highlight">
-                <a href="{{ sorts["resolver_invert"] }}">
-                    Resolver
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "resolver_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["resolver"] }}">
-                    Resolver
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["resolver"] }}">
-                    Resolver
-                </a>
-            </th>
-        {% endif %}
+            {% if sort == "resolver" %}
+                <th class="highlight"> <a href="{{ sorts["resolver_invert"] }}"> Resolver &#9662; </a> </th>
+            {% elif sort == "resolver_invert" %}
+                <th class="highlight"> <a href="{{ sorts["resolver"] }}"> Resolver &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["resolver"] }}"> Resolver </a> </th>
+            {% endif %}
 
-        {% if sort == "resolved_at" %}
-            <th class="highlight">
-                <a href="{{ sorts["resolved_at_invert"] }}">
-                    Resolve Time
-                    &#9662;
-                </a>
-            </th>
-        {% elif sort == "resolved_at_invert" %}
-            <th class="highlight">
-                <a href="{{ sorts["resolved_at"] }}">
-                    Resolve Time
-                    &#9652;
-                </a>
-            </th>
-        {% else %}
-            <th>
-                <a href="{{ sorts["resolved_at"] }}">
-                    Resolve Time
-                </a>
-            </th>
-        {% endif %}
-    </tr>
-    {% for flag in flags %}
-        {% if flag.resolved %}
-        <tr class="read">
-        {% else %}
-        <tr class="unread">
-        {% endif %}
-            <td>
-                <a href="{{ url_for("mark_annotation_flag", flag_id=flag.id, next=request.full_path) }}">
-                    {% if flag.resolved_by %}
-                    &#10003;
-                    {% else %}
-                    &#10007;
-                    {% endif %}
-                </a>
-            </td>
-            <td>
-                {{ flag.flag.flag }}
-            </td>
-            <td>
-                {{ flag.time_thrown }}
-            </td>
-            <td>
-                <a href="{{ url_for("user", user_id=flag.thrower.id) }}">
-                    {{ flag.thrower.displayname }}
-                </a>
-            </td>
-            <td>
-                {% if flag.resolved_by %}
-                    <a href="{{ url_for("user", user_id=flag.resolver.id) }}">
-                        {{ flag.resolver.displayname }}
-                    </a>
-                {% endif %}
-            </td>
-            <td>
-                {% if flag.resolved %}
-                    {{ flag.resolved }}
-                {% endif %}
-            </td>
+            {% if sort == "resolved_at" %}
+                <th class="highlight"> <a href="{{ sorts["resolved_at_invert"] }}"> Resolve Time &#9662; </a> </th>
+            {% elif sort == "resolved_at_invert" %}
+                <th class="highlight"> <a href="{{ sorts["resolved_at"] }}"> Resolve Time &#9652; </a> </th>
+            {% else %}
+                <th> <a href="{{ sorts["resolved_at"] }}"> Resolve Time </a> </th>
+            {% endif %}
         </tr>
-    {% endfor %}
-</table>
+        {% for flag in flags %}
+
+            {% if flag.resolved %}
+            <tr class="read">
+            {% else %}
+            <tr class="unread">
+            {% endif %}
+
+                <td>
+                    <a href="{{ url_for("mark_annotation_flag", flag_id=flag.id, next=request.full_path) }}">
+                        {% if flag.resolved_by %} &#10003; {% else %} &#10007; {% endif %}
+                    </a>
+                </td>
+                <td> {{ flag.flag.flag }} </td>
+                <td> {{ flag.time_thrown }} </td>
+                <td> <a href="{{ url_for("user", user_id=flag.thrower.id) }}"> {{ flag.thrower.displayname }} </a> </td>
+                <td>
+                    {% if flag.resolved_by %}
+                        <a href="{{ url_for("user", user_id=flag.resolver.id) }}"> {{ flag.resolver.displayname }} </a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if flag.resolved %}
+                        {{ flag.resolved }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 {% else %}
-<h3>Annotation has no flag history yet.</h3>
+    <h3>Annotation has no flag history yet.</h3>
 {% endif %}
 {% endblock %}

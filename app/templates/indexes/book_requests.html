@@ -2,23 +2,18 @@
 
 {% block content %}
 <h1>Book Requests</h1>
-{% if current_user.is_authenticated and
-current_user.is_authorized(vars["AUTHORIZATION"]["BOOK_REQUEST"]) %}
-<h4>
-    Don't see what you're looking for? 
-    <a href="{{ url_for("book_request") }}">
-        Try requesting it.
-    </a>
-</h4>
+
+{% if current_user.is_authenticated and current_user.is_authorized(vars["AUTHORIZATION"]["BOOK_REQUEST"]) %}
+<h4> Don't see what you're looking for?  <a href="{{ url_for("book_request") }}"> Try requesting it.  </a> </h4>
 {% endif %}
 
 sort by:
 {% for type, url in sorts.items() %}
-{% if type == sort %}
-<a href="{{ url }}" class="active">{{ type }}</a>
-{% else %}
-<a href="{{ url }}">{{ type }}</a>
-{% endif %}
+    {% if type == sort %}
+        <a href="{{ url }}" class="active">{{ type }}</a>
+    {% else %}
+        <a href="{{ url }}">{{ type }}</a>
+    {% endif %}
 {% endfor %}
 
 <div class="index">
@@ -27,41 +22,36 @@ sort by:
         <div class="weight">
             {{ request.weight }}
             {% if uservotes and request.id in uservotes and uservotes[request.id] %}
-            <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}"
-               class="voted">up</a>
+                <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}" class="voted">up</a>
             {% else %}
-            <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}"
-               class="notvoted">up</a>
+                <a href="{{ url_for("upvote_book_request", book_request_id=request.id) }}" class="notvoted">up</a>
             {% endif %}
             /
             {% if uservotes and request.id in uservotes and not uservotes[request.id] %}
-            <a href="{{ url_for("downvote_book_request", book_request_id=request.id)
-            }}" class="voted">down</a>
+                <a href="{{ url_for("downvote_book_request", book_request_id=request.id) }}" class="voted">down</a>
             {% else %}
-            <a href="{{ url_for("downvote_book_request", book_request_id=request.id) }}"
-               class="notvoted">down</a>
+                <a href="{{ url_for("downvote_book_request", book_request_id=request.id) }}" class="notvoted">down</a>
             {% endif %}
         </div>
-        <a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
-            <h2>{{ request.title }}</h2>
-        </a>
+
+        <a href="{{ url_for("view_book_request", book_request_id=request.id) }}"> <h2>{{ request.title }}</h2> </a>
+
         by {{ request.author }}<br>
+
         <div class="externals">
             <a href="{{ request.wikipedia }}">Wikipedia</a>,
             <a href="{{ request.gutenberg }}">Project Gutenberg</a>
         </div>
         {% if len(request.description) >= 127 %}
         <div class="card_text_cutoff">
-            {% else %}
-            <div>
-                {% endif %}
-                {{ request.description[:127]|markdown }}
-            </div>
-            <a href="{{ url_for("view_book_request", book_request_id=request.id) }}">
-                View More
-            </a>
+        {% else %}
+        <div>
+        {% endif %}
+            {{ request.description[:127]|markdown }}
         </div>
-        {% endfor %}
+        <a href="{{ url_for("view_book_request", book_request_id=request.id) }}"> View More </a>
     </div>
+    {% endfor %}
+</div>
 
 {% endblock %}

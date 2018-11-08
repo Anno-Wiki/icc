@@ -1,60 +1,53 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="content">
+    <h1>
+        <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
+            Annotation {{ annotation.id }} on War and Peace
+        </a>
+    </h1>
+    <h2>Current</h2>
+    <h3>Version {{ annotation.HEAD.id }}</h3>
+    <div class="selection">
+        <h3>Context:</h3>
+        {% for line in annotation.context %}
+            {% if line in annotation.lines %}
+                <div class="highlight">
+                    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
+                        <span class="linenum">{{ line.l_num }}</span>
+                        {% include "includes/_line.html" %}
+                    </line>
+                </div>
+            {% else %}
+                <line class="{{ line.kind.kind }}" id="{{ line.l_num }}"> {% include "includes/_line.html" %} </line>
+            {% endif %}
+        {% endfor %}
+    </div>
 
-    <div id="content">
-        <h1>
-            <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
-                Annotation {{ annotation.id }} on War and Peace
-            </a>
-        </h1>
-        <h2>Current</h2>
-        <h3>Version {{ annotation.HEAD.id }}</h3>
-        <div class="selection">
-            <h3>Context:</h3>
-            {% for line in annotation.context %}
-                {% if line in annotation.lines %}
+    {% include "includes/_annotation_full.html" %}
+
+    {% for number, edit in history.items() %}
+        <hr>
+        <h2>Version {{ number }}</h2>
+        <h3>
+            <a href="{{ url_for("rollback_edit", annotation_id=annotation.id, edit_id=edit.id) }}"> Rollback annotation to this version </a>
+        </h3>
+        {% if edit.first_line_num != annotation.HEAD.first_line_num or edit.last_line_num != annotation.HEAD.last_line_num %}
+            <div class="selection">
+                {% for line in edit.lines %}
                     <div class="highlight">
                         <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
                             <span class="linenum">{{ line.l_num }}</span>
                             {% include "includes/_line.html" %}
                         </line>
                     </div>
-                {% else %}
-                    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-                        {% include "includes/_line.html" %}
-                    </line>
-                {% endif %}
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-        {% include "includes/_annotation_full.html" %}
+        {% include "includes/_edit.html" %}
 
-        {% for number, edit in history.items() %}
-            <hr>
-            <h2>Version {{ number }}</h2>
-            <h3>
-                <a href="{{ url_for("rollback_edit",
-                        annotation_id=annotation.id, edit_id=edit.id) }}">
-                    Rollback annotation to this version
-                </a>
-            </h3>
-            {% if edit.first_line_num != annotation.HEAD.first_line_num or
-                    edit.last_line_num != annotation.HEAD.last_line_num %}
-                <div class="selection">
-                    {% for line in edit.lines %}
-                        <div class="highlight">
-                            <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-                                <span class="linenum">{{ line.l_num }}</span>
-                                {% include "includes/_line.html" %}
-                            </line>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% include "includes/_edit.html" %}
-
-        {% endfor %}
-    </div>
+    {% endfor %}
+</div>
 {% endblock %}

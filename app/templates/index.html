@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    sort by:
-    {% if sort == "new" %}
-        <a href="{{ url_for("index", sort="new") }}" class="active">newest</a>
-        <a href="{{ url_for("index", sort="weight") }}">top</a>
-    {% elif sort == "weight" %}
-        <a href="{{ url_for("index", sort="new") }}">newest</a>
-        <a href="{{ url_for("index", sort="weight") }}" class="active">top</a>
-    {% endif %}
 
-    {% for annotation in annotations %}
-        {% include "/includes/_annotation_standalone.html" %}
-    {% endfor %}
+sort by:
+{% if sort == "new" %}
+<a href="{{ url_for("index", sort="new") }}" class="active">newest</a>
+<a href="{{ url_for("index", sort="weight") }}">top</a>
+{% elif sort == "weight" %}
+<a href="{{ url_for("index", sort="new") }}">newest</a>
+<a href="{{ url_for("index", sort="weight") }}" class="active">top</a>
+{% endif %}
+
+{% for annotation in annotations %}
+{% include "/includes/_annotation_standalone.html" %}
+{% endfor %}
+
 {% endblock %}

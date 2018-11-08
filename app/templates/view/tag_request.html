@@ -4,85 +4,47 @@
     <h1>
         <tag>{{ tag_request.tag|safe }}</tag>
         {% if tag_request.approved %}
-            ✓
+            &#10003;
         {% elif tag_request.rejected %}
-            ❌
+            &#10007;
         {% endif %}
     </h1>
 
-    {% if current_user.is_authenticated and
-            current_user.has_right("create_tags") and not
-            tag_request.approved and not tag_request.rejected %}
-        <a href="{{ url_for("create_tag",
-                tag_request_id=request.id) }}">accept</a>
+    {% if current_user.is_authenticated and current_user.has_right("create_tags") and not tag_request.approved and not tag_request.rejected %}
+        <a href="{{ url_for("create_tag", tag_request_id=request.id) }}">accept</a>
         /
-        <a href="{{ url_for("reject_tag",
-                tag_request_id=request.id) }}">reject</a>
+        <a href="{{ url_for("reject_tag", tag_request_id=request.id) }}">reject</a>
     {% endif %}
 
     <div class="weight">
         {{ tag_request.weight }}
-        {% if current_user.is_authenticated and
-                current_user.already_voted_tag_request(tag_request) and
-                current_user.get_tag_request_vote(tag_request).is_up() %}
-            <a href="{{ url_for("upvote_tag_request",
-                    tag_request_id=tag_request.id,
-                    next=url_for("view_tag_request",
-                    tag_request_id=tag_request.id)) }}" class="voted">
-                up
-            </a>
+        {% if current_user.is_authenticated and current_user.already_voted_tag_request(tag_request) and current_user.get_tag_request_vote(tag_request).is_up() %}
+            <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="voted">up</a>
         {% else %}
-            <a href="{{ url_for("upvote_tag_request",
-                    tag_request_id=tag_request.id,
-                    next=url_for("view_tag_request",
-                    tag_request_id=tag_request.id)) }}" class="notvoted">
-                up
-            </a>
+            <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="notvoted">up</a>
         {% endif %}
-
-        /
-
-        {% if current_user.is_authenticated and
-                current_user.already_voted_tag_request(tag_request) and not
-                current_user.get_tag_request_vote(tag_request).is_up() %}
-            <a href="{{ url_for("downvote_tag_request",
-                    tag_request_id=tag_request.id,
-                    next=url_for("view_tag_request",
-                    tag_request_id=tag_request.id)) }}" }}" class="voted">
-                down
-            </a>
+            /
+        {% if current_user.is_authenticated and current_user.already_voted_tag_request(tag_request) and not current_user.get_tag_request_vote(tag_request).is_up() %}
+            <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" }}" class="voted">down</a>
         {% else %}
-            <a href="{{ url_for("downvote_tag_request",
-                   tag_request_id=tag_request.id,
-                   next=url_for("view_tag_request",
-                   tag_request_id=tag_request.id)) }}" class="notvoted">
-               down
-            </a>
+            <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="notvoted">down</a>
         {% endif %}
     </div>
 
-    {% if current_user.is_authenticated and
-            current_user.has_right("edit_tag_requests") %}
-        <a href="{{ url_for("edit_tag_request", 
-                tag_request_id=tag_request.id) }}">
-            Edit this page
-        </a>
-
+    {% if current_user.is_authenticated and current_user.has_right("edit_tag_requests") %}
+        <a href="{{ url_for("edit_tag_request", tag_request_id=tag_request.id) }}">Edit this page</a>
         <br><br>
     {% endif %}
+
     <a href="{{ tag_request.wikipedia }}">Link to Wikipedia page</a>
     <br>
 
     <h3>Description</h3>
 
-    <div id="description">
-        {{ tag_request.description|markdown }}
-    </div>
+    <div id="description">{{ tag_request.description|markdown }}</div>
 
     <h3>Notes</h3>
 
-    <div id="notes">
-        {{ tag_request.notes|markdown }}
-    </div>
+    <div id="notes">{{ tag_request.notes|markdown }}</div>
 
 {% endblock %}

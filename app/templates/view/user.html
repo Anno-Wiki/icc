@@ -1,79 +1,62 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table>
-        <tr valign="top">
-            <td><img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}"></td>
-            <td>
-                <h1>
-                    User: {{ user.displayname }}
-                    {% include "includes/_reputation_user.html" %}
-                </h1>
-                {% if user.last_seen %}
-                    <p>Last seen on: {{ user.last_seen }}</p>
-                {% endif %}
-                <p>Number of annotations: {{ user.annotations.count() }}</p>
-                {% if current_user.is_authenticated and
-                        current_user.has_right("lock_users") %}
-                    {% if user.locked %}
-                        <a href="{{ url_for("lock_user", user_id=user.id) }}">
-                            unlock
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for("lock_user", user_id=user.id) }}">
-                            lock
-                        </a>
-                |
-                {% endif %}
-                {% endif %}
-                <div class="dropdown">
-                    <a class="dropbtn">flag&#x25BE;</a>
-                    <div class="dropdown-content">
-                        {% for userflag in userflags %}
-                            <a href="{{ url_for("flag_user",
-                                    flag_id=userflag.id, user_id=user.id,
-                                    next=request.full_path) }}">
-                                {{ userflag.flag }}
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% if current_user.is_authenticated and current_user.has_right("resolve_user_flags") %}
-                    |
-                    <a href="{{ url_for("user_flags", user_id=user.id) }}">
-                        flags
-                    </a>
-                {% endif %}
-                {% if current_user != user %}
-                |
-                {% if current_user.is_authenticated and user in current_user.followed_users %}
-                    <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}">
-                        unfollow
-                    </a>
+<table>
+    <tr valign="top">
+        <td> <img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}"> </td>
+        <td>
+            <h1> User: {{ user.displayname }} {% include "includes/_reputation_user.html" %} </h1>
+
+            {% if user.last_seen %}
+                <p>Last seen on: {{ user.last_seen }}</p>
+            {% endif %}
+
+            <p> Number of annotations: {{ user.annotations.count() }} </p>
+
+            {% if current_user.is_authenticated and current_user.has_right("lock_users") %}
+                {% if user.locked %}
+                    <a href="{{ url_for("lock_user", user_id=user.id) }}"> unlock </a> |
                 {% else %}
-                    <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}">
-                        follow
-                    </a>
+                    <a href="{{ url_for("lock_user", user_id=user.id) }}"> lock </a> |
                 {% endif %}
+            {% endif %}
+
+            <div class="dropdown">
+                <a class="dropbtn">flag&#x25BE;</a>
+                <div class="dropdown-content">
+                    {% for userflag in userflags %}
+                        <a href="{{ url_for("flag_user", flag_id=userflag.id, user_id=user.id, next=request.full_path) }}"> {{ userflag.flag }} </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated and current_user.has_right("resolve_user_flags") %}
+                | <a href="{{ url_for("user_flags", user_id=user.id) }}"> flags </a>
+            {% endif %}
+            {% if current_user != user %}
+                {% if current_user.is_authenticated and user in current_user.followed_users %}
+                    | <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}"> unfollow </a>
+                {% else %}
+                    | <a href="{{ url_for("follow_user", user_id=user.id, next=request.full_path) }}"> follow </a>
                 {% endif %}
-
-
-            </td>
-        </tr>
-    </table>
-                {% if user.about_me %}{{ user.about_me|markdown }}{% endif %}
-
-    sort by:
-    {% for type, url in sorts.items() %}
-        {% if type == sort %}
-            <a href="{{ url }}" class="active">{{ type }}</a>
-        {% else %}
-            <a href="{{ url }}">{{ type }}</a>
-        {% endif %}
-    {% endfor %}
-    {% for annotation in annotations %}
-        {% include "includes/_annotation_standalone.html" %}
-    {% endfor %}
+            {% endif %}
+        </td>
+    </tr>
+</table>
+{% if user.about_me %}
+    {{ user.about_me|markdown }}
+{% endif %}
+sort by:
+{% for type, url in sorts.items() %}
+    {% if type == sort %}
+        <a href="{{ url }}" class="active">{{ type }}</a>
+    {% else %}
+        <a href="{{ url }}">{{ type }}</a>
+    {% endif %}
+{% endfor %}
+{% for annotation in annotations %}
+    {% include "includes/_annotation_standalone.html" %}
+{% endfor %}
 
 {% endblock %}
 
