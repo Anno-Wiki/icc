@@ -626,6 +626,9 @@ class Annotation(db.Model):
             primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
             lazy="dynamic")
 
+    active_flags = db.relationship("AnnotationFlagEvent",
+            primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
+            "AnnotationFlagEvent.resolved_by==None)")
 
     def upvote(self, voter):
         weight = voter.up_power()

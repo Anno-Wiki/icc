@@ -1270,14 +1270,27 @@ def annotation_flags(annotation_id):
 @app.route("/admin/flags/mark/annotation_flag/<flag_id>/")
 @login_required
 def mark_annotation_flag(flag_id):
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation_flags", annotation_id=annotation.id)
     current_user.authorize_rights("resolve_annotation_flags")
     flag = AnnotationFlagEvent.query.get_or_404(flag_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("annotation_flags", annotation_id=flag.annotation_id)
     if flag.resolved:
         flag.unresolve()
     else:
+        flag.resolve(current_user)
+    db.session.commit()
+    return redirect(next_page)
+
+@app.route("/admin/flags/annotation/mark_all/<annotation_id>")
+@login_required
+def mark_annotation_flags(annotation_id):
+    current_user.authorize_rights("resolve_annotation_flags")
+    annotation = Annotation.query.get_or_404(annotation_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("annotation_flags", annotation_id=annotation.id)
+    for flag in annotation.active_flags:
         flag.resolve(current_user)
     db.session.commit()
     return redirect(next_page)
