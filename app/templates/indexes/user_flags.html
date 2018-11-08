@@ -20,13 +20,13 @@
         {% if sort == "marked" %}
             <th class="highlight">
                 <a href="{{ sorts["marked_invert"] }}">
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "marked_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["marked"] }}">
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -41,14 +41,14 @@
             <th class="highlight">
                 <a href="{{ sorts["flag_invert"] }}">
                     Flag
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "flag_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["flag"] }}">
                     Flag
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -63,14 +63,14 @@
             <th class="highlight">
                 <a href="{{ sorts["time_invert"] }}">
                     Time
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "time_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["time"] }}">
                     Time
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -85,14 +85,14 @@
             <th class="highlight">
                 <a href="{{ sorts["thrower_invert"] }}">
                     Thrower
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "thrower_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["thrower"] }}">
                     Thrower
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -107,14 +107,14 @@
             <th class="highlight">
                 <a href="{{ sorts["resolver_invert"] }}">
                     Resolver
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "resolver_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["resolver"] }}">
                     Resolver
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -129,14 +129,14 @@
             <th class="highlight">
                 <a href="{{ sorts["resolved_at_invert"] }}">
                     Resolve Time
-                    &#x25be;
+                    &#9662;
                 </a>
             </th>
         {% elif sort == "resolved_at_invert" %}
             <th class="highlight">
                 <a href="{{ sorts["resolved_at"] }}">
                     Resolve Time
-                    &#x25b4;
+                    &#9652;
                 </a>
             </th>
         {% else %}
@@ -156,9 +156,9 @@
             <td>
                 <a href="{{ url_for("mark_user_flag", flag_id=flag.id, next=request.full_path) }}">
                     {% if flag.resolved_by %}
-                        &#x2713;
+                    &#10003;
                     {% else %}
-                            x
+                    &#10007;
                     {% endif %}
                 </a>
             </td>
