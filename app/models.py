@@ -439,36 +439,7 @@ class Tag(SearchableMixin, db.Model):
     admin = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
 
-    # This next relationship was incredibly hard to model, but I achieved it
-    # after a lengthy meditation and an attempt to stop thinking about it. I
-    # modelled the following SQL query in MySQL and then treated it as the very
-    # thing to copy into sqlalchemy: Just figure out which is the middle join
-    # and make it the secondary table: It's the join between the tables
-    # annotation_version and tags:
-    #
-    #    SELECT 
-    #        annotation.id
-    #    FROM
-    #        tag
-    #    JOIN
-    #        tags ON tag.id=tags.tag_id
-    #    JOIN
-    #        annotation_version ON tags.annotation_version_id=annotation_version.id <-- The Middle!
-    #    JOIN
-    #        annotation ON annotation.head_id=annotation_version.id
-    #    WHERE
-    #        tag.id=<id>
-    #
-    # That said, the count is still wrong.
-
     annotations = db.relationship("Annotation",
-            secondary="join(tags, AnnotationVersion,"
-            "tags.c.annotation_version_id==AnnotationVersion.id)",
-            primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="Annotation.head_id==AnnotationVersion.id",
-            lazy="dynamic")
-
-    annotations2 = db.relationship("Annotation",
             secondary="join(tags, AnnotationVersion,"
             "and_(tags.c.annotation_version_id==AnnotationVersion.id,"
             "AnnotationVersion.current==True))",
@@ -596,7 +567,6 @@ class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    head_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"))
     weight = db.Column(db.Integer, default=0)
     added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     edit_pending = db.Column(db.Boolean, index=True, default=False)
@@ -605,22 +575,23 @@ class Annotation(db.Model):
 
     author = db.relationship("User")
     book = db.relationship("Book")
-    HEAD = db.relationship("AnnotationVersion", foreign_keys=[head_id])
-    head = db.relationship("AnnotationVersion",
+    HEAD = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.current==True,"
             "AnnotationVersion.pointer_id==Annotation.id)", uselist=False)
     lines = db.relationship("Line", secondary="annotation_version",
-            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+            primaryjoin="and_(Annotation.id==AnnotationVersion.pointer_id,"
+                "AnnotationVersion.current==True)",
             secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
-            "Line.l_num<=AnnotationVersion.last_line_num,"
-            "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
-            uselist=True)
+                "Line.l_num<=AnnotationVersion.last_line_num,"
+                "Line.book_id==AnnotationVersion.book_id)",
+            viewonly=True, uselist=True)
     context = db.relationship("Line", secondary="annotation_version",
-            primaryjoin="Annotation.head_id==AnnotationVersion.id",
+            primaryjoin="and_(Annotation.id==AnnotationVersion.pointer_id,"
+                "AnnotationVersion.current==True)",
             secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
-            "Line.l_num<=AnnotationVersion.last_line_num+5,"
-            "Line.book_id==AnnotationVersion.book_id)", viewonly=True,
-            uselist=True)
+                "Line.l_num<=AnnotationVersion.last_line_num+5,"
+                "Line.book_id==AnnotationVersion.book_id)",
+            viewonly=True, uselist=True)
 
     flag_history = db.relationship("AnnotationFlagEvent",
             primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
@@ -750,6 +721,7 @@ class EditVote(db.Model):
 class AnnotationVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    edit_num = db.Column(db.Integer, default=0)
     weight = db.Column(db.Integer, default=0)
     approved = db.Column(db.Boolean, default=False, index=True)
     rejected = db.Column(db.Boolean, default=False, index=True)
@@ -765,6 +737,7 @@ class AnnotationVersion(db.Model):
     annotation = db.Column(db.Text)
     modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     current = db.Column(db.Boolean, default=False, index=True)
+    edit_reason = db.Column(db.String(255))
 
     editor = db.relationship("User")
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
