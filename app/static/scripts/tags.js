@@ -79,6 +79,11 @@ function repopulate() {
         tags_array[i] = tags[i].innerHTML.slice(0,-2);
     }
     var tag_string = tags_array.join(" ");
-    tags_input.value = tag_string;
-    tag_spans.innerHTML = "";
+    if (tag_string != "" && tags_input.value != "" ){
+        tags_input.value = tag_string + " " + tags_input.value;
+        tag_spans.innerHTML = "";
+    } else if (tag_string != "") {
+        tags_input.value = tag_string;
+        tag_spans.innerHTML = "";
+    }
 }
