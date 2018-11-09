@@ -592,14 +592,15 @@ class Annotation(db.Model):
                 "Line.l_num<=AnnotationVersion.last_line_num+5,"
                 "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
-
     flag_history = db.relationship("AnnotationFlagEvent",
             primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
             lazy="dynamic")
-
     active_flags = db.relationship("AnnotationFlagEvent",
             primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
             "AnnotationFlagEvent.resolved_by==None)")
+    edits = db.relationship("AnnotationVersion",
+            primaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
+                "AnnotationVersion.approved==True)")
 
     def upvote(self, voter):
         weight = voter.up_power()

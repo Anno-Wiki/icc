@@ -16,8 +16,7 @@
         </em>
         of
         <em> <a href="{{ url_for("book", book_url=annotation.book.url) }}"> {{ annotation.book.title }} </a> </em>
-        by
-        <a href="{{ url_for("author", name=annotation.book.author.url) }}"> {{ annotation.book.author.name }} </a>
+        by <a href="{{ url_for("author", name=annotation.book.author.url) }}"> {{ annotation.book.author.name }} </a>
 
         <!--Weight-->
         {% if annotation.weight > 0 -%}

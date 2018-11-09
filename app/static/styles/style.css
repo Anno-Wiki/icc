@@ -596,3 +596,25 @@ textarea {
     background-color: var(--base21);
     padding: 5px 0 5px 0;
 }
+
+.delta {
+    background-color: var(--red);
+}
+.plus {
+    background-color: var(--green);
+}
+#diff {
+    color: var(--black);
+}
+#diff .delta p::before {
+    content: "- ";
+}
+#diff .plus p::before {
+        content: "+ ";
+}
+tag.plus {
+    background-color: var(--green);
+}
+tag.delta {
+    background-color: var(--red);
+}

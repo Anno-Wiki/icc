@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="content">
+    <annotation id="{{ edit.pointer.id }}">
+        <div class="annotation_head">
+            Annotation
+            <sup>
+                <a href="{{ url_for("annotation", annotation_id=edit.pointer.id) }}"> [{{ edit.pointer.id }}] </a>
+            </sup>
+            {% if edit.previous.first_line_num == edit.first_line_num and edit.previous.last_line_num == edit.first_line_num %}
+                on
+                <em>
+                    <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num }}">
+                        {%- if edit.first_line_num == edit.last_line_num %}
+                            l.{{ edit.last_line_num }}
+                        {% else -%}
+                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                        {% endif -%}
+                    </a>
+                </em>
+            {% else %}
+                previously on
+                <em>
+                    <a href="{{ edit.previous.lines[0].get_url() }}#{{ edit.previous.first_line_num }}">
+                        {%- if edit.previous.first_line_num == edit.previous.last_line_num %}
+                            l.{{ edit.previous.last_line_num }},
+                        {% else %}
+                            ll.{{ edit.previous.first_line_num }}-{{ edit.previous.last_line_num }},
+                        {% endif %}
+                    </a>
+                </em>
+                now on
+                <em>
+                    <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num }}">
+                        {%- if edit.first_line_num == edit.last_line_num %}
+                            l.{{ edit.last_line_num }}
+                        {% else %}
+                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                        {% endif %}
+                    </a>
+                </em>
+            {% endif %}
+
+            {% if edit.pointer.locked %}
+                &#128274;
+            {% endif %}
+        </div>
+
+        <div class="annotation_content">
+            <div id="diff">
+                {% for line in diff %}
+                    {% if line.startswith("-") %}
+                        <div class="delta">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith("+") %}
+                        <div class="plus">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith(" ") %}
+                        <div>{{ line|markdown }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <tags>
+            {% for tag in tags %}
+                {% if tag in edit.tags and tag in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag>
+                            {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% elif tag in edit.tags and tag not in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag class="plus">
+                            + {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% elif tag not in edit.tags and tag in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag class="delta">
+                            - {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </tags>
+
+        <br> 
+
+        <!--annotation authorship-->
+        annotated by <a href="{{ url_for("user", user_id=edit.pointer.author.id) }}">{{ edit.pointer.author.displayname }},</a>
+        last edited by <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">{{ edit.previous.editor.displayname }},</a>
+        this time edited by <a href="{{ url_for("user", user_id=edit.editor.id) }}">{{ edit.editor.displayname }}</a>
+
+
+    </annotation>
+</div>
+{% endblock %}

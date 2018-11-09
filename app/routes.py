@@ -18,6 +18,7 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         AreYouSureForm
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
+import difflib
 
 @app.before_request
 def before_request():
@@ -987,9 +988,12 @@ def edit(anno_id):
             lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
+        edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
+                else 1
+
         # both the approved and current variables are based on approved
         edit = AnnotationVersion(book=annotation.book,
-                editor_id=current_user.id, edit_num=annotation.HEAD.edit_num+1,
+                editor_id=current_user.id, edit_num=edit_num,
                 edit_reason=form.reason.data, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
                 approved=approved, current=approved,
@@ -1421,11 +1425,128 @@ def mark_user_flags(user_id):
 def edit_review_queue():
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edits = AnnotationVersion.query.filter_by(approved=False,
-            rejected=False).all()
+
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "voted", type=str)
+
+    if sort == "voted":
+        edits = AnnotationVersion.query\
+                .outerjoin(EditVote, 
+                        and_(EditVote.user_id==current_user.id, 
+                            EditVote.edit_id==AnnotationVersion.id)
+                        )\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(EditVote.delta.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "voted_invert":
+        edits = AnnotationVersion.query\
+                .outerjoin(EditVote, 
+                        and_(EditVote.user_id==current_user.id, 
+                            EditVote.edit_id==AnnotationVersion.id)
+                        )\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(EditVote.delta.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "id":
+        edits = AnnotationVersion.query.outerjoin(Annotation)\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(Annotation.id.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "id_invert":
+        edits = AnnotationVersion.query.outerjoin(Annotation)\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(Annotation.id.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "edit_num":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.edit_num.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "edit_num_invert":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.edit_num.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor":
+        edits = AnnotationVersion.query.outerjoin(User)\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor_invert":
+        edits = AnnotationVersion.query.outerjoin(User)\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.modified.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.modified.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.edit_reason.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason_invert":
+        edits = AnnotationVersion.query\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(AnnotationVersion.edit_reason.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        edits = AnnotationVersion.query\
+                .outerjoin(EditVote, 
+                        and_(EditVote.user_id==current_user.id, 
+                            EditVote.edit_id==AnnotationVersion.id)
+                        )\
+                .filter(AnnotationVersion.approved==False,
+                        AnnotationVersion.rejected==False)\
+                .order_by(EditVote.delta.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        sort = "voted"
+
+
     votes = current_user.edit_votes
+
+    next_page = url_for("edit_review_queue", page=edits.next_num, sort=sort)\
+            if edits.has_next else None
+    prev_page = url_for("edit_review_queue", page=edits.prev_num, sort=sort)\
+            if edits.has_prev else None
+
     return render_template("indexes/edits.html", title="Edit Queue",
-            edits=edits, votes=votes)
+            edits=edits.items, votes=votes, sort=sort, next_page=next_page,
+            prev_page=prev_page)
+
+@app.route("/admin/review/edit/<edit_id>")
+@login_required
+def review_edit(edit_id):
+    if not current_user.has_right("review_edits"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    edit = AnnotationVersion.query.get_or_404(edit_id)
+    diff = list(difflib.Differ().compare(edit.previous.annotation.splitlines(1),
+        edit.annotation.splitlines(1)))
+    tags = [tag for tag in edit.tags]
+    for tag in edit.previous.tags:
+        if tag not in tags:
+            tags.append(tag)
+    return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
+            diff=diff, edit=edit, tags=tags)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
