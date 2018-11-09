@@ -73,9 +73,12 @@ class AnnotationForm(FlaskForm):
             validators=[Optional()])
 
     reason = StringField("Reason",
-            render_kw={"placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
-                "style": "width: 100%;"},
-            validators=[InputRequired()])
+            render_kw={
+                "placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
+                "style": "width: 100%;",
+                "maxlength":255
+                },
+            validators=[Optional(), Length(min=0,max=255)])
 
     locked = BooleanField("Locked")
 

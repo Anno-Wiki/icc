@@ -827,6 +827,10 @@ def annotate(book_url, first_line, last_line):
         first_line = 1
         last_line = 1
 
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = lines[0].get_url()
+
     book = Book.query.filter_by(url=book_url).first_or_404()
     lines = book.lines.filter(Line.l_num>=first_line,
             Line.l_num<=last_line).all()
@@ -838,11 +842,7 @@ def annotate(book_url, first_line, last_line):
         abort(404)
 
     if form.cancel.data:
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
         return redirect(next_page)
-
     elif form.validate_on_submit():
         # line number boiler plate
         fl = int(form.first_line.data)
@@ -875,36 +875,31 @@ def annotate(book_url, first_line, last_line):
 
         locked = form.locked.data and current_user.has_right("lock_annotations")
 
+        # Create the annotation pointer with HEAD pointing to anno
+        head = Annotation(book=book, author=current_user, locked=locked)
+
         # I'll use the language of git
         # Create the inital transient sqlalchemy AnnotationVersion object
         commit = AnnotationVersion(
-                book=book, approved=True, editor=current_user,
+                book=book, approved=True, current=True, editor=current_user,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags, current=True)
+                annotation=form.annotation.data, tags=tags, pointer=head
+                )
 
-        # Create the annotation pointer with HEAD pointing to anno
-        head = Annotation(book=book, HEAD=commit, author=current_user,
-                locked=locked)
 
         # add anno, commit it
         db.session.add(commit)
         db.session.add(head)
         db.session.commit()
 
-        # make anno's pointer point to the 
-        commit.pointer = head
-        db.session.commit()
-
+        # notify all the watchers
         head.notify_new()
         db.session.commit()
 
         flash("Annotation Submitted")
 
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
         return redirect(next_page)
 
     else:
@@ -921,21 +916,19 @@ def annotate(book_url, first_line, last_line):
 def edit(anno_id):
     annotation = Annotation.query.get_or_404(anno_id)
 
-    if annotation.locked == True and not \
-            current_user.has_right("edit_locked_annotations"):
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = lines[0].get_url()
+
+    if annotation.locked == True\
+            and not current_user.has_right("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
         return redirect(next_page)
 
     lines = annotation.lines
     form = AnnotationForm()
 
     if form.cancel.data:
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
         return redirect(next_page)
 
     elif form.validate_on_submit():
@@ -947,6 +940,10 @@ def edit(anno_id):
         if ll < 1:
             fl = 1
             ll = 1
+        if ll < fl:
+            tmp = ll
+            ll = fl
+            fl = tmp
 
         # Process all the tags
         raw_tags = form.tags.data.split()
@@ -960,6 +957,11 @@ def edit(anno_id):
                 fail = True
                 flash(f"tag {tag} does not exist.")
 
+        # if a reason isn't provided, fail the submission
+        if not form.reason.data:
+            flash("Please provide a reason for your edit.")
+            fail = True
+
         # In both of these cases we want to retain the form entered so the user
         # can edit it; therefore we re-render the template instead of
         # redirecting
@@ -970,13 +972,12 @@ def edit(anno_id):
                     annotation=annotation)
         elif len(tags) > 5:
             flash("There is a five tag limit.")
-            return render_template("forms/annotation.html",
-                    title=annotation.HEAD.book.title, form=form,
-                    book=annotation.HEAD.book, lines=lines,
-                    annotation=annotation)
-
-        approved = current_user.has_right("immediate_edits") or \
-                annotation.author == current_user
+            return render_template("forms/annotation.html", form=form,
+                    lines=lines, annotation=annotation,
+                    title=annotation.HEAD.book.title, book=annotation.HEAD.book)
+        # approved is true if the user can edit immediately
+        approved = current_user.has_right("immediate_edits")\
+                or annotation.author == current_user
 
         lockchange = False
         if current_user.has_right("lock_annotations"):
@@ -986,18 +987,23 @@ def edit(anno_id):
             lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
+        # both the approved and current variables are based on approved
         edit = AnnotationVersion(book=annotation.book,
-                editor_id=current_user.id, pointer_id=anno_id,
+                editor_id=current_user.id, edit_num=annotation.HEAD.edit_num+1,
+                edit_reason=form.reason.data, pointer_id=anno_id,
                 previous_id=annotation.HEAD.id,
-                approved=approved,
+                approved=approved, current=approved,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags, current=True)
+                annotation=form.annotation.data, tags=tags,
+                )
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
-            return redirect(url_for("edit", anno_id=annotation.id))
+            return render_template("forms/annotation.html", form=form,
+                    lines=lines, annotation=annotation,
+                    title=annotation.HEAD.book.title, book=annotation.HEAD.book)
         elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
             db.session.commit()
             flash("Annotation Locked")
@@ -1006,7 +1012,6 @@ def edit(anno_id):
             if approved:
                 annotation.HEAD.current = False
                 db.session.commit()
-                annotation.HEAD = edit
             db.session.add(edit)
             db.session.commit()
 
@@ -1033,8 +1038,9 @@ def edit(anno_id):
         form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
 
-    return render_template("forms/annotation.html", title=annotation.HEAD.book.title,
-            form=form, book=annotation.HEAD.book, lines=lines,
+    return render_template("forms/annotation.html",
+            title=f"Edit Annotation {annotation.id}", form=form,
+            book=annotation.HEAD.book, lines=lines,
             annotation=annotation)
 
 @app.route("/rollback/edit/<annotation_id>/<edit_id>/")
