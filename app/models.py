@@ -444,7 +444,8 @@ class Tag(SearchableMixin, db.Model):
             "and_(tags.c.annotation_version_id==AnnotationVersion.id,"
             "AnnotationVersion.current==True))",
             primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="AnnotationVersion.pointer_id==Annotation.id",
+            secondaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
+            "Annotation.active==True)",
             lazy="dynamic")
 
     def __repr__(self):

@@ -630,20 +630,49 @@ def book_annotations(book_url):
 @app.route("/tag/<tag>/")
 def tag(tag):
     page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "modified", type=str)
     tag = Tag.query.filter_by(tag=tag).first_or_404()
-    annotations = tag.annotations.order_by(Annotation.weight.desc()).paginate(page,
-            app.config["ANNOTATIONS_PER_PAGE"], False)
+    if sort == "newest":
+        annotations = tag.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = tag.annotations\
+                .order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = tag.annotations\
+                .order_by(Annotation.added.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "modified":
+        annotations = tag.annotations\
+                .order_by(AnnotationVersion.modified.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    else:
+        annotations = tag.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    sorts = {
+            "newest": url_for("tag", tag=tag.tag, page=page, sort="newest"),
+            "oldest": url_for("tag", tag=tag.tag, page=page, sort="oldest"),
+            "weight": url_for("tag", tag=tag.tag, page=page, sort="weight"),
+            "modified": url_for("tag", tag=tag.tag, page=page, sort="modified"),
+            }
     annotationflags = AnnotationFlag.query.all()
 
-    next_page = url_for("tag", tag=tag.tag, page=annotations.next_num) \
-            if annotations.has_next else None
-    prev_page = url_for("tag", tag=tag.tag, page=annotations.prev_num) \
-            if annotations.has_prev else None
+    next_page = url_for("tag", tag=tag.tag, page=annotations.next_num,
+            sort=sort) if annotations.has_next else None
+    prev_page = url_for("tag", tag=tag.tag, page=annotations.prev_num,
+            sort=sort) if annotations.has_prev else None
+
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
 
     return render_template("view/tag.html", title=tag.tag, tag=tag,
             annotations=annotations.items,
             next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags)
+            annotationflags=annotationflags, sorts=sorts, sort=sort,
+            uservotes=uservotes)
 
 @app.route("/annotation/<annotation_id>")
 def annotation(annotation_id):
@@ -963,6 +992,7 @@ def edit(anno_id):
         return redirect(next_page)
 
     lines = annotation.lines
+    context = annotation.context
     form = AnnotationForm()
 
     if form.cancel.data:
@@ -1081,7 +1111,7 @@ def edit(anno_id):
     return render_template("forms/annotation.html",
             title=f"Edit Annotation {annotation.id}", form=form,
             book=annotation.HEAD.book, lines=lines,
-            annotation=annotation)
+            annotation=annotation, context=context)
 
 @app.route("/rollback/edit/<annotation_id>/<edit_id>/")
 @login_required
