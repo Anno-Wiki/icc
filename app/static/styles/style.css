@@ -631,3 +631,6 @@ tag.plus {
 tag.delta {
     background-color: var(--red);
 }
+.rejected {
+    color: var(--red);
+}

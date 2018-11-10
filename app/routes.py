@@ -19,6 +19,7 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 import difflib
+import re
 
 @app.before_request
 def before_request():
@@ -1539,8 +1540,16 @@ def review_edit(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.get_or_404(edit_id)
-    diff = list(difflib.Differ().compare(edit.previous.annotation.splitlines(1),
-        edit.annotation.splitlines(1)))
+
+    # we have to replace single returns with spaces because markdown only
+    # recognizes paragraph separation based on two returns. We also have to be
+    # careful to do this for both unix and windows return variants (i.e. be
+    # careful of \r's).
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.annotation)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.annotation)
+
+    diff = list(difflib.Differ().compare(diff1.splitlines(),
+        diff2.splitlines()))
     tags = [tag for tag in edit.tags]
     for tag in edit.previous.tags:
         if tag not in tags:
@@ -1559,14 +1568,14 @@ def review_edit(edit_id):
     return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
             diff=diff, edit=edit, tags=tags, context=context)
 
-@app.route("/admin/approve/edit/<edit_hash>/")
+@app.route("/admin/approve/edit/<edit_id>/")
 @login_required
-def approve(edit_hash):
+def approve(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
+    edit = AnnotationVersion.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.hash_id}")
+        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.pointer.id}")
         return redirect(url_for("edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
@@ -1575,20 +1584,22 @@ def approve(edit_hash):
     if edit.weight >= app.config["MIN_APPROVAL_RATING"] or \
             current_user.has_right("approve_edits"):
         edit.approved = True
-        edit.pointer.HEAD = edit
         edit.pointer.edit_pending = False
+        edit.pointer.HEAD.current = False
+        edit.current = True
         edit.notify_edit("approved")
+        flash(f"Edit {edit.edit_num} approved.")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
-@app.route("/admin/reject/edit/<edit_hash>/")
+@app.route("/admin/reject/edit/<edit_id>/")
 @login_required
-def reject(edit_hash):
+def reject(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
+    edit = AnnotationVersion.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.hash_id}")
+        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.pointer.id}")
         return redirect(url_for("edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
@@ -1599,15 +1610,16 @@ def reject(edit_hash):
         edit.pointer.edit_pending = False
         edit.rejected = True
         edit.notify_edit("rejected")
+        flash(f"Edit {edit.edit_num} rejected.")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
-@app.route("/admin/rescind_vote/edit/<edit_hash>/")
+@app.route("/admin/rescind_vote/edit/<edit_id>/")
 @login_required
-def rescind(edit_hash):
+def rescind(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.filter_by(hash_id=edit_hash).first_or_404()
+    edit = AnnotationVersion.query.get_or_404(edit_id)
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")
         return redirect(url_for("edit_review_queue"))

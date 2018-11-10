@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<h1>Pending Edit Review Queue</h1>
 <table class="inbox">
     <tr class="header">
         {% if sort == "voted" %}
@@ -53,33 +54,41 @@
         {% endif %}
     </tr>
 
-    {% for edit in edits %}
-        {% if edit not in votes %}
-            <tr class="unread">
-                <td> <a href="{{ url_for("review_edit", edit_id=edit.id) }}">view</a> </td>
-                <td> <a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">{{ edit.pointer_id }}</a> </td>
-                <td> {{ edit.edit_num }} </td>
-                <td> <a href="{{ url_for("user", user_id=edit.editor_id) }}">{{ edit.editor.displayname }}</a> </td>
-                <td> {{ edit.modified }} </td>
-                <td> {{ edit.edit_reason }} </td>
-            </tr>
-        {% else %}
-            <tr class="read">
-                <td>
-                    {% if current_user.get_edit_vote(edit).is_up() %}
-                    &#10003;
-                    {% else %}
-                    &#10007;
-                    {% endif %}
-                </td>
-                <td> <a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">{{ edit.pointer_id }}</a> </td>
-                <td> {{ edit.edit_num }} </td>
-                <td> <a href="{{ url_for("user", user_id=edit.editor_id) }}">{{ edit.editor.displayname }}</a> </td>
-                <td> {{ edit.modified }} </td>
-                <td> {{ edit.edit_reason }} </td>
-            </tr>
-        {% endif %}
-    {% endfor %}
-</table>
+    {% if edits %}
+        {% for edit in edits %}
+            {% if edit not in votes %}
+                <tr class="unread">
+                    <td> <a href="{{ url_for("review_edit", edit_id=edit.id) }}">view</a> </td>
+                    <td> <a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">{{ edit.pointer_id }}</a> </td>
+                    <td> {{ edit.edit_num }} </td>
+                    <td> <a href="{{ url_for("user", user_id=edit.editor_id) }}">{{ edit.editor.displayname }}</a> </td>
+                    <td> {{ edit.modified }} </td>
+                    <td> {{ edit.edit_reason }} </td>
+                </tr>
+            {% else %}
+                <tr class="read">
+                    <td>
+                        {% if current_user.get_edit_vote(edit).is_up() %}
+                        &#10003;
+                        {% else %}
+                        &#10007;
+                        {% endif %}
+                    </td>
+                    <td> <a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">{{ edit.pointer_id }}</a> </td>
+                    <td> {{ edit.edit_num }} </td>
+                    <td> <a href="{{ url_for("user", user_id=edit.editor_id) }}">{{ edit.editor.displayname }}</a> </td>
+                    <td> {{ edit.modified }} </td>
+                    <td> {{ edit.edit_reason }} </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <tr class="read">
+            <td colspan=6>
+                This queue has been cleared.
+            </td>
+        </tr>
+    {% endif %}
+    </table>
 
-{% endblock %}
+    {% endblock %}
