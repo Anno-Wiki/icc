@@ -223,11 +223,11 @@
         </tags>
         <br>
         {% if edit.previous.edit_num > 0 %}
-            <em>last edited by</em> <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">{{ edit.previous.editor.displayname }}</a> {{ edit.previous.modified }}
+            <em><a href="{{ url_for("view_edit", annotation_id=edit.pointer_id, edit_num=edit.previous.edit_num) }}">last edited by</a></em> <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">{{ edit.previous.editor.displayname }}</a> {{ edit.previous.modified }}
             <br>
             <em>previous edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
         {% else %}
-            <em>originally annotated by</em> <a href="{{ url_for("user", user_id=edit.pointer.author.id) }}">{{ edit.pointer.author.displayname }}</a> {{ edit.pointer.added }}
+        <em><a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">originally annotated by</a></em> <a href="{{ url_for("user", user_id=edit.pointer.author.id) }}">{{ edit.pointer.author.displayname }}</a> {{ edit.pointer.added }}
         {% endif %}
     </annotation>
 </div>

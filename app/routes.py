@@ -664,6 +664,41 @@ def edit_history(annotation_id):
             history=history, annotation=annotation,
             annotationflags=annotationflags)
 
+@app.route("/annotation/<annotation_id>/edit/<edit_num>")
+def view_edit(annotation_id, edit_num):
+    edit = AnnotationVersion.query.filter(
+            AnnotationVersion.pointer_id==annotation_id,
+            AnnotationVersion.edit_num==edit_num,
+            AnnotationVersion.approved==True
+            ).first_or_404()
+
+    # we have to replace single returns with spaces because markdown only
+    # recognizes paragraph separation based on two returns. We also have to be
+    # careful to do this for both unix and windows return variants (i.e. be
+    # careful of \r's).
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.annotation)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.annotation)
+
+    diff = list(difflib.Differ().compare(diff1.splitlines(),
+        diff2.splitlines()))
+    tags = [tag for tag in edit.tags]
+    for tag in edit.previous.tags:
+        if tag not in tags:
+            tags.append(tag)
+    if edit.first_line_num > edit.previous.first_line_num:
+        context = [line for line in edit.previous.context]
+        for line in edit.context:
+            if line not in context:
+                context.append(line)
+    else:
+        context = [line for line in edit.context]
+        for line in edit.previous.context:
+            if line not in context:
+                context.append(line)
+
+    return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
+            diff=diff, edit=edit, tags=tags, context=context)
+
 @app.route("/user/<user_id>/")
 def user(user_id):
     page = request.args.get("page", 1, type=int)
@@ -1540,6 +1575,9 @@ def review_edit(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
     edit = AnnotationVersion.query.get_or_404(edit_id)
+    if edit.approved == True:
+        return redirect(url_for("view_edit", annotation_id=edit.pointer_id,
+            edit_num=edit.edit_num))
 
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
