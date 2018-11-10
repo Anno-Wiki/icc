@@ -1,23 +1,20 @@
 
 ID Age P Project Tags         Description                                   Urg
 -- --- - ------- ------------ --------------------------------------------- ----
-29 13d H web     feature      paginate edit history.monthly                 7.87
-31 7d  H web     feature      add notifications to book_request upvotes     7.84
-32 7d  H web     feature      add notifications to tag_request upvotes      7.84
-33 7d  H web     feature      add notifications to book_request approval    7.84
-34 7d  H web     feature      add notifications to tag_request approval     7.84
-35 6d  H web     feature      Edit reason                                   7.83
-36 6d  H web     feature      edit number to be incremented per edit        7.83
-37 6d  H web     feature      add notifications to user flags for following 7.83
+28 2w  H web     feature      paginate edit history.monthly                 7.88
+30 8d  H web     feature      add notifications to book_request upvotes     7.84
+31 8d  H web     feature      add notifications to tag_request upvotes      7.84
+32 8d  H web     feature      add notifications to book_request approval    7.84
+33 8d  H web     feature      add notifications to tag_request approval     7.84
+34 7d  H web     feature      add notifications to user flags for following 7.84
                               admins
-38 6d  H web     feature      add notifications to annotation flags for     7.83
+35 7d  H web     feature      add notifications to annotation flags for     7.84
                               following admins
-39 6d  H web     feature      add notifications to all flags for following  7.83
+36 7d  H web     feature      add notifications to all flags for following  7.84
                               admins with see_all_flags right
-43 2d  H web     feature      sort annotations on tag view                  7.81
-12 5w  M web     feature      Modify chapter hierarchies to be more          5.9
+12 5w  M web     feature      Modify chapter hierarchies to be more         5.91
                               general, e.g. level 1, level 2, level 3
-13 3w  M web     feature      Add css rule for quotations                   5.83
+13 3w  M web     feature      Add css rule for quotations                   5.84
 14 3w  M web     optimize     optimize the tag list creation double for     5.82
                               loop see about relationship
 16 2w  M web     feature      regular search                                5.79
@@ -29,20 +26,19 @@ ID Age P Project Tags         Description                                   Urg
 23 2w  M web     feature      add footer contact                            5.78
 24 2w  M web     feature      add footer news                               5.78
 25 2w  M web     feature      add footer terms                              5.78
-28 13d M web     bug          prettify edit review queue                    5.77
-41 6d  M web     feature      flag reason comment                           5.73
-42 2d  M web     bug          Fix the back button on 404 and other errors   5.71
- 3 3mo L web     JS feature   write javascript for pe char-level annotation 4.19
- 4 11w L web     AJAX feature Write javascript for popup annotations on     4.15
+38 7d  M web     feature      flag reason comment                           5.74
+39 3d  M web     bug          Fix the back button on 404 and other errors   5.72
+ 3 3mo L web     JS feature   write javascript for pe char-level annotation  4.2
+ 4 12w L web     AJAX feature Write javascript for popup annotations on     4.16
                               read view.
- 5 11w L web     test         Test more formats!                            4.05
+ 5 12w L web     test         Test more formats!                            4.06
 15 3w  L web     feature      see about tag intersection                    3.72
 19 2w  L web     bug          Investigate user repuation but in the         3.69
                               beginning of user reputation that causes user
                               to have +2 rep without anything happening
 26 2w  L web     feature      anonymous edits and annotations               3.68
 27 2w  L web     feature      anonymous annotation approval                 3.68
-30 7d    web     bug          check book request form validators            1.84
-40 6d    web     feature      annotation locking notifications              1.83
+29 8d    web     bug          check book request form validators            1.84
+37 7d    web     feature      annotation locking notifications              1.84
 
-35 tasks
+31 tasks
