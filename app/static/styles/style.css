@@ -603,13 +603,26 @@ textarea {
 .plus {
     background-color: var(--green);
 }
-#diff {
+.diff {
     color: var(--black);
 }
-#diff .delta p::before {
+.diff line.delta::before {
     content: "- ";
 }
-#diff .plus p::before {
+.diff line.plus::before {
+    content: "+ ";
+}
+.diff line.delta {
+    color: var(--black);
+}
+.diff line.plus {
+    color: var(--black);
+}
+
+.diff .delta p::before {
+    content: "- ";
+}
+.diff .plus p::before {
         content: "+ ";
 }
 tag.plus {

@@ -752,6 +752,11 @@ class AnnotationVersion(db.Model):
             "Line.l_num<=AnnotationVersion.last_line_num,"
             "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
+    context = db.relationship("Line",
+        primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
+            "Line.l_num<=AnnotationVersion.last_line_num,"
+            "Line.book_id==AnnotationVersion.book_id)",
+            viewonly=True, uselist=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

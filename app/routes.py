@@ -1545,8 +1545,19 @@ def review_edit(edit_id):
     for tag in edit.previous.tags:
         if tag not in tags:
             tags.append(tag)
+    if edit.first_line_num > edit.previous.first_line_num:
+        context = [line for line in edit.previous.context]
+        for line in edit.context:
+            if line not in context:
+                context.append(line)
+    else:
+        context = [line for line in edit.context]
+        for line in edit.previous.context:
+            if line not in context:
+                context.append(line)
+
     return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
-            diff=diff, edit=edit, tags=tags)
+            diff=diff, edit=edit, tags=tags, context=context)
 
 @app.route("/admin/approve/edit/<edit_hash>/")
 @login_required
