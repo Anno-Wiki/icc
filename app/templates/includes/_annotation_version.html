@@ -33,23 +33,11 @@
         </a>
 
         {% if annotation.weight > 0 -%}
-            {%- if annotation.weight >= 1000000 -%}
-                <weight class="up"> {{ round(annotation.weight / 1000000, 1) }}m </weight>
-            {%- elif annotation.weight >= 1000 -%}
-                <weight class="up"> {{ round(annotation.weight / 1000, 1) }}k </weight>
-            {%- else -%}
-                <weight class="up"> {{ annotation.weight }} </weight>
-            {%- endif -%}
+            <weight class="up">{{ annotation.readable_weight() }}</weight>
         {%- elif annotation.weight == 0 -%}
-            <weight class="nil">{{ annotation.weight }}</weight>
+            <weight class="nil">{{ annotation.readable_weight() }}</weight>
         {%- else -%}
-            {%- if annotation.weight <= -1000000 -%}
-                <weight class="down"> {{ round(annotation.weight / 1000000, 1) }}m </weight>
-            {%- elif annotation.weight <= -1000 -%}
-                <weight class="down"> {{ round(annotation.weight / 1000, 1) }}k </weight>
-            {%- else -%}
-                <weight class="down">{{ annotation.weight }}</weight>
-            {%- endif -%}
+            <weight class="down">{{ annotation.readable_weight() }}</weight>
         {%- endif -%}
     </div>
 
