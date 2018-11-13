@@ -7,10 +7,19 @@
     {% endif %}
     <h1>Annotation {{ edit.pointer.id }} of {{ edit.book.title }}</h1>
     <h2>Edit #{{ edit.edit_num }}</h2>
-    {% if edit.previous.edit_num > 0 %}
+    {% if len(edit.pointer.edits) > 1 %}
         <em>
             <a href="{{ url_for("edit_history", annotation_id=edit.pointer.id) }}">
                 view edit history
+            </a>
+        </em>
+    {% endif %}
+    {% if edit.previous.edit_num > 0 %}
+        <br>
+        <em>
+            <a href="{{ url_for("view_edit", annotation_id=edit.pointer.id,
+                edit_num=edit.previous.edit_num) }}">
+                previous edit
             </a>
         </em>
     {% endif %}
