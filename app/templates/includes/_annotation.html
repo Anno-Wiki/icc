@@ -158,10 +158,10 @@
             </a>
         {% endif %}
 
-        {% if current_user.has_right("delete_annotations") %}
-            | <a href="{{ url_for("delete", anno_id=annotation.id,
+        {% if current_user.has_right("deactivate_annotations") %}
+            | <a href="{{ url_for("deactivate", anno_id=annotation.id,
                 next=request.full_path) }}">
-                delete
+                deactivate
             </a>
         {% endif %}
     {% endif %}
