@@ -634,3 +634,9 @@ tag.delta {
 .rejected {
     color: var(--red);
 }
+.aboutme {
+    margin: 5px;
+}
+.silent_aboutme {
+    margin: 5px;
+}
