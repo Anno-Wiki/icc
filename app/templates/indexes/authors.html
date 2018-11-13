@@ -16,19 +16,29 @@ sort by:
             <h2>
                 <a href="{{ url_for("author", name=author.url) }}">
                     {{ author.name }}
-                    {% if author.birth_date.year %}
-                        <div class="life_years"> {{ author.birth_date.year }}-{{ author.death_date.year }} </div>
-                    {% endif %}
                 </a>
+                {% if author.birth_date.year %}
+                    <div class="life_years">
+                        {{ author.birth_date.year }}-{{
+                            author.death_date.year }} 
+                    </div>
+                {% endif %}
             </h2>
 
             Books &times; {{ len(author.books) }}
             <br>
 
-            {% if current_user.is_authenticated and author in current_user.followed_authors %}
-            <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}"> unfollow </a>
+            {% if current_user.is_authenticated and author in
+                current_user.followed_authors %}
+                <a href="{{ url_for("follow_author", author_id=author.id,
+                    next=request.full_path) }}">
+                    unfollow
+                </a>
             {% else %}
-            <a href="{{ url_for("follow_author", author_id=author.id, next=request.full_path) }}"> follow </a>
+                <a href="{{ url_for("follow_author", author_id=author.id,
+                    next=request.full_path) }}">
+                    follow
+                </a>
             {% endif %}
 
             {% if len(author.bio) >= 127 %}
