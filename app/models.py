@@ -774,8 +774,9 @@ class AnnotationVersion(db.Model):
             viewonly=True, uselist=True)
     context = db.relationship("Line",
         primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
-            "Line.l_num<=AnnotationVersion.last_line_num,"
+            "Line.l_num<=AnnotationVersion.last_line_num+5,"
             "Line.book_id==AnnotationVersion.book_id)",
+            foreign_keys=[first_line_num,last_line_num],
             viewonly=True, uselist=True)
 
     def __init__(self, *args, **kwargs):
