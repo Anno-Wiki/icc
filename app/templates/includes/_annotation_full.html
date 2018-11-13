@@ -65,12 +65,12 @@
     {%- if annotation.HEAD.previous_id == None %}
         annotated by
         <a href="{{ url_for("user", user_id=annotation.author.id) }}"> {{ annotation.author.displayname }} </a>
-        {% include "/includes/_reputation_author.html" %} {{ annotation.added }}
+        <strong>{{ annotation.author.readable_reputation() }}</strong> {{ annotation.added }}
     {%- else -%}
         <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}"> last edited </a>
         by
         <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}"> {{ annotation.HEAD.editor.displayname }} </a>
-        {% include "/includes/_reputation_editor.html" %} {{ annotation.HEAD.modified }}
+        <strong>{{ annotation.HEAD.editor.readable_reputation() }}</strong> {{ annotation.HEAD.modified }}
     {% endif %}
 
     |

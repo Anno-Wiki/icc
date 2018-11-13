@@ -1,9 +1,0 @@
-{% if annotation.editor.reputation >= 1000000 %}
-    <strong>{{ round(annotation.editor.reputation/1000000) }}m</strong>
-{% elif annotation.editor.reputation >= 1000 %}
-    <strong>{{ round(annotation.editor.reputation/1000) }}k</strong>
-{% elif annotation.editor.reputation > 0 %}
-    <strong>{{ annotation.editor.reputation }}</strong>
-{% else %}
-    <strong>{{ annotation.editor.reputation }}</strong>
-{% endif %}

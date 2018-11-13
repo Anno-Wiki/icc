@@ -16,7 +16,7 @@
             <div class="card">
                 <h2>
                     <a href="{{ url_for("user", user_id=user.id) }}"> {{ user.displayname }} </a>
-                    {% include "includes/_reputation_user.html" %}
+                    {{ user.readable_reputation() }}
                 </h2>
                 {% if current_user != user %}
                     {% if current_user.is_authenticated and user in current_user.followed_users %}

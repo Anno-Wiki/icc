@@ -321,6 +321,14 @@ class User(UserMixin, db.Model):
         else:
             return int(self.up_power()/2)
 
+    def readable_reputation(self):
+        if self.reputation >= 1000000:
+            return f"{round(user.reputation/1000000)}m"
+        elif self.reputation >= 1000:
+            return f"{round(user.reputation/1000)}k"
+        else:
+            return f"{self.reputation}"
+
     def already_voted(self, annotation):
         return annotation in self.votes
 
