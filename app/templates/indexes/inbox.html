@@ -11,7 +11,7 @@
         {% elif sort == "read_invert" %}
             <td class="highlight"> <a href="{{ sorts["read"] }}"> &#9652; </a> </td>
         {% else %}
-            <td> <a href="{{ url_for("inbox", sort="read", page=page) }}"> &nbsp; </a> </td>
+            <td> <a href="{{ sorts["read"] }}"> &nbsp; </a> </td>
         {% endif %}
 
         {% if sort == "type" %}
@@ -19,7 +19,7 @@
         {% elif sort == "type_invert" %}
             <td class="highlight"> <a href="{{ sorts["type"] }}"> Type &#9652; </a> </td>
         {% else %}
-            <td> <a href="{{ url_for("inbox", sort="type", page=page) }}"> Type </a> </td>
+            <td> <a href="{{ sorts["type"] }}"> Type </a> </td>
         {% endif %}
 
         {% if sort == "time" %}
@@ -27,7 +27,7 @@
         {% elif sort == "time_invert" %}
             <td class="highlight"> <a href="{{ sorts["time"] }}"> Time &#9652; </a> </td>
         {% else %}
-            <td> <a href="{{ url_for("inbox", sort="time", page=page) }}"> Time </a> </td>
+            <td> <a href="{{ sorts["time"] }}"> Time </a> </td>
         {% endif %}
 
         {% if sort == "information" %}
@@ -35,7 +35,7 @@
         {% elif sort == "information_invert" %}
             <td class="highlight"> <a href="{{ sorts["information"] }}"> More information &#9652; </a> </td>
         {% else %}
-            <td> <a href="{{ url_for("inbox", sort="information", page=page) }}"> More information </a> </td>
+            <td> <a href="{{ sorts["information"] }}"> More information </a> </td>
         {% endif %}
     </tr>
 

@@ -3,7 +3,12 @@
 {% block content %}
 
 <div id="content">
-    <h1>Annotation {{ annotation.id }} on War and Peace</h1>
+    <h1>
+        Annotation [{{ annotation.id }}] on 
+        <a href="{{ url_for("book", book_url=annotation.book.url) }}">
+            War and Peace
+        </a>
+    </h1>
     <div class="selection">
         <h3>Context:</h3>
         {% for line in annotation.context %}
