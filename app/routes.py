@@ -688,10 +688,70 @@ def annotation(annotation_id):
 def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlag.query.all()
-    history = annotation.get_history()
-    return render_template("view/edit_history.html", title=f"Edit History",
-            history=history, annotation=annotation,
-            annotationflags=annotationflags)
+
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "edit_num_invert", type=str)
+
+    if sort == "edit_num":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.edit_num.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "edit_num_invert":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.edit_num.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor":
+        edits = annotation.history.outerjoin(User)\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor_invert":
+        edits = annotation.history.outerjoin(User)\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.modified.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.modified.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.edit_reason.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason_invert":
+        edits = annotation.history\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(AnnotationVersion.edit_reason.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        edits = annotation.history\
+                .outerjoin(EditVote, 
+                        and_(EditVote.user_id==current_user.id, 
+                            EditVote.edit_id==AnnotationVersion.id)
+                        )\
+                .filter(AnnotationVersion.approved==True)\
+                .order_by(EditVote.delta.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        sort = "voted"
+
+
+    next_page = url_for("edit_review_queue", page=edits.next_num, sort=sort)\
+            if edits.has_next else None
+    prev_page = url_for("edit_review_queue", page=edits.prev_num, sort=sort)\
+            if edits.has_prev else None
+
+    return render_template("indexes/edit_history.html", title="Edit History",
+            edits=edits.items, sort=sort, next_page=next_page,
+            prev_page=prev_page, annotation=annotation, page=page)
 
 @app.route("/annotation/<annotation_id>/edit/<edit_num>")
 def view_edit(annotation_id, edit_num):
@@ -700,6 +760,8 @@ def view_edit(annotation_id, edit_num):
             AnnotationVersion.edit_num==edit_num,
             AnnotationVersion.approved==True
             ).first_or_404()
+    if edit.edit_num == 0:
+        return redirect(url_for("annotation", annotation_id=edit.pointer.id))
 
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
@@ -951,7 +1013,8 @@ def annotate(book_url, first_line, last_line):
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags, pointer=head
+                annotation=form.annotation.data, tags=tags, pointer=head,
+                reason="Initial version"
                 )
 
 

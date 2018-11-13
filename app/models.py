@@ -610,6 +610,9 @@ class Annotation(db.Model):
     edits = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
                 "AnnotationVersion.approved==True)")
+    history = db.relationship("AnnotationVersion",
+            primaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
+                "AnnotationVersion.approved==True)", lazy="dynamic")
 
     def upvote(self, voter):
         weight = voter.up_power()
