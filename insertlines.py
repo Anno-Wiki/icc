@@ -27,5 +27,6 @@ for line in fin:
     i+=1
 
 print(f"After an arduous {i} lines, we are done.")
+print(f"Now committing...")
 db.session.commit()
 print(f"And now committed.")
