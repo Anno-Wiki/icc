@@ -122,7 +122,7 @@ class User(UserMixin, db.Model):
     cumulative_negative = db.Column(db.Integer, default=0)
     cumulative_positive = db.Column(db.Integer, default=0)
     locked = db.Column(db.Boolean, default=False)
-    about_me = db.Column(db.String(140))
+    about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     # user meta information relationships

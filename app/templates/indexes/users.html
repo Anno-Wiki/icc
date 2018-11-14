@@ -37,12 +37,16 @@
                     <br>
                 {% endif %}
 
-                {% if user.about_me %}
-                    <div class="aboutme">
+                {% if user.about_me and len(user.about_me) > 127 %}
+                    <div class="card_text_cutoff">
+                        {{ user.about_me[:127] }}
+                    </div>
+                {% elif user.about_me %}
+                    <div>
                         {{ user.about_me }}
                     </div>
                 {% else %}
-                    <div class="silent_aboutme">
+                    <div>
                         This user's biography is silent.
                     </div>
                 {% endif %}

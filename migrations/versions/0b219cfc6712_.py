@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b491a84ec6cf
+Revision ID: 0b219cfc6712
 Revises: 
-Create Date: 2018-11-09 11:24:59.574886
+Create Date: 2018-11-14 16:10:11.832806
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b491a84ec6cf'
+revision = '0b219cfc6712'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -78,7 +78,7 @@ def upgrade():
     sa.Column('cumulative_negative', sa.Integer(), nullable=True),
     sa.Column('cumulative_positive', sa.Integer(), nullable=True),
     sa.Column('locked', sa.Boolean(), nullable=True),
-    sa.Column('about_me', sa.String(length=140), nullable=True),
+    sa.Column('about_me', sa.Text(), nullable=True),
     sa.Column('last_seen', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -295,6 +295,7 @@ def upgrade():
     op.create_table('annotation_version',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('editor_id', sa.Integer(), nullable=True),
+    sa.Column('edit_num', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
@@ -309,6 +310,7 @@ def upgrade():
     sa.Column('annotation', sa.Text(), nullable=True),
     sa.Column('modified', sa.DateTime(), nullable=True),
     sa.Column('current', sa.Boolean(), nullable=True),
+    sa.Column('edit_reason', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.l_num'], ),

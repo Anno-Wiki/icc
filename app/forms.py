@@ -33,7 +33,7 @@ class EditProfileForm(FlaskForm):
             render_kw={"placeholder":"Enter a display name."})
     about_me = TextAreaField("About me", validators=[Length(min=0, max=140)],
             render_kw={"placeholder":"Enter a description of yourself.",
-                        "maxlength":140})
+                        "maxlength":50000})
     submit = SubmitField("Submit")
     cancel = SubmitField("Cancel")
 
