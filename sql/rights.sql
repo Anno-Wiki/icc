@@ -3,6 +3,7 @@ INSERT INTO admin_right (`right`) VALUES
     ("create_new_tags"),
     ("create_tags"),
     ("delete_annotations"),
+    ("deactivate_annotations"),
     ("edit_bios"),
     ("edit_book_requests"),
     ("edit_lines"),
@@ -13,6 +14,9 @@ INSERT INTO admin_right (`right`) VALUES
     ("lock_annotations"),
     ("lock_user_accounts"),
     ("lock_users"),
+    ("resolve_annotation_flags"),
+    ("resolve_user_flags"),
     ("review_edits"),
     ("use_restricted_tags"),
-    ("view_deleted_annotations");
+    ("view_deleted_annotations"),
+    ("view_deactivated_annotations");
