@@ -739,6 +739,13 @@ class Annotation(db.Model):
                         f"new_annotation{self.id}on{self.book.id}",
                         f"New annotation using followed tag {tag.tag}.")
 
+    def notify_reputation(self):
+        for follower in self.followers:
+            follower.notify("upvote",
+                    url_for("annotation", annotation_id=self.id),
+                    f"reputationchange{self.reputation}on{self.id}at{datetime.utcnow()}",
+                    f"The reputation of annotation [{self.id}] on {self.book.title} is now {self.reputation}.")
+
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
             return f"{round(self.weight/1000000,1)}m"

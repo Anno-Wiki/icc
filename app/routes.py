@@ -606,10 +606,12 @@ def author_annotations(name):
             page=annotations.next_num) if annotations.has_next else None
     prev_page = url_for("author_annotations", name=author.url, sort=sort,
             page=annotations.prev_num) if annotations.has_prev else None
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
     return render_template("indexes/annotation_list.html",
             title=f"{author.name} - Annotations", annotations=annotations.items,
             sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags)
+            annotationflags=annotationflags, uservotes=uservotes)
 
 @app.route("/book/<book_url>/")
 def book(book_url):
@@ -652,10 +654,12 @@ def book_annotations(book_url):
             page=annotations.next_num) if annotations.has_next else None
     prev_page = url_for("book_annotations", book_url=book_url, sort=sort,
             page=annotations.prev_num) if annotations.has_prev else None
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
     return render_template("indexes/annotation_list.html",
             title=f"{book.title} - Annotations", annotations=annotations.items,
             sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags)
+            annotationflags=annotationflags, uservotes=uservotes)
 
 @app.route("/tag/<tag>/")
 def tag(tag):
@@ -1044,7 +1048,7 @@ def annotate(book_url, first_line, last_line):
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 annotation=form.annotation.data, tags=tags, pointer=head,
-                reason="Initial version"
+                edit_reason="Initial version"
                 )
 
 

@@ -24,3 +24,4 @@ class Config(object):
     ADMINS = ["emails@futuretld.org"]
     ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL")
     SQLALCHEMY_ECHO=0
+    UPVOTES_FOR_NOTIFICATION = 2
