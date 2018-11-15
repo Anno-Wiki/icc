@@ -217,6 +217,7 @@ tag {
     font-family: "Playfair Display", serif;
     border-radius: 3px;
     transition: all .15s ease-in;
+    cursor: pointer;
 }
 tag a {
 }
