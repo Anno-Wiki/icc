@@ -2,7 +2,13 @@
 
 {% block content %}
     <h1>
-        <tag>{{ tag_request.tag|safe }}</tag>
+        {% if tag_request.approved %}
+            <a href="{{ url_for("tag", tag=tag_request.tag) }}">
+                <tag>{{ tag_request.tag }}</tag>
+            </a>
+        {% else %}
+            <tag>{{ tag_request.tag }}</tag>
+        {% endif %}
         {% if tag_request.approved %}
             &#10003;
         {% elif tag_request.rejected %}
@@ -10,34 +16,83 @@
         {% endif %}
     </h1>
 
-    {% if current_user.is_authenticated and current_user.has_right("create_tags") and not tag_request.approved and not tag_request.rejected %}
+    {% if tag_request.weight > 0 %}
+        <weight class="up">
+            {{ tag_request.readable_weight() }}
+        </weight>
+    {% elif tag_request.weight < 0 %}
+        <weight class="down">
+            {{ tag_request.readable_weight() }}
+        </weight>
+    {% else %}
+        <weight class="nil">
+            {{ tag_request.readable_weight() }}
+        </weight>
+    {% endif %}
+
+    {% if current_user.is_authenticated
+        and current_user.already_voted_tag_request(tag_request)
+        and current_user.get_tag_request_vote(tag_request).is_up() %}
+        <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id,
+            next=request.full_path) }}" class="voted">
+            up
+        </a>
+    {% else %}
+        <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id,
+            next=request.full_path) }}" class="notvoted">
+            up
+        </a>
+    {% endif %}
+        /
+    {% if current_user.is_authenticated and current_user.already_voted_tag_request(tag_request) and not current_user.get_tag_request_vote(tag_request).is_up() %}
+        <a href="{{ url_for("downvote_tag_request",
+           tag_request_id=tag_request.id, next=request.full_path) }}"
+            class="voted">
+            down
+        </a>
+    {% else %}
+        <a href="{{ url_for("downvote_tag_request",
+            tag_request_id=tag_request.id, next=request.full_path) }}"
+            class="notvoted">
+            down
+        </a>
+    {% endif %}
+
+    {% if current_user.is_authenticated
+        and not tag_request.approved 
+        and not tag_request.rejected
+        and current_user.has_right("create_tags") %}
+        | 
         <a href="{{ url_for("create_tag", tag_request_id=request.id) }}">accept</a>
         /
         <a href="{{ url_for("reject_tag", tag_request_id=request.id) }}">reject</a>
     {% endif %}
 
-    <div class="weight">
-        {{ tag_request.weight }}
-        {% if current_user.is_authenticated and current_user.already_voted_tag_request(tag_request) and current_user.get_tag_request_vote(tag_request).is_up() %}
-            <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="voted">up</a>
-        {% else %}
-            <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="notvoted">up</a>
-        {% endif %}
-            /
-        {% if current_user.is_authenticated and current_user.already_voted_tag_request(tag_request) and not current_user.get_tag_request_vote(tag_request).is_up() %}
-            <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" }}" class="voted">down</a>
-        {% else %}
-            <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id, next=url_for("view_tag_request", tag_request_id=tag_request.id)) }}" class="notvoted">down</a>
-        {% endif %}
-    </div>
-
-    {% if current_user.is_authenticated and current_user.has_right("edit_tag_requests") %}
-        <a href="{{ url_for("edit_tag_request", tag_request_id=tag_request.id) }}">Edit this page</a>
-        <br><br>
+    {% if current_user.is_authenticated
+        and tag_request in current_user.followed_tag_requests 
+        and not tag_request.approved and not tag_request.rejected %}
+        |
+        <a href="{{ url_for("follow_tag_request",
+            tag_request_id=tag_request.id, next=request.full_path) }}">
+            unfollo
+        </a>
+    {% elif not tag_request.approved and not tag_request.rejected %}
+        |
+        <a href="{{ url_for("follow_tag_request",
+            tag_request_id=tag_request.id, next=request.full_path) }}">
+            follow
+        </a>
     {% endif %}
 
-    <a href="{{ tag_request.wikipedia }}">Link to Wikipedia page</a>
+    {% if current_user.is_authenticated %}
+        {% if current_user.has_right("edit_tag_requests")
+            or current_user == tag_request.requester %}
+            | <a href="{{ url_for("edit_tag_request", tag_request_id=tag_request.id) }}">edit</a>
+        {% endif %}
+    {% endif %}
+
     <br>
+    Wikipedia: <a href="{{ tag_request.wikipedia }}">{{ tag_request.wikipedia }}</a>
 
     <h3>Description</h3>
 

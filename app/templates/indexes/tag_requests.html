@@ -10,6 +10,10 @@
             Don't see what you’re looking for?
             <a href="{{ url_for("tag_request") }}">Try requesting it</a>.
         </h4>
+    {% else %}
+        <h4>
+            You do not yet have the minimum reputation for requesting a tag.
+        </h4>
     {% endif %}
 
     {% if current_user.has_right("create_tags") %}
@@ -46,12 +50,6 @@ sort by:
                 {% endif %}
             </h2>
 
-            {% if current_user.is_authenticated and current_user.has_right("create_tags") and not tag_request.approved and not tag_request.rejected %}
-                <a href="{{ url_for("create_tag", tag_request_id=tag_request.id) }}"> accept </a>
-                /
-                <a href="{{ url_for("reject_tag", tag_request_id=tag_request.id) }}"> reject </a>
-            {% endif %}
-
             <div class="weight">
                 {{ tag_request.weight }}
                 {% if uservotes and tag_request.id in uservotes and uservotes[tag_request.id] %}
@@ -66,6 +64,21 @@ sort by:
                     <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id) }}" class="notvoted"> down </a>
                 {% endif %}
             </div>
+            {% if current_user.is_authenticated
+                and tag_request in current_user.followed_tag_requests 
+                and not tag_request.approved and not tag_request.rejected %}
+                <a href="{{ url_for("follow_tag_request",
+                    tag_request_id=tag_request.id, next=request.full_path) }}">
+                    unfollow
+                </a>
+            {% elif not tag_request.approved and not tag_request.rejected %}
+                <a href="{{ url_for("follow_tag_request",
+                    tag_request_id=tag_request.id, next=request.full_path) }}">
+                    follow
+                </a>
+            {% else %}
+                <br>
+            {% endif %}
 
             <div class="externals">
                 <a href="{{ tag_request.wikipedia }}">Wikipedia</a>
@@ -82,9 +95,9 @@ sort by:
             {% else %}
                 <div>
                     {% if not tag_request.approved and not tag_request.rejected %}
-                        Description:<br> {{ tag_request.description[:127]|markdown }}
+                        {{ tag_request.description[:127]|markdown }}
                     {% else %}
-                        Notes:<br> {{ tag_request.notes[:127]|markdown }}
+                        {{ tag_request.notes[:127]|markdown }}
                     {% endif %}
                 </div>
             {% endif %}

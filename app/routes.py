@@ -374,6 +374,20 @@ def follow_tag(tag_id):
     db.session.commit()
     return redirect(next_page)
 
+@app.route("/user/follow/tag_request/<tag_request_id>/")
+@login_required
+def follow_tag_request(tag_request_id):
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("view_tag_request", tag_request_id=tag_request.id)
+    if tag_request in current_user.followed_tag_requests:
+        current_user.followed_tag_requests.remove(tag_request)
+    else:
+        current_user.followed_tag_requests.append(tag_request)
+    db.session.commit()
+    return redirect(next_page)
+
 @app.route("/user/follow/annotation/<annotation_id>")
 @login_required
 def follow_annotation(annotation_id):
@@ -2105,7 +2119,7 @@ def tag_request():
     if form.validate_on_submit():
         tag_request = TagRequest(tag=form.tag.data,
                 notes=form.notes.data, description=form.description.data,
-                wikipedia=form.wikipedia.data, weight=0)
+                wikipedia=form.wikipedia.data, weight=0, requester=current_user)
         db.session.add(tag_request)
         tag_request.upvote(current_user)
         db.session.commit()
@@ -2117,30 +2131,27 @@ def tag_request():
 @app.route("/edit/tag_request/<tag_request_id>/", methods=["GET", "POST"])
 @login_required
 def edit_tag_request(tag_request_id):
-    current_user.authorize_rights("edit_tag_requests")
     tag_request = TagRequest.query.get_or_404(tag_request_id)
+    if tag_request.requester != current_user:
+        current_user.authorize_rights("edit_tag_requests")
     form = TagRequestForm()
     if form.cancel.data:
         return redirect(url_for("view_tag_request",
             tag_request_id=tag_request_id))
     if form.validate_on_submit():
-        tag_request.title = form.title.data
-        tag_request.author = form.author.data
+        tag_request.tag = form.tag.data
         tag_request.notes = form.notes.data
         tag_request.description = form.description.data
         tag_request.wikipedia = form.wikipedia.data
-        tag_request.gutenberg = form.gutenberg.data
         db.session.commit()
         flash("Tag request edit complete.")
         return redirect(url_for("view_tag_request",
             tag_request_id=tag_request_id))
     else:
-        form.title.data = tag_request.title
-        form.author.data = tag_request.author
+        form.tag.data = tag_request.tag
         form.notes.data = tag_request.notes
         form.description.data = tag_request.description
         form.wikipedia.data = tag_request.wikipedia
-        form.gutenberg.data = tag_request.gutenberg
     return render_template("forms/tag_request.html", title="Edit Tag Request",
             form=form)
 

@@ -101,6 +101,18 @@ annotation_followers = db.Table(
         db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
         )
 
+tag_request_followers = db.Table(
+        "tag_request_followers",
+        db.Column("tag_request_id", db.Integer, db.ForeignKey("tag_request.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
+book_request_followers = db.Table(
+        "book_request_followers",
+        db.Column("book_request_id", db.Integer, db.ForeignKey("book_request.id")),
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+        )
+
 
 ####################
 ## User Functions ##
@@ -215,11 +227,25 @@ class User(UserMixin, db.Model):
             secondaryjoin="tag_followers.c.tag_id==Tag.id",
             backref="followers")
 
-    # annotation watchers
+    # followed annotations
     followed_annotations = db.relationship("Annotation",
             secondary="annotation_followers",
             primaryjoin="annotation_followers.c.user_id==User.id",
             secondaryjoin="annotation_followers.c.annotation_id==Annotation.id",
+            backref="followers")
+
+    # followed tag_requests
+    followed_tag_requests = db.relationship("TagRequest",
+            secondary="tag_request_followers",
+            primaryjoin="tag_request_followers.c.user_id==User.id",
+            secondaryjoin="tag_request_followers.c.tag_request_id==TagRequest.id",
+            backref="followers")
+
+    # followed book_requests
+    followed_book_requests = db.relationship("BookRequest",
+            secondary="book_request_followers",
+            primaryjoin="book_request_followers.c.user_id==User.id",
+            secondaryjoin="book_request_followers.c.book_request_id==BookRequest.id",
             backref="followers")
 
     def __repr__(self):
@@ -936,6 +962,14 @@ class TagRequest(db.Model):
         self.weight += weight
         vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
         db.session.add(vote)
+
+    def readable_weight(self):
+        if self.weight >= 1000000 or self.weight <= -1000000:
+            return f"{round(self.weight/1000000,1)}m"
+        elif self.weight >= 1000 or self.weight <= -1000:
+            return f"{round(self.weight/1000,1)}k"
+        else:
+            return f"{self.weight}"
 
 class TagRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
