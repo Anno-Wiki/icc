@@ -1,44 +1,43 @@
 
 ID Age P Project Tags         Description                                   Urg
 -- --- - ------- ------------ --------------------------------------------- ----
-28 2w  H web     feature      paginate edit history.monthly                 7.88
-30 8d  H web     feature      add notifications to book_request upvotes     7.84
-31 8d  H web     feature      add notifications to tag_request upvotes      7.84
-32 8d  H web     feature      add notifications to book_request approval    7.84
-33 8d  H web     feature      add notifications to tag_request approval     7.84
-34 7d  H web     feature      add notifications to user flags for following 7.84
+27 13d H web     feature      add notifications to book_request upvotes     7.87
+28 13d H web     feature      add notifications to tag_request upvotes      7.87
+29 13d H web     feature      add notifications to book_request approval    7.87
+30 13d H web     feature      add notifications to tag_request approval     7.87
+31 12d H web     feature      add notifications to user flags for following 7.87
                               admins
-35 7d  H web     feature      add notifications to annotation flags for     7.84
+32 12d H web     feature      add notifications to annotation flags for     7.87
                               following admins
-36 7d  H web     feature      add notifications to all flags for following  7.84
+33 12d H web     feature      add notifications to all flags for following  7.87
                               admins with see_all_flags right
-12 5w  M web     feature      Modify chapter hierarchies to be more         5.91
+12 6w  M web     feature      Modify chapter hierarchies to be more         5.94
                               general, e.g. level 1, level 2, level 3
-13 3w  M web     feature      Add css rule for quotations                   5.84
-14 3w  M web     optimize     optimize the tag list creation double for     5.82
+13 4w  M web     feature      Add css rule for quotations                   5.86
+14 3w  M web     optimize     optimize the tag list creation double for     5.85
                               loop see about relationship
-16 2w  M web     feature      regular search                                5.79
-17 2w  M web     feature      complete autocomplete on tag insertion        5.79
-18 2w  M web     feature      add more user flags and institutionalize them 5.79
-20 2w  M web     feature      add footer about                              5.78
-21 2w  M web     feature      add footer privacy statement                  5.78
-22 2w  M web     feature      add footer guidelines or faq                  5.78
-23 2w  M web     feature      add footer contact                            5.78
-24 2w  M web     feature      add footer news                               5.78
-25 2w  M web     feature      add footer terms                              5.78
-38 7d  M web     feature      flag reason comment                           5.74
-39 3d  M web     bug          Fix the back button on 404 and other errors   5.72
- 3 3mo L web     JS feature   write javascript for pe char-level annotation  4.2
- 4 12w L web     AJAX feature Write javascript for popup annotations on     4.16
+16 3w  M web     feature      regular search                                5.82
+17 3w  M web     feature      add more user flags and institutionalize them 5.82
+19 2w  M web     feature      add footer about                              5.81
+20 2w  M web     feature      add footer privacy statement                  5.81
+21 2w  M web     feature      add footer guidelines or faq                  5.81
+22 2w  M web     feature      add footer contact                            5.81
+23 2w  M web     feature      add footer news                               5.81
+24 2w  M web     feature      add footer terms                              5.81
+35 12d M web     feature      flag reason comment                           5.77
+36 8d  M web     bug          Fix the back button on 404 and other errors   5.74
+ 3 3mo L web     JS feature   write javascript for pe char-level annotation 4.23
+ 4 12w L web     AJAX feature Write javascript for popup annotations on     4.19
                               read view.
- 5 12w L web     test         Test more formats!                            4.06
-15 3w  L web     feature      see about tag intersection                    3.72
-19 2w  L web     bug          Investigate user repuation but in the         3.69
+ 5 12w L web     test         Test more formats!                            4.09
+15 3w  L web     feature      see about tag intersection                    3.75
+18 3w  L web     bug          Investigate user repuation but in the         3.72
                               beginning of user reputation that causes user
                               to have +2 rep without anything happening
-26 2w  L web     feature      anonymous edits and annotations               3.68
-27 2w  L web     feature      anonymous annotation approval                 3.68
-29 8d    web     bug          check book request form validators            1.84
-37 7d    web     feature      annotation locking notifications              1.84
+25 2w  L web     feature      anonymous edits and annotations               3.71
+26 2w  L web     feature      anonymous annotation approval                 3.71
+34 12d   web     feature      annotation locking notifications              1.87
+37 1d    web     feature      add default about me                          1.81
+38 1d    web     feature      add default displayname                       1.81
 
-31 tasks
+30 tasks
