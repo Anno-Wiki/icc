@@ -329,6 +329,20 @@ def follow_book(book_id):
     db.session.commit()
     return redirect(next_page)
 
+@app.route("/user/follow/book_request/<book_request_id>/")
+@login_required
+def follow_book_request(book_request_id):
+    book_request = BookRequest.query.get_or_404(book_request_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("view_book_request", book_request_id=book_request.id)
+    if book_request in current_user.followed_book_requests:
+        current_user.followed_book_requests.remove(book_request)
+    else:
+        current_user.followed_book_requests.append(book_request)
+    db.session.commit()
+    return redirect(next_page)
+
 @app.route("/user/follow/author/<author_id>/")
 @login_required
 def follow_author(author_id):
@@ -1931,22 +1945,22 @@ def book_request_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     if sort == "oldest":
-        requests = BookRequest.query.order_by(BookRequest.requested.asc()
+        book_requests = BookRequest.query.order_by(BookRequest.requested.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        requests = BookRequest.query.order_by(BookRequest.requested.desc()
+        book_requests = BookRequest.query.order_by(BookRequest.requested.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
-        requests = BookRequest.query.order_by(BookRequest.weight.desc()
+        book_requests = BookRequest.query.order_by(BookRequest.weight.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "title":
         requests = BookRequest.query.order_by(BookRequest.title.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
-        requests = BookRequest.query.order_by(BookRequest.author.asc()
+        book_requests = BookRequest.query.order_by(BookRequest.author.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        requests = BookRequest.query.order_by(BookRequest.weight.desc()
+        book_requests = BookRequest.query.order_by(BookRequest.weight.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
@@ -1957,14 +1971,15 @@ def book_request_index():
             "author": url_for("book_request_index", sort="author", page=page)
             }
 
-    next_page = url_for("book_request_index", page=requests.next_num, sort=sort) \
-            if requests.has_next else None
-    prev_page = url_for("book_request_index", page=requests.prev_num, sort=sort) \
-            if requests.has_prev else None
+    next_page = url_for("book_request_index", page=book_requests.next_num,
+            sort=sort) if book_requests.has_next else None
+    prev_page = url_for("book_request_index", page=book_requests.prev_num,
+            sort=sort) if book_requests.has_prev else None
     uservotes = current_user.get_book_request_vote_dict() \
             if current_user.is_authenticated else None
     return render_template("indexes/book_requests.html", title="Book Requests",
-            next_page=next_page, prev_page=prev_page, requests=requests.items,
+            next_page=next_page, prev_page=prev_page,
+            book_requests=book_requests.items,
             uservotes=uservotes, sort=sort, sorts=sorts)
 
 @app.route("/book_request/<book_request_id>/")
@@ -1975,7 +1990,8 @@ def view_book_request(book_request_id):
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
 def book_request():
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
+    if not current_user.has_right("request_books"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
     form = BookRequestForm()
     if form.cancel.data:
         return redirect(url_for("book_request_index"))
@@ -1984,6 +2000,7 @@ def book_request():
                 author=form.author.data, notes=form.notes.data,
                 description=form.description.data,
                 wikipedia=form.wikipedia.data, gutenberg=form.gutenberg.data,
+                requester=current_user,
                 weight=0)
         db.session.add(book_request)
         book_request.upvote(current_user)
@@ -1996,8 +2013,9 @@ def book_request():
 @app.route("/edit/book_request/<book_request_id>/", methods=["GET", "POST"])
 @login_required
 def edit_book_request(book_request_id):
-    current_user.authorize_rights("edit_book_requests")
     book_request = BookRequest.query.get_or_404(book_request_id)
+    if current_user != book_request.requester:
+        current_user.authorize_rights("edit_book_requests")
     form = BookRequestForm()
     if form.cancel.data:
         return redirect(url_for("view_book_request",

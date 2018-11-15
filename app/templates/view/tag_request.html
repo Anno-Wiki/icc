@@ -16,6 +16,8 @@
         {% endif %}
     </h1>
 
+    <a href="{{ tag_request.wikipedia }}">{{ tag_request.wikipedia }}</a>
+    <br>
     {% if tag_request.weight > 0 %}
         <weight class="up">
             {{ tag_request.readable_weight() }}
@@ -74,7 +76,7 @@
         |
         <a href="{{ url_for("follow_tag_request",
             tag_request_id=tag_request.id, next=request.full_path) }}">
-            unfollo
+            unfollow
         </a>
     {% elif not tag_request.approved and not tag_request.rejected %}
         |
@@ -92,7 +94,6 @@
     {% endif %}
 
     <br>
-    Wikipedia: <a href="{{ tag_request.wikipedia }}">{{ tag_request.wikipedia }}</a>
 
     <h3>Description</h3>
 

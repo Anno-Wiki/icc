@@ -72,7 +72,7 @@
                     current_user.is_authorized(
                         vars["AUTHORIZATION"]["EDIT_QUEUE"])
                     or current_user.has_right("review_edits") or
-                    current_user.has_right("create_new_tags") %}
+                    current_user.has_right("create_tags") %}
 
                     <div class="dropdown">
                         <a class="dropbtn">admin&#x25BE;</a> |
@@ -92,7 +92,7 @@
                                 </a>
                             {% endif %}
 
-                            {% if current_user.has_right("create_new_tags") %}
+                            {% if current_user.has_right("create_tags") %}
                                 <a href="{{ url_for("create_tag") }}">
                                     new tag
                                 </a>

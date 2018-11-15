@@ -52,16 +52,36 @@ sort by:
 
             <div class="weight">
                 {{ tag_request.weight }}
-                {% if uservotes and tag_request.id in uservotes and uservotes[tag_request.id] %}
-                    <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id) }}" class="voted"> up </a>
+                {% if uservotes 
+                    and tag_request.id in uservotes 
+                    and uservotes[tag_request.id] %}
+                    <a href="{{ url_for("upvote_tag_request",
+                        tag_request_id=tag_request.id, next=request.full_path)
+                        }}" class="voted">
+                        up
+                    </a>
                 {% else %}
-                    <a href="{{ url_for("upvote_tag_request", tag_request_id=tag_request.id) }}" class="notvoted"> up </a>
+                    <a href="{{ url_for("upvote_tag_request",
+                        tag_request_id=tag_request.id, next=request.full_path)
+                        }}" class="notvoted">
+                        up
+                    </a>
                 {% endif %}
                 /
-                {% if uservotes and tag_request.id in uservotes and not uservotes[tag_request.id] %}
-                    <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id) }}" class="voted"> down </a>
+                {% if uservotes 
+                    and tag_request.id in uservotes 
+                    and not uservotes[tag_request.id] %}
+                    <a href="{{ url_for("downvote_tag_request",
+                        tag_request_id=tag_request.id, next=request.full_path)
+                        }}" class="voted">
+                        down
+                    </a>
                 {% else %}
-                    <a href="{{ url_for("downvote_tag_request", tag_request_id=tag_request.id) }}" class="notvoted"> down </a>
+                    <a href="{{ url_for("downvote_tag_request",
+                        tag_request_id=tag_request.id, next=request.full_path)
+                        }}" class="notvoted">
+                        down
+                    </a>
                 {% endif %}
             </div>
             {% if current_user.is_authenticated

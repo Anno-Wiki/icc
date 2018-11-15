@@ -910,6 +910,14 @@ class BookRequest(db.Model):
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
 
+    def readable_weight(self):
+        if self.weight >= 1000000 or self.weight <= -1000000:
+            return f"{round(self.weight/1000000,1)}m"
+        elif self.weight >= 1000 or self.weight <= -1000:
+            return f"{round(self.weight/1000,1)}k"
+        else:
+            return f"{self.weight}"
+
 class BookRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
