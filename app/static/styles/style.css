@@ -210,7 +210,7 @@ tags {
 }
 tag {
     display: inline-block;
-    margin: 10px 15px 0 0;
+    margin: 10px 15px 5px 5px;
     padding: 3px 10px 3px 10px;
     background-color: var(--base22);
     color: var(--base011);
@@ -639,4 +639,10 @@ tag.delta {
 }
 .silent_aboutme {
     margin: 5px;
+}
+#autocomplete {
+    background-color: white;
+    z-index: 1;
+    position: absolute;
+    width: 600px;
 }

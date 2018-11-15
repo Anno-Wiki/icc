@@ -2285,11 +2285,15 @@ def reject_tag(tag_request_id):
 def ajax_tags():
     tagstr = request.form.get("tags")
     tags = tagstr.split()
-    results = Tag.query.filter(Tag.tag.startswith(tags[-1])).all()
+    results = Tag.query.filter(Tag.tag.startswith(tags[-1]), Tag.admin==False)\
+            .limit(6)
     if not results:
         return jsonify({"success": False, "tags": []})
-    tag_list = {}
+    tag_list = []
+    descriptions = []
     for t in results:
-        tag_list[t.tag] = t.description
+        tag_list.append(t.tag)
+        descriptions.append(t.description)
     
-    return jsonify({"success": True, "tags": tag_list})
+    return jsonify({"success": True, "tags": tag_list, 
+        "descriptions": descriptions })

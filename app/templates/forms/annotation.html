@@ -108,6 +108,8 @@
                         <!--the actual input box; 22 is the exact size of the placeholder text-->
                         <div id="input"> {{ form.tags(size=22) }} </div>
                     </div>
+                    <div id="autocomplete">
+                    </div>
 
                     {% for error in form.tags.errors %}
                         <span style="color: red;"> [{{ error }}] </span> <br>

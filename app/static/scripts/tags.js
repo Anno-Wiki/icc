@@ -24,12 +24,16 @@ function initial_tag_creation() {
         tags.value = "";
     }
     tags.onkeyup = autocomplete;
+    tags.onkeydown = function(event) {
+        var input = $("#tags");
+        last_input = tags.value;
+    };
 }
 
 function autocomplete(event) {
     var key = event.which || event.keyCode;
     var prefix = $("#tags").value;
-    if (key == 32) {
+    if (key == 32) {                            // space
         var tag = document.createElement("tag");
         prefix = prefix.replace(/(^\s+|\s+$)/g, '');
         tag.innerHTML = prefix + " &times;";
@@ -39,27 +43,52 @@ function autocomplete(event) {
         var div = $("#tag_spans");
         div.appendChild(tag);
         $("#tags").value = "";
+        var autocomplete_box = $("#autocomplete");
+        autocomplete_box.innerHTML = "";
     } else if (key == 8 && prefix == "") {
-        var spans = $("#tag_spans");
-        var last = spans.lastChild;
-        if (last) {
-            var text = last.innerHTML;
-            var input = $("#tags");
-            if (text) {
-                text = text.slice(0, -2); 
-                input.value = text;
+        var autocomplete_box = $("#autocomplete");
+        if (last_input == "") {      // backspace
+            var spans = $("#tag_spans");
+            var last = spans.lastChild;
+            autocomplete_box.innerHTML = "";
+            if (last) {
+                var text = last.innerHTML;
+                var input = $("#tags");
+                if (text) {
+                    text = text.slice(0, -2); 
+                    input.value = text;
+                }
+                spans.removeChild(last);
             }
-            spans.removeChild(last);
+        } else {
+            autocomplete_box.innerHTML = "";
         }
+
     } else {
         var request = new XMLHttpRequest();
         request.open("POST", "/autocomplete/tags/");
         request.onload = function () {
             const data = JSON.parse(request.responseText);
+            var autocomplete_box = $("#autocomplete");
             if (data.success) {
-                console.log("true");
+                autocomplete_box.innerHTML = "";
+                for (var i = 0; i < data.tags.length; i++) {
+                    var tag = document.createElement("tag");
+                    tag.innerHTML = data.tags[i];
+                    tag.onclick = function() {
+                        new_tag = document.createElement("tag");
+                        new_tag.innerHTML = this.innerHTML + " &times;";
+                        new_tag.onclick = function() {
+                            $("#tag_spans").removeChild(this)
+                        }
+                        $("#tag_spans").append(new_tag);
+                        $("#autocomplete").innerHTML = "";
+                        $("#tags").value = "";
+                    }
+                    autocomplete_box.appendChild(tag);
+                }
             } else {
-                console.log("false");
+                autocomplete_box.innerHTML = "No results found.";
             }
         };
 

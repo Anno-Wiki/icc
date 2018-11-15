@@ -69,7 +69,8 @@ class AnnotationForm(FlaskForm):
             validators=[InputRequired()])
 
     tags = StringField("Tags", 
-            render_kw={"placeholder":"e.g. (explanation freudian reference)"}, 
+            render_kw={"placeholder":"e.g. (explanation freudian reference)",
+                "autocomplete":"off"}, 
             validators=[Optional()])
 
     reason = StringField("Reason",
