@@ -2097,7 +2097,8 @@ def view_tag_request(tag_request_id):
 @app.route("/request/tag/", methods=["GET", "POST"])
 @login_required
 def tag_request():
-    current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
+    if not current_user.has_right("create_tags"):
+        current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
     form = TagRequestForm()
     if form.cancel.data:
         return redirect(url_for("tag_request_index"))
