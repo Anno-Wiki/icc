@@ -336,6 +336,8 @@ def follow_book_request(book_request_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("view_book_request", book_request_id=book_request.id)
+    if book_request.approved:
+        flash("You cannot follow a book request that has already been approved.")
     if book_request in current_user.followed_book_requests:
         current_user.followed_book_requests.remove(book_request)
     else:
@@ -2004,8 +2006,11 @@ def book_request():
                 weight=0)
         db.session.add(book_request)
         book_request.upvote(current_user)
+        current_user.followed_book_requests.append(book_request)
         db.session.commit()
-        flash("Book request created and your vote has been applied.")
+        flash("Book request created.")
+        flash(f"You have upvoted the request for {book_request.title}.")
+        flash("You are now following the request for {book_request.title}.")
         return redirect(url_for("book_request_index"))
     return render_template("forms/book_request.html", title="Request Book",
             form=form)
@@ -2140,8 +2145,11 @@ def tag_request():
                 wikipedia=form.wikipedia.data, weight=0, requester=current_user)
         db.session.add(tag_request)
         tag_request.upvote(current_user)
+        current_user.followed_tag_requests.append(tag_request)
         db.session.commit()
-        flash("Tag request created and your vote has been applied.")
+        flash("Tag request created.")
+        flash("You have upvoted the request for {tag_request.tag}")
+        flash("You are now follow the request for {tag_request.tag}")
         return redirect(url_for("tag_request_index"))
     return render_template("forms/tag_request.html", title="Request Tag",
             form=form)
