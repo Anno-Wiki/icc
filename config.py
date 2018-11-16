@@ -23,5 +23,6 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     ADMINS = ["emails@futuretld.org"]
     ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL")
-    SQLALCHEMY_ECHO=0
+    SQLALCHEMY_ECHO = 0
     UPVOTES_FOR_NOTIFICATION = 2
+#    SERVER_NAME = "www.annopedia.org:5000"

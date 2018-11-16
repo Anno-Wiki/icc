@@ -940,11 +940,29 @@ class BookRequest(db.Model):
                         f"Followed book request for {self.title} now has"
                         f" {self.weight} upvotes.")
             elif self.weight < 0:
-                follower.notify("upvote",
+                follower.notify("downvote",
                         url_for("view_book_request", book_request_id=self.id),
                         f"bookrequestreputationchange{self.weight}at{datetime.utcnow()}",
                         f"Followed book request for {self.title} now has"
                         f" {self.weight} downvotes.")
+
+    def notify_approval(self):
+        for follower in self.followers:
+            follower.notify("book_approved",
+                    url_for("view_book_request", book_request_id=self.id),
+                    f"bookrequestapproval{self.id}",
+                    f"The book request for {self.title} has been approved.")
+
+    def notify_added(self):
+        if self.book_id:
+            for follower in self.followers:
+                follower.notify("book_added",
+                        url_for("book", book_url=self.book.url),
+                        f"bookadded{self.id}",
+                        f"The book {self.book.title} has been added to the library.")
+        else:
+            print("C'mon, dude, get it together: link the book_request object"
+                    "to the book, _then_ send the notification.")
 
 class BookRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
