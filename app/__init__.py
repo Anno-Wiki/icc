@@ -21,12 +21,10 @@ mail = Mail(app)
 elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 
-
 # jinja environment variables
 app.jinja_env.globals["round"] = round
 app.jinja_env.globals["vars"] = app.config
 app.jinja_env.globals["len"] = len
-
 
 if not app.debug:
     if app.config["MAIL_SERVER"]:

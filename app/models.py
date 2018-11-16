@@ -5,11 +5,14 @@ from math import log10 as l
 from datetime import datetime
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db, login
 from sqlalchemy import or_, func
 from sqlalchemy.orm import backref
 from flask import url_for, abort
 from app.search import *
+
+from app import app, db, login
+# please note, if this last import is not the last import you can get some weird
+# errors; please keep that as last.
 
 class SearchableMixin(object):
     @classmethod
@@ -112,7 +115,6 @@ book_request_followers = db.Table(
         db.Column("book_request_id", db.Integer, db.ForeignKey("book_request.id")),
         db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
         )
-
 
 ####################
 ## User Functions ##
