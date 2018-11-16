@@ -912,12 +912,16 @@ class BookRequest(db.Model):
         self.weight += weight
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
+        if self.weight % 25 == 0:
+            self.notify()
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
+        if self.weight % 25 == 0:
+            self.notify()
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -926,6 +930,21 @@ class BookRequest(db.Model):
             return f"{round(self.weight/1000,1)}k"
         else:
             return f"{self.weight}"
+
+    def notify(self):
+        for follower in self.followers:
+            if self.weight > 0:
+                follower.notify("upvote",
+                        url_for("view_book_request", book_request_id=self.id),
+                        f"bookrequestreputationchange{self.weight}at{datetime.utcnow()}",
+                        f"Followed book request for {self.title} now has"
+                        f" {self.weight} upvotes.")
+            elif self.weight < 0:
+                follower.notify("upvote",
+                        url_for("view_book_request", book_request_id=self.id),
+                        f"bookrequestreputationchange{self.weight}at{datetime.utcnow()}",
+                        f"Followed book request for {self.title} now has"
+                        f" {self.weight} downvotes.")
 
 class BookRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -973,12 +992,31 @@ class TagRequest(db.Model):
         self.weight += weight
         vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
         db.session.add(vote)
+        if self.weight % 25 == 0:
+            self.notify()
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
         vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
         db.session.add(vote)
+        if self.weight % 25 == 0:
+            self.notify()
+
+    def notify(self):
+        for follower in self.followers:
+            if self.weight > 0:
+                follower.notify("upvote",
+                        url_for("view_tag_request", tag_request_id=self.id),
+                        f"tagrequestreputationchange{self.weight}at{datetime.utcnow()}",
+                        f"Followed tag request for {self.tag} now has"
+                        f" {self.weight} upvotes.")
+            elif self.weight < 0:
+                follower.notify("downvote",
+                        url_for("view_tag_request", tag_request_id=self.id),
+                        f"tagrequestreputationchange{self.weight}at{datetime.utcnow()}",
+                        f"Followed tag request for {self.title} now has"
+                        f" {self.weight} downvotes.")
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
