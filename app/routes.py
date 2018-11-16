@@ -2257,6 +2257,7 @@ def create_tag(tag_request_id):
             tag = Tag(tag=tag_request.tag, description=tag_request.description)
             tag_request.created_tag = tag
             tag_request.approved = True
+            tag_request.notify_approval()
             db.session.add(tag)
             db.session.commit()
             flash("Tag created.")
@@ -2272,6 +2273,7 @@ def reject_tag(tag_request_id):
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("tag_request_index")
     tag_request.rejected = True
+    tag_request.notify_rejection()
     db.session.commit()
     return redirect(next_page)
 

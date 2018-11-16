@@ -1044,6 +1044,20 @@ class TagRequest(db.Model):
         else:
             return f"{self.weight}"
 
+    def notify_approval(self):
+        for follower in self.followers:
+            follower.notify("tag_approved",
+                    url_for("tag", tag=self.tag),
+                    f"tagrequestapproval{self.id}",
+                    f"The tag request for {self.tag} has been approved.")
+
+    def notify_rejection(self):
+        for follower in self.followers:
+            follower.notify("tag_rejected",
+                    url_for("tag_request", tag_request_id=self.id),
+                    f"tagrequestrejection{self.id}",
+                    f"The tag request for {self.tag} has been rejected.")
+
 class TagRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)

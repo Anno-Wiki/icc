@@ -65,9 +65,9 @@
         and not tag_request.rejected
         and current_user.has_right("create_tags") %}
         | 
-        <a href="{{ url_for("create_tag", tag_request_id=request.id) }}">accept</a>
+        <a href="{{ url_for("create_tag", tag_request_id=tag_request.id) }}">accept</a>
         /
-        <a href="{{ url_for("reject_tag", tag_request_id=request.id) }}">reject</a>
+        <a href="{{ url_for("reject_tag", tag_request_id=tag_request.id) }}">reject</a>
     {% endif %}
 
     {% if current_user.is_authenticated
