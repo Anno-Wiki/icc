@@ -953,6 +953,14 @@ class BookRequest(db.Model):
                     f"bookrequestapproval{self.id}",
                     f"The book request for {self.title} has been approved.")
 
+    def reject(self):
+        self.rejected=True
+        for follower in self.followers:
+            follower.notify("book_approved",
+                    url_for("view_book_request", book_request_id=self.id),
+                    f"bookrequestapproval{self.id}",
+                    f"The book request for {self.title} has been approved.")
+
     def notify_added(self):
         if self.book_id:
             for follower in self.followers:
