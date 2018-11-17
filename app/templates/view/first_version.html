@@ -13,17 +13,9 @@
     <div class="diff">
         <p><em>Line selection:</em></p>
         {% for line in edit.context %}
-                <line id="{{ line.l_num }}" class="highlight">
-                    {{ line.line }}
-                </line>
-            {% elif line in edit.lines %}
+            {% if line in edit.lines %}
                 <span class="linenum">{{ line.l_num }}</span>
                 <line id="{{ line.l_num }}" class="plus">
-                    {{ line.line }}
-                </line>
-            {% elif line in edit.previous.lines %}
-                <span class="linenum">{{ line.l_num }}</span>
-                <line id="{{ line.l_num }}" class="delta">
                     {{ line.line }}
                 </line>
             {% else %}
@@ -34,7 +26,7 @@
         {% endfor %}
     </div>
     <br>
-    <p><em>Difference:</em></p>
+    <p><em>Annotation:</em></p>
     <annotation id="difference">
         <div class="annotation_head">
             Annotation
@@ -44,45 +36,17 @@
                     [{{ edit.pointer.id }}]
                 </a>
             </sup>
-            {% if edit.previous.first_line_num == edit.first_line_num and
-                edit.previous.last_line_num == edit.last_line_num %}
-                on
-                <em>
-                    <a href="{{ edit.lines[0].get_url() }}#{{
-                        edit.first_line_num }}">
-                        {%- if edit.first_line_num == edit.last_line_num %}
-                            l.{{ edit.last_line_num }}
-                        {% else -%}
-                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
-                        {% endif -%}
-                    </a>
-                </em>
-            {% else %}
-                previously on
-                <em>
-                    <a href="{{ edit.previous.lines[0].get_url() }}#{{
-                        edit.previous.first_line_num }}">
-                        {%- if edit.previous.first_line_num ==
-                            edit.previous.last_line_num %}
-                            l.{{ edit.previous.last_line_num }},
-                        {% else %}
-                            ll.{{ edit.previous.first_line_num }}-{{
-                                edit.previous.last_line_num }},
-                        {% endif %}
-                    </a>
-                </em>
-                now on
-                <em>
-                    <a href="{{ edit.lines[0].get_url() }}#{{
-                        edit.first_line_num }}">
-                        {%- if edit.first_line_num == edit.last_line_num %}
-                            l.{{ edit.last_line_num }}
-                        {% else %}
-                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
-                        {% endif %}
-                    </a>
-                </em>
-            {% endif %}
+            on
+            <em>
+                <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num
+                    }}">
+                    {%- if edit.first_line_num == edit.last_line_num %}
+                        l.{{ edit.last_line_num }}
+                    {% else %}
+                        ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                    {% endif %}
+                </a>
+            </em>
 
             {% if edit.pointer.locked %}
                 &#128274;
@@ -91,39 +55,17 @@
 
         <div class="annotation_content">
             <div class="diff">
-                {% for line in diff %}
-                    {% if line.startswith("-") %}
-                        <div class="delta">{{ line[2:]|markdown }}</div>
-                    {% elif line.startswith("+") %}
-                        <div class="plus">{{ line[2:]|markdown }}</div>
-                    {% elif line.startswith(" ") %}
-                        <div>{{ line|markdown }}</div>
-                    {% endif %}
-                {% endfor %}
+                <div class="plus">{{ edit.annotation|markdown }}</div>
             </div>
         </div>
 
         <tags>
-            {% for tag in tags %}
-                {% if tag in edit.tags and tag in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
-                        <tag>
-                            {{ tag.tag }}
-                        </tag>
-                    </a>
-                {% elif tag in edit.tags and tag not in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
-                        <tag class="plus">
-                            + {{ tag.tag }}
-                        </tag>
-                    </a>
-                {% elif tag not in edit.tags and tag in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
-                        <tag class="delta">
-                            - {{ tag.tag }}
-                        </tag>
-                    </a>
-                {% endif %}
+            {% for tag in edit.tags %}
+                <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <tag class="plus">
+                        + {{ tag.tag }}
+                    </tag>
+                </a>
             {% endfor %}
         </tags>
 
@@ -141,144 +83,7 @@
             {{ edit.pointer.author.displayname }}
         </a>
         {{ edit.pointer.added }}
-        <br>
-
-        {% if edit.previous.edit_num != 0 %}
-            <em>
-                <a href="{{ url_for("view_edit", annotation_id=edit.pointer.id,
-                    edit_num=edit.previous.edit_num) }}">
-                    last edited
-                </a>
-                by
-            </em>
-            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
-                {{ edit.previous.editor.displayname }}
-            </a>
-            {{ edit.previous.modified }}
-            <br>
-        {% endif %}
-
-        <em>this time edited by</em>
-        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
-            {{ edit.editor.displayname }}
-        </a>
-        {{ edit.modified }}
-        <br>
-        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
     </annotation>
     
-    <p><em>New version, edit #{{ edit.edit_num }}:</em></p>
-    <annotation id="e{{ edit.id }}">
-        <div class="annotation_head">
-            Annotation
-            <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.pointer.id) }}">
-                    [{{ edit.pointer.id }}]
-                </a>
-            </sup>
-                on
-            <em>
-                <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num }}">
-                    {%- if edit.first_line_num == edit.last_line_num %}
-                        l.{{ edit.last_line_num }}
-                    {% else -%}
-                        ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
-                    {% endif -%}
-                </a>
-            </em>
-        </div>
-        <div class="annotation_content">
-            {{ edit.annotation|markdown }}
-        </div>
-
-        <tags>
-            {% for tag in edit.tags %}
-                <a href="{{ url_for("tag", tag=tag.tag) }}">
-                    <tag>
-                        {{ tag.tag }}
-                    </tag>
-                </a>
-            {% endfor %}
-        </tags>
-
-        <br>
-
-        <em>edited by</em>
-        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
-            {{ edit.editor.displayname }}
-        </a>
-        {{ edit.modified }}
-        <br>
-        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
-    </annotation>
-    {% if edit.previous.edit_num > 0 %}
-        <p><em>Old version, edit #{{ edit.previous.edit_num }}:</em></p>
-    {% else %}
-        <p><em>Original version:</em></p>
-    {% endif %}
-    <annotation id="e{{ edit.previous.id }}">
-        <div class="annotation_head">
-            Annotation
-            <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.pointer.id) }}">
-                    [{{ edit.pointer.id }}]
-                </a>
-            </sup>
-                on
-            <em>
-                <a href="{{ edit.previous.lines[0].get_url() }}#{{
-                    edit.previous.first_line_num }}">
-                    {%- if edit.previous.first_line_num ==
-                        edit.previous.last_line_num %}
-                        l.{{ edit.previous.last_line_num }}
-                    {% else -%}
-                        ll.{{ edit.previous.first_line_num }}-{{
-                            edit.previous.last_line_num }}
-                    {% endif -%}
-                </a>
-            </em>
-        </div>
-        <div class="annotation_content">
-            {{ edit.previous.annotation|markdown }}
-        </div>
-
-        <tags>
-            {% for tag in edit.previous.tags %}
-                <a href="{{ url_for("tag", tag=tag.tag) }}">
-                    <tag>
-                        {{ tag.tag }}
-                    </tag>
-                </a>
-            {% endfor %}
-        </tags>
-        <br>
-        {% if edit.previous.edit_num > 0 %}
-            <em>
-                <a href="{{ url_for("view_edit", annotation_id=edit.pointer_id,
-                    edit_num=edit.previous.edit_num) }}">
-                    last edited
-                </a>
-                by
-            </em>
-            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
-                {{ edit.previous.editor.displayname }}
-            </a>
-            {{ edit.previous.modified }}
-            <br>
-            <em>previous edit reason:</em>
-            &nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
-        {% else %}
-            <em>
-                <a href="{{ url_for("annotation", annotation_id=edit.pointer_id) }}">
-                    originally annotated
-                </a>
-                by
-            </em>
-            <a href="{{ url_for("user", user_id=edit.pointer.author.id) }}">
-                {{ edit.pointer.author.displayname }}
-            </a>
-            {{ edit.pointer.added }}
-        {% endif %}
-    </annotation>
 </div>
 {% endblock %}

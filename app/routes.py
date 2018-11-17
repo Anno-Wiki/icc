@@ -789,9 +789,10 @@ def view_edit(annotation_id, edit_num):
             AnnotationVersion.edit_num==edit_num,
             AnnotationVersion.approved==True
             ).first_or_404()
-    if edit.edit_num == 0:
-        return redirect(url_for("annotation", annotation_id=edit.pointer.id))
 
+    if not edit.previous:
+        return render_template("view/first_version.html", 
+                title=f"First Version of [{edit.pointer.id}]", edit=edit)
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
     # careful to do this for both unix and windows return variants (i.e. be
