@@ -20,6 +20,7 @@ from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 import difflib
 import re
+import time
 
 @app.before_request
 def before_request():
@@ -887,7 +888,6 @@ def read(book_url):
 
     form = LineNumberForm()
 
-
     next_page = lines[0].get_next_section() if ch == 0 else \
             lines[-1].get_next_section()
     prev_page = lines[0].get_prev_section()
@@ -912,9 +912,6 @@ def read(book_url):
             fl = int(form.first_line.data)
             ll = int(form.last_line.data)
 
-        if ll - fl > 5:
-            fl = ll - 4
-
         if fl < 1:
             fl = 1
         if ll < 1:
@@ -933,26 +930,30 @@ def read(book_url):
     # get all the annotations
     if tag:
         tag = Tag.query.filter_by(tag=tag).first_or_404()
-        annotations = tag.annotations.filter(Annotation.book_id==book.id).all()
+        annotations = tag.annotations\
+                .filter(Annotation.book_id==book.id,
+                        AnnotationVersion.last_line_num<=lines[-1].l_num)\
+                .all()
         tags = None
     else:
-        annotations = book.annotations.all()
-        tags = []
-        for a in annotations:
-            if a.HEAD.first_line_num >= lines[0].l_num and a.HEAD.last_line_num <= lines[-1].l_num:
-                for t in a.HEAD.tags:
-                    if t not in tags:
-                        tags.append(t)
+        annotations = book.annotations\
+                .filter(AnnotationVersion.last_line_num<=lines[-1].l_num)\
+                .all()
+        # this query is like 5 times faster than the old double-for loop
+        tags = Tag.query.outerjoin(tags_table)\
+                .join(AnnotationVersion, and_(
+                    AnnotationVersion.id==tags_table.c.annotation_version_id,
+                    AnnotationVersion.current==True,
+                    AnnotationVersion.first_line_num>=lines[0].l_num,
+                    AnnotationVersion.last_line_num<=lines[-1].l_num)
+                    )\
+                .all()
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
     for a in annotations:
-        if a.HEAD.last_line_num >= lines[0].l_num and \
-                a.HEAD.last_line_num <= lines[-1].l_num:
-            annotations_idx[a.HEAD.last_line_num].append(a)
+        annotations_idx[a.HEAD.last_line_num].append(a)
 
-
-    # to darken up/down voted annotations
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
 
@@ -960,6 +961,10 @@ def read(book_url):
     # for every line to find out if the user has edit_rights
     edit_right = AdminRight.query.filter_by(right="edit_lines").first()
 
+    # This custom method for replacing underscores with <em> tags is still way
+    # faster than the markdown converter. Since I'm not using anything other
+    # than underscores for italics in the body of the actual text (e.g., I'm
+    # using other methods to indicate blockquotes), I'll just keep using this.
     preplines(lines)
 
     return render_template("read.html", title=book.title, form=form, book=book,
