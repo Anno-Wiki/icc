@@ -519,6 +519,20 @@ class Line(db.Model):
     book = db.relationship("Book")
     kind = db.relationship("Kind", foreign_keys=[kind_id])
     em_status = db.relationship("Kind", foreign_keys=[em_status_id])
+    context = db.relationship("Line",
+            primaryjoin="and_(remote(Line.l_num)<=Line.l_num+1,"
+                "remote(Line.l_num)>=Line.l_num-1,"
+                "remote(Line.book_id)==Line.book_id)",
+            foreign_keys=[l_num, book_id], remote_side=[l_num, book_id],
+            uselist=True, viewonly=True)
+    annotations = db.relationship("Annotation", secondary="annotation_version",
+            primaryjoin="and_(AnnotationVersion.first_line_num<=foreign(Line.l_num),"
+                    "AnnotationVersion.last_line_num>=foreign(Line.l_num),"
+                    "AnnotationVersion.book_id==foreign(Line.book_id),"
+                    "AnnotationVersion.current==True)",
+            secondaryjoin="and_(foreign(AnnotationVersion.pointer_id)==Annotation.id,"
+                    "Annotation.active==True)",
+            uselist=True, foreign_keys=[l_num,book_id])
 
     def __repr__(self):
         return f"<l {self.id}: {self.l_num} of {self.book.title} [{self.kind.kind}]>"
