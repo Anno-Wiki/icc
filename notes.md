@@ -3,6 +3,13 @@ Key:
    - Relevant
    x No longer relevant
 
+Definitions
+===========
+
+- body (of annotation): the text which is being annotated by the annotation
+- text (of annotation): the text which describes and annotates the body of the
+  annotation
+
 - x Alright, we solved the basic problem in the javascript: we only need the
   first and last id's from a highlight block. Really elementary solution to the
   whole problem.
