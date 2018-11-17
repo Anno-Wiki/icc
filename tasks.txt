@@ -1,43 +1,53 @@
 
-ID Age P Project Tags         Description                                   Urg
--- --- - ------- ------------ --------------------------------------------- ----
-27 13d H web     feature      add notifications to book_request upvotes     7.87
-28 13d H web     feature      add notifications to tag_request upvotes      7.87
-29 13d H web     feature      add notifications to book_request approval    7.87
-30 13d H web     feature      add notifications to tag_request approval     7.87
-31 12d H web     feature      add notifications to user flags for following 7.87
-                              admins
-32 12d H web     feature      add notifications to annotation flags for     7.87
-                              following admins
-33 12d H web     feature      add notifications to all flags for following  7.87
-                              admins with see_all_flags right
-12 6w  M web     feature      Modify chapter hierarchies to be more         5.94
-                              general, e.g. level 1, level 2, level 3
-13 4w  M web     feature      Add css rule for quotations                   5.86
-14 3w  M web     optimize     optimize the tag list creation double for     5.85
-                              loop see about relationship
-16 3w  M web     feature      regular search                                5.82
-17 3w  M web     feature      add more user flags and institutionalize them 5.82
-19 2w  M web     feature      add footer about                              5.81
-20 2w  M web     feature      add footer privacy statement                  5.81
-21 2w  M web     feature      add footer guidelines or faq                  5.81
-22 2w  M web     feature      add footer contact                            5.81
-23 2w  M web     feature      add footer news                               5.81
-24 2w  M web     feature      add footer terms                              5.81
-35 12d M web     feature      flag reason comment                           5.77
-36 8d  M web     bug          Fix the back button on 404 and other errors   5.74
- 3 3mo L web     JS feature   write javascript for pe char-level annotation 4.23
- 4 12w L web     AJAX feature Write javascript for popup annotations on     4.19
-                              read view.
- 5 12w L web     test         Test more formats!                            4.09
-15 3w  L web     feature      see about tag intersection                    3.75
-18 3w  L web     bug          Investigate user repuation but in the         3.72
-                              beginning of user reputation that causes user
-                              to have +2 rep without anything happening
-25 2w  L web     feature      anonymous edits and annotations               3.71
-26 2w  L web     feature      anonymous annotation approval                 3.71
-34 12d   web     feature      annotation locking notifications              1.87
-37 1d    web     feature      add default about me                          1.81
-38 1d    web     feature      add default displayname                       1.81
+ID Age   P Project Tags         Description                                 Urg
+-- ----- - ------- ------------ ------------------------------------------- ----
+15 3w    H web     feature      regular search                              7.93
+18 2w    H web     feature      add notifications to user flags for         7.88
+                                following admins
+19 2w    H web     feature      add notifications to annotation flags for   7.88
+                                following admins
+20 2w    H web     feature      annotation locking notifications            7.88
+24 22h   H web     bug          Prevent people from changing their vote (on  7.8
+                                anything) after a day or so
+25 22h   H web     feature      Create see all user flags route              7.8
+26 22h   H web     feature      Create see all annotation flags route        7.8
+27 22h   H web     feature      option to delete annotation permanently      7.8
+28 22h   H web     feature      option to delete edit permanently            7.8
+29 22h   H web     feature      option to rollback annotation                7.8
+30 22h   H web     feature      option to delete book-request permanently    7.8
+31 22h   H web     feature      option to delete tag-request permanently     7.8
+32 22h   H web     feature      show number of annotations and number of     7.8
+                                edits for each user on their page
+33 22h   H web     feature      sort by number of annotations and number of  7.8
+                                edits for each user
+34 22h   H web     feature      moderator option to anonymize user account   7.8
+                                forcibly
+35 22h   H web     feature      moderator option to delete user account      7.8
+                                forcibly and delete all associated activity
+                                (including edits, which will be difficult
+37 4h    H web     feature      we need to annotate without ever opening a   7.8
+                                chapter page
+76 4h    H web     feature      sort annotations by last line number         7.8
+77 4h    H web     feature      sort annotations by first line number        7.8
+78 51min H web     bug          track user reputation changes, because       7.8
+                                right now they don't actually work right
+                                without it
+79 6min  H web     feature      flags need comments for resolution based on  7.8
+                                investigation
+36 22h   H web                  Re do css and layout                           7
+12 6w    M web     feature      Modify chapter hierarchies to be more       5.94
+                                general, e.g. level 1, level 2, level 3
+13 4w    M web     feature      Add css rule for quotations                 5.88
+21 10d   M web     bug          Fix the back button on 404 and other errors 5.75
+ 3 3mo   L web     JS feature   write javascript for pe char-level          4.24
+                                annotation
+ 4 3mo   L web     AJAX feature Write javascript for popup annotations on   4.19
+                                read view.
+ 5 3mo   L web     test         Test more formats!                          4.09
+14 4w    L web     feature      see about tag intersection                  3.76
+16 3w    L web     feature      anonymous edits and annotations             3.72
+17 3w    L web     feature      anonymous annotation approval               3.72
+22 3d      web     feature      add default about me                        1.82
+23 3d      web     feature      add default displayname                     1.82
 
-30 tasks
+33 tasks
