@@ -861,23 +861,23 @@ class AnnotationVersion(db.Model):
             # notify the editor
             self.editor.notify("edit_approved",
                     url_for("annotation", annotation_id=self.pointer_id),
-                    f"edit_approved{self.id}on{self.pointer_id}",
-                    f"Edit {self.id} on annotation {self.pointer_id} approved.")
+                    f"Edit {self.id} on annotation {self.pointer_id} approved.",
+                    hash_string=f"edit_approved{self.id}on{self.pointer_id}")
             # notify all the editor's followers
             for follower in self.editor.followers:
                 follower.notify("edit_approved",
                         url_for("annotation", annotation_id=self.pointer_id),
-                        f"edit_approved{self.id}on{self.pointer_id}",
                         f"New edit approved from followed annotatior"
-                        f" {self.editor.displayname}.")
+                        f" {self.editor.displayname}.",
+                        hash_string=f"edit_approved{self.id}on{self.pointer_id}")
             # notify the annotation's followers
             self.pointer.notify_edit("approved", self.editor)
         elif notification == "rejected":
             # if it's rejected, only notify the editor.
             self.editor.notify("edit_rejected",
                     url_for("annotation", annotation_id=self.pointer_id),
-                    f"edit_rejected{self.id}on{self.pointer_id}",
-                    f"Edit {self.id} on annotation {self.pointer_id} rejected.")
+                    f"Edit {self.id} on annotation {self.pointer_id} rejected.",
+                    hash_string=f"edit_rejected{self.id}on{self.pointer_id}")
 
 ####################
 ####################
