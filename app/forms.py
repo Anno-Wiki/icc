@@ -35,7 +35,6 @@ class EditProfileForm(FlaskForm):
             render_kw={"placeholder":"Enter a description of yourself.",
                         "maxlength":50000})
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField("Email", validators=[InputRequired(), Email()])
@@ -84,7 +83,6 @@ class AnnotationForm(FlaskForm):
     locked = BooleanField("Locked")
 
     submit = SubmitField("Annotate")
-    cancel = SubmitField("Cancel")
 
 
 class TagForm(FlaskForm):
@@ -94,7 +92,6 @@ class TagForm(FlaskForm):
             render_kw={"placeholder":"Description"},
             validators=[InputRequired()])
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
     def validate_tag(self, tag):
         tag = Tag.query.filter_by(tag=tag.data).first()
@@ -105,7 +102,6 @@ class LineForm(FlaskForm):
     line = StringField("Line", validators=[InputRequired(), 
             Length(min=0, max=140)], render_kw={"maxlength":200})
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
 class BookRequestForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired()],
@@ -124,7 +120,6 @@ class BookRequestForm(FlaskForm):
             render_kw={"placeholder":"URL to Project Gutenberg copy of the book."})
 
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
     def validate_wikipedia(self, wikipedia):
         if "wikipedia" not in wikipedia.data:
@@ -147,7 +142,6 @@ class TagRequestForm(FlaskForm):
             render_kw={"placeholder":"URL to a relevant Wikipedia page."})
 
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
     def validate_wikipedia(self, wikipedia):
         if "wikipedia" not in wikipedia.data:
@@ -157,8 +151,6 @@ class TextForm(FlaskForm):
     text = TextAreaField("Text",
             render_kw={"placeholder":"Edit text here."})
     submit = SubmitField("Submit")
-    cancel = SubmitField("Cancel")
 
 class AreYouSureForm(FlaskForm):
     submit = SubmitField("Yes, I am sure.")
-    cancel = SubmitField("No, I changed my mind.")

@@ -130,8 +130,6 @@ def register():
 @login_required
 def edit_profile():
     form = EditProfileForm()
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         current_user.displayname = form.displayname.data
         current_user.about_me = form.about_me.data
@@ -302,10 +300,7 @@ def delete_account_check():
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("user", user_id=user.id)
 
-    if form.cancel.data:
-        flash("Phew, you almost pulled the trigger!")
-        return redirect(next_page)
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         return redirect(url_for("delete_account"))
 
     return render_template("forms/delete_account_check.html", form=form,
@@ -1003,9 +998,7 @@ def annotate(book_url, first_line, last_line):
     if lines == None:
         abort(404)
 
-    if form.cancel.data:
-        return redirect(next_page)
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         # line number boiler plate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
@@ -1092,10 +1085,7 @@ def edit(anno_id):
     context = annotation.context
     form = AnnotationForm()
 
-    if form.cancel.data:
-        return redirect(next_page)
-
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         # line number boilerplate
         fl = int(form.first_line.data)
         ll = int(form.last_line.data)
@@ -1814,8 +1804,6 @@ def edit_line(line_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("index")
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         if form.line.data != None and len(form.line.data) <= 200:
             line.line = form.line.data
@@ -1833,8 +1821,6 @@ def edit_bio(author_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("author", name=author.url)
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         if form.text.data != None:
             author.bio = form.text.data
@@ -1855,8 +1841,6 @@ def edit_summary(book_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("book", book_url=book.url)
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         if form.text.data != None:
             book.summary = form.text.data
@@ -1876,8 +1860,6 @@ def edit_tag(tag_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("tag", tag=tag.tag)
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         if form.tag.data != None and form.description.data != None:
             tag.tag = form.tag.data
@@ -1999,8 +1981,6 @@ def book_request():
     if not current_user.has_right("request_books"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
     form = BookRequestForm()
-    if form.cancel.data:
-        return redirect(url_for("book_request_index"))
     if form.validate_on_submit():
         book_request = BookRequest(title=form.title.data,
                 author=form.author.data, notes=form.notes.data,
@@ -2026,9 +2006,6 @@ def edit_book_request(book_request_id):
     if current_user != book_request.requester:
         current_user.authorize_rights("edit_book_requests")
     form = BookRequestForm()
-    if form.cancel.data:
-        return redirect(url_for("view_book_request",
-            book_request_id=book_request_id))
     if form.validate_on_submit():
         book_request.title = form.title.data
         book_request.author = form.author.data
@@ -2141,8 +2118,6 @@ def tag_request():
     if not current_user.has_right("create_tags"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
     form = TagRequestForm()
-    if form.cancel.data:
-        return redirect(url_for("tag_request_index"))
     if form.validate_on_submit():
         tag_request = TagRequest(tag=form.tag.data,
                 notes=form.notes.data, description=form.description.data,
@@ -2165,9 +2140,6 @@ def edit_tag_request(tag_request_id):
     if tag_request.requester != current_user:
         current_user.authorize_rights("edit_tag_requests")
     form = TagRequestForm()
-    if form.cancel.data:
-        return redirect(url_for("view_tag_request",
-            tag_request_id=tag_request_id))
     if form.validate_on_submit():
         tag_request.tag = form.tag.data
         tag_request.notes = form.notes.data
@@ -2244,8 +2216,6 @@ def create_tag(tag_request_id):
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("tag_request_index")
     form = TagForm()
-    if form.cancel.data:
-        return redirect(next_page)
     if form.validate_on_submit():
         if form.tag.data != None and form.description.data != None:
             tag = Tag(tag=form.tag.data, description=form.description.data)
