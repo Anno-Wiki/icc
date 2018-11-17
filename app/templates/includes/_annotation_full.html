@@ -61,8 +61,8 @@
     <br>
 
     <!--annotation authorship-->
-    {%- if annotation.HEAD.previous_id == None %}
-        <a href="{{ url_for("annotation", annotatation_id=annotation.id)}}">
+    {%- if annotation.HEAD.edit_num == 0 %}
+        <a href="{{ url_for("annotation", annotation_id=annotation.id)}}">
             annotated by
         </a>
         <a href="{{ url_for("user", user_id=annotation.author.id) }}">

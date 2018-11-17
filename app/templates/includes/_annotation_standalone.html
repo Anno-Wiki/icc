@@ -70,7 +70,7 @@
     <br>
 
     <!--annotation authorship-->
-    {%- if annotation.HEAD.previous_id == None %}
+    {%- if annotation.HEAD.edit_num == 0 %}
         <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
             annotated 
         </a>

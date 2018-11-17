@@ -701,20 +701,6 @@ class Annotation(db.Model):
         if evt:
             db.session.delete(evt)
 
-    def get_history(self):
-        history_list = []
-        edit = self.HEAD.previous
-        while edit.previous != None:
-            history_list.append(edit)
-            edit = edit.previous
-        history_list.append(edit)
-        history = {}
-        i = len(history_list)
-        for edit in history_list:
-            history[i] = edit
-            i -= 1
-        return history
-
     def flag(self, flag, thrower):
         event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
@@ -805,8 +791,6 @@ class AnnotationVersion(db.Model):
     pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index=True)
     hash_id = db.Column(db.String(40), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    previous_id = db.Column(db.Integer, db.ForeignKey("annotation_version.id"),
-            default=None)
     first_line_num = db.Column(db.Integer, db.ForeignKey("line.l_num"))
     last_line_num = db.Column(db.Integer, db.ForeignKey("line.l_num"), index=True)
     first_char_idx = db.Column(db.Integer)
@@ -819,7 +803,13 @@ class AnnotationVersion(db.Model):
     editor = db.relationship("User")
     pointer = db.relationship("Annotation", foreign_keys=[pointer_id])
     book = db.relationship("Book")
-    previous = db.relationship("AnnotationVersion", remote_side=[id])
+    previous = db.relationship("AnnotationVersion",
+            primaryjoin="and_(remote(AnnotationVersion.pointer_id)==foreign(AnnotationVersion.pointer_id),"
+            "remote(AnnotationVersion.edit_num)==foreign(AnnotationVersion.edit_num-1))")
+    priors = db.relationship("AnnotationVersion",
+            primaryjoin="and_(remote(AnnotationVersion.pointer_id)==foreign(AnnotationVersion.pointer_id),"
+            "remote(AnnotationVersion.edit_num)<=foreign(AnnotationVersion.edit_num-1))",
+            uselist=True)
 
     tags = db.relationship("Tag", secondary=tags)
 

@@ -2,53 +2,17 @@
 
 {% block content %}
 <div id="content">
-    {% if edit.rejected == True %}
-        <h1 class="rejected">&#10007; Edit Rejected<h1>
-    {% endif %}
     <h1>Annotation {{ edit.pointer.id }} of {{ edit.book.title }}</h1>
-    <h2>Edit #{{ edit.edit_num }}</h2>
+    <h2>Initial Version</h2>
     <em>
         <a href="{{ url_for("edit_history", annotation_id=edit.pointer.id) }}">
             version history
         </a>
     </em>
-    |
-    <em>
-        <a href="{{ url_for("view_edit", annotation_id=edit.pointer.id,
-            edit_num=edit.previous.edit_num) }}">
-            previous version
-        </a>
-    </em>
-
-    {% if current_user.is_authenticated and current_user.has_right("review_edits") %}
-        {% if current_user.get_vote(edit) %}
-            <h3>
-                <a href="{{ url_for("rescind", edit_id=edit.id,
-                    next=request.full_path) }}">
-                    rescind your vote
-                </a>
-            </h3>
-        {% elif edit.approved == True or edit.rejected == True %}
-        {% else %}
-            <h3>
-                <a href="{{ url_for("approve", edit_id=edit.id) }}">keep</a>
-                /
-                <a href="{{ url_for("reject", edit_id=edit.id) }}">reject</a>
-            </h3>
-        {% endif %}
-    {% endif %}
 
     <div class="diff">
-        {% if edit.first_line_num != edit.previous.first_line_num or
-            edit.last_line_num != edit.previous.last_line_num %}
-            <p><em>Line selection changes:</em></p>
-        {% else %}
-            <p><em>Line selection unchanged:</em></p>
-        {% endif %}
-
-        {% for line in context %}
-            {% if line in edit.lines and line in edit.previous.lines %}
-                <span class="linenum">{{ line.l_num }}</span>
+        <p><em>Line selection:</em></p>
+        {% for line in edit.context %}
                 <line id="{{ line.l_num }}" class="highlight">
                     {{ line.line }}
                 </line>

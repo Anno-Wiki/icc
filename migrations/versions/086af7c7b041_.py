@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0b219cfc6712
+Revision ID: 086af7c7b041
 Revises: 
-Create Date: 2018-11-14 16:10:11.832806
+Create Date: 2018-11-17 12:45:14.489489
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0b219cfc6712'
+revision = '086af7c7b041'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -256,6 +256,12 @@ def upgrade():
     op.create_index(op.f('ix_line_kind_id'), 'line', ['kind_id'], unique=False)
     op.create_index(op.f('ix_line_l_num'), 'line', ['l_num'], unique=False)
     op.create_index(op.f('ix_line_pt_num'), 'line', ['pt_num'], unique=False)
+    op.create_table('tag_request_followers',
+    sa.Column('tag_request_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['tag_request_id'], ['tag_request.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
     op.create_table('tag_request_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -302,7 +308,6 @@ def upgrade():
     sa.Column('pointer_id', sa.Integer(), nullable=True),
     sa.Column('hash_id', sa.String(length=40), nullable=True),
     sa.Column('book_id', sa.Integer(), nullable=True),
-    sa.Column('previous_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
@@ -316,7 +321,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['first_line_num'], ['line.l_num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.l_num'], ),
     sa.ForeignKeyConstraint(['pointer_id'], ['annotation.id'], ),
-    sa.ForeignKeyConstraint(['previous_id'], ['annotation_version.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_annotation_version_approved'), 'annotation_version', ['approved'], unique=False)
@@ -328,6 +332,12 @@ def upgrade():
     op.create_index(op.f('ix_annotation_version_modified'), 'annotation_version', ['modified'], unique=False)
     op.create_index(op.f('ix_annotation_version_pointer_id'), 'annotation_version', ['pointer_id'], unique=False)
     op.create_index(op.f('ix_annotation_version_rejected'), 'annotation_version', ['rejected'], unique=False)
+    op.create_table('book_request_followers',
+    sa.Column('book_request_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['book_request_id'], ['book_request.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
     op.create_table('book_request_vote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -385,6 +395,7 @@ def downgrade():
     op.drop_index(op.f('ix_book_request_vote_user_id'), table_name='book_request_vote')
     op.drop_index(op.f('ix_book_request_vote_book_request_id'), table_name='book_request_vote')
     op.drop_table('book_request_vote')
+    op.drop_table('book_request_followers')
     op.drop_index(op.f('ix_annotation_version_rejected'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_pointer_id'), table_name='annotation_version')
     op.drop_index(op.f('ix_annotation_version_modified'), table_name='annotation_version')
@@ -404,6 +415,7 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_vote_user_id'), table_name='tag_request_vote')
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
+    op.drop_table('tag_request_followers')
     op.drop_index(op.f('ix_line_pt_num'), table_name='line')
     op.drop_index(op.f('ix_line_l_num'), table_name='line')
     op.drop_index(op.f('ix_line_kind_id'), table_name='line')
