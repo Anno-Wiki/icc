@@ -147,6 +147,9 @@ class User(UserMixin, db.Model):
     annotations = db.relationship("Annotation",
             primaryjoin="and_(User.id==Annotation.author_id,"
             "Annotation.active==True)", lazy="dynamic")
+    edits = db.relationship("AnnotationVersion",
+            primaryjoin="and_(User.id==AnnotationVersion.editor_id,"
+            "AnnotationVersion.edit_num>0)", lazy="dynamic")
     ballots = db.relationship("Vote", primaryjoin="User.id==Vote.user_id",
             lazy="dynamic")
     votes = db.relationship("Annotation", secondary="vote",

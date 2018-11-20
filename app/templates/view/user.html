@@ -12,6 +12,7 @@
             {% endif %}
 
             <p> Number of annotations: {{ user.annotations.count() }} </p>
+            <p> Number of edits: {{ user.edits.count() }} </p>
 
             {% if current_user.is_authenticated and current_user.has_right("lock_users") %}
                 {% if user.locked %}
