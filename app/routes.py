@@ -554,6 +554,13 @@ def user_index():
         users = User.query.outerjoin(Annotation).group_by(User.id)\
                 .order_by(db.func.count(Annotation.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "edits":
+        users = User.query.outerjoin(AnnotationVersion,
+                    and_(AnnotationVersion.editor_id==User.id,
+                        AnnotationVersion.edit_num>0))\
+                    .group_by(User.id)\
+                    .order_by(db.func.count(AnnotationVersion.id).desc())\
+                    .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         users = User.query.order_by(User.reputation.desc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
@@ -561,6 +568,7 @@ def user_index():
             "reputation": url_for("user_index", page=page, sort="reputation"),
             "name": url_for("user_index", page=page, sort="name"),
             "annotations": url_for("user_index", page=page, sort="annotations"),
+            "edits": url_for("user_index", page=page, sort="edits"),
             }
     next_page = url_for("user_index", page=users.next_num, sort=sort) \
             if users.has_next else None
@@ -1154,7 +1162,6 @@ def edit(anno_id):
         edit = AnnotationVersion(book=annotation.book,
                 editor_id=current_user.id, edit_num=edit_num,
                 edit_reason=form.reason.data, pointer_id=anno_id,
-                previous_id=annotation.HEAD.id,
                 approved=approved, current=approved,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
@@ -1226,7 +1233,6 @@ def rollback_edit(annotation_id, edit_id):
             editor_id=current_user.id,
             pointer_id=annotation.id,
             book_id=annotation.book_id,
-            previous_id=annotation.HEAD.id,
             first_line_num=edit.first_line_num,
             last_line_num=edit.last_line_num,
             first_char_idx=edit.first_char_idx,
