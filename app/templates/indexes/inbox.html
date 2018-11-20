@@ -48,14 +48,14 @@
     {% for notification in notifications %}
         {% if notification.seen %}
             <tr class="read">
-                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#x2713; </a> </td>
+                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#10003; </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.notification.description }} </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.time }} </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.information }} </a> </td>
             </tr>
         {% else %}
             <tr class="unread">
-                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#10007; </a> </td>
+                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#9993; </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.notification.description }} </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.time }} </a> </td>
                 <td> <a href="{{ notification.link }}"> {{ notification.information }} </a> </td>
