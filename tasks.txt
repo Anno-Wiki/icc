@@ -1,7 +1,6 @@
 
-ID Age Project Description                                                  Urg
--- --- ------- ------------------------------------------------------------ ----
- 2 13d proc    Convert flag processing in tags.py and lines.py to argparse  1.07
- 3 13d proc    process more books into line format                          1.07
+ID Age P Project Description                             Urg
+-- --- - ------- --------------------------------------- ----
+ 1 3mo L proc    process more books into line format      3.4
 
-2 tasks
+1 task
