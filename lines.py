@@ -1,138 +1,110 @@
 import codecs
 import re
 import sys
+import argparse
 
-book_id = None
+parser = argparse.ArgumentParser("Parses text files into icc csv files.")
 
+# input and out put files
+parser.add_argument("-i", "--input", action="store", type=str, default=None,
+        help="Specify input file")
+parser.add_argument("-o", "--output", action="store", type=str, default=None,
+        help="Specify output file")
+
+# level and stage regex
+parser.add_argument("-1", "--level1", action="store", type=str, default=None,
+        help="The 1st level of the hierarchical chapter system")
+parser.add_argument("-2", "--level2", action="store", type=str, default=None,
+        help="The 2nd level")
+parser.add_argument("-3", "--level3", action="store", type=str, default=None,
+        help="The 3rd level")
+parser.add_argument("-4", "--level4", action="store", type=str, default=None,
+        help="The 4th level")
+parser.add_argument("-s", "--stage", action="store", type=str, default=None,
+        help="Stage directions")
+
+# parse the bible
+parser.add_argument("-b", "--bible", action="store_true",
+        help="Option designed for parsing the Bible")
+
+# aggregate level numbers flags
+parser.add_argument("--agg2", action="store_true", help="Aggregate level 2")
+parser.add_argument("--agg3", action="store_true", help="Aggregate level 3")
+parser.add_argument("--agg4", action="store_true", help="Aggregate level 4")
+
+# flags for processing preformatted, quotation, and horizontal rule flags
+parser.add_argument("--pre", action="store_true",
+        help="Process pre flags ('```')")
+parser.add_argument("--quo", action="store_true",
+        help="Process quotation flags ('>')")
+parser.add_argument("--hr", action="store_true",
+        help="Process hr flags ('***')")
+
+args = parser.parse_args()
 
 #########################
 ## Variables and flags ##
 #########################
+
+# Files
+fin = codecs.getreader("utf_8_sig")(sys.stdin.buffer, errors="replace") \
+        if not args.input else open(path, "rt", encoding="UTF-8-SIG")
+fout = sys.stdout if not args.output else open(path, "wt", encoding="UTF-8-SIG")
 
 ######################
 # Global controllers #
 ######################
 
 # Regex identifiers
-bkreg = None                            # Regex - tagging Books
-chreg = None                            # Regex - tag Chapters
-ptreg = None                            # Regex - tag Parts
-stgreg = None                           # Regex - tag Stage Directions
+# The levels form a heierarchy up to four levels deep. Level 1 is the topmost
+# level, level 4 is the lowest level. Treat the levels like a stack, i.e., if
+# there are only chapters, they are level 1, if there are books and chapters,
+# level 1 is books, level 2 is chapters; this is actually dependent on the user,
+# not the program.
+
+lvl1reg = re.compile(args.level1) if args.level1 else None
+lvl2reg = re.compile(args.level2) if args.level2 else None
+lvl3reg = re.compile(args.level3) if args.level3 else None
+lvl4reg = re.compile(args.level4) if args.level4 else None
+stgreg = re.compile(args.stage) if args.stage else None
 
 
-# Constant regexes
-bible_book_regex = re.compile(r"(^(The Gospel According|The Lamentations|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$|(Book|Epistle))")
+######################
+## Constant regexes ##
+######################
+
+bible_book_regex = re.compile(r"(^(The Gospel According|The Lamentations"
+        "|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs"
+        "|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah"
+        "|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$"
+        "|(Book|Epistle))")
 bible_testament_regex = re.compile(r"Testament")
+
+# regex for identifying ellipses and — em dashes
 ellreg = re.compile(r"[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+")
 emreg = re.compile("[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+")
-wordboundary = re.compile("\w+|\W")     # Word boundary break for split
+
+# markdown like flags for horizontal rules, preformatted text, and quotations
 hrreg = re.compile(r"^\*\*\*$")         # Regex - hr
 prereg = re.compile(r"```")             # Regex - tag <pre>'s
 quoreg = re.compile(r"^>")              # Regex - tag quote 
 
-# Flags
-aggch = False                           # Flag - chnums across books and parts
-aggpt = False                           # Flag - preserving ptnum across bks
-raggedright = False                     # Flag - raggedright
-procpre = False                         # Flag - process pre
-procquo = False                         # Flag - process quotes
-prochr = False                          # Flag - process hr's
-
-# Files
-fin = codecs.getreader("utf_8_sig")(sys.stdin.buffer, errors="replace")
-fout = sys.stdout
-
-# Help menu
-def printhelp():
-    h = []
-    h.append(f"Usage: python {sys.argv[0]} -b <book_id> [options] [-i <input file>] [-o <output file>]")
-    h.append(f"The output is formatted as @ separated values of the order:")
-    h.append(f"book_id   l_num   kind   bk_num   pt_num   ch_num   emstatus line")
-
-    h.append("")
-    h.append("Defaults to stdin and stdout. To specify an input or output file")
-    h.append("use one or both of the following flags")
-    h.append("-i <input file>")
-    h.append("-o <output file>")
-
-    h.append("")
-    h.append("      Flags")
-    h.append("-b <book_id>          Book id *required*")
-    h.append("-h                    Help")
-    h.append("-r                    Enable ragged right")
-
-    h.append("")
-    h.append("      Flags to prevent reset of ch and pt numbers in heierarchical")
-    h.append("      text organization processing")
-    h.append("--aggch               Aggregate chapters, do not reset")
-    h.append("--aggpt               Aggregate parts, do not reset")
-
-    
-    h.append("")
-    h.append("      Regexes for identifying subtitles")
-    h.append("--bible               Enable bible chapter detection mode")
-    h.append("--bk <regex>          Regex for Books (Heierarchical chapters lvl 1)")
-    h.append("--pt <regex>          Regex for Parts (Heierarchical chapters lvl 2)")
-    h.append("--ch <regex>          Regex for Chapters (Heierarchical Chapters lvl 3)")
-    h.append("--stg <regex>         Regex for Stage Directions")
-
-    h.append("--hr                  Process horizontal rule breaks")
-    h.append("--pre                 Process pre lines")
-    h.append("--quo                 Process quoted lines")
-
-    for l in h:
-        print(l)
-    sys.exit()
-
-# Input file override
-if "-i" in sys.argv:
-    fin = open(path, "rt", encoding="UTF-8-SIG")
-if "-o" in sys.argv:
-    fout = open(path, "wt", encoding="UTF-8-SIG")
-
-# Flags
-if "-h" in sys.argv:
-    printhelp()
-if "-r" in sys.argv:
-    raggedright = True
-
-# Aggregation flags
-if "--aggch" in sys.argv:
-    aggch = True
-if "--aggpt" in sys.argv:
-    aggpt = True
-
-# Regex
-if "--bible" in sys.argv:
-    ptreg = bible_book_regex
-    bkreg = bible_testament_regex
-if "--bk" in sys.argv:
-    bkreg = re.compile(sys.argv[sys.argv.index("--bk")+1])
-if "--pt" in sys.argv:
-    ptreg = re.compile(sys.argv[sys.argv.index("--pt")+1])
-if "--ch" in sys.argv:
-    chreg = re.compile(sys.argv[sys.argv.index("--ch")+1])
-if "--hr" in sys.argv:
-    prochr = True
-if "--stg" in sys.argv:
-    stgreg = re.compile(sys.argv[sys.argv.index("--stg")+1])
-if "--pre" in sys.argv:
-    procpre = True
-if "--quo" in sys.argv:
-    procquo = True
-if "-b" not in sys.argv:
-    sys.exit("-b <book_id> flag required")
-else:
-    book_id = int(sys.argv[sys.argv.index("-b") + 1])
-
+wordboundary = re.compile("\w+|\W")     # Word boundary break for split
 
 ###############
 ## Functions ##
 ###############
 
 def lout(cls, l):
-    fout.write(f"{book_id}@{txtlines}@{cls}@{bknum}@{ptnum}@{chnum}@{l[2]}@{l[1]}")
-
+    # l is an array of the form ["line-type", "line", "emphasis-status"]
+    # The form of the outpt csv is:
+    # line-number, line-type, emphasis-status,
+    # level-1-number through level-4-number,
+    # line
+    # We use @ signs because actual commas are a headache and a half
+    fout.write(f"{txtlines}@{cls}@{l[2]}"
+                f"@{lvl1num}@{lvl2num}@{lvl3num}@{lvl4num}"
+                f"@{l[1]}")
 
 def oc(line):
     o = line.count("<em>")
@@ -145,9 +117,9 @@ def oc(line):
 
 lines = [["beginning", "beginning"]] # Prepend initial value
 i = 1   # Must index from one to avoid out of bounds for checking previous
-us = False
-lem = False
-pre = False
+us = False # Underscore open flag
+lem = False # Line-by-line emphasis flag
+pre = False # pre flag
 
 # In order to accomplish contextual tagging (i.e., based on previous 
 # and next lines) we have to read the whole file into memory.
@@ -158,22 +130,24 @@ for line in fin:
         lines.append(["blank", "blank"])
 
     # All special lines
-    elif procpre and re.search(prereg, line):
+    elif args.pre and re.search(prereg, line):
         pre = not pre
         continue
-    elif procpre and pre:
+    elif args.pre and pre:
         lines.append(["pre", line])
-    elif bkreg and re.search(bkreg, line):
-        lines.append(["bk", line])
-    elif ptreg and re.search(ptreg, line):
-        lines.append(["pt", line])
-    elif chreg and re.search(chreg, line):
-        lines.append(["ch", line])
+    elif lvl1reg and re.search(lvl1reg, line):
+        lines.append(["lvl1", line])
+    elif lvl2reg and re.search(lvl2reg, line):
+        lines.append(["lvl2", line])
+    elif lvl3reg and re.search(lvl3reg, line):
+        lines.append(["lvl3", line])
+    elif lvl4reg and re.search(lvl4reg, line):
+        lines.append(["lvl4", line])
     elif stgreg and re.search(stgreg, line):
         lines.append(["stg", line])
-    elif prochr and re.search(hrreg, line):
+    elif args.hr and re.search(hrreg, line):
         lines.append(["hr", '<hr class="book_separator">'])
-    elif procquo and re.search(quoreg, line):
+    elif args.quo and re.search(quoreg, line):
         lines.append(["quo", line[1:]])
     
     # For everything else
@@ -214,15 +188,15 @@ lines.append(["last", "last"]) # Append a final value to avoid out of bounds
 ## The Main Loop ##
 ###################
 
-
 i = 1                           # Reset i to 1 to avoid first case of out of bounds
 wordcount = 0                   # Keep track of words
 txtlines = 0                   # Count number of lines printed in toto
 
 # Heierarchical chapter numbers
-chnum = 0
-ptnum = 0
-bknum = 0
+lvl1num = 0
+lvl2num = 0
+lvl3num = 0
+lvl4num = 0
 
 
 for line in lines:
@@ -238,29 +212,41 @@ for line in lines:
         txtlines += 1
         lout("hr", "", "nem")
 
-    # Handling for ch, includes writing of open/close paragraphs
-    elif lines[i][0] == "ch":
-        chnum += 1
+    # handling for level 1
+    elif lines[i][0] == "lvl1":
+        lvl1num += 1
         txtlines += 1
-        lout("ch", lines[i])
+        if not args.agg2:
+            lvl2num = 0
+        if not args.agg3:
+            lvl3num = 0
+        if not args.agg4:
+            lvl4num = 0
+        lout("lvl1", lines[i])
 
-    # Handling for part
-    elif lines[i][0] == "pt":
-        ptnum += 1
+    # Handling for level 2
+    elif lines[i][0] == "lvl2":
+        lvl2num += 1
         txtlines += 1
-        if not aggch:
-            chnum = 0
-        lout("pt", lines[i])
+        if not args.agg3:
+            lvl3num = 0
+        if not args.agg4:
+            lvl4num = 0
+        lout("lvl2", lines[i])
 
-    # Handling for book
-    elif lines[i][0] == "bk":
-        bknum += 1
+    # Handling for level 3
+    elif lines[i][0] == "lvl3":
+        lvl3numnum += 1
         txtlines += 1
-        if not aggpt:
-            ptnum = 0
-        if not aggch:
-            chnum = 0
-        lout("bk", lines[i])
+        if not args.agg4:
+            lvl4num = 0
+        lout("lvl3", lines[i])
+
+    # Handling for level 4
+    elif lines[i][0] == "lvl4":
+        lvl4numnum += 1
+        txtlines += 1
+        lout("lvl4", lines[i])
 
     # Handling for stage directions (if that"s a thing)
     elif lines[i][0] == "stg":
@@ -296,40 +282,21 @@ for line in lines:
     elif lines[i][0] == "text":
         txtlines += 1
 
-        if raggedright:
+        # single line
+        if lines[i+1][0] != "text" and lines[i-1][0] != "text":
+            lout("sl", lines[i])
 
-            # single line
-            if lines[i+1][0] != "text" and lines[i-1][0] != "text":
-                lout("rsl", lines[i])
+        # last line in a p
+        elif lines[i+1][0] != "text":
+            lout("ll", lines[i])
+            
+        # first line in a p
+        elif lines[i-1][0] != "text":
+            lout("fl", lines[i])
 
-            # last line in a p
-            elif lines[i+1][0] != "text":
-                lout("rll", lines[i])
-
-            # first line in a p
-            elif lines[i-1][0] != "text":
-                lout("rfl", lines[i])
-
-            # regular line in middle of a p
-            else:
-                lout("rl", lines[i])
-                        
+        # regular line in middle of a p
         else:
-            # single line
-            if lines[i+1][0] != "text" and lines[i-1][0] != "text":
-                lout("sl", lines[i])
-
-            # last line in a p
-            elif lines[i+1][0] != "text":
-                lout("ll", lines[i])
-                
-            # first line in a p
-            elif lines[i-1][0] != "text":
-                lout("fl", lines[i])
-
-            # regular line in middle of a p
-            else:
-                lout("l", lines[i])
+            lout("l", lines[i])
 
     i += 1
 
