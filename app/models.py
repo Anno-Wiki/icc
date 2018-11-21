@@ -24,7 +24,7 @@ class SearchableMixin(object):
         for i in range(len(ids)):
             when.append((ids[i], i))
         return cls.query.filter(cls.id.in_(ids)).order_by(
-                db.case(when, value=cls.id)), total
+                db.case(when, value=cls.id)).all(), total
 
     @classmethod
     def before_commit(cls, session):
@@ -507,7 +507,7 @@ class Kind(db.Model):
     def __repr__(self):
         return f"<k {self.id}: {self.kind}>"
 
-class Line(db.Model):
+class Line(SearchableMixin, db.Model):
     __searchable__ = ["line", "book_title"]
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
@@ -623,7 +623,8 @@ class Vote(db.Model):
     def is_up(self):
         return self.delta > 0
 
-class Annotation(db.Model):
+class Annotation(SearchableMixin, db.Model):
+    __searchable__ = ["book_title", "author_displayname", "annotation"]
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
@@ -634,10 +635,11 @@ class Annotation(db.Model):
     active = db.Column(db.Boolean, default=True)
 
     author = db.relationship("User")
-    book = db.relationship("Book")
+    book = db.relationship("Book", lazy="joined")
     HEAD = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.current==True,"
-            "AnnotationVersion.pointer_id==Annotation.id)", uselist=False)
+            "AnnotationVersion.pointer_id==Annotation.id)", uselist=False,
+            lazy="joined")
     lines = db.relationship("Line", secondary="annotation_version",
             primaryjoin="and_(Annotation.id==AnnotationVersion.pointer_id,"
                 "AnnotationVersion.current==True)",
@@ -660,10 +662,20 @@ class Annotation(db.Model):
             "AnnotationFlagEvent.resolved_by==None)")
     edits = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
-                "AnnotationVersion.approved==True)")
+                "AnnotationVersion.approved==True)", lazy="joined")
     history = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.pointer_id==Annotation.id,"
                 "AnnotationVersion.approved==True)", lazy="dynamic")
+
+    def __getattr__(self, attr):
+        if attr.startswith("author_"):
+            return getattr(self.author, attr.replace("author_", "", 1))
+        elif attr.startswith("book_"):
+            return getattr(self.book, attr.replace("book_", "", 1))
+        elif attr.startswith("annotation"):
+            return self.HEAD.annotation
+        else:
+            raise AttributeError(f"No such attribute {attr}")
 
     def upvote(self, voter):
         weight = voter.up_power()

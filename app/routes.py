@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 import hashlib
 from flask import render_template, flash, redirect, url_for, request, Markup, \
-        abort, jsonify
+        abort, jsonify, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_, and_
@@ -15,7 +15,7 @@ from app.models import User, Book, Author, Line, Kind, Annotation, \
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
-        AreYouSureForm
+        AreYouSureForm, SearchForm
 from app.email import send_password_reset_email
 from app.funky import preplines, is_filled
 import difflib
@@ -26,6 +26,27 @@ import time
 def before_request():
     if current_user.is_authenticated and current_user.locked:
         logout_user()
+    g.search_form = SearchForm()
+
+@app.route("/search")
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for("index"))
+    page = request.args.get("page", 1, type=int)
+    lines, line_total = Line.search(g.search_form.q.data, page,
+            app.config["LINES_PER_SEARCH_PAGE"])
+    annotations, annotation_total = Annotation.search(g.search_form.q.data,
+            page, app.config["ANNOTATIONS_PER_SEARCH_PAGE"])
+    next_url = url_for("search", q=g.search_form.q.data, page=page + 1)\
+        if line_total > page * app.config["LINES_PER_SEARCH_PAGE"]\
+        or annotation_total > page * app.config["ANNOTATIONS_PER_SEARCH_PAGE"]\
+        else None
+    prev_url = url_for("search", q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template("indexes/search.html", title="Search", lines=lines,
+            line_total=line_total, annotations=annotations,
+            annotation_total=annotation_total, next_url=next_url,
+            prev_url=prev_url)
 
 ###########
 ## Index ##

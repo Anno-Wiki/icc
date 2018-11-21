@@ -61,6 +61,14 @@
             {% else %}
                 <a href="{{ url_for("user_index") }}">USERS</a>
             {% endif %}
+
+        {% if g.search_form %}
+            <form method="get" action="{{ url_for("search") }}" class="search">
+                    {{ g.search_form.q(size=20,
+                        placeholder=g.search_form.q.label.text) }}
+            </form>
+        {% endif %}
+
         </nav>
 
         <div class="user_info">

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search Results</h1>
+    <h2>{{ line_total }} lines</h2>
+    <div id="content">
+        {% for line in lines %}
+            <h3>
+                Line 
+                <a href="{{ line.get_url() }}#{{ line.l_num }}">{{ line.l_num }}</a>
+                of 
+                <a href="{{ url_for("book", book_url=line.book.url) }}">
+                    {{ line.book.title }}
+                </a>
+                by 
+                <a href="{{ url_for("author", name=line.book.author.url) }}">
+                    {{ line.book.author.name }}
+                </a>
+            </h3>
+            {% for l in line.context %}
+                <a href="{{ l.get_url() }}#{{ l.l_num }}">
+                    <line class="{{ l.kind.kind }}" id="{{ l.l_num }}">
+                        {% if l == line %}
+                            <div class="highlight">
+                                <span class="linenum">{{ l.l_num }}</span>
+                                {{ l.line|safe }}
+                            </div>
+                        {% else %}
+                            <span class="hidden_linenum">{{ l.l_num }}</span>
+                            {{ l.line|safe }}
+                        {% endif %}
+                    </line>
+                </a>
+            {% endfor %}
+            <hr>
+        {% endfor %}
+    </div>
+{% endblock %}

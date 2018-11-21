@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, elasticsearch
 from app.models import AdminRight, User, Vote, EditVote, Book, Author, Line, \
     Kind, Tag, Annotation, AnnotationVersion, BookRequest, BookRequestVote, \
     UserFlag, UserFlagEvent, AnnotationFlag, AnnotationFlagEvent, \
@@ -18,4 +18,5 @@ def make_shell_context():
             "AnnotationFlag": AnnotationFlag,
             "AnnotationFlagEvent": AnnotationFlagEvent,
             "NotificationType": NotificationType,
-            "NotificationEvent": NotificationEvent }
+            "NotificationEvent": NotificationEvent,
+            "es" : elasticsearch }
