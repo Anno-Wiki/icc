@@ -2,8 +2,18 @@ from app import db
 from app.models import Book, Line, User, Annotation, AnnotationVersion, Tag
 import sys
 import codecs
+import argparse
 
-book_id = None
+parser = argparse.ArgumentParser("Process icc .anno file into the database.")
+parser.add_argument("-b", "--book", action="store", type=int, required=True,
+        help="The book id")
+parser.add_argument("-a", "--author", action="store", type=str, required=True,
+        help="The name of the annotator in the form of a tag (i.e., no spaces)")
+parser.add_argument("-d", "--dryrun", action="store_true",
+        help="Flag for a dry run test.")
+
+args = parser.parse_args()
+
 user = User.query.filter_by(displayname="Community").first()
 if user == None:
     user = User(displayname="Community", email="community@annopedia.org",
@@ -28,23 +38,18 @@ Sincerely,
 The Annopedia Team
 """
             )
-    db.session.add(user)
-    db.session.commit()
-author_tag = None
-original_tag = Tag.query.filter_by(tag="original").first()
 
-if "-b" not in sys.argv:
-    sys.exit("-b required")
-else:
-    book_id = int(sys.argv[sys.argv.index("-b")+1])
-if "-a" not in sys.argv:
-    sys.exit("-a required")
-else:
-    author = sys.argv[sys.argv.index("-a")+1]
-    author_tag = Tag.query.filter_by(tag=author).first()
-    if author_tag == None:
-        author_tag = Tag(tag=author,
-            description=f"Original annotations from {author}.", admin=True)
+    if not args.dryrun:
+        db.session.add(user)
+        db.session.commit()
+
+original_tag = Tag.query.filter_by(tag="original").first()
+author_tag = Tag.query.filter_by(tag=args.author).first()
+
+if author_tag == None:
+    author_tag = Tag(tag=args.author,
+        description=f"Original annotations from {args.author}.", admin=True)
+    if not args.dryrun:
         db.session.add(author_tag)
         db.session.commit()
 
@@ -57,26 +62,31 @@ for line in fin:
     fields = line.split("@")
     l = Line.query.filter_by(line=fields[1][:-1]).first()
 
-    commit = AnnotationVersion(book_id=book_id, approved=True, editor=user,
-            first_line_num=l.l_num, last_line_num=l.l_num,
-            first_char_idx=0, last_char_idx=-1,
-            annotation=fields[0], tags=tags, current=True, edit_num=0,
-            edit_reason="Initial version")
+    if not l:
+        print(str(fields))
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(book_id=book_id, HEAD=commit, author=user, locked=True)
+    head = Annotation(book_id=args.book, author=user, locked=True)
+
+    commit = AnnotationVersion(
+            pointer=head, approved=True, current=True, 
+            book_id=args.book, editor=user,
+            first_line_num=l.line_num, last_line_num=l.line_num,
+            first_char_idx=0, last_char_idx=-1,
+            annotation=fields[0], tags=tags,
+            edit_num=0, edit_reason="Initial version")
 
     # add commit and head, commit both
-    db.session.add(commit)
-    db.session.add(head)
-    db.session.commit()
-
-    # point the commit to head (This prevents the circular reference)
-    commit.pointer = head
-    db.session.commit()
+    if not args.dryrun:
+        db.session.add(head)
+        db.session.add(commit)
+        db.session.commit()
 
     cnt += 1
     if cnt % 25 == 0:
         print(cnt)
 
-print(f"{cnt} annotations added.")
+if not args.dryrun:
+    print(f"{cnt} annotations added.")
+else:
+    print(f"{cnt} annotations created.")

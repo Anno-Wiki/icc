@@ -511,11 +511,12 @@ class Line(SearchableMixin, db.Model):
     __searchable__ = ["line", "book_title"]
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    l_num = db.Column(db.Integer, index=True)
+    line_num = db.Column(db.Integer, index=True)
     kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index=True)
-    bk_num = db.Column(db.Integer, index=True)
-    pt_num = db.Column(db.Integer, index=True)
-    ch_num = db.Column(db.Integer, index=True)
+    lvl_1 = db.Column(db.Integer, index=True)
+    lvl_2 = db.Column(db.Integer, index=True)
+    lvl_3 = db.Column(db.Integer, index=True)
+    lvl_4 = db.Column(db.Integer, index=True)
     em_status_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index=True)
     line = db.Column(db.String(200))
 
@@ -523,22 +524,22 @@ class Line(SearchableMixin, db.Model):
     kind = db.relationship("Kind", foreign_keys=[kind_id])
     em_status = db.relationship("Kind", foreign_keys=[em_status_id])
     context = db.relationship("Line",
-            primaryjoin="and_(remote(Line.l_num)<=Line.l_num+1,"
-                "remote(Line.l_num)>=Line.l_num-1,"
+            primaryjoin="and_(remote(Line.line_num)<=Line.line_num+1,"
+                "remote(Line.line_num)>=Line.line_num-1,"
                 "remote(Line.book_id)==Line.book_id)",
-            foreign_keys=[l_num, book_id], remote_side=[l_num, book_id],
+            foreign_keys=[line_num, book_id], remote_side=[line_num, book_id],
             uselist=True, viewonly=True)
     annotations = db.relationship("Annotation", secondary="annotation_version",
-            primaryjoin="and_(AnnotationVersion.first_line_num<=foreign(Line.l_num),"
-                    "AnnotationVersion.last_line_num>=foreign(Line.l_num),"
+            primaryjoin="and_(AnnotationVersion.first_line_num<=foreign(Line.line_num),"
+                    "AnnotationVersion.last_line_num>=foreign(Line.line_num),"
                     "AnnotationVersion.book_id==foreign(Line.book_id),"
                     "AnnotationVersion.current==True)",
             secondaryjoin="and_(foreign(AnnotationVersion.pointer_id)==Annotation.id,"
                     "Annotation.active==True)",
-            uselist=True, foreign_keys=[l_num,book_id])
+            uselist=True, foreign_keys=[line_num,book_id])
 
     def __repr__(self):
-        return f"<l {self.id}: {self.l_num} of {self.book.title} [{self.kind.kind}]>"
+        return f"<l {self.id}: {self.line_num} of {self.book.title} [{self.kind.kind}]>"
 
     def __getattr__(self, attr):
         if attr.startswith("book_"):
@@ -549,22 +550,22 @@ class Line(SearchableMixin, db.Model):
     def get_prev_section(self):     # cleverer than expected
         if self.ch_num != 0:        # decrementing by chapters
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.l_num<self.l_num).order_by(Line.l_num.desc()
+                    Line.line_num<self.line_num).order_by(Line.line_num.desc()
                             ).limit(10).all()
             for l in lines:         # go backwards through lines
                 if l.ch_num != 0:   # the 1st time ch_num != 0, return it
                     return l
         elif self.pt_num != 0:      # decrementing by parts
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.l_num<self.l_num
-                    ).order_by(Line.l_num.desc()).limit(10).all()
+                    Line.ch_num==0, Line.line_num<self.line_num
+                    ).order_by(Line.line_num.desc()).limit(10).all()
             for l in lines:
                 if l.pt_num != 0:
                     return l
         else:                       # decrementing by books
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.pt_num==0, Line.l_num<self.l_num
-                    ).order_by(Line.l_num.desc()).limit(10).all()
+                    Line.ch_num==0, Line.pt_num==0, Line.line_num<self.line_num
+                    ).order_by(Line.line_num.desc()).limit(10).all()
             for l in lines:
                 if l.bk_num != 0:
                     return l
@@ -573,33 +574,34 @@ class Line(SearchableMixin, db.Model):
     def get_next_section(self):
         if self.ch_num != 0:
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.l_num>self.l_num
-                    ).order_by(Line.l_num.asc()).limit(10).all()
+                    Line.line_num>self.line_num
+                    ).order_by(Line.line_num.asc()).limit(10).all()
             for l in lines:
                 if l.ch_num != 0:
                     return l
         elif self.pt_num != 0:
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.l_num>self.l_num
-                    ).order_by(Line.l_num.asc()).limit(10).all()
+                    Line.ch_num==0, Line.line_num>self.line_num
+                    ).order_by(Line.line_num.asc()).limit(10).all()
             for l in lines:
                 if l.pt_num != 0:
                     return l
         else:
             lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.pt_num==0, Line.l_num>self.l_num
-                    ).order_by(Line.l_num.asc()).limit(10).all()
+                    Line.ch_num==0, Line.pt_num==0, Line.line_num>self.line_num
+                    ).order_by(Line.line_num.asc()).limit(10).all()
             for l in lines:
                 if l.bk_num != 0:
                     return l
         return None
 
     def get_url(self):
-        bk = self.bk_num if self.bk_num > 0 else None
-        pt = self.pt_num if self.pt_num > 0 else None
-        ch = self.ch_num if self.ch_num > 0 else None
-        return url_for("read", book_url=self.book.url, book=bk,
-                part=pt, chapter=ch)
+        lvl1 = self.lvl_1 if self.lvl_1 > 0 else None
+        lvl2 = self.lvl_2 if self.lvl_2 > 0 else None
+        lvl3 = self.lvl_3 if self.lvl_3 > 0 else None
+        lvl4 = self.lvl_4 if self.lvl_4 > 0 else None
+        return url_for("read", book_url=self.book.url, l1=lvl1,
+                l2=lvl2, l3=lvl3, l4=lvl4)
 
 
 #################
@@ -643,15 +645,15 @@ class Annotation(SearchableMixin, db.Model):
     lines = db.relationship("Line", secondary="annotation_version",
             primaryjoin="and_(Annotation.id==AnnotationVersion.pointer_id,"
                 "AnnotationVersion.current==True)",
-            secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
-                "Line.l_num<=AnnotationVersion.last_line_num,"
+            secondaryjoin="and_(Line.line_num>=AnnotationVersion.first_line_num,"
+                "Line.line_num<=AnnotationVersion.last_line_num,"
                 "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
     context = db.relationship("Line", secondary="annotation_version",
             primaryjoin="and_(Annotation.id==AnnotationVersion.pointer_id,"
                 "AnnotationVersion.current==True)",
-            secondaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
-                "Line.l_num<=AnnotationVersion.last_line_num+5,"
+            secondaryjoin="and_(Line.line_num>=AnnotationVersion.first_line_num-5,"
+                "Line.line_num<=AnnotationVersion.last_line_num+5,"
                 "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
     flag_history = db.relationship("AnnotationFlagEvent",
@@ -806,8 +808,8 @@ class AnnotationVersion(db.Model):
     pointer_id = db.Column(db.Integer, db.ForeignKey("annotation.id"), index=True)
     hash_id = db.Column(db.String(40), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    first_line_num = db.Column(db.Integer, db.ForeignKey("line.l_num"))
-    last_line_num = db.Column(db.Integer, db.ForeignKey("line.l_num"), index=True)
+    first_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"))
+    last_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
     annotation = db.Column(db.Text)
@@ -829,13 +831,13 @@ class AnnotationVersion(db.Model):
     tags = db.relationship("Tag", secondary=tags)
 
     lines = db.relationship("Line",
-        primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num,"
-            "Line.l_num<=AnnotationVersion.last_line_num,"
+        primaryjoin="and_(Line.line_num>=AnnotationVersion.first_line_num,"
+            "Line.line_num<=AnnotationVersion.last_line_num,"
             "Line.book_id==AnnotationVersion.book_id)",
             viewonly=True, uselist=True)
     context = db.relationship("Line",
-        primaryjoin="and_(Line.l_num>=AnnotationVersion.first_line_num-5,"
-            "Line.l_num<=AnnotationVersion.last_line_num+5,"
+        primaryjoin="and_(Line.line_num>=AnnotationVersion.first_line_num-5,"
+            "Line.line_num<=AnnotationVersion.last_line_num+5,"
             "Line.book_id==AnnotationVersion.book_id)",
             foreign_keys=[first_line_num,last_line_num],
             viewonly=True, uselist=True)

@@ -27,9 +27,9 @@
     <h3>Selection:</h3>
     <div id="content">
         {% if len(lines) > 1 %}
-            <h1> Annotating <em>ll. {{ lines[0].l_num }}-{{ lines[-1].l_num }}</em> of War and Peace </h1>
+            <h1> Annotating <em>ll. {{ lines[0].line_num }}-{{ lines[-1].line_num }}</em> of War and Peace </h1>
         {% else %}
-            <h1> Annotating <em>l. {{ lines[0].l_num }}</em> of War and Peace </h1>
+            <h1> Annotating <em>l. {{ lines[0].line_num }}</em> of War and Peace </h1>
         {% endif %}
 
         <div class="selection">
@@ -37,14 +37,14 @@
             {% for line in context %}
                 {% if line in lines %}
                     <div class="highlight">
-                        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-                            <span class="linenum">{{ line.l_num }}</span>
+                        <line class="{{ line.kind.kind }}" id="{{ line.line_num }}">
+                            <span class="linenum">{{ line.line_num }}</span>
                             {{ line.line }}
                         </line>
                     </div>
                 {% else %}
-                    <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-                        <span class="linenum">{{ line.l_num }}</span>
+                    <line class="{{ line.kind.kind }}" id="{{ line.line_num }}">
+                        <span class="linenum">{{ line.line_num }}</span>
                         {{ line.line }}
                     </line>
                 {% endif %}

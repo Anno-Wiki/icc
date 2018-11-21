@@ -48,22 +48,22 @@
 
         {% for line in context %}
             {% if line in edit.lines and line in edit.previous.lines %}
-                <span class="linenum">{{ line.l_num }}</span>
-                <line id="{{ line.l_num }}" class="highlight">
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="highlight">
                     {{ line.line }}
                 </line>
             {% elif line in edit.lines %}
-                <span class="linenum">{{ line.l_num }}</span>
-                <line id="{{ line.l_num }}" class="plus">
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="plus">
                     {{ line.line }}
                 </line>
             {% elif line in edit.previous.lines %}
-                <span class="linenum">{{ line.l_num }}</span>
-                <line id="{{ line.l_num }}" class="delta">
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="delta">
                     {{ line.line }}
                 </line>
             {% else %}
-                <line id="{{ line.l_num }}"> 
+                <line id="{{ line.line_num }}"> 
                     {{ line.line }}
                 </line>
             {% endif %}

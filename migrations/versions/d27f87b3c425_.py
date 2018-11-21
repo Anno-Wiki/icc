@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 086af7c7b041
+Revision ID: d27f87b3c425
 Revises: 
-Create Date: 2018-11-17 12:45:14.489489
+Create Date: 2018-11-21 16:01:32.439872
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '086af7c7b041'
+revision = 'd27f87b3c425'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -237,11 +237,12 @@ def upgrade():
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=True),
-    sa.Column('l_num', sa.Integer(), nullable=True),
+    sa.Column('line_num', sa.Integer(), nullable=True),
     sa.Column('kind_id', sa.Integer(), nullable=True),
-    sa.Column('bk_num', sa.Integer(), nullable=True),
-    sa.Column('pt_num', sa.Integer(), nullable=True),
-    sa.Column('ch_num', sa.Integer(), nullable=True),
+    sa.Column('lvl_1', sa.Integer(), nullable=True),
+    sa.Column('lvl_2', sa.Integer(), nullable=True),
+    sa.Column('lvl_3', sa.Integer(), nullable=True),
+    sa.Column('lvl_4', sa.Integer(), nullable=True),
     sa.Column('em_status_id', sa.Integer(), nullable=True),
     sa.Column('line', sa.String(length=200), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
@@ -249,13 +250,14 @@ def upgrade():
     sa.ForeignKeyConstraint(['kind_id'], ['kind.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_line_bk_num'), 'line', ['bk_num'], unique=False)
     op.create_index(op.f('ix_line_book_id'), 'line', ['book_id'], unique=False)
-    op.create_index(op.f('ix_line_ch_num'), 'line', ['ch_num'], unique=False)
     op.create_index(op.f('ix_line_em_status_id'), 'line', ['em_status_id'], unique=False)
     op.create_index(op.f('ix_line_kind_id'), 'line', ['kind_id'], unique=False)
-    op.create_index(op.f('ix_line_l_num'), 'line', ['l_num'], unique=False)
-    op.create_index(op.f('ix_line_pt_num'), 'line', ['pt_num'], unique=False)
+    op.create_index(op.f('ix_line_line_num'), 'line', ['line_num'], unique=False)
+    op.create_index(op.f('ix_line_lvl_1'), 'line', ['lvl_1'], unique=False)
+    op.create_index(op.f('ix_line_lvl_2'), 'line', ['lvl_2'], unique=False)
+    op.create_index(op.f('ix_line_lvl_3'), 'line', ['lvl_3'], unique=False)
+    op.create_index(op.f('ix_line_lvl_4'), 'line', ['lvl_4'], unique=False)
     op.create_table('tag_request_followers',
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -318,8 +320,8 @@ def upgrade():
     sa.Column('edit_reason', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['first_line_num'], ['line.l_num'], ),
-    sa.ForeignKeyConstraint(['last_line_num'], ['line.l_num'], ),
+    sa.ForeignKeyConstraint(['first_line_num'], ['line.line_num'], ),
+    sa.ForeignKeyConstraint(['last_line_num'], ['line.line_num'], ),
     sa.ForeignKeyConstraint(['pointer_id'], ['annotation.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -416,13 +418,14 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
     op.drop_table('tag_request_followers')
-    op.drop_index(op.f('ix_line_pt_num'), table_name='line')
-    op.drop_index(op.f('ix_line_l_num'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl_4'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl_3'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl_2'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl_1'), table_name='line')
+    op.drop_index(op.f('ix_line_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_kind_id'), table_name='line')
     op.drop_index(op.f('ix_line_em_status_id'), table_name='line')
-    op.drop_index(op.f('ix_line_ch_num'), table_name='line')
     op.drop_index(op.f('ix_line_book_id'), table_name='line')
-    op.drop_index(op.f('ix_line_bk_num'), table_name='line')
     op.drop_table('line')
     op.drop_index(op.f('ix_book_request_weight'), table_name='book_request')
     op.drop_index(op.f('ix_book_request_title'), table_name='book_request')

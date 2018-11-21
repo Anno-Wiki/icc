@@ -643,14 +643,16 @@ def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
 
     # get the kinds for each heierarchical chapter level
-    bk_kind = Kind.query.filter_by(kind="bk").first()
-    pt_kind = Kind.query.filter_by(kind="pt").first()
-    ch_kind = Kind.query.filter_by(kind="ch").first()
+    lvl1_kind = Kind.query.filter_by(kind="lvl1").first()
+    lvl2_kind = Kind.query.filter_by(kind="lvl2").first()
+    lvl3_kind = Kind.query.filter_by(kind="lvl3").first()
+    lvl4_kind = Kind.query.filter_by(kind="lvl4").first()
 
     # get all the heierarchical chapter lines
     hierarchy = book.lines.filter(
-            or_(Line.kind==bk_kind, Line.kind==pt_kind, Line.kind==ch_kind)
-            ).order_by(Line.l_num.asc()).all()
+            or_(Line.kind==lvl1_kind, Line.kind==lvl2_kind,
+                Line.kind==lvl3_kind, Line.kind==lvl4_kind)
+            ).order_by(Line.line_num.asc()).all()
 
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
@@ -904,13 +906,13 @@ def read(book_url):
     if ch != 0:
         lines = book.lines.filter(
                 Line.bk_num==bk, Line.pt_num==pt, Line.ch_num==ch
-                ).order_by(Line.l_num.asc()).all()
+                ).order_by(Line.line_num.asc()).all()
     elif pt != 0:
         lines = book.lines.filter(Line.bk_num==bk, Line.pt_num==pt
-                ).order_by(Line.l_num.asc()).all()
+                ).order_by(Line.line_num.asc()).all()
     else:
         lines = book.lines.filter(Line.bk_num==bk,
-                ).order_by(Line.l_num.asc()).all()
+                ).order_by(Line.line_num.asc()).all()
 
     if len(lines) <= 0:
         abort(404)
@@ -961,20 +963,20 @@ def read(book_url):
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.annotations\
                 .filter(Annotation.book_id==book.id,
-                        AnnotationVersion.last_line_num<=lines[-1].l_num)\
+                        AnnotationVersion.last_line_num<=lines[-1].line_num)\
                 .all()
         tags = None
     else:
         annotations = book.annotations\
-                .filter(AnnotationVersion.last_line_num<=lines[-1].l_num)\
+                .filter(AnnotationVersion.last_line_num<=lines[-1].line_num)\
                 .all()
         # this query is like 5 times faster than the old double-for loop
         tags = Tag.query.outerjoin(tags_table)\
                 .join(AnnotationVersion, and_(
                     AnnotationVersion.id==tags_table.c.annotation_version_id,
                     AnnotationVersion.current==True,
-                    AnnotationVersion.first_line_num>=lines[0].l_num,
-                    AnnotationVersion.last_line_num<=lines[-1].l_num)
+                    AnnotationVersion.first_line_num>=lines[0].line_num,
+                    AnnotationVersion.last_line_num<=lines[-1].line_num)
                     )\
                 .all()
 
@@ -1024,10 +1026,10 @@ def annotate(book_url, first_line, last_line):
         next_page = lines[0].get_url()
 
     book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines.filter(Line.l_num>=first_line,
-            Line.l_num<=last_line).all()
-    context = book.lines.filter(Line.l_num>=int(first_line)-5,
-            Line.l_num<=int(last_line)+5).all()
+    lines = book.lines.filter(Line.line_num>=first_line,
+            Line.line_num<=last_line).all()
+    context = book.lines.filter(Line.line_num>=int(first_line)-5,
+            Line.line_num<=int(last_line)+5).all()
     form = AnnotationForm()
 
     if lines == None:

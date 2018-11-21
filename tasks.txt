@@ -1,53 +1,52 @@
 
-ID Age   P Project Tags         Description                                 Urg
--- ----- - ------- ------------ ------------------------------------------- ----
-15 3w    H web     feature      regular search                              7.93
-18 2w    H web     feature      add notifications to user flags for         7.88
-                                following admins
-19 2w    H web     feature      add notifications to annotation flags for   7.88
-                                following admins
-20 2w    H web     feature      annotation locking notifications            7.88
-24 22h   H web     bug          Prevent people from changing their vote (on  7.8
-                                anything) after a day or so
-25 22h   H web     feature      Create see all user flags route              7.8
-26 22h   H web     feature      Create see all annotation flags route        7.8
-27 22h   H web     feature      option to delete annotation permanently      7.8
-28 22h   H web     feature      option to delete edit permanently            7.8
-29 22h   H web     feature      option to rollback annotation                7.8
-30 22h   H web     feature      option to delete book-request permanently    7.8
-31 22h   H web     feature      option to delete tag-request permanently     7.8
-32 22h   H web     feature      show number of annotations and number of     7.8
-                                edits for each user on their page
-33 22h   H web     feature      sort by number of annotations and number of  7.8
-                                edits for each user
-34 22h   H web     feature      moderator option to anonymize user account   7.8
-                                forcibly
-35 22h   H web     feature      moderator option to delete user account      7.8
-                                forcibly and delete all associated activity
-                                (including edits, which will be difficult
-37 4h    H web     feature      we need to annotate without ever opening a   7.8
-                                chapter page
-76 4h    H web     feature      sort annotations by last line number         7.8
-77 4h    H web     feature      sort annotations by first line number        7.8
-78 51min H web     bug          track user reputation changes, because       7.8
-                                right now they don't actually work right
-                                without it
-79 6min  H web     feature      flags need comments for resolution based on  7.8
-                                investigation
-36 22h   H web                  Re do css and layout                           7
-12 6w    M web     feature      Modify chapter hierarchies to be more       5.94
-                                general, e.g. level 1, level 2, level 3
-13 4w    M web     feature      Add css rule for quotations                 5.88
-21 10d   M web     bug          Fix the back button on 404 and other errors 5.75
- 3 3mo   L web     JS feature   write javascript for pe char-level          4.24
-                                annotation
- 4 3mo   L web     AJAX feature Write javascript for popup annotations on   4.19
-                                read view.
- 5 3mo   L web     test         Test more formats!                          4.09
-14 4w    L web     feature      see about tag intersection                  3.76
-16 3w    L web     feature      anonymous edits and annotations             3.72
-17 3w    L web     feature      anonymous annotation approval               3.72
-22 3d      web     feature      add default about me                        1.82
-23 3d      web     feature      add default displayname                     1.82
+ID Age  P Project Tags         Description                                  Urg
+-- ---- - ------- ------------ -------------------------------------------- ----
+16 2w   H web     feature      add notifications to user flags for           7.9
+                               following admins
+17 2w   H web     feature      add notifications to annotation flags for     7.9
+                               following admins
+18 2w   H web     feature      annotation locking notifications              7.9
+22 5d   H web     bug          Prevent people from changing their vote (on  7.83
+                               anything) after a day or so
+23 5d   H web     feature      Create see all user flags route              7.83
+24 5d   H web     feature      Create see all annotation flags route        7.83
+25 5d   H web     feature      option to delete annotation permanently      7.83
+26 5d   H web     feature      option to delete edit permanently            7.83
+27 5d   H web     feature      option to rollback annotation                7.83
+28 5d   H web     feature      option to delete book-request permanently    7.83
+29 5d   H web     feature      option to delete tag-request permanently     7.83
+30 5d   H web     feature      moderator option to anonymize user account   7.83
+                               forcibly
+31 5d   H web     feature      moderator option to delete user account      7.83
+                               forcibly and delete all associated activity
+                               (including edits, which will be difficult
+33 4d   H web     feature      we need to annotate without ever opening a   7.82
+                               chapter page
+72 4d   H web     feature      sort annotations by last line number         7.82
+73 4d   H web     feature      sort annotations by first line number        7.82
+74 4d   H web     bug          track user reputation changes, because right 7.82
+                               now they don't actually work right without
+                               it
+75 4d   H web     feature      flags need comments for resolution based on  7.82
+                               investigation
+76 4h   H web     cleanup      normalize urls                                7.8
+78 1min H web     bug          Fix up book table of contents with level      7.8
+                               labels
+79 1min H web     bug          Fix all bugs relating to major conversion     7.8
+32 5d   H web                  Re do css and layout                         7.03
+12 5w   M web     feature      Add css rule for quotations                   5.9
+19 2w   M web     bug          Fix the back button on 404 and other errors  5.78
+77 4h   M web     bug          investigate why it takes so long for war and  5.7
+                               peace to generate a chapter
+ 3 3mo  L web     JS feature   write javascript for pe char-level           4.26
+                               annotation
+ 4 3mo  L web     AJAX feature Write javascript for popup annotations on    4.22
+                               read view.
+ 5 3mo  L web     test         Test more formats!                           4.12
+13 4w   L web     feature      see about tag intersection                   3.78
+14 3w   L web     feature      anonymous edits and annotations              3.74
+15 3w   L web     feature      anonymous annotation approval                3.74
+20 8d     web     feature      add default about me                         1.84
+21 8d     web     feature      add default displayname                      1.84
 
 33 tasks

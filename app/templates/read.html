@@ -63,12 +63,12 @@
 <!--Text of the page-->
 <div id="content">
     {%- for line in lines %}
-        <line class="{{ line.kind.kind }}" id="{{ line.l_num }}">
-            {% if line.l_num % 5 == 0 %}
+        <line class="{{ line.kind.kind }}" id="{{ line.line_num }}">
+            {% if line.line_num % 5 == 0 %}
                 <!--Line number-->
-                <span class="linenum">{{ line.l_num }}</span>
+                <span class="linenum">{{ line.line_num }}</span>
             {% else %}
-                <span class="hidden_linenum">{{ line.l_num }}</span>
+                <span class="hidden_linenum">{{ line.line_num }}</span>
             {% endif %}
 
             <!--Actual line (not modularizing because speed)-->
@@ -84,10 +84,10 @@
                 </span>
             {% endif %}
 
-            {% if annotations_idx[line.l_num] %}
+            {% if annotations_idx[line.line_num] %}
                 <!--Footnote marker-->
                 <span class="body_annotation">
-                    {% for a in annotations_idx[line.l_num] %}
+                    {% for a in annotations_idx[line.line_num] %}
                         <a href="#a{{ a.id }}"> [{{ a.id }}] </a>
                     {% endfor %}
                 </span>
@@ -97,7 +97,7 @@
 </div>
 
 <!--Annotations-->
-{% for i in range(lines[0].l_num, lines[-1].l_num) %}
+{% for i in range(lines[0].line_num, lines[-1].line_num) %}
     {% if i in annotations_idx %}
         {% for annotation in annotations_idx[i] %}
             {% include "includes/_annotation.html" %}

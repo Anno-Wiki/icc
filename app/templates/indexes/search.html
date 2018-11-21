@@ -7,7 +7,7 @@
         {% for line in lines %}
             <h3>
                 Line 
-                <a href="{{ line.get_url() }}#{{ line.l_num }}">{{ line.l_num }}</a>
+                <a href="{{ line.get_url() }}#{{ line.line_num }}">{{ line.line_num }}</a>
                 of 
                 <a href="{{ url_for("book", book_url=line.book.url) }}">
                     {{ line.book.title }}
@@ -18,15 +18,15 @@
                 </a>
             </h3>
             {% for l in line.context %}
-                <a href="{{ l.get_url() }}#{{ l.l_num }}">
-                    <line class="{{ l.kind.kind }}" id="{{ l.l_num }}">
+                <a href="{{ l.get_url() }}#{{ l.line_num }}">
+                    <line class="{{ l.kind.kind }}" id="{{ l.line_num }}">
                         {% if l == line %}
                             <div class="highlight">
-                                <span class="linenum">{{ l.l_num }}</span>
+                                <span class="linenum">{{ l.line_num }}</span>
                                 {{ l.line|safe }}
                             </div>
                         {% else %}
-                            <span class="hidden_linenum">{{ l.l_num }}</span>
+                            <span class="hidden_linenum">{{ l.line_num }}</span>
                             {{ l.line|safe }}
                         {% endif %}
                     </line>
