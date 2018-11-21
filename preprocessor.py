@@ -1,77 +1,73 @@
 import re
 import sys
+import argparse
+import codecs
 
-fin = sys.stdin
-fout = sys.stdout
-aout = open("a.out", "wt")
-emdash = False
-quotes = False
-wordboundary = re.compile(r'\w+|\W|_')
-a = None
-astack = {}
+parser = argparse.ArgumentParser("Preprocess raw text files for lines.py.")
+parser.add_argument("-i", "--input", action="store", type=str, default=None,
+        help="Specify input file")
+parser.add_argument("-o", "--output", action="store", type=str, default=None,
+        help="Specify output file")
+parser.add_argument("-a", "--annotated", action="store", type=str, default=None,
+        help="Specify regex to recognize when a line is annotated.")
+parser.add_argument("-e", "--emdash", action="store_true",
+        help="Normalize em dashes.")
+parser.add_argument("-q", "--quotes", action="store_true",
+        help="Convert dumb quotes to smart quotes (needs manual intervention)")
 
+args = parser.parse_args()
 
-# Flag processing
-if '-h' in sys.argv:
-    h = []
-    h.append('-h                    Help')
-    h.append('-i <inputfile>')
-    h.append('-o <outputfile>')
-    h.append('-e                    Process em dashes')
-    h.append('-q                    Process quote marks (still needs manual intervention')
-    h.append('-a <regex>            Regex to recognize line annotated')
-    for l in h:
-        print(l)
-    sys.exit()
-if '-i' in sys.argv:
-    fin = open(sys.argv[sys.argv.index('-i')+1], 'rt')
-if '-o' in sys.argv:
-    fout = open(sys.argv[sys.argv.index('-o')+1], 'wt')
-if '-e' in sys.argv:
-    emdash = True
-if '-q' in sys.argv:
-    quotes = True
-elif '-a' in sys.argv:
-    a = re.compile(sys.argv[sys.argv.index('-a')+1])
+# files
+fin = codecs.getreader("utf_8_sig")(sys.stdin.buffer, errors="replace") \
+        if not args.input else open(path, "rt", encoding="UTF-8-SIG")
+fout = sys.stdout if not args.output else open(path, "wt", encoding="UTF-8-SIG")
+
+aout = open("a.out", "wt")              # File to output annotation csv
+wordboundary = re.compile(r'\w+|\W|_')  # Wordboundary regex
+annotated_regex = re.compile(args.annotated) if args.annotated else None
+
+astack = {}         # Dictionary stack for recording annotated lines
 
 
+# context flags
 us = False
 doubleopen = False
-br = False
+skip = False
 
 for line in fin:
     newline = line
     if newline == '\n':
         doubleopen = False
 
-    if a:
-        if re.search(a, newline):
-            matches = a.findall(newline)
-            for m in matches:
-                if m in astack:
-                    amatch = astack.pop(m)
-                    aout.write(f"{newline[len(m):-1].strip()}@{amatch}")
-                    br = True
+    if annotated_regex:
+        if re.search(annotated_regex, newline):
+            for m in re.finditer(annotated_regex, newline):
+                if m.group() in astack:
+                    tmp = newline.replace(m.group(), "", 1)[:-1].strip()
+                    amatch = astack.pop(m.group())
+                    amatch = amatch.strip(">")
+                    aout.write(f"{tmp}@{amatch}")
+                    skip = True
                     continue
                 else:
-                    newline = re.sub(a, r'', newline)
-                    astack[m] = newline
+                    newline = re.sub(annotated_regex, r'', newline)
+                    astack[m.group()] = newline
 
-    if br:
-        br = False
+    if skip:
+        skip = False
         continue
 
-    if emdash:
+    if args.emdash:
         newline = re.sub(r'(--)', r'—', newline) 
 
-    if quotes:
+    if args.quotes:
         newline = re.sub(r"([^a-zA-Z])'([a-zA-Z—])", r"\1‘\2", newline)
         newline = re.sub(r"'", r"’", newline)
 
     words = re.findall(wordboundary, newline)
 
     for i, word in enumerate(words):
-        if quotes and '"' in word:
+        if args.quotes and '"' in word:
             if doubleopen:
                 words[i] = re.sub(r'"', r'”', words[i])
                 doubleopen = False
