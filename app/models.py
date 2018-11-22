@@ -598,7 +598,7 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3+1,
-                    Line.lvl4==1)\
+                    Line.lvl4==lvl4)\
                         .order_by(Line.line_num.desc()).first()
             lvl3 = 1
         if self.lvl2 != 0 and not line:
@@ -606,19 +606,12 @@ class Line(SearchableMixin, db.Model):
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2+1,
-                    Line.lvl3==1,
-                    Line.lvl4==1)\
+                    Line.lvl3==lvl3,
+                    Line.lvl4==lvl4)\
                         .order_by(Line.line_num.desc()).first()
             lvl2 = 1
-        if self.lvl4 != 0 and not line:
-            line = Line.query.filter(
-                    Line.book_id==self.book_id,
-                    Line.lvl1==self.lvl1+1,
-                    Line.lvl2==1,
-                    Line.lvl3==1,
-                    Line.lvl4==1)\
-                        .order_by(Line.line_num.desc()).first()
-        if not line:
+        if self.lvl1 != 0 and not line:
+            print(f"{self.lvl1+1},{lvl2},{lvl3},{lvl4}")
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1+1,

@@ -962,18 +962,25 @@ def read(book_url):
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.annotations\
                 .filter(Annotation.book_id==book.id,
+                        AnnotationVersion.first_line_num>=lines[0].line_num,
                         AnnotationVersion.last_line_num<=lines[-1].line_num)\
                 .all()
         tags = None
     else:
-        annotations = book.annotations\
-                .filter(AnnotationVersion.last_line_num<=lines[-1].line_num)\
+        annotations = book.annotations.join(AnnotationVersion,
+                and_(AnnotationVersion.pointer_id==Annotation.id,
+                    AnnotationVersion.current==True))\
+                .filter(AnnotationVersion.last_line_num<=lines[-1].line_num,
+                        AnnotationVersion.first_line_num>=lines[0].line_num)\
                 .all()
-        # this query is like 5 times faster than the old double-for loop
+        # this query is like 5 times faster than the old double-for loop. I am,
+        # however, wondering if some of the join conditions should be offloaded
+        # into a filter
         tags = Tag.query.outerjoin(tags_table)\
                 .join(AnnotationVersion, and_(
                     AnnotationVersion.id==tags_table.c.annotation_version_id,
                     AnnotationVersion.current==True,
+                    AnnotationVersion.book_id==book.id,
                     AnnotationVersion.first_line_num>=lines[0].line_num,
                     AnnotationVersion.last_line_num<=lines[-1].line_num)
                     )\

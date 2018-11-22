@@ -6,17 +6,20 @@
 <div class="running_head">
 
     <a href="{{ url_for("book", book_url=book.url) }}">{{ book.title }}</a> 
-    by <a href="{{ url_for("author", name=book.author.url) }}"> {{ book.author.name }} </a>
+    by
+    <a href="{{ url_for("author", name=book.author.url) }}">
+        {{ book.author.name }}
+    </a>
 
     <h5>
-        {% if lines[0].bk_num != 0 %}
-            Book {{ lines[0].bk_num }}
-        {% endif %}
-        {% if lines[0].pt_num != 0 %}
-            Part {{ lines[0].pt_num }}
-        {% endif %}
-        {% if lines[0].ch_num != 0 %}
-            Chapter {{ lines[0].ch_num }}
+        {% if lines[0].lvl4 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
+        {% elif lines[0].lvl3 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
+        {% elif lines[0].lvl2 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
+        {% elif lines[0].lvl1 != 0 %}
+            {{ lines[0].lvl1 }}
         {% endif %}
     </h5>
 
@@ -44,19 +47,24 @@
 
 <!--Tag limitation controls-->
 {% if tags %}
-<div class="tag_limit">
-    Limit visible annotations to tag:
-    {% for tag in tags %}
-        <a href="{{ url_for("read", book_url=book.url, book=lines[0].bk_num, part=lines[0].pt_num, chapter=lines[0].ch_num, tag=tag.tag) }}">
-            <tag> {{ tag.tag }} </tag>
-        </a>
-    {% endfor %}
-</div>
+    <div class="tag_limit">
+        Limit visible annotations to tag:
+        {% for tag in tags %}
+            <a href="{{ url_for("read", book_url=book.url,
+                l1=lines[0].lvl1, l2=lines[0].lvl2, 
+                l3=lines[0].lvl3, l4=lines[0].lvl4, tag=tag.tag) }}">
+                <tag> {{ tag.tag }} </tag>
+            </a>
+        {% endfor %}
+    </div>
 {% elif annotations_idx %}
-    <a href="{{ url_for("read", book_url=book.url, book=lines[0].bk_num, part=lines[0].pt_num, chapter=lines[0].ch_num) }}"> Show all tags </a>
+    <a href="{{ url_for("read", book_url=book.url,
+        l1=lines[0].lvl1, l2=lines[0].lvl2, 
+        l3=lines[0].lvl3, l4=lines[0].lvl4) }}">
+        Show all tags
+    </a>
     <br>
 {% endif %}
-
 
 <hr>
 
@@ -78,9 +86,13 @@
                 {{ line.line|safe }}
             {%- endif -%}
 
-            {% if current_user.is_authenticated and edit_right in current_user.rights %}
+            {% if current_user.is_authenticated
+                and edit_right in current_user.rights %}
                 <span class="edit_line">
-                    <a href="{{ url_for("edit_line", line_id=line.id, next=request.path) }}"> edit </a>
+                    <a href="{{ url_for("edit_line", line_id=line.id,
+                        next=request.path) }}">
+                        edit
+                    </a>
                 </span>
             {% endif %}
 
@@ -110,19 +122,22 @@
 <!--Contrary to class name, running foot-->
 <div class="running_head">
     <h5>
-        {% if lines[0].bk_num != 0 %}
-            Book {{ lines[0].bk_num }}
-        {% endif %}
-        {% if lines[0].pt_num != 0 %}
-            Part {{ lines[0].pt_num }}
-        {% endif %}
-        {% if lines[0].ch_num != 0 %}
-            Chapter {{ lines[0].ch_num }}
+        {% if lines[0].lvl4 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
+        {% elif lines[0].lvl3 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
+        {% elif lines[0].lvl2 != 0 %}
+            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
+        {% elif lines[0].lvl1 != 0 %}
+            {{ lines[0].lvl1 }}
         {% endif %}
     </h5>
 
     <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }} </a> 
-    by <a href="{{ url_for("author", name=book.author.url) }}"> {{ book.author.name }} </a>
+    by
+    <a href="{{ url_for("author", name=book.author.url) }}">
+        {{ book.author.name }}
+    </a>
 
 </div>
 
