@@ -14,12 +14,28 @@ parser.add_argument("-o", "--output", action="store", type=str, default=None,
 # level and stage regex
 parser.add_argument("-1", "--level1", action="store", type=str, default=None,
         help="The 1st level of the hierarchical chapter system")
+parser.add_argument("--level1label", action="store", type=str,
+        default="Level 1 Marker",
+        help="Optional label for level 1, ")
+
 parser.add_argument("-2", "--level2", action="store", type=str, default=None,
         help="The 2nd level")
+parser.add_argument("--level2label", action="store", type=str,
+        default="Level 2 Marker",
+        help="Optional label for level 2.")
+
 parser.add_argument("-3", "--level3", action="store", type=str, default=None,
         help="The 3rd level")
+parser.add_argument("--level3label", action="store", type=str,
+        default="Level 3 Marker",
+        help="Optional label for level 3.")
+
 parser.add_argument("-4", "--level4", action="store", type=str, default=None,
         help="The 4th level")
+parser.add_argument("--level4label", action="store", type=str,
+        default="Level 4 Marker",
+        help="Optional label for level 4.")
+
 parser.add_argument("-s", "--stage", action="store", type=str, default=None,
         help="Stage directions")
 
@@ -167,15 +183,15 @@ for line in fin:
 
     converted = "".join(converted)
     if oc(converted) > 0:
-        lines[i].append("oem")
+        lines[i].append("oem>Line with Open Emphasis")
         lem = True
     elif oc(converted) < 0:
-        lines[i].append("cem")
+        lines[i].append("cem>Line with Closed Emphasis")
         lem = False
     elif lem:
-        lines[i].append("em")
+        lines[i].append("em>Line with Emphasis")
     else:
-        lines[i].append("nem")
+        lines[i].append("nem>Line with No Emphasis")
 
 
     i += 1
@@ -210,7 +226,7 @@ for line in lines:
         # We only need to write it to the pages and to
         # files meant to be displayed in full
         txtlines += 1
-        lout("hr", "", "nem")
+        lout("hr>Horizontal Rule", "", "nem")
 
     # handling for level 1
     elif lines[i][0] == "lvl1":
@@ -222,7 +238,7 @@ for line in lines:
             lvl3num = 0
         if not args.agg4:
             lvl4num = 0
-        lout("lvl1", lines[i])
+        lout(f"lvl1>{args.level1label}", lines[i])
 
     # Handling for level 2
     elif lines[i][0] == "lvl2":
@@ -232,7 +248,7 @@ for line in lines:
             lvl3num = 0
         if not args.agg4:
             lvl4num = 0
-        lout("lvl2", lines[i])
+        lout(f"lvl2>{args.level2label}", lines[i])
 
     # Handling for level 3
     elif lines[i][0] == "lvl3":
@@ -240,43 +256,43 @@ for line in lines:
         txtlines += 1
         if not args.agg4:
             lvl4num = 0
-        lout("lvl3", lines[i])
+        lout(f"lvl3>{args.level3label}", lines[i])
 
     # Handling for level 4
     elif lines[i][0] == "lvl4":
         lvl4numnum += 1
         txtlines += 1
-        lout("lvl4", lines[i])
+        lout(f"lvl4>{args.level4label}", lines[i])
 
     # Handling for stage directions (if that"s a thing)
     elif lines[i][0] == "stg":
         txtlines += 1
-        lout("stg", lines[i])
+        lout("stg>Stage Direction", lines[i])
 
     # Handling for quoted lines
     elif lines[i][0] == "quo":
         txtlines += 1
         lines[i][1] = re.sub(r">", r"", lines[i][1])
-        lout("quo", lines[i])
+        lout("quo>Block Quotation", lines[i])
 
     # Handling for pre lines
     elif lines[i][0] == "pre":
         txtlines += 1
         # single line
         if lines[i+1][0] != "pre" and lines[i-1][0] != "pre":
-            lout("spre", lines[i])
+            lout("spre>Single Preformatted Line", lines[i])
 
         # last line in a p
         elif lines[i+1][0] != "pre":
-            lout("lpre", lines[i])
+            lout("lpre>Last Preformatted Line", lines[i])
             
         # first line in a p
         elif lines[i-1][0] != "pre":
-            lout("fpre", lines[i])
+            lout("fpre>First Preformatted Line", lines[i])
 
         # regular line in middle of a p
         else:
-            lout("pre", lines[i])
+            lout("pre>Preformatted Line", lines[i])
     
     # Handling for everything else
     elif lines[i][0] == "text":
@@ -284,19 +300,19 @@ for line in lines:
 
         # single line
         if lines[i+1][0] != "text" and lines[i-1][0] != "text":
-            lout("sl", lines[i])
+            lout("sl>Single Line", lines[i])
 
         # last line in a p
         elif lines[i+1][0] != "text":
-            lout("ll", lines[i])
+            lout("ll>Last Line", lines[i])
             
         # first line in a p
         elif lines[i-1][0] != "text":
-            lout("fl", lines[i])
+            lout("fl>First Line", lines[i])
 
         # regular line in middle of a p
         else:
-            lout("l", lines[i])
+            lout("l>Line", lines[i])
 
     i += 1
 
