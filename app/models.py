@@ -549,60 +549,83 @@ class Line(SearchableMixin, db.Model):
             raise AttributeError(f"No such attribute {attr}")
 
     def get_prev_page(self):
-        line = Line.query.filter(
-                Line.book_id==self.book_id,
-                Line.lvl1==self.lvl1,
-                Line.lvl2==self.lvl2,
-                Line.lvl3==self.lvl3,
-                Line.lvl4==self.lvl4-1).first()
-        if not line:
+        line = None
+        if self.lvl4 > 1:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2,
+                    Line.lvl3==self.lvl3,
+                    Line.lvl4==self.lvl4-1).first()
+        elif self.lvl3 > 1:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3-1)\
-                            .order_by(Line.line_num.desc()).first()
-        if not line:
+                        .order_by(Line.line_num.desc()).first()
+        elif self.lvl2 > 1:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2-1)\
                             .order_by(Line.line_num.desc()).first()
-        if not line:
+        elif self.lvl1 > 1:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1-1)\
-                            .first()
+                            .order_by(Line.line_num.desc()).first()
         return line.get_url() if line else None
 
     def get_next_page(self):
-        line = Line.query.filter(
-                Line.book_id==self.book_id,
-                Line.lvl1==self.lvl1,
-                Line.lvl2==self.lvl2,
-                Line.lvl3==self.lvl3,
-                Line.lvl4==self.lvl4+1).first()
-        if not line:
+        line = None
+        lvl1 = 0
+        lvl2 = 0
+        lvl3 = 0
+        lvl4 = 0
+        if self.lvl4 != 0:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2,
+                    Line.lvl3==self.lvl3,
+                    Line.lvl4==self.lvl4+1)\
+                        .order_by(Line.line_num.desc()).first()
+            lvl4 = 1
+        if self.lvl3 != 0 and not line:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3+1,
-                    Line.lvl4==1).first()
-        if not line:
+                    Line.lvl4==1)\
+                        .order_by(Line.line_num.desc()).first()
+            lvl3 = 1
+        if self.lvl2 != 0 and not line:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2+1,
                     Line.lvl3==1,
-                    Line.lvl4==1).first()
-        if not line:
+                    Line.lvl4==1)\
+                        .order_by(Line.line_num.desc()).first()
+            lvl2 = 1
+        if self.lvl4 != 0 and not line:
             line = Line.query.filter(
                     Line.book_id==self.book_id,
                     Line.lvl1==self.lvl1+1,
                     Line.lvl2==1,
                     Line.lvl3==1,
-                    Line.lvl4==1).first()
+                    Line.lvl4==1)\
+                        .order_by(Line.line_num.desc()).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1+1,
+                    Line.lvl2==lvl2,
+                    Line.lvl3==lvl3,
+                    Line.lvl4==lvl4)\
+                        .order_by(Line.line_num.desc()).first()
         return line.get_url() if line else None
 
     def get_url(self):

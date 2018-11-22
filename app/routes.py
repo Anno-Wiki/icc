@@ -891,7 +891,7 @@ def user(user_id):
 ## Reading Routes ##
 ####################
 
-@app.route("/read/<book_url>", methods=["GET", "POST"])
+@app.route("/read/<book_url>/", methods=["GET", "POST"])
 def read(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
     tag = request.args.get("tag", None, type=str)
@@ -902,10 +902,25 @@ def read(book_url):
 
     annotationflags = AnnotationFlag.query.all()
 
-    lines = book.lines.filter(
-            Line.lvl4==lvl[3], Line.lvl3==lvl[2],
-            Line.lvl2==lvl[1], Line.lvl1==lvl[0]
-            ).order_by(Line.line_num.asc()).all()
+    if lvl[3]:
+        lines = book.lines.filter(
+                Line.lvl4==lvl[3], Line.lvl3==lvl[2],
+                Line.lvl2==lvl[1], Line.lvl1==lvl[0]
+                ).order_by(Line.line_num.asc()).all()
+    elif lvl[2]:
+        lines = book.lines.filter(
+                Line.lvl3==lvl[2], Line.lvl2==lvl[1], Line.lvl1==lvl[0]
+                ).order_by(Line.line_num.asc()).all()
+    elif lvl[1]:
+        lines = book.lines.filter(
+                Line.lvl2==lvl[1], Line.lvl1==lvl[0]
+                ).order_by(Line.line_num.asc()).all()
+    elif lvl[0]:
+        lines = book.lines.filter(
+                Line.lvl1==lvl[0]
+                ).order_by(Line.line_num.asc()).all()
+    else:
+        lines = book.lines.order_by(Line.line_num.asc()).all()
 
     if len(lines) <= 0:
         abort(404)
