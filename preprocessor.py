@@ -1,3 +1,4 @@
+#!/home/malan/projects/icc/icc/venv/bin/python
 import re
 import sys
 import argparse
@@ -46,7 +47,8 @@ for line in fin:
                     tmp = newline.replace(m.group(), "", 1)[:-1].strip()
                     amatch = astack.pop(m.group())
                     amatch = amatch.strip(">")
-                    aout.write(f"{tmp}@{amatch}")
+                    amatch = amatch.strip()
+                    aout.write(f"{tmp}@{amatch}\n")
                     skip = True
                     continue
                 else:
