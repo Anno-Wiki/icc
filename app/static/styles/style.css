@@ -241,16 +241,20 @@ tag:hover {
 .table_of_contents tr {
     margin: 40px 0 0 0;
 }
-.book_contents {
+.lvl1_contents {
     font-size: 20px;
 }
-.part_contents {
+.lvl2_contents {
     text-indent: 6px;
     font-size: 18px;
 }
-.chapter_contents {
+.lvl3_contents {
     text-indent: 10px;
     font-size: 16px;
+}
+.lvl4_contents {
+    text-indent: 14px;
+    font-size: 12px;
 }
 
 /******************************************************************************/

@@ -1,6 +1,6 @@
 from app import app, db, elasticsearch
 from app.models import AdminRight, User, Vote, EditVote, Book, Author, Line, \
-    Kind, Tag, Annotation, AnnotationVersion, BookRequest, BookRequestVote, \
+    LineLabel, Tag, Annotation, AnnotationVersion, BookRequest, BookRequestVote, \
     UserFlag, UserFlagEvent, AnnotationFlag, AnnotationFlagEvent, \
     NotificationType, NotificationEvent, TagRequest, TagRequestVote
 
@@ -8,15 +8,21 @@ from app.models import AdminRight, User, Vote, EditVote, Book, Author, Line, \
 def make_shell_context():
     return {"db": db,
             "AdminRight": AdminRight, "User": User,
-            "Vote": Vote, "EditVote": EditVote,
-            "Book": Book, "Author": Author,
-            "Line": Line, "Kind": Kind, "Tag": Tag,
-            "Annotation": Annotation, "AnnotationVersion": AnnotationVersion,
-            "BookRequest": BookRequest, "BookRequestVote": BookRequestVote,
-            "TagRequest": TagRequest, "TagRequestVote": TagRequestVote,
             "UserFlag": UserFlag, "UserFlagEvent": UserFlagEvent,
-            "AnnotationFlag": AnnotationFlag,
-            "AnnotationFlagEvent": AnnotationFlagEvent,
             "NotificationType": NotificationType,
             "NotificationEvent": NotificationEvent,
+
+            "Vote": Vote, "EditVote": EditVote,
+
+            "Book": Book, "Author": Author,
+            "BookRequest": BookRequest, "BookRequestVote": BookRequestVote,
+
+            "Line": Line, "LineLabel": LineLabel, 
+            "Annotation": Annotation, "AnnotationVersion": AnnotationVersion,
+            "AnnotationFlag": AnnotationFlag,
+            "AnnotationFlagEvent": AnnotationFlagEvent,
+
+            "Tag": Tag,
+            "TagRequest": TagRequest, "TagRequestVote": TagRequestVote,
+
             "es" : elasticsearch }

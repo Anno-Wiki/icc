@@ -23,35 +23,74 @@
 <!--------------table of contents------>
 <table class="table_of_contents">
     <tr class="toc_header">
-        <th align="left"> Section </th>
-        <th align="right"> Line </th>
+        <th align="left">Section</th>
+        <th align="center">Section Title</th>
+        <th align="right">Line</th>
     </tr>
     {% for section in hierarchy %}
-        {% if section.kind.kind == 'lvl1' %}
-            <tr class="book_contents">
+        {% if section.label.label == "lvl1" %}
+            <tr class="lvl1_contents">
                 <td align="left">
-                    <a href="{{ section.get_url() }}"> Book {{ section.bk_num }}: {{ section.line }} </a>
+                    <a href="{{ section.get_url() }}">
+                        {{ section.label.display }} {{ section.lvl1 }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ section.get_url() }}">
+                        {{ section.line }}
+                    </a>
                 </td>
                 <td align="right">
                     <a href="{{ section.get_url() }}"> {{ section.line_num }} </a>
                 </td>
             </tr>
-        {% elif section.kind.kind == 'lvl2' %}
-            <tr class="part_contents">
+        {% elif section.label.label == "lvl2" %}
+            <tr class="lvl2_contents">
                 <td align="left">
-                    <a href="{{ section.get_url() }}"> Part {{ section.pt_num }}: {{ section.line }} </a>
+                    <a href="{{ section.get_url() }}">
+                        {{ section.label.display }} {{ section.lvl2 }}
+                    </a>
+                </td>
+                <td align="center">
+                    <a href="{{ section.get_url() }}">
+                        {{ section.line }}
+                    </a>
+                </td>
                 <td align="right">
                     <a href="{{ section.get_url() }}"> {{ section.line_num }} </a>
                 </th>
             </tr>
-        {% elif section.kind.kind == 'lvl3' %}
-            <tr class="chapter_contents">
+        {% elif section.label.label == "lvl3" %}
+            <tr class="lvl3_contents">
                 <td align="left">
-                    <a href="{{ section.get_url() }}"> Chapter {{ section.ch_num }}: {{ section.line }} </a>
+                    <a href="{{ section.get_url() }}">
+                        {{ section.label.display }} {{ section.lvl3 }}
+                    </a>
+                </td>
+                <td align="center">
+                    <a href="{{ section.get_url() }}">
+                        {{ section.line }}
+                    </a>
                 </td>
                 <td align="right">
                     <a href="{{ section.get_url() }}"> {{ section.line_num }} </a>
+                </th>
+            </tr>
+        {% elif section.label.label == "lvl4" %}
+            <tr class="lvl4_contents">
+                <td align="left">
+                    <a href="{{ section.get_url() }}">
+                        {{ section.label.display }} {{ section.lvl4 }}
+                    </a>
                 </td>
+                <td align="center">
+                    <a href="{{ section.get_url() }}">
+                        {{ section.line }}
+                    </a>
+                </td>
+                <td align="right">
+                    <a href="{{ section.get_url() }}"> {{ section.line_num }} </a>
+                </th>
             </tr>
         {% endif %}
     {% endfor %}

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d27f87b3c425
+Revision ID: aaa0bada9a41
 Revises: 
-Create Date: 2018-11-21 16:01:32.439872
+Create Date: 2018-11-22 08:49:40.222987
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd27f87b3c425'
+revision = 'aaa0bada9a41'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -48,12 +48,13 @@ def upgrade():
     op.create_index(op.f('ix_author_last_name'), 'author', ['last_name'], unique=False)
     op.create_index(op.f('ix_author_name'), 'author', ['name'], unique=False)
     op.create_index(op.f('ix_author_url'), 'author', ['url'], unique=False)
-    op.create_table('kind',
+    op.create_table('line_label',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('kind', sa.String(length=12), nullable=True),
+    sa.Column('label', sa.String(length=12), nullable=True),
+    sa.Column('display', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_kind_kind'), 'kind', ['kind'], unique=False)
+    op.create_index(op.f('ix_line_label_label'), 'line_label', ['label'], unique=False)
     op.create_table('notification_type',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('code', sa.String(length=64), nullable=True),
@@ -238,26 +239,26 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('line_num', sa.Integer(), nullable=True),
-    sa.Column('kind_id', sa.Integer(), nullable=True),
-    sa.Column('lvl_1', sa.Integer(), nullable=True),
-    sa.Column('lvl_2', sa.Integer(), nullable=True),
-    sa.Column('lvl_3', sa.Integer(), nullable=True),
-    sa.Column('lvl_4', sa.Integer(), nullable=True),
-    sa.Column('em_status_id', sa.Integer(), nullable=True),
+    sa.Column('label_id', sa.Integer(), nullable=True),
+    sa.Column('lvl1', sa.Integer(), nullable=True),
+    sa.Column('lvl2', sa.Integer(), nullable=True),
+    sa.Column('lvl3', sa.Integer(), nullable=True),
+    sa.Column('lvl4', sa.Integer(), nullable=True),
+    sa.Column('em_id', sa.Integer(), nullable=True),
     sa.Column('line', sa.String(length=200), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
-    sa.ForeignKeyConstraint(['em_status_id'], ['kind.id'], ),
-    sa.ForeignKeyConstraint(['kind_id'], ['kind.id'], ),
+    sa.ForeignKeyConstraint(['em_id'], ['line_label.id'], ),
+    sa.ForeignKeyConstraint(['label_id'], ['line_label.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_line_book_id'), 'line', ['book_id'], unique=False)
-    op.create_index(op.f('ix_line_em_status_id'), 'line', ['em_status_id'], unique=False)
-    op.create_index(op.f('ix_line_kind_id'), 'line', ['kind_id'], unique=False)
+    op.create_index(op.f('ix_line_em_id'), 'line', ['em_id'], unique=False)
+    op.create_index(op.f('ix_line_label_id'), 'line', ['label_id'], unique=False)
     op.create_index(op.f('ix_line_line_num'), 'line', ['line_num'], unique=False)
-    op.create_index(op.f('ix_line_lvl_1'), 'line', ['lvl_1'], unique=False)
-    op.create_index(op.f('ix_line_lvl_2'), 'line', ['lvl_2'], unique=False)
-    op.create_index(op.f('ix_line_lvl_3'), 'line', ['lvl_3'], unique=False)
-    op.create_index(op.f('ix_line_lvl_4'), 'line', ['lvl_4'], unique=False)
+    op.create_index(op.f('ix_line_lvl1'), 'line', ['lvl1'], unique=False)
+    op.create_index(op.f('ix_line_lvl2'), 'line', ['lvl2'], unique=False)
+    op.create_index(op.f('ix_line_lvl3'), 'line', ['lvl3'], unique=False)
+    op.create_index(op.f('ix_line_lvl4'), 'line', ['lvl4'], unique=False)
     op.create_table('tag_request_followers',
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -418,13 +419,13 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
     op.drop_table('tag_request_followers')
-    op.drop_index(op.f('ix_line_lvl_4'), table_name='line')
-    op.drop_index(op.f('ix_line_lvl_3'), table_name='line')
-    op.drop_index(op.f('ix_line_lvl_2'), table_name='line')
-    op.drop_index(op.f('ix_line_lvl_1'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl4'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl3'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl2'), table_name='line')
+    op.drop_index(op.f('ix_line_lvl1'), table_name='line')
     op.drop_index(op.f('ix_line_line_num'), table_name='line')
-    op.drop_index(op.f('ix_line_kind_id'), table_name='line')
-    op.drop_index(op.f('ix_line_em_status_id'), table_name='line')
+    op.drop_index(op.f('ix_line_label_id'), table_name='line')
+    op.drop_index(op.f('ix_line_em_id'), table_name='line')
     op.drop_index(op.f('ix_line_book_id'), table_name='line')
     op.drop_table('line')
     op.drop_index(op.f('ix_book_request_weight'), table_name='book_request')
@@ -474,8 +475,8 @@ def downgrade():
     op.drop_table('tag')
     op.drop_index(op.f('ix_notification_type_code'), table_name='notification_type')
     op.drop_table('notification_type')
-    op.drop_index(op.f('ix_kind_kind'), table_name='kind')
-    op.drop_table('kind')
+    op.drop_index(op.f('ix_line_label_label'), table_name='line_label')
+    op.drop_table('line_label')
     op.drop_index(op.f('ix_author_url'), table_name='author')
     op.drop_index(op.f('ix_author_name'), table_name='author')
     op.drop_index(op.f('ix_author_last_name'), table_name='author')

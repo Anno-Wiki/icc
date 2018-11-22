@@ -500,29 +500,30 @@ class Tag(SearchableMixin, db.Model):
 ## Content Models ##
 ####################
 
-class Kind(db.Model):
+class LineLabel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    kind = db.Column(db.String(12), index=True)
+    label = db.Column(db.String(12), index=True)
+    display = db.Column(db.String(64))
 
     def __repr__(self):
-        return f"<k {self.id}: {self.kind}>"
+        return f"<{self.label}: {self.display}>"
 
 class Line(SearchableMixin, db.Model):
     __searchable__ = ["line", "book_title"]
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     line_num = db.Column(db.Integer, index=True)
-    kind_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index=True)
-    lvl_1 = db.Column(db.Integer, index=True)
-    lvl_2 = db.Column(db.Integer, index=True)
-    lvl_3 = db.Column(db.Integer, index=True)
-    lvl_4 = db.Column(db.Integer, index=True)
-    em_status_id = db.Column(db.Integer, db.ForeignKey("kind.id"), index=True)
+    label_id = db.Column(db.Integer, db.ForeignKey("line_label.id"), index=True)
+    lvl1 = db.Column(db.Integer, index=True)
+    lvl2 = db.Column(db.Integer, index=True)
+    lvl3 = db.Column(db.Integer, index=True)
+    lvl4 = db.Column(db.Integer, index=True)
+    em_id = db.Column(db.Integer, db.ForeignKey("line_label.id"), index=True)
     line = db.Column(db.String(200))
 
     book = db.relationship("Book")
-    kind = db.relationship("Kind", foreign_keys=[kind_id])
-    em_status = db.relationship("Kind", foreign_keys=[em_status_id])
+    label = db.relationship("LineLabel", foreign_keys=[label_id])
+    em_status = db.relationship("LineLabel", foreign_keys=[em_id])
     context = db.relationship("Line",
             primaryjoin="and_(remote(Line.line_num)<=Line.line_num+1,"
                 "remote(Line.line_num)>=Line.line_num-1,"
@@ -539,7 +540,7 @@ class Line(SearchableMixin, db.Model):
             uselist=True, foreign_keys=[line_num,book_id])
 
     def __repr__(self):
-        return f"<l {self.id}: {self.line_num} of {self.book.title} [{self.kind.kind}]>"
+        return f"<l{self.id}: l{self.line_num} {self.book.title} [{self.label.display}]>"
 
     def __getattr__(self, attr):
         if attr.startswith("book_"):
@@ -547,59 +548,68 @@ class Line(SearchableMixin, db.Model):
         else:
             raise AttributeError(f"No such attribute {attr}")
 
-    def get_prev_section(self):     # cleverer than expected
-        if self.ch_num != 0:        # decrementing by chapters
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.line_num<self.line_num).order_by(Line.line_num.desc()
-                            ).limit(10).all()
-            for l in lines:         # go backwards through lines
-                if l.ch_num != 0:   # the 1st time ch_num != 0, return it
-                    return l
-        elif self.pt_num != 0:      # decrementing by parts
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.line_num<self.line_num
-                    ).order_by(Line.line_num.desc()).limit(10).all()
-            for l in lines:
-                if l.pt_num != 0:
-                    return l
-        else:                       # decrementing by books
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.pt_num==0, Line.line_num<self.line_num
-                    ).order_by(Line.line_num.desc()).limit(10).all()
-            for l in lines:
-                if l.bk_num != 0:
-                    return l
-        return None                 # there is no previous section
+    def get_prev_page(self):
+        line = Line.query.filter(
+                Line.book_id==self.book_id,
+                Line.lvl1==self.lvl1,
+                Line.lvl2==self.lvl2,
+                Line.lvl3==self.lvl3,
+                Line.lvl4==self.lvl4-1).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2,
+                    Line.lvl3==self.lvl3-1)\
+                            .order_by(Line.line_num.desc()).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2-1)\
+                            .order_by(Line.line_num.desc()).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1-1)\
+                            .first()
+        return line.get_url() if line else None
 
-    def get_next_section(self):
-        if self.ch_num != 0:
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.line_num>self.line_num
-                    ).order_by(Line.line_num.asc()).limit(10).all()
-            for l in lines:
-                if l.ch_num != 0:
-                    return l
-        elif self.pt_num != 0:
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.line_num>self.line_num
-                    ).order_by(Line.line_num.asc()).limit(10).all()
-            for l in lines:
-                if l.pt_num != 0:
-                    return l
-        else:
-            lines = Line.query.filter(Line.book_id==self.book_id,
-                    Line.ch_num==0, Line.pt_num==0, Line.line_num>self.line_num
-                    ).order_by(Line.line_num.asc()).limit(10).all()
-            for l in lines:
-                if l.bk_num != 0:
-                    return l
-        return None
+    def get_next_page(self):
+        line = Line.query.filter(
+                Line.book_id==self.book_id,
+                Line.lvl1==self.lvl1,
+                Line.lvl2==self.lvl2,
+                Line.lvl3==self.lvl3,
+                Line.lvl4==self.lvl4+1).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2,
+                    Line.lvl3==self.lvl3+1,
+                    Line.lvl4==1).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1,
+                    Line.lvl2==self.lvl2+1,
+                    Line.lvl3==1,
+                    Line.lvl4==1).first()
+        if not line:
+            line = Line.query.filter(
+                    Line.book_id==self.book_id,
+                    Line.lvl1==self.lvl1+1,
+                    Line.lvl2==1,
+                    Line.lvl3==1,
+                    Line.lvl4==1).first()
+        return line.get_url() if line else None
 
     def get_url(self):
-        lvl1 = self.lvl_1 if self.lvl_1 > 0 else None
-        lvl2 = self.lvl_2 if self.lvl_2 > 0 else None
-        lvl3 = self.lvl_3 if self.lvl_3 > 0 else None
-        lvl4 = self.lvl_4 if self.lvl_4 > 0 else None
+        lvl1 = self.lvl1 if self.lvl1 > 0 else None
+        lvl2 = self.lvl2 if self.lvl2 > 0 else None
+        lvl3 = self.lvl3 if self.lvl3 > 0 else None
+        lvl4 = self.lvl4 if self.lvl4 > 0 else None
         return url_for("read", book_url=self.book.url, l1=lvl1,
                 l2=lvl2, l3=lvl3, l4=lvl4)
 

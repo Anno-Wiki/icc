@@ -25,11 +25,11 @@ def preplines(lines):
                     newline.append(c)
             lines[i].line = ''.join(newline)
 
-        if line.em_status.kind == 'oem':
+        if line.em_status.label == 'oem':
             lines[i].line = lines[i].line + '</em>'
-        elif line.em_status.kind == 'cem':
+        elif line.em_status.label == 'cem':
             lines[i].line = '<em>' + lines[i].line
-        elif line.em_status.kind == 'em':
+        elif line.em_status.label == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
 
 def is_filled(data):

@@ -63,7 +63,7 @@
 <!--Text of the page-->
 <div id="content">
     {%- for line in lines %}
-        <line class="{{ line.kind.kind }}" id="{{ line.line_num }}">
+        <line class="{{ line.label.label }}" id="{{ line.line_num }}">
             {% if line.line_num % 5 == 0 %}
                 <!--Line number-->
                 <span class="linenum">{{ line.line_num }}</span>
@@ -72,7 +72,7 @@
             {% endif %}
 
             <!--Actual line (not modularizing because speed)-->
-            {%- if line.kind.kind == 'hr' -%}
+            {%- if line.label.label == 'hr' -%}
                 <hr class="book_separator">
             {%- else -%}
                 {{ line.line|safe }}

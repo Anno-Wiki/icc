@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_, and_
 from app import app, db
-from app.models import User, Book, Author, Line, Kind, Annotation, \
+from app.models import User, Book, Author, Line, LineLabel, Annotation, \
         AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
         BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
         NotificationType, NotificationEvent, tags as tags_table, UserFlagEvent,\
@@ -642,17 +642,14 @@ def author_annotations(name):
 def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
 
-    # get the kinds for each heierarchical chapter level
-    lvl1_kind = Kind.query.filter_by(kind="lvl1").first()
-    lvl2_kind = Kind.query.filter_by(kind="lvl2").first()
-    lvl3_kind = Kind.query.filter_by(kind="lvl3").first()
-    lvl4_kind = Kind.query.filter_by(kind="lvl4").first()
+    # get the labels for each heierarchical chapter level
+    labels = LineLabel.query.filter(LineLabel.label.startswith("lvl")).all()
+    label_ids = [l.id for l in labels]
+
 
     # get all the heierarchical chapter lines
-    hierarchy = book.lines.filter(
-            or_(Line.kind==lvl1_kind, Line.kind==lvl2_kind,
-                Line.kind==lvl3_kind, Line.kind==lvl4_kind)
-            ).order_by(Line.line_num.asc()).all()
+    hierarchy = book.lines.filter(Line.label_id.in_(label_ids))\
+            .order_by(Line.line_num.asc()).all()
 
     return render_template("view/book.html", title=book.title, book=book,
             hierarchy=hierarchy)
@@ -898,41 +895,32 @@ def user(user_id):
 def read(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
     tag = request.args.get("tag", None, type=str)
-    bk = request.args.get("book", 0, type=int)
-    pt = request.args.get("part", 0, type=int)
-    ch = request.args.get("chapter", 0, type=int)
+    lvl = [request.args.get("l1", 0, type=int)]
+    lvl.append(request.args.get("l2", 0, type=int))
+    lvl.append(request.args.get("l3", 0, type=int))
+    lvl.append(request.args.get("l4", 0, type=int))
+
     annotationflags = AnnotationFlag.query.all()
 
-    if ch != 0:
-        lines = book.lines.filter(
-                Line.bk_num==bk, Line.pt_num==pt, Line.ch_num==ch
-                ).order_by(Line.line_num.asc()).all()
-    elif pt != 0:
-        lines = book.lines.filter(Line.bk_num==bk, Line.pt_num==pt
-                ).order_by(Line.line_num.asc()).all()
-    else:
-        lines = book.lines.filter(Line.bk_num==bk,
-                ).order_by(Line.line_num.asc()).all()
+    lines = book.lines.filter(
+            Line.lvl4==lvl[3], Line.lvl3==lvl[2],
+            Line.lvl2==lvl[1], Line.lvl1==lvl[0]
+            ).order_by(Line.line_num.asc()).all()
 
     if len(lines) <= 0:
         abort(404)
 
     form = LineNumberForm()
 
-    next_page = lines[0].get_next_section() if ch == 0 else \
-            lines[-1].get_next_section()
-    prev_page = lines[0].get_prev_section()
-    if next_page != None:
-        next_page = next_page.get_url()
-    if prev_page != None:
-        prev_page = prev_page.get_url()
+    next_page = lines[0].get_next_page()
+    prev_page = lines[0].get_prev_page()
 
     if form.validate_on_submit():
         # line number boiler plate
         if not is_filled(form.first_line.data) and not is_filled(form.last_line.data):
             flash("Please enter a first and last line number to annotate a selection.")
-            return redirect(url_for("read", book_url=book.url, book=bk, part=pt,
-                chapter=ch, tag=tag))
+            return redirect(url_for("read", book_url=book.url, tag=tag,
+                lvl1=lvl[0], lvl2=lvl[1], lvl3=lvl[2], lvl4=lvl[3]))
         elif not is_filled(form.first_line.data):
             ll = int(form.last_line.data)
             fl = ll
@@ -951,12 +939,8 @@ def read(book_url):
 
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
-        return redirect(url_for("annotate", book_url=book_url,
-            first_line=fl, last_line=ll,
-            next=url_for("read", book_url=book.url, book=bk, part=pt,
-                chapter=ch, tag=tag)
-                )
-            )
+        return redirect(url_for("annotate", book_url=book_url, first_line=fl,
+            last_line=ll, next=request.full_path))
 
     # get all the annotations
     if tag:
