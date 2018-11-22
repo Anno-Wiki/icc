@@ -1,3 +1,4 @@
+#!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
 from app.models import Book, Line, User, Annotation, AnnotationVersion, Tag
 import sys
@@ -63,7 +64,9 @@ for line in fin:
     l = Line.query.filter_by(line=fields[1][:-1]).first()
 
     if not l:
-        print(str(fields))
+        db.session.rollback()
+        sys.exit(f"Fail on {cnt}: {fields}")
+
 
     # Create the annotation pointer with HEAD pointing to anno
     head = Annotation(book_id=args.book, author=user, locked=True)
@@ -80,7 +83,6 @@ for line in fin:
     if not args.dryrun:
         db.session.add(head)
         db.session.add(commit)
-        db.session.commit()
 
     cnt += 1
     if cnt % 25 == 0:
@@ -88,5 +90,8 @@ for line in fin:
 
 if not args.dryrun:
     print(f"{cnt} annotations added.")
+    print("Now committing...")
+    db.session.commit()
+    print("Done.")
 else:
     print(f"{cnt} annotations created.")

@@ -1,3 +1,4 @@
+#!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
 from app.models import Book, Line, LineLabel
 import sys
@@ -6,6 +7,8 @@ import argparse
 
 parser = argparse.ArgumentParser("Insert lines into icc database")
 parser.add_argument("-b", "--book", action="store", type=int, required=True)
+parser.add_argument("-d", "--dryrun", action="store_true",
+        help="Flag for a dry run test.")
 
 args = parser.parse_args()
 
@@ -26,13 +29,15 @@ for line in fin:
             lvl1=fields[3], lvl2=fields[4], lvl3=fields[5], lvl4=fields[6],
             line=fields[7][:-1])
 
-    db.session.add(l)
+    if not args.dryrun:
+        db.session.add(l)
 
     if i % 100 == 0:
         print(i)
     i+=1
 
 print(f"After an arduous {i} lines, we are done.")
-print(f"Now committing...")
-db.session.commit()
-print(f"And now committed.")
+if not args.dryrun:
+    print(f"Now committing...")
+    db.session.commit()
+    print(f"Done.")
