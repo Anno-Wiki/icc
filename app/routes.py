@@ -239,7 +239,7 @@ def mark_notification(event_id):
     db.session.commit()
     return redirect(next_page)
 
-@app.route("/user/inbox/mark/read/all/")
+@app.route("/user/inbox/mark/all/")
 @login_required
 def mark_all_read():
     next_page = request.args.get("next")
@@ -252,7 +252,7 @@ def mark_all_read():
     return redirect(next_page)
 
 
-@app.route("/reset_password_request", methods=["GET", "POST"])
+@app.route("/user/reset/password/", methods=["GET", "POST"])
 def reset_password_request():
     if current_user.is_authenticated:
         return redirect(url_for("index"))
@@ -271,7 +271,7 @@ def reset_password_request():
     return render_template("forms/reset_password_request.html", title="Reset "
             "Password", form=form)
 
-@app.route("/reset_password/<token>", methods=["GET", "POST"])
+@app.route("/user/reset/password/<token>/", methods=["GET", "POST"])
 def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for("index"))
@@ -286,7 +286,7 @@ def reset_password(token):
         return redirect(url_for("login"))
     return render_template("forms/reset_password.html", form=form)
 
-@app.route("/flag/<flag_id>/user/<user_id>/")
+@app.route("/user/<user_id>/flag/<flag_id>/")
 @login_required
 def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
@@ -421,7 +421,7 @@ def follow_tag_request(tag_request_id):
     db.session.commit()
     return redirect(next_page)
 
-@app.route("/user/follow/annotation/<annotation_id>")
+@app.route("/user/follow/annotation/<annotation_id>/")
 @login_required
 def follow_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
@@ -732,7 +732,7 @@ def tag(tag):
             annotationflags=annotationflags, sorts=sorts, sort=sort,
             uservotes=uservotes)
 
-@app.route("/annotation/<annotation_id>")
+@app.route("/annotation/<annotation_id>/")
 def annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlag.query.all()
@@ -742,7 +742,7 @@ def annotation(annotation_id):
             annotation=annotation, uservotes=uservotes,
             annotationflags=annotationflags)
 
-@app.route("/annotation/<annotation_id>/edit_history/")
+@app.route("/annotation/<annotation_id>/edit/history/")
 def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlag.query.all()
@@ -811,7 +811,7 @@ def edit_history(annotation_id):
             edits=edits.items, sort=sort, next_page=next_page,
             prev_page=prev_page, annotation=annotation, page=page)
 
-@app.route("/annotation/<annotation_id>/edit/<edit_num>")
+@app.route("/annotation/<annotation_id>/edit/<edit_num>/")
 def view_edit(annotation_id, edit_num):
     edit = AnnotationVersion.query.filter(
             AnnotationVersion.pointer_id==annotation_id,
@@ -1110,7 +1110,7 @@ def annotate(book_url, first_line, last_line):
     return render_template("forms/annotation.html", title=book.title, form=form,
              book=book, lines=lines, context=context)
 
-@app.route("/edit/<anno_id>", methods=["GET", "POST"])
+@app.route("/edit/<anno_id>/", methods=["GET", "POST"])
 @login_required
 def edit(anno_id):
     annotation = Annotation.query.get_or_404(anno_id)
@@ -1338,7 +1338,7 @@ def downvote(anno_id):
 
     return redirect(next_page)
 
-@app.route("/flag/<flag_id>/annotation/<annotation_id>/")
+@app.route("/annotation/<annotation_id>/flag/<flag_id>/")
 @login_required
 def flag_annotation(flag_id, annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
@@ -1464,7 +1464,7 @@ def annotation_flags(annotation_id):
             flags=flags.items, sort=sort, sorts=sorts, next_page=next_page,
             prev_page=prev_page)
 
-@app.route("/admin/flags/mark/annotation_flag/<flag_id>/")
+@app.route("/admin/flags/annotation/mark/<flag_id>/")
 @login_required
 def mark_annotation_flag(flag_id):
     current_user.authorize_rights("resolve_annotation_flags")
@@ -1479,7 +1479,7 @@ def mark_annotation_flag(flag_id):
     db.session.commit()
     return redirect(next_page)
 
-@app.route("/admin/flags/annotation/mark_all/<annotation_id>")
+@app.route("/admin/flags/annotation/<annotation_id>/mark/all/")
 @login_required
 def mark_annotation_flags(annotation_id):
     current_user.authorize_rights("resolve_annotation_flags")
@@ -1614,7 +1614,7 @@ def mark_user_flags(user_id):
 ## Edit Review ##
 #################
 
-@app.route("/admin/queue/edits/")
+@app.route("/admin/edits/")
 @login_required
 def edit_review_queue():
     if not current_user.has_right("review_edits"):
@@ -1727,7 +1727,7 @@ def edit_review_queue():
             edits=edits.items, votes=votes, sort=sort, next_page=next_page,
             prev_page=prev_page)
 
-@app.route("/admin/review/edit/<edit_id>")
+@app.route("/admin/edit/<edit_id>/")
 @login_required
 def review_edit(edit_id):
     if not current_user.has_right("review_edits"):
@@ -1936,7 +1936,7 @@ def deactivate(anno_id):
         next_page = url_for("index")
     return redirect(next_page)
 
-@app.route("/admin/list/deactivated_annotations/")
+@app.route("/admin/list/deactivated/annotations/")
 @login_required
 def view_deactivated_annotations():
     current_user.authorize_rights("view_deactivated_annotations")
@@ -2246,7 +2246,7 @@ def downvote_tag_request(tag_request_id):
 
 @app.route("/admin/tags/create/", methods=["GET","POST"],
         defaults={"tag_request_id":None})
-@app.route("/admin/tags/create/<tag_request_id>", methods=["GET","POST"])
+@app.route("/admin/tags/create/<tag_request_id>/", methods=["GET","POST"])
 @login_required
 def create_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
@@ -2275,7 +2275,7 @@ def create_tag(tag_request_id):
             return redirect(next_page)
     return render_template("forms/tag.html", title="Create Tag", form=form)
 
-@app.route("/admin/tags/reject/<tag_request_id>")
+@app.route("/admin/tags/reject/<tag_request_id>/")
 @login_required
 def reject_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
