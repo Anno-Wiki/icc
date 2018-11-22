@@ -10,18 +10,16 @@
     <a href="{{ url_for("author", name=book.author.url) }}">
         {{ book.author.name }}
     </a>
-
-    <h5>
-        {% if lines[0].lvl4 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
-        {% elif lines[0].lvl3 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
-        {% elif lines[0].lvl2 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
-        {% elif lines[0].lvl1 != 0 %}
-            {{ lines[0].lvl1 }}
-        {% endif %}
-    </h5>
+    &#167;
+    {% if lines[0].lvl4 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
+    {% elif lines[0].lvl3 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
+    {% elif lines[0].lvl2 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
+    {% elif lines[0].lvl1 != 0 %}
+        {{ lines[0].lvl1 }}
+    {% endif %}
 
 </div>
 
@@ -121,24 +119,21 @@
 
 <!--Contrary to class name, running foot-->
 <div class="running_head">
-    <h5>
-        {% if lines[0].lvl4 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
-        {% elif lines[0].lvl3 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
-        {% elif lines[0].lvl2 != 0 %}
-            {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
-        {% elif lines[0].lvl1 != 0 %}
-            {{ lines[0].lvl1 }}
-        {% endif %}
-    </h5>
-
     <a href="{{ url_for("book", book_url=book.url) }}"> {{ book.title }} </a> 
     by
     <a href="{{ url_for("author", name=book.author.url) }}">
         {{ book.author.name }}
     </a>
-
+    &#167;
+    {% if lines[0].lvl4 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
+    {% elif lines[0].lvl3 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
+    {% elif lines[0].lvl2 != 0 %}
+        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
+    {% elif lines[0].lvl1 != 0 %}
+        {{ lines[0].lvl1 }}
+    {% endif %}
 </div>
 
 {% endblock %}
