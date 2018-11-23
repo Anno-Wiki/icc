@@ -10,4 +10,7 @@ INSERT INTO notification_type (code, description) VALUES
     ("book_rejected", "book request rejected"),
     ("book_added", "approved book added"),
     ("tag_approved", "tag approved"),
-    ("tag_rejected", "tag rejected");
+    ("tag_rejected", "tag rejected"),
+    ("annotation_locked", "annotation locked from editing"),
+    ("annotation_unlocked", "annotation unlocked for editing");
+
