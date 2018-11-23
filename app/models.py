@@ -260,12 +260,19 @@ class User(UserMixin, db.Model):
 
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
-        db.session.commit()
+
+    def notify_flag(self, event):
+        for f in self.followers:
+            if f.has_right("resolve_user_flags") and f != event.thrower:
+                f.notify("new_user_flag", 
+                        url_for("user_flags", user_id=self.id), 
+                        f"New \"{event.flag.flag}\" flag thrown on user "
+                        f"\"{self.displayname}\"")
 
     def flag(self, flag, thrower):
         event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
         db.session.add(event)
-        db.session.commit()
+        self.notify_flag(event)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -323,7 +330,6 @@ class User(UserMixin, db.Model):
         else:
             raise AttributeError(f"Notification type {notification} does not exist")
         db.session.add(evt)
-        db.session.commit()
 
     # Annotation utilities
     def upvote(self):
@@ -713,7 +719,8 @@ class Annotation(SearchableMixin, db.Model):
         hash_string = f"{vote}"
         self.author.notify("upvote",
                 url_for("annotation", annotation_id=self.id), 
-                information=f"Upvote on annotation {self.id} on {self.book.title}",
+                information=f"Upvote on annotation [{self.id}] on "
+                f"\"{self.book.title}\"",
                 hash_string=hash_string)
         db.session.add(vote)
 
@@ -726,7 +733,8 @@ class Annotation(SearchableMixin, db.Model):
         hash_string = f"{vote}"
         self.author.notify("downvote", 
                 url_for("annotation", annotation_id=self.id), 
-                information=f"Downvote on annotation {self.id} on {self.book.title}",
+                information=f"Downvote on annotation [{self.id}] on "
+                f"\"{self.book.title}\"",
                 hash_string=hash_string)
         db.session.add(vote)
 
@@ -747,7 +755,15 @@ class Annotation(SearchableMixin, db.Model):
     def flag(self, flag, thrower):
         event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
-        db.session.commit()
+        self.notify_flag(event)
+
+    def notify_flag(self, event):
+        for f in self.followers:
+            if f.has_right("resolve_annotation_flags") and f != event.thrower:
+                f.notify("new_annotation_flag",
+                        url_for("annotation_flags", annotation_id=self.id),
+                        f"New \"{event.flag.flag}\" flag thrown on annotation "
+                        f"[{self.id}]")
 
     def notify_edit(self, notification, editor):
         if self.author != editor:
@@ -755,13 +771,15 @@ class Annotation(SearchableMixin, db.Model):
             # but only if he isn't the editor.
             self.author.notify("edit_approved",
                     url_for("annotation", annotation_id=self.id),
-                    f"New edit on your annotation {self.id} on {self.book.title}.",
+                    f"New edit on your annotation [{self.id}] on "
+                    f"\"{self.book.title}\"",
                     hash_string=f"newediton{self.id}at{datetime.utcnow()}")
         # notify all the annotation's followers of a new edit.
         for follower in self.followers:
             follower.notify("edit_approved",
                     url_for("annotation", annotation_id=self.id),
-                    f"New edit on followed annotation {self.id} on {self.book.title}.",
+                    f"New edit on followed annotation [{self.id}] on "
+                    f"\"{self.book.title}\"",
                     hash_string=f"newediton{self.id}at{datetime.utcnow()}")
     
     def notify_new(self):
@@ -769,34 +787,36 @@ class Annotation(SearchableMixin, db.Model):
         for follower in self.book.followers:
             follower.notify("new_annotation",
                     url_for("annotation", annotation_id=self.id),
-                    f"New annotation on followed book {self.book.title}.",
+                    f"New annotation on followed book \"{self.book.title}\"",
                     hash_string=f"new_annotation{self.id}on{self.book.id}")
         # follower of the annotation's book's author
         for follower in self.book.author.followers:
             follower.notify("new_annotation",
                     url_for("annotation", annotation_id=self.id),
-                    f"New annotation on book {self.book.title} from followed"
-                    f" author {self.book.author.name}.",
+                    f"New annotation on book \"{self.book.title}\" from "
+                    f"followed author \"{self.book.author.name}\"",
                     hash_string=f"new_annotation{self.id}on{self.book.id}")
         # followers of the annotator
         for follower in self.author.followers:
             follower.notify("new_annotation",
                     url_for("annotation", annotation_id=self.id),
-                    f"New annotation from followed annotator"
-                    f" {self.author.displayname}.",
+                    f"New annotation from followed user "
+                    f"\"{self.author.displayname}\"",
                     hash_string=f"new_annotation{self.id}on{self.book.id}")
         for tag in self.HEAD.tags:
             for follower in tag.followers:
                 follower.notify("new_annotation",
                         url_for("annotation", annotation_id=self.id),
-                        f"New annotation using followed tag {tag.tag}.",
+                        f"New annotation with followed tag \"{tag.tag}\"",
                         hash_string=f"new_annotation{self.id}on{self.book.id}")
 
     def notify_reputation(self):
         for follower in self.followers:
             follower.notify("upvote",
                     url_for("annotation", annotation_id=self.id),
-                    f"The reputation of annotation [{self.id}] on {self.book.title} is now {self.reputation}.")
+                    f"The reputation of annotation [{self.id}] on "
+                    f"\"{self.book.title}\" is now "
+                    "<strong>{self.reputation}</strong>")
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -908,14 +928,15 @@ class AnnotationVersion(db.Model):
             # notify the editor
             self.editor.notify("edit_approved",
                     url_for("annotation", annotation_id=self.pointer_id),
-                    f"Edit {self.id} on annotation {self.pointer_id} approved.",
+                    f"Edit #{self.edit_num} on annotation [{self.pointer_id}]"
+                    " approved.",
                     hash_string=f"edit_approved{self.id}on{self.pointer_id}")
             # notify all the editor's followers
             for follower in self.editor.followers:
                 follower.notify("edit_approved",
                         url_for("annotation", annotation_id=self.pointer_id),
-                        f"New edit approved from followed annotatior"
-                        f" {self.editor.displayname}.",
+                        f"New edit approved from followed user"
+                        f" \"{self.editor.displayname}\"",
                         hash_string=f"edit_approved{self.id}on{self.pointer_id}")
             # notify the annotation's followers
             self.pointer.notify_edit("approved", self.editor)
@@ -923,7 +944,8 @@ class AnnotationVersion(db.Model):
             # if it's rejected, only notify the editor.
             self.editor.notify("edit_rejected",
                     url_for("annotation", annotation_id=self.pointer_id),
-                    f"Edit {self.id} on annotation {self.pointer_id} rejected.",
+                    f"Edit #{self.edit_num} on annotation [{self.pointer_id}]"
+                    " rejected",
                     hash_string=f"edit_rejected{self.id}on{self.pointer_id}")
 
 ####################
@@ -990,33 +1012,34 @@ class BookRequest(db.Model):
             if self.weight > 0:
                 follower.notify("upvote",
                         url_for("view_book_request", book_request_id=self.id),
-                        f"Followed book request for {self.title} now has"
-                        f" {self.weight} upvotes.")
+                        f"Followed book request for \"{self.title}\" now has"
+                        f" <strong>{self.weight}</strong> upvotes.")
             elif self.weight < 0:
                 follower.notify("downvote",
                         url_for("view_book_request", book_request_id=self.id),
-                        f"Followed book request for {self.title} now has"
-                        f" {self.weight} downvotes.")
+                        f"Followed book request for \"{self.title}\"     now has"
+                        f" <strong>{self.weight}</strong> downvotes.")
 
     def notify_approval(self):
         for follower in self.followers:
             follower.notify("book_approved",
                     url_for("view_book_request", book_request_id=self.id),
-                    f"The book request for {self.title} has been approved.")
+                    f"The book request for \"{self.title}\" has been approved.")
 
     def reject(self):
         self.rejected=True
         for follower in self.followers:
             follower.notify("book_approved",
                     url_for("view_book_request", book_request_id=self.id),
-                    f"The book request for {self.title} has been approved.")
+                    f"The book request for \"{self.title}\" has been approved.")
 
     def notify_added(self):
         if self.book_id:
             for follower in self.followers:
                 follower.notify("book_added",
                         url_for("book", book_url=self.book.url),
-                        f"The book {self.book.title} has been added to the library.")
+                        f"The book \"{self.book.title}\" has been added to the "
+                        "library.")
         else:
             print("C'mon, dude, get it together: link the book_request object"
                     "to the book, _then_ send the notification.")
@@ -1083,13 +1106,13 @@ class TagRequest(db.Model):
             if self.weight > 0:
                 follower.notify("upvote",
                         url_for("view_tag_request", tag_request_id=self.id),
-                        f"Followed tag request for {self.tag} now has"
-                        f" {self.weight} upvotes.")
+                        f"Followed tag request for <tag>{self.tag}</tag> now "
+                        f"has <strong>{self.weight}</strong> upvotes.")
             elif self.weight < 0:
                 follower.notify("downvote",
                         url_for("view_tag_request", tag_request_id=self.id),
-                        f"Followed tag request for {self.title} now has"
-                        f" {self.weight} downvotes.")
+                        f"Followed tag request for <tag>{self.tag}</tag> now "
+                        f"has <strong>{self.weight}</strong> downvotes.")
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -1103,13 +1126,15 @@ class TagRequest(db.Model):
         for follower in self.followers:
             follower.notify("tag_approved",
                     url_for("tag", tag=self.tag),
-                    f"The tag request for {self.tag} has been approved.")
+                    f"The tag request for <tag>{self.tag}</tag> "
+                    "has been approved.")
 
     def notify_rejection(self):
         for follower in self.followers:
             follower.notify("tag_rejected",
                     url_for("tag_request", tag_request_id=self.id),
-                    f"The tag request for {self.tag} has been rejected.")
+                    f"The tag request for <tag>{self.tag}</tag> "
+                    "has been rejected.")
 
 class TagRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
