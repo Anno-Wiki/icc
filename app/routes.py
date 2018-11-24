@@ -1087,8 +1087,13 @@ def annotate(book_url, first_line, last_line):
                 edit_reason="Initial version"
                 )
 
+        # because of the nature of the indexing system we have to create a
+        # temporary attribute to the head of the edit's annotation. Otherwise,
+        # since neither are committed to the system yet, the system wants to
+        # make a query to the system for the head's HEAD attribute, which isn't
+        # in existence yet. Adding this simple attribute eliminates the issue.
+        head.annotation = commit.annotation
 
-        # add anno, commit it
         db.session.add(commit)
         db.session.add(head)
         db.session.commit()
@@ -1100,7 +1105,6 @@ def annotate(book_url, first_line, last_line):
         flash("Annotation Submitted")
 
         return redirect(next_page)
-
     else:
         form.first_line.data = first_line
         form.last_line.data = last_line
