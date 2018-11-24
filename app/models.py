@@ -9,11 +9,17 @@ from sqlalchemy import or_, func
 from sqlalchemy.orm import backref
 from flask import url_for, abort
 from app.search import *
-
-from app import app, db, login
 # please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
+from app import app, db, login
 
+
+# Please note, about the searchable mixin before and after commit methods, that
+# if you run into a "session in committed state error" the reason is that you
+# are indexing a searchable field relationship that requires the calling of sql
+# to index. The answer is to make that relationship lazy="joined". I have had to
+# solve this problem numerous times and I am making this comment to never
+# forget.
 class SearchableMixin(object):
     @classmethod
     def search(cls, expression, page, per_page):
@@ -527,7 +533,7 @@ class Line(SearchableMixin, db.Model):
     em_id = db.Column(db.Integer, db.ForeignKey("line_label.id"), index=True)
     line = db.Column(db.String(200))
 
-    book = db.relationship("Book")
+    book = db.relationship("Book", lazy="joined")
     label = db.relationship("LineLabel", foreign_keys=[label_id])
     em_status = db.relationship("LineLabel", foreign_keys=[em_id])
     context = db.relationship("Line",
@@ -668,7 +674,7 @@ class Annotation(SearchableMixin, db.Model):
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    author = db.relationship("User")
+    author = db.relationship("User", lazy="joined")
     book = db.relationship("Book", lazy="joined")
     HEAD = db.relationship("AnnotationVersion",
             primaryjoin="and_(AnnotationVersion.current==True,"
@@ -756,6 +762,20 @@ class Annotation(SearchableMixin, db.Model):
         event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
         self.notify_flag(event)
+
+    def notify_lockchange(self):
+        if self.locked:
+            for f in self.followers:
+                f.notify("annotation_locked",
+                        url_for("annotation", annotation_id=self.id),
+                        f"Annotation [{self.id}] on \"{self.book.title}\" "
+                        "locked from further editing")
+        else:
+            for f in self.followers:
+                f.notify("annotation_unlocked",
+                        url_for("annotation", annotation_id=self.id),
+                        f"Annotation [{self.id}] on \"{self.book.title}\" "
+                        "unlocked for editing")
 
     def notify_flag(self, event):
         for f in self.followers:
@@ -890,8 +910,7 @@ class AnnotationVersion(db.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.book}," \
-                f"{self.first_line_num},{self.last_line_num}," \
+        s = f"{self.first_line_num},{self.last_line_num}," \
                 f"{self.first_char_idx},{self.last_char_idx}," \
                 f"{self.annotation},{self.tags}"
         self.hash_id = sha1(s.encode("utf8")).hexdigest()
