@@ -792,8 +792,8 @@ def edit_history(annotation_id):
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         edits = annotation.history\
-                .outerjoin(EditVote, 
-                        and_(EditVote.user_id==current_user.id, 
+                .outerjoin(EditVote,
+                        and_(EditVote.user_id==current_user.id,
                             EditVote.edit_id==AnnotationVersion.id)
                         )\
                 .filter(AnnotationVersion.approved==True)\
@@ -820,7 +820,7 @@ def view_edit(annotation_id, edit_num):
             ).first_or_404()
 
     if not edit.previous:
-        return render_template("view/first_version.html", 
+        return render_template("view/first_version.html",
                 title=f"First Version of [{edit.pointer.id}]", edit=edit)
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
@@ -1154,24 +1154,11 @@ def edit(anno_id):
                 fail = True
                 flash(f"tag {tag} does not exist.")
 
-        # if a reason isn't provided, fail the submission
-        if not form.reason.data:
-            flash("Please provide a reason for your edit.")
+        if len(tags) > 5:
             fail = True
-
-        # In both of these cases we want to retain the form entered so the user
-        # can edit it; therefore we re-render the template instead of
-        # redirecting
-        if fail:
-            return render_template("forms/annotation.html",
-                    title=annotation.HEAD.book.title, form=form,
-                    book=annotation.HEAD.book, lines=lines,
-                    annotation=annotation)
-        elif len(tags) > 5:
             flash("There is a five tag limit.")
-            return render_template("forms/annotation.html", form=form,
-                    lines=lines, annotation=annotation,
-                    title=annotation.HEAD.book.title, book=annotation.HEAD.book)
+
+
         # approved is true if the user can edit immediately
         approved = current_user.has_right("immediate_edits")\
                 or annotation.author == current_user
@@ -1184,9 +1171,15 @@ def edit(anno_id):
             lockchange = annotation.locked != form.locked.data
             annotation.locked = form.locked.data
 
+        # if a reason isn't provided and there's no lockchange, fail the
+        # submission
+        if not form.reason.data and not lockchange:
+            flash("Please provide a reason for your edit.")
+            fail = True
+
+
         edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
                 else 1
-
         # both the approved and current variables are based on approved
         edit = AnnotationVersion(book=annotation.book,
                 editor_id=current_user.id, edit_num=edit_num,
@@ -1200,25 +1193,34 @@ def edit(anno_id):
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
-            return render_template("forms/annotation.html", form=form,
-                    lines=lines, annotation=annotation,
-                    title=annotation.HEAD.book.title, book=annotation.HEAD.book)
+            fail = True
+
+        lockchangenotedit = False
+
+        if fail:
+            return render_template("forms/annotation.html",
+                    title=annotation.HEAD.book.title, form=form,
+                    book=annotation.HEAD.book, lines=lines,
+                    annotation=annotation)
         elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
-            db.session.commit()
             flash("Annotation Locked")
+            lockchangenotedit = True
         else:
             annotation.edit_pending = not approved
             if approved:
                 annotation.HEAD.current = False
-                db.session.commit()
+                edit.current = True
+                flash("Edit complete.")
+            else:
+                flash("Edit submitted for review.")
             db.session.add(edit)
-            db.session.commit()
 
-        if approved:
+        db.session.commit()
+        if approved and not lockchangenotedit:
             edit.notify_edit("approved")
-            flash("Edit complete.")
-        else:
-            flash("Edit submitted for review.")
+        if lockchange:
+            annotation.notify_lockchange()
+        db.session.commit()
 
         next_page = request.args.get("next")
         if not next_page or url_parse(next_page).netloc != "":
@@ -1459,7 +1461,7 @@ def annotation_flags(annotation_id):
             page=flags.next_num, sort=sort) if flags.has_next else None
     prev_page = url_for("annotation_flags", annotation_id=annotation.id,
             page=flags.prev_num, sort=sort) if flags.has_prev else None
-    return render_template("indexes/annotation_flags.html", 
+    return render_template("indexes/annotation_flags.html",
             title=f"Annotation {annotation.id} flags", annotation=annotation,
             flags=flags.items, sort=sort, sorts=sorts, next_page=next_page,
             prev_page=prev_page)
@@ -1578,7 +1580,7 @@ def user_flags(user_id):
             sort=sort) if flags.has_next else None
     prev_page = url_for("user_flags", user_id=user.id, page=flags.prev_num,
             sort=sort) if flags.has_prev else None
-    return render_template("indexes/user_flags.html", 
+    return render_template("indexes/user_flags.html",
             title=f"{user.displayname} flags", user=user, flags=flags.items,
             sort=sort, sorts=sorts, next_page=next_page, prev_page=prev_page)
 
@@ -1625,8 +1627,8 @@ def edit_review_queue():
 
     if sort == "voted":
         edits = AnnotationVersion.query\
-                .outerjoin(EditVote, 
-                        and_(EditVote.user_id==current_user.id, 
+                .outerjoin(EditVote,
+                        and_(EditVote.user_id==current_user.id,
                             EditVote.edit_id==AnnotationVersion.id)
                         )\
                 .filter(AnnotationVersion.approved==False,
@@ -1635,8 +1637,8 @@ def edit_review_queue():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "voted_invert":
         edits = AnnotationVersion.query\
-                .outerjoin(EditVote, 
-                        and_(EditVote.user_id==current_user.id, 
+                .outerjoin(EditVote,
+                        and_(EditVote.user_id==current_user.id,
                             EditVote.edit_id==AnnotationVersion.id)
                         )\
                 .filter(AnnotationVersion.approved==False,
@@ -1705,8 +1707,8 @@ def edit_review_queue():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         edits = AnnotationVersion.query\
-                .outerjoin(EditVote, 
-                        and_(EditVote.user_id==current_user.id, 
+                .outerjoin(EditVote,
+                        and_(EditVote.user_id==current_user.id,
                             EditVote.edit_id==AnnotationVersion.id)
                         )\
                 .filter(AnnotationVersion.approved==False,
@@ -2307,6 +2309,6 @@ def ajax_tags():
     for t in results:
         tag_list.append(t.tag)
         descriptions.append(t.description)
-    
-    return jsonify({"success": True, "tags": tag_list, 
+
+    return jsonify({"success": True, "tags": tag_list,
         "descriptions": descriptions })
