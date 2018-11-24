@@ -27,9 +27,21 @@
     <h3>Selection:</h3>
     <div id="content">
         {% if len(lines) > 1 %}
-            <h1> Annotating <em>ll. {{ lines[0].line_num }}-{{ lines[-1].line_num }}</em> of War and Peace </h1>
+            <h1>
+                Annotating
+                <em>
+                    ll. {{ lines[0].line_num }}-{{ lines[-1].line_num }}
+                </em>
+                of War and Peace
+            </h1>
         {% else %}
-            <h1> Annotating <em>l. {{ lines[0].line_num }}</em> of War and Peace </h1>
+            <h1>
+                Annotating
+                <em>
+                    l. {{ lines[0].line_num }}
+                </em>
+                of War and Peace
+            </h1>
         {% endif %}
 
         <div class="selection">
@@ -37,13 +49,15 @@
             {% for line in context %}
                 {% if line in lines %}
                     <div class="highlight">
-                        <line class="{{ line.label.label }}" id="{{ line.line_num }}">
+                        <line class="{{ line.label.label }}" id="{{
+                            line.line_num }}">
                             <span class="linenum">{{ line.line_num }}</span>
                             {{ line.line }}
                         </line>
                     </div>
                 {% else %}
-                    <line class="{{ line.label.label }}" id="{{ line.line_num }}">
+                    <line class="{{ line.label.label }}" id="{{ line.line_num
+                        }}">
                         <span class="linenum">{{ line.line_num }}</span>
                         {{ line.line }}
                     </line>
@@ -60,7 +74,6 @@
         </span>
         <table>
             <tr>
-                <!--This row is for the first and last line boxes (that may be noscripted)-->
                 <th>
                     {{ form.first_line.label }}:
                     {{ form.first_line(size=1) }}
@@ -86,7 +99,6 @@
             </tr>
 
             <tr>
-                <!--this row is the actual annotation input box-->
                 <td colspan=5>
                     <strong>{{ form.annotation.label }}</strong>
                     <br>
@@ -96,23 +108,23 @@
             </tr>
 
             <tr>
-                <!--this is the row for the tag input box-->
                 <td colspan=5>
                     <strong>{{ form.tags.label }}</strong>
                     <br>
 
-                    <!--the master div contains the pseudo input box-->
                     <div id="master_div">
-                        <!--tag_spans is the empty div for putting in tags as they're entered-->
-                        <div id="tag_spans"> </div>
-                        <!--the actual input box; 22 is the exact size of the placeholder text-->
-                        <div id="input"> {{ form.tags(size=22) }} </div>
+
+                        {% "tag spans is where we put the tags as they're
+                            created by the javascript" %}
+
+                        <div id="tag_spans"></div>
+                        <div id="input">{{ form.tags(size=22) }}</div>
                     </div>
-                    <div id="autocomplete">
-                    </div>
+                    <div id="autocomplete"></div>
 
                     {% for error in form.tags.errors %}
-                        <span style="color: red;"> [{{ error }}] </span> <br>
+                        <span style="color: red;">[{{ error }}]</span>
+                        <br>
                     {% endfor %}
                 </td>
             </tr>

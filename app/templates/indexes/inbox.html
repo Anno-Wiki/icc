@@ -7,58 +7,141 @@
 <table class="inbox">
     <tr class="header">
         {% if sort == "read" %}
-            <td class="highlight"> <a href="{{ sorts["read_invert"] }}"> &#9662; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["read_invert"] }}">
+                    &#9662;
+                </a>
+            </td>
         {% elif sort == "read_invert" %}
-            <td class="highlight"> <a href="{{ sorts["read"] }}"> &#9652; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["read"] }}">
+                    &#9652;
+                </a>
+            </td>
         {% else %}
-            <td> <a href="{{ sorts["read"] }}"> &nbsp; </a> </td>
+            <td>
+                <a href="{{ sorts["read"] }}">
+                    &nbsp;
+                </a>
+            </td>
         {% endif %}
 
         {% if sort == "type" %}
-            <td class="highlight"> <a href="{{ sorts["type_invert"] }}"> Type &#9662; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["type_invert"] }}">
+                    Type &#9662;
+                </a>
+            </td>
         {% elif sort == "type_invert" %}
-            <td class="highlight"> <a href="{{ sorts["type"] }}"> Type &#9652; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["type"] }}">
+                    Type &#9652;
+                </a>
+            </td>
         {% else %}
-            <td> <a href="{{ sorts["type"] }}"> Type </a> </td>
+            <td>
+                <a href="{{ sorts["type"] }}">
+                    Type
+                </a>
+            </td>
         {% endif %}
 
         {% if sort == "time" %}
-            <td class="highlight"> <a href="{{ sorts["time_invert"] }}"> Time &#9662; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["time_invert"] }}">
+                    Time &#9662;
+                </a>
+            </td>
         {% elif sort == "time_invert" %}
-            <td class="highlight"> <a href="{{ sorts["time"] }}"> Time &#9652; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["time"] }}">
+                    Time &#9652;
+                </a>
+            </td>
         {% else %}
-            <td> <a href="{{ sorts["time"] }}"> Time </a> </td>
+            <td>
+                <a href="{{ sorts["time"] }}">
+                    Time
+                </a>
+            </td>
         {% endif %}
 
         {% if sort == "information" %}
-            <td class="highlight"> <a href="{{ sorts["information_invert"] }}"> More information &#9662; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["information_invert"] }}">
+                    More information &#9662;
+                </a>
+            </td>
         {% elif sort == "information_invert" %}
-            <td class="highlight"> <a href="{{ sorts["information"] }}"> More information &#9652; </a> </td>
+            <td class="highlight">
+                <a href="{{ sorts["information"] }}">
+                    More information &#9652;
+                </a>
+            </td>
         {% else %}
-            <td> <a href="{{ sorts["information"] }}"> More information </a> </td>
+            <td>
+                <a href="{{ sorts["information"] }}">
+                    More information
+                </a>
+            </td>
         {% endif %}
     </tr>
 
     {% if not notifications %}
         <tr>
-            <td colspan=5> You have no notifications yet.  </td>
+            <td colspan=5>
+                You have no notifications yet.
+            </td>
         </tr>
     {% endif %}
 
     {% for notification in notifications %}
         {% if notification.seen %}
             <tr class="read">
-                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#10003; </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.notification.description }} </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.time }} </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.information|safe }} </a> </td>
+                <td>
+                    <a href="{{ url_for("mark_notification",
+                        event_id=notification.id) }}">
+                        &#10003;
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.notification.description }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.time }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.information|safe }}
+                    </a>
+                </td>
             </tr>
         {% else %}
             <tr class="unread">
-                <td> <a href="{{ url_for("mark_notification", event_id=notification.id) }}"> &#9993; </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.notification.description }} </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.time }} </a> </td>
-                <td> <a href="{{ notification.link }}"> {{ notification.information|safe }} </a> </td>
+                <td>
+                    <a href="{{ url_for("mark_notification",
+                        event_id=notification.id) }}">
+                        &#9993;
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.notification.description }}
+                    </a> </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.time }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ notification.link }}">
+                        {{ notification.information|safe }}
+                    </a>
+                </td>
             </tr>
         {% endif %}
     {% endfor %}

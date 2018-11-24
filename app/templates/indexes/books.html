@@ -2,7 +2,10 @@
 
 {% block content %}
 <h1>Books</h1>
-<h4> Don’t see what you’re looking for? Upvote it among our <a href="{{ url_for("book_request_index") }}">book requests</a>.  </h4>
+<h4>
+    Don’t see what you’re looking for? Upvote it among our
+    <a href="{{ url_for("book_request_index") }}">book requests</a>.
+</h4>
 
 sort by:
 {% for type, url in sorts.items() %}
@@ -16,24 +19,39 @@ sort by:
 <div class="index">
     {% for book in books %}
         <div class="card">
-            <a href="{{ url_for("book", book_url=book.url) }}"> <h2>{{ book.title }}</h2> </a>
+            <a href="{{ url_for("book", book_url=book.url) }}">
+                <h2>{{ book.title }}</h2>
+            </a>
 
             &times; {{ book.lines.count() }} lines
 
             <br>
-            {% if current_user.is_authenticated and book in current_user.followed_books %}
-                <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> unfollow </a>
+            {% if current_user.is_authenticated
+                and book in current_user.followed_books %}
+                <a href="{{ url_for("follow_book", book_id=book.id,
+                    next=request.full_path) }}">
+                    unfollow
+                </a>
             {% else %}
-                <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> follow </a>
+                <a href="{{ url_for("follow_book", book_id=book.id,
+                    next=request.full_path) }}">
+                    follow
+                </a>
             {% endif %}
 
             {% if len(book.summary) >= 127 %}
-                <div class="card_text_cutoff"> {{ book.summary[:127]|markdown }} </div>
+                <div class="card_text_cutoff">
+                    {{ book.summary[:127]|markdown }}
+                </div>
             {% else %}
-                <div> {{ book.summary[:127]|markdown }} </div>
+                <div>
+                    {{ book.summary[:127]|markdown }}
+                </div>
             {% endif %}
 
-            <a href="{{ url_for("book", book_url=book.url) }}">View More</a>
+            <a href="{{ url_for("book", book_url=book.url) }}">
+                View More
+            </a>
         </div>
     {% endfor %}
 </div>

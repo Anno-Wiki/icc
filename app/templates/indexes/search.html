@@ -7,7 +7,9 @@
         {% for line in lines %}
             <h3>
                 Line 
-                <a href="{{ line.get_url() }}#{{ line.line_num }}">{{ line.line_num }}</a>
+                <a href="{{ line.get_url() }}#{{ line.line_num }}">
+                    {{ line.line_num }}
+                </a>
                 of 
                 <a href="{{ url_for("book", book_url=line.book.url) }}">
                     {{ line.book.title }}

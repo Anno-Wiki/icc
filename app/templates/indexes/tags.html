@@ -2,7 +2,12 @@
 
 {% block content %}
 <h1>Tags</h1>
-<h4>Don't see what you're looking for? Upvote it among our <a href="{{ url_for("tag_request_index") }}">tag requests.</a> </h4>
+<h4>
+    Don't see what you're looking for? Upvote it among our
+    <a href="{{ url_for("tag_request_index") }}">
+        tag requests.
+    </a>
+</h4>
 
 sort by:
 {% for type, url in sorts.items() %}
@@ -20,10 +25,17 @@ sort by:
             <br>
             &times; {{ tag.annotations.count() }}
             <br>
-            {% if current_user.is_authenticated and tag in current_user.followed_tags %}
-                <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}"> unfollow </a>
+            {% if current_user.is_authenticated
+                and tag in current_user.followed_tags %}
+                <a href="{{ url_for("follow_tag", tag_id=tag.id,
+                    next=request.full_path) }}">
+                    unfollow
+                </a>
             {% else %}
-                <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}"> follow </a>
+                <a href="{{ url_for("follow_tag", tag_id=tag.id,
+                    next=request.full_path) }}">
+                    follow
+                </a>
             {% endif %}
 
             {% if len(tag.description) > 127 %}

@@ -86,7 +86,8 @@
                         <div class="dropdown-content">
                             {% if current_user.has_right(
                                 "view_deactivated_annotations") %}
-                                <a href="{{ url_for("view_deactivated_annotations") }}">
+                                <a href="{{
+                                    url_for("view_deactivated_annotations") }}">
                                     deactivated
                                 </a>
                             {% endif %}

@@ -38,9 +38,15 @@ sort by:
         <div class="tag_card">
             <h2>
                 {% if not tag_request.approved %}
-                    <a href="{{ url_for("view_tag_request", tag_request_id=tag_request.id) }}"> <tag>{{ tag_request.tag }}</tag> </a>
+                    <a href="{{ url_for("view_tag_request",
+                        tag_request_id=tag_request.id) }}">
+                        <tag>{{ tag_request.tag }}</tag>
+                    </a>
                 {% elif not tag_request.rejected %}
-                    <a href="{{ url_for("tag", tag=tag_request.created_tag.tag) }}"> <tag>{{ tag_request.tag }}</tag> </a>
+                    <a href="{{ url_for("tag", tag=tag_request.created_tag.tag)
+                        }}">
+                        <tag>{{ tag_request.tag }}</tag>
+                    </a>
                 {% endif %}
 
                 {% if tag_request.approved %}
@@ -122,7 +128,10 @@ sort by:
                 </div>
             {% endif %}
 
-            <a href="{{ url_for("view_tag_request", tag_request_id=tag_request.id) }}"> View More </a>
+            <a href="{{ url_for("view_tag_request",
+                tag_request_id=tag_request.id) }}">
+                View More
+            </a>
         </div>
     {% endfor %}
 </div>
