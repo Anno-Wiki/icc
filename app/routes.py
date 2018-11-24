@@ -67,9 +67,10 @@ def index():
                 .order_by(Annotation.added.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
-        annotations = Annotation.query.outerjoin(AnnotationVersion,
-                and_(Annotation.id==AnnotationVersion.pointer_id,
-                    AnnotationVersion.current==True))\
+        annotations = Annotation.query\
+                .outerjoin(AnnotationVersion,
+                        and_(Annotation.id==AnnotationVersion.pointer_id,
+                            AnnotationVersion.current==True))\
                 .group_by(Annotation.id)\
                 .order_by(AnnotationVersion.modified.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
