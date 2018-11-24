@@ -6,7 +6,7 @@
     <h1>
         Annotation [{{ annotation.id }}] on 
         <a href="{{ url_for("book", book_url=annotation.book.url) }}">
-            War and Peace
+            {{ annotation.book.title }}
         </a>
     </h1>
     <div class="selection">
