@@ -57,13 +57,10 @@ def search():
 def index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "newest", type=str)
+
     if sort == "newest":
         annotations = Annotation.query.filter_by(active=True)\
                 .order_by(Annotation.added.desc())\
-                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    elif sort == "weight":
-        annotations = Annotation.query.filter_by(active=True)\
-                .order_by(Annotation.weight.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
         annotations = Annotation.query.filter_by(active=True)\
@@ -76,16 +73,22 @@ def index():
                 .group_by(Annotation.id)\
                 .order_by(AnnotationVersion.modified.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = Annotation.query.filter_by(active=True)\
+                .order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = Annotation.query.filter_by(active=True)\
                 .order_by(Annotation.added.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+
     sorts = {
             "newest": url_for("index", page=page, sort="newest"),
             "oldest": url_for("index", page=page, sort="oldest"),
-            "weight": url_for("index", page=page, sort="weight"),
             "modified": url_for("index", page=page, sort="modified"),
+            "weight": url_for("index", page=page, sort="weight"),
             }
+
     annotationflags = AnnotationFlag.query.all()
     next_page = url_for("index", page=annotations.next_num, sort=sort) \
             if annotations.has_next else None
@@ -170,40 +173,40 @@ def inbox():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "read", type=str)
     if sort == "time":
-        notifications = current_user.notifications.order_by(
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications.\
+                order_by(NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
-        notifications = current_user.notifications.order_by(
-                NotificationEvent.time.asc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .order_by(NotificationEvent.time.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "type":
-        notifications = current_user.notifications.join(NotificationType
-                ).order_by(
-                NotificationType.code.desc(),
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .join(NotificationType).\
+                order_by(NotificationType.code.desc(),
+                        NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "type_invert":
-        notifications = current_user.notifications.join(NotificationType
-                ).order_by(
-                NotificationType.code.asc(),
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .join(NotificationType)\
+                .order_by(NotificationType.code.asc(),
+                        NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "information":
-        notifications = current_user.notifications.order_by(
-                NotificationEvent.information.asc(),
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .order_by(NotificationEvent.information.asc(),
+                        NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "information_invert":
-        notifications = current_user.notifications.order_by(
-                NotificationEvent.information.desc(),
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .order_by(NotificationEvent.information.desc(),
+                        NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
-        notifications = current_user.notifications.order_by(
-                NotificationEvent.seen.asc(),
-                NotificationEvent.time.desc()
-                ).paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        notifications = current_user.notifications\
+                .order_by(NotificationEvent.seen.asc(),
+                        NotificationEvent.time.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
             "read": url_for("inbox", sort="read", page=page),
@@ -213,7 +216,8 @@ def inbox():
             "type": url_for("inbox", sort="type", page=page),
             "type_invert": url_for("inbox", sort="type_invert", page=page),
             "information": url_for("inbox", sort="information", page=page),
-            "information_invert": url_for("inbox", sort="information_invert", page=page),
+            "information_invert": url_for("inbox", sort="information_invert",
+                page=page),
             }
 
     next_page = url_for("inbox", page=notifications.next_num, sort=sort) \
@@ -447,24 +451,30 @@ def author_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "last name", type=str)
     if sort == "last name":
-        authors = Author.query.order_by(Author.last_name.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
-    elif sort == "name":
-        authors = Author.query.order_by(Author.name.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        authors = Author.query\
+                .order_by(Author.last_name.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "full name":
+        authors = Author.query\
+                .order_by(Author.name.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
-        authors = Author.query.order_by(Author.birth_date.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        authors = Author.query\
+                .order_by(Author.birth_date.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "youngest":
-        authors = Author.query.order_by(Author.birth_date.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        authors = Author.query\
+                .order_by(Author.birth_date.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "books":
-        authors = Author.query.outerjoin(Book).group_by(Author.id)\
+        authors = Author.query\
+                .outerjoin(Book).group_by(Author.id)\
                 .order_by(db.func.count(Book.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        authors = Author.query.order_by(Author.last_name.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        authors = Author.query\
+                .order_by(Author.last_name.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     sorts = {
             "last name": url_for("author_index", sort="last name", page=page),
             "name": url_for("author_index", sort="name", page=page),
@@ -487,23 +497,30 @@ def book_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "title", type=str)
     if sort == "title":
-        books = Book.query.order_by(Book.sort_title.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        books = Book.query\
+                .order_by(Book.sort_title.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
-        books = Book.query.join(Author).order_by(Author.last_name.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        books = Book.query\
+                .join(Author)\
+                .order_by(Author.last_name.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
-        books = Book.query.order_by(Book.published.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        books = Book.query\
+                .order_by(Book.published.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        books = Book.query.order_by(Book.published.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        books = Book.query\
+                .order_by(Book.published.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "length":
-        books = Book.query.outerjoin(Line).group_by(Book.id)\
+        books = Book.query\
+                .outerjoin(Line).group_by(Book.id)\
                 .order_by(db.func.count(Line.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "annotations":
-        books = Book.query.outerjoin(Annotation).group_by(Book.id)\
+        books = Book.query\
+                .outerjoin(Annotation).group_by(Book.id)\
                 .order_by(db.func.count(Annotation.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
@@ -533,11 +550,13 @@ def tag_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "tag", type=str)
     if sort == "tag":
-        tags = Tag.query.order_by(Tag.tag
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tags = Tag.query\
+                .order_by(Tag.tag)\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "annotations":
         # This doesn't do anything but the same sort yet
-        tags = Tag.query.outerjoin(tags_table)\
+        tags = Tag.query\
+                .outerjoin(tags_table)\
                 .outerjoin(AnnotationVersion, and_(
                     AnnotationVersion.id==tags_table.c.annotation_version_id,
                     AnnotationVersion.current==True))\
@@ -545,8 +564,9 @@ def tag_index():
                 .order_by(db.func.count(AnnotationVersion.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        tags = Tag.query.order_by(Tag.tag
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tags = Tag.query\
+                .order_by(Tag.tag)\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
             "tag": url_for("tag_index", sort="tag", page=page),
@@ -566,25 +586,30 @@ def user_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "reputation", type=str)
     if sort == "reputation":
-        users = User.query.order_by(User.reputation.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        users = User.query\
+                .order_by(User.reputation.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "name":
-        users = User.query.order_by(User.displayname.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        users = User.query\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "annotations":
-        users = User.query.outerjoin(Annotation).group_by(User.id)\
+        users = User.query\
+                .outerjoin(Annotation).group_by(User.id)\
                 .order_by(db.func.count(Annotation.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "edits":
-        users = User.query.outerjoin(AnnotationVersion,
+        users = User.query\
+                .outerjoin(AnnotationVersion,
                     and_(AnnotationVersion.editor_id==User.id,
                         AnnotationVersion.edit_num>0))\
                     .group_by(User.id)\
                     .order_by(db.func.count(AnnotationVersion.id).desc())\
                     .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        users = User.query.order_by(User.reputation.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        users = User.query\
+                .order_by(User.reputation.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     sorts = {
             "reputation": url_for("user_index", page=page, sort="reputation"),
             "name": url_for("user_index", page=page, sort="name"),
@@ -614,19 +639,36 @@ def author_annotations(name):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     author = Author.query.filter_by(url=name).first_or_404()
-    if sort == "date":
-        annotations = author.annotations.order_by(Annotation.added.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    if sort == "newest":
+        annotations = author.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = author.annotations\
+                .order_by(Annotation.added.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
-        annotations = author.annotations.order_by(Annotation.weight.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
-    annotationflags = AnnotationFlag.query.all()
+        annotations = author.annotations\
+                .order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    # tried to do sort==modified except it's totally buggy and I gotta sort
+    # through the problems.
+    else:
+        annotations = author.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+        sort == "newest"
+
     sorts = {
-            "date": url_for("author_annotations", name=author.url,
-                sort="date", page=page),
+            "newest": url_for("author_annotations", name=author.url,
+                sort="newest", page=page),
+            "oldest": url_for("author_annotations", name=author.url,
+                sort="oldest", page=page),
             "weight": url_for("author_annotations", name=author.url,
-                sort="weight", page=page)
+                sort="weight", page=page),
             }
+
+    annotationflags = AnnotationFlag.query.all()
     next_page = url_for("author_annotations", name=author.url, sort=sort,
             page=annotations.next_num) if annotations.has_next else None
     prev_page = url_for("author_annotations", name=author.url, sort=sort,
@@ -659,20 +701,41 @@ def book_annotations(book_url):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     book = Book.query.filter_by(url=book_url).first_or_404()
-    if sort == "date":
-        annotations = Annotation.query.filter_by(book_id=book.id
-                ).order_by(Annotation.added.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    if sort == "newest":
+        annotations = book.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = book.annotations\
+                .order_by(Annotation.added.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
-        annotations = Annotation.query.filter_by(book_id=book.id
-                ).order_by(Annotation.weight.desc()
-                ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+        annotations = book.annotations\
+                .order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "line":
+        annotations = book.annotations\
+                .outerjoin(AnnotationVersion, and_(
+                    AnnotationVersion.pointer_id==Annotation.id,
+                    AnnotationVersion.current==True))\
+                .order_by(AnnotationVersion.last_line_num.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    else:
+        annotations = book.annotations\
+                .order_by(Annotation.added.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+        sort = "newest"
+        
     annotationflags = AnnotationFlag.query.all()
     sorts = {
-            "date": url_for("book_annotations", book_url=book.url,
-                sort="date", page=page),
+            "newest": url_for("book_annotations", book_url=book.url,
+                sort="newest", page=page),
+            "oldest": url_for("book_annotations", book_url=book.url,
+                sort="oldest", page=page),
             "weight": url_for("book_annotations", book_url=book.url,
-                sort="weight", page=page)
+                sort="weight", page=page),
+            "line": url_for("book_annotations", book_url=book.url, sort="line",
+                page=page),
             }
     next_page = url_for("book_annotations", book_url=book.url, sort=sort,
             page=annotations.next_num) if annotations.has_next else None
@@ -868,9 +931,9 @@ def user(user_id):
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
 
     sorts = {
-            "weight": url_for("user", user_id=user_id, sort="weight", page=page),
             "newest": url_for("user", user_id=user_id, sort="newest", page=page),
-            "oldest": url_for("user", user_id=user_id, sort="oldest", page=page)
+            "oldest": url_for("user", user_id=user_id, sort="oldest", page=page),
+            "weight": url_for("user", user_id=user_id, sort="weight", page=page),
             }
     userflags = UserFlag.query.all()
     annotationflags = AnnotationFlag.query.all()
@@ -1265,9 +1328,9 @@ def rollback_edit(annotation_id, edit_id):
         return redirect(next_page)
     approved = current_user.has_right("immediate_edits")
     new_edit = AnnotationVersion(
-            editor_id=current_user.id,
-            pointer_id=annotation.id,
             book_id=annotation.book_id,
+            pointer_id=annotation.id,
+            editor_id=current_user.id,
             first_line_num=edit.first_line_num,
             last_line_num=edit.last_line_num,
             first_char_idx=edit.first_char_idx,
@@ -1469,21 +1532,40 @@ def all_annotation_flags():
 
     sorts = {
             "marked": url_for("all_annotation_flags", sort="marked", page=page),
+            "marked_invert": url_for("all_annotation_flags",
+                sort="marked_invert", page=page),
+
             "flag": url_for("all_annotation_flags", sort="flag", page=page),
+            "flag_invert": url_for("all_annotation_flags", sort="flag_invert",
+                page=page),
+
             "time": url_for("all_annotation_flags", sort="time", page=page),
-            "thrower": url_for("all_annotation_flags", sort="thrower", page=page),
-            "resolver": url_for("all_annotation_flags", sort="resolver", page=page),
-            "resolved_at": url_for("all_annotation_flags", sort="resolved_at", page=page),
-            "marked_invert": url_for("all_annotation_flags", sort="marked_invert", page=page),
-            "flag_invert": url_for("all_annotation_flags", sort="flag_invert", page=page),
-            "time_invert": url_for("all_annotation_flags", sort="time_invert", page=page),
-            "thrower_invert": url_for("all_annotation_flags", sort="thrower_invert", page=page),
-            "resolver_invert": url_for("all_annotation_flags", sort="resolver_invert", page=page),
-            "resolved_at_invert": url_for("all_annotation_flags", sort="resolved_at_invert", page=page),
-            "annotation": url_for("all_annotation_flags", sort="annotation", page=page),
-            "annotation_invert": url_for("all_annotation_flags", sort="annotation_invert", page=page),
+            "time_invert": url_for("all_annotation_flags", sort="time_invert",
+                page=page),
+
+            "thrower": url_for("all_annotation_flags", sort="thrower",
+                page=page),
+            "thrower_invert": url_for("all_annotation_flags",
+                sort="thrower_invert", page=page),
+
+            "resolver": url_for("all_annotation_flags", sort="resolver",
+                page=page),
+            "resolver_invert": url_for("all_annotation_flags",
+                sort="resolver_invert", page=page),
+
+            "resolved_at": url_for("all_annotation_flags", sort="resolved_at",
+                page=page),
+            "resolved_at_invert": url_for("all_annotation_flags",
+                sort="resolved_at_invert", page=page),
+
+            "annotation": url_for("all_annotation_flags", sort="annotation",
+                page=page),
+            "annotation_invert": url_for("all_annotation_flags",
+                sort="annotation_invert", page=page),
+
             "book": url_for("all_annotation_flags", sort="book", page=page),
-            "book_invert": url_for("all_annotation_flags", sort="book_invert", page=page),
+            "book_invert": url_for("all_annotation_flags", sort="book_invert",
+                page=page),
             }
 
     next_page = url_for("annotation_flags", annotation_id=annotation.id,
@@ -1511,6 +1593,7 @@ def annotation_flags(annotation_id):
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "flag":
         flags = annotation.flag_history\
                 .outerjoin(AnnotationFlag)\
@@ -1521,6 +1604,7 @@ def annotation_flags(annotation_id):
                 .outerjoin(AnnotationFlag)\
                 .order_by(AnnotationFlag.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "time":
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.time_thrown.desc())\
@@ -1529,6 +1613,7 @@ def annotation_flags(annotation_id):
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "thrower":
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
@@ -1539,6 +1624,7 @@ def annotation_flags(annotation_id):
                 .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolver":
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
@@ -1549,6 +1635,7 @@ def annotation_flags(annotation_id):
                 .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolved_at":
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.resolved.desc())\
@@ -1557,24 +1644,43 @@ def annotation_flags(annotation_id):
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     else:
         flags = annotation.flag_history\
                 .order_by(AnnotationFlagEvent.resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
-            "marked": url_for("annotation_flags", annotation_id=annotation.id, sort="marked", page=page),
-            "flag": url_for("annotation_flags", annotation_id=annotation.id, sort="flag", page=page),
-            "time": url_for("annotation_flags", annotation_id=annotation.id, sort="time", page=page),
-            "thrower": url_for("annotation_flags", annotation_id=annotation.id, sort="thrower", page=page),
-            "resolver": url_for("annotation_flags", annotation_id=annotation.id, sort="resolver", page=page),
-            "resolved_at": url_for("annotation_flags", annotation_id=annotation.id, sort="resolved_at", page=page),
-            "marked_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="marked_invert", page=page),
-            "flag_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="flag_invert", page=page),
-            "time_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="time_invert", page=page),
-            "thrower_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="thrower_invert", page=page),
-            "resolver_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="resolver_invert", page=page),
-            "resolved_at_invert": url_for("annotation_flags", annotation_id=annotation.id, sort="resolved_at_invert", page=page),
+            "marked": url_for("annotation_flags", annotation_id=annotation.id,
+                sort="marked", page=page),
+            "marked_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="marked_invert", page=page),
+
+            "flag": url_for("annotation_flags", annotation_id=annotation.id,
+                sort="flag", page=page),
+            "flag_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="flag_invert", page=page),
+
+            "time": url_for("annotation_flags", annotation_id=annotation.id,
+                sort="time", page=page),
+            "time_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="time_invert", page=page),
+
+            "thrower": url_for("annotation_flags", annotation_id=annotation.id,
+                sort="thrower", page=page),
+            "thrower_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="thrower_invert", page=page),
+
+            "resolver": url_for("annotation_flags", annotation_id=annotation.id,
+                sort="resolver", page=page),
+            "resolver_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="resolver_invert", page=page),
+
+            "resolved_at": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="resolved_at", page=page),
+            "resolved_at_invert": url_for("annotation_flags",
+                annotation_id=annotation.id, sort="resolved_at_invert",
+                page=page),
             }
 
     next_page = url_for("annotation_flags", annotation_id=annotation.id,
@@ -1622,7 +1728,6 @@ def all_user_flags():
     sort = request.args.get("sort", "marked", type=str)
     current_user.authorize_rights("resolve_user_flags")
 
-    sorts = {}
     if sort == "marked":
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.resolved.desc())\
@@ -1631,6 +1736,7 @@ def all_user_flags():
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "flag":
         flags = UserFlagEvent.query\
                 .outerjoin(UserFlag)\
@@ -1641,6 +1747,7 @@ def all_user_flags():
                 .outerjoin(UserFlag)\
                 .order_by(UserFlag.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "time":
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.time_thrown.desc())\
@@ -1649,6 +1756,7 @@ def all_user_flags():
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "thrower":
         flags = UserFlagEvent.query\
                 .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
@@ -1659,6 +1767,7 @@ def all_user_flags():
                 .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolver":
         flags = UserFlagEvent.query\
                 .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
@@ -1669,6 +1778,7 @@ def all_user_flags():
                 .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolved_at":
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.resolved.desc())\
@@ -1677,6 +1787,7 @@ def all_user_flags():
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "user":
         flags = UserFlagEvent.query\
                 .outerjoin(User, User.id==UserFlagEvent.user_id)\
@@ -1687,6 +1798,7 @@ def all_user_flags():
                 .outerjoin(User, User.id==UserFlagEvent.user_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     else:
         flags = UserFlagEvent.query\
                 .order_by(UserFlagEvent.resolved.desc())\
@@ -1694,19 +1806,33 @@ def all_user_flags():
 
     sorts = {
             "marked": url_for("all_user_flags", sort="marked", page=page),
+            "marked_invert": url_for("all_user_flags", sort="marked_invert",
+                page=page),
+
             "flag": url_for("all_user_flags", sort="flag", page=page),
+            "flag_invert": url_for("all_user_flags", sort="flag_invert",
+                page=page),
+
             "time": url_for("all_user_flags", sort="time", page=page),
+            "time_invert": url_for("all_user_flags", sort="time_invert",
+                page=page),
+
             "thrower": url_for("all_user_flags", sort="thrower", page=page),
+            "thrower_invert": url_for("all_user_flags", sort="thrower_invert",
+                page=page),
+
             "resolver": url_for("all_user_flags", sort="resolver", page=page),
-            "resolved_at": url_for("all_user_flags", sort="resolved_at", page=page),
-            "marked_invert": url_for("all_user_flags", sort="marked_invert", page=page),
-            "flag_invert": url_for("all_user_flags", sort="flag_invert", page=page),
-            "time_invert": url_for("all_user_flags", sort="time_invert", page=page),
-            "thrower_invert": url_for("all_user_flags", sort="thrower_invert", page=page),
-            "resolver_invert": url_for("all_user_flags", sort="resolver_invert", page=page),
-            "resolved_at_invert": url_for("all_user_flags", sort="resolved_at_invert", page=page),
+            "resolver_invert": url_for("all_user_flags", sort="resolver_invert",
+                page=page),
+
+            "resolved_at": url_for("all_user_flags", sort="resolved_at",
+                page=page),
+            "resolved_at_invert": url_for("all_user_flags",
+                sort="resolved_at_invert", page=page),
+
             "user": url_for("all_user_flags", sort="user", page=page),
-            "user_invert": url_for("all_user_flags", sort="user_invert", page=page),
+            "user_invert": url_for("all_user_flags", sort="user_invert",
+                page=page),
             }
 
     next_page = url_for("all_user_flags", page=flags.next_num, sort=sort) \
@@ -1733,6 +1859,7 @@ def user_flags(user_id):
         flags = user.flag_history\
                 .order_by(UserFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "flag":
         flags = user.flag_history\
                 .outerjoin(UserFlag)\
@@ -1743,6 +1870,7 @@ def user_flags(user_id):
                 .outerjoin(UserFlag)\
                 .order_by(UserFlag.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "time":
         flags = user.flag_history\
                 .order_by(UserFlagEvent.time_thrown.desc())\
@@ -1751,6 +1879,7 @@ def user_flags(user_id):
         flags = user.flag_history\
                 .order_by(UserFlagEvent.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "thrower":
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
@@ -1761,6 +1890,7 @@ def user_flags(user_id):
                 .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolver":
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
@@ -1771,6 +1901,7 @@ def user_flags(user_id):
                 .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "resolved_at":
         flags = user.flag_history\
                 .order_by(UserFlagEvent.resolved.desc())\
@@ -1779,24 +1910,42 @@ def user_flags(user_id):
         flags = user.flag_history\
                 .order_by(UserFlagEvent.resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     else:
         flags = user.flag_history\
                 .order_by(UserFlagEvent.resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
-            "marked": url_for("user_flags", user_id=user.id, sort="marked", page=page),
-            "flag": url_for("user_flags", user_id=user.id, sort="flag", page=page),
-            "time": url_for("user_flags", user_id=user.id, sort="time", page=page),
-            "thrower": url_for("user_flags", user_id=user.id, sort="thrower", page=page),
-            "resolver": url_for("user_flags", user_id=user.id, sort="resolver", page=page),
-            "resolved_at": url_for("user_flags", user_id=user.id, sort="resolved_at", page=page),
-            "marked_invert": url_for("user_flags", user_id=user.id, sort="marked_invert", page=page),
-            "flag_invert": url_for("user_flags", user_id=user.id, sort="flag_invert", page=page),
-            "time_invert": url_for("user_flags", user_id=user.id, sort="time_invert", page=page),
-            "thrower_invert": url_for("user_flags", user_id=user.id, sort="thrower_invert", page=page),
-            "resolver_invert": url_for("user_flags", user_id=user.id, sort="resolver_invert", page=page),
-            "resolved_at_invert": url_for("user_flags", user_id=user.id, sort="resolved_at_invert", page=page),
+            "marked": url_for("user_flags", user_id=user.id, sort="marked",
+                page=page),
+            "marked_invert": url_for("user_flags", user_id=user.id,
+                sort="marked_invert", page=page),
+
+            "flag": url_for("user_flags", user_id=user.id, sort="flag",
+                page=page),
+            "flag_invert": url_for("user_flags", user_id=user.id,
+                sort="flag_invert", page=page),
+
+            "time": url_for("user_flags", user_id=user.id, sort="time",
+                page=page),
+            "time_invert": url_for("user_flags", user_id=user.id,
+                sort="time_invert", page=page),
+
+            "thrower": url_for("user_flags", user_id=user.id, sort="thrower",
+                page=page),
+            "thrower_invert": url_for("user_flags", user_id=user.id,
+                sort="thrower_invert", page=page),
+
+            "resolver": url_for("user_flags", user_id=user.id, sort="resolver",
+                page=page),
+            "resolver_invert": url_for("user_flags", user_id=user.id,
+                sort="resolver_invert", page=page),
+
+            "resolved_at": url_for("user_flags", user_id=user.id,
+                sort="resolved_at", page=page),
+            "resolved_at_invert": url_for("user_flags", user_id=user.id,
+                sort="resolved_at_invert", page=page),
             }
 
     next_page = url_for("user_flags", user_id=user.id, page=flags.next_num,
@@ -1868,6 +2017,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(EditVote.delta.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "id":
         edits = AnnotationVersion.query.outerjoin(Annotation)\
                 .filter(AnnotationVersion.approved==False,
@@ -1880,6 +2030,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(Annotation.id.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "edit_num":
         edits = AnnotationVersion.query\
                 .filter(AnnotationVersion.approved==False,
@@ -1892,6 +2043,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(AnnotationVersion.edit_num.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "editor":
         edits = AnnotationVersion.query.outerjoin(User)\
                 .filter(AnnotationVersion.approved==False,
@@ -1904,6 +2056,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "time":
         edits = AnnotationVersion.query\
                 .filter(AnnotationVersion.approved==False,
@@ -1916,6 +2069,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(AnnotationVersion.modified.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     elif sort == "reason":
         edits = AnnotationVersion.query\
                 .filter(AnnotationVersion.approved==False,
@@ -1928,6 +2082,7 @@ def edit_review_queue():
                         AnnotationVersion.rejected==False)\
                 .order_by(AnnotationVersion.edit_reason.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
     else:
         edits = AnnotationVersion.query\
                 .outerjoin(EditVote,
@@ -2199,23 +2354,29 @@ def book_request_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     if sort == "oldest":
-        book_requests = BookRequest.query.order_by(BookRequest.requested.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        book_requests = BookRequest.query\
+                .order_by(BookRequest.requested.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        book_requests = BookRequest.query.order_by(BookRequest.requested.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        book_requests = BookRequest.query\
+                .order_by(BookRequest.requested.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
-        book_requests = BookRequest.query.order_by(BookRequest.weight.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        book_requests = BookRequest.query\
+                .order_by(BookRequest.weight.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "title":
-        requests = BookRequest.query.order_by(BookRequest.title.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        requests = BookRequest.query\
+                .order_by(BookRequest.title.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
-        book_requests = BookRequest.query.order_by(BookRequest.author.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        book_requests = BookRequest.query\
+                .order_by(BookRequest.author.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        book_requests = BookRequest.query.order_by(BookRequest.weight.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        book_requests = BookRequest.query\
+                .order_by(BookRequest.weight.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
             "oldest": url_for("book_request_index", sort="oldest", page=page),
@@ -2340,26 +2501,31 @@ def tag_request_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     if sort == "tag":
-        tag_requests = TagRequest.query.order_by(TagRequest.tag.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tag_requests = TagRequest.query\
+                .order_by(TagRequest.tag.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
-        tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tag_requests = TagRequest.query\
+                .order_by(TagRequest.weight.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
-        tag_requests = TagRequest.query.order_by(TagRequest.requested.asc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tag_requests = TagRequest.query\
+                .order_by(TagRequest.requested.asc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        tag_requests = TagRequest.query.order_by(TagRequest.requested.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tag_requests = TagRequest.query\
+                .order_by(TagRequest.requested.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        tag_requests = TagRequest.query.order_by(TagRequest.weight.desc()
-                ).paginate(page, app.config["CARDS_PER_PAGE"], False)
+        tag_requests = TagRequest.query\
+                .order_by(TagRequest.weight.desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
             "tag": url_for("tag_request_index", sort="tag", page=page),
-            "weight": url_for("tag_request_index", sort="weight", page=page),
             "oldest": url_for("tag_request_index", sort="oldest", page=page),
             "newest": url_for("tag_request_index", sort="newest", page=page),
+            "weight": url_for("tag_request_index", sort="weight", page=page),
             }
 
     next_page = url_for("tag_request_index", page=tag_requests.next_num,
