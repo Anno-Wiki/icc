@@ -21,7 +21,7 @@
             </h3>
             {% for l in line.context %}
                 <a href="{{ l.get_url() }}#{{ l.line_num }}">
-                    <line class="{{ l.kind.kind }}" id="{{ l.line_num }}">
+                    <line class="{{ l.label.label }}" id="{{ l.line_num }}">
                         {% if l == line %}
                             <div class="highlight">
                                 <span class="linenum">{{ l.line_num }}</span>
