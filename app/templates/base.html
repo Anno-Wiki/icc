@@ -79,7 +79,10 @@
                 {% if current_user.has_right("view_deactivated_annotations") 
                     or current_user.is_authorized(
                         vars["AUTHORIZATION"]["EDIT_QUEUE"])
-                    or current_user.has_right("review_edits") %}
+                    or current_user.has_right("review_edits")
+                    or current_user.has_right("resolve_user_flags")
+                    or current_user.has_right("resolve_annotation_flags")
+                    %}
 
                     <div class="dropdown">
                         <a class="dropbtn">admin&#x25BE;</a> |
@@ -93,10 +96,25 @@
                             {% endif %}
 
                             {% if current_user.is_authorized(
-                                vars["AUTHORIZATION"]["EDIT_QUEUE"]) or
-                                current_user.has_right("review_edits")%}
+                                vars["AUTHORIZATION"]["EDIT_QUEUE"])
+                                or current_user.has_right("review_edits")
+                                %}
                                 <a href="{{ url_for("edit_review_queue") }}">
                                     edits
+                                </a>
+                            {% endif %}
+
+                            {% if current_user.has_right(
+                                "resolve_user_flags") %}
+                                <a href="{{ url_for("all_user_flags") }}">
+                                    user flags
+                                </a>
+                            {% endif %}
+
+                            {% if current_user.has_right(
+                                "resolve_annotation_flags") %}
+                                <a href="{{ url_for("all_annotation_flags") }}">
+                                    annotation flags
                                 </a>
                             {% endif %}
                         </div>
