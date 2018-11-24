@@ -1292,7 +1292,6 @@ def rollback_edit(annotation_id, edit_id):
 @login_required
 def upvote(anno_id):
     annotation = Annotation.query.get_or_404(anno_id)
-
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = annotation.lines[0].get_url()
@@ -1302,7 +1301,11 @@ def upvote(anno_id):
         return redirect(next_page)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
-        if vote.is_up():
+        diff = datetime.utcnow() - vote.time
+        if diff.days > 0 and annotation.HEAD.modified < vote.time:
+            flash("Your vote is locked until the annotation is modified.")
+            return redirect(next_page)
+        elif vote.is_up():
             annotation.rollback(vote)
             db.session.commit()
             return redirect(next_page)
@@ -1328,7 +1331,11 @@ def downvote(anno_id):
         return redirect(next_page)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
-        if not vote.is_up():
+        diff = datetime.utcnow() - vote.time
+        if diff.days > 0 and annotation.HEAD.modified < vote.time:
+            flash("Your vote is locked until the annotation is modified.")
+            return redirect(next_page)
+        elif not vote.is_up():
             annotation.rollback(vote)
             db.session.commit()
             return redirect(next_page)
