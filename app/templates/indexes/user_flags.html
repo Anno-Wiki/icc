@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2> User <a href="{{ url_for("user", user_id=user.id) }}"> {{ user.displayname }} </a> flags </h2>
+<h2>
+    User
+    <a href="{{ url_for("user", user_id=user.id) }}">
+        {{ user.displayname }}
+    </a>
+    flags
+</h2>
 
 {% if flags %}
     {% if user.active_flags %}
-        <a href="{{ url_for("mark_user_flags", user_id=user.id, next=request.full_path) }}"> mark all resolved </a>
+        <a href="{{ url_for("mark_user_flags", user_id=user.id,
+            next=request.full_path) }}">
+            mark all resolved
+        </a>
     {% endif %}
     <table class="inbox">
         <tr class="header">

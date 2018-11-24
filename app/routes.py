@@ -1382,6 +1382,115 @@ def lock_user(user_id):
     return redirect(next_page)
 
 # annotation flags
+@app.route("/admin/flags/annotation/all/")
+@login_required
+def all_annotation_flags():
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "marked", type=str)
+    current_user.authorize_rights("resolve_annotation_flags")
+
+    if sort == "marked":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "marked_invert":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "flag":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(AnnotationFlag)\
+                .order_by(AnnotationFlag.flag.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "flag_invert":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(AnnotationFlag)\
+                .order_by(AnnotationFlag.flag.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.time_thrown.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.time_thrown.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "thrower":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "thrower_invert":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolver":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolver_invert":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolved_at":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "resolved_at_invert":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "annotation":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.annotation_id.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "annotation_invert":
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.annotation_id.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "book":
+        flags = AnnotationFlagEvent.query\
+                .outerjoin(Annotation,
+                        Annotation.id==AnnotationFlagEvent.annotation_id)\
+                .outerjoin(Book, Book.id==Annotation.book_id)\
+                .order_by(Book.sort_title)\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        flags = AnnotationFlagEvent.query\
+                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+
+    sorts = {
+            "marked": url_for("all_annotation_flags", sort="marked", page=page),
+            "flag": url_for("all_annotation_flags", sort="flag", page=page),
+            "time": url_for("all_annotation_flags", sort="time", page=page),
+            "thrower": url_for("all_annotation_flags", sort="thrower", page=page),
+            "resolver": url_for("all_annotation_flags", sort="resolver", page=page),
+            "resolved_at": url_for("all_annotation_flags", sort="resolved_at", page=page),
+            "marked_invert": url_for("all_annotation_flags", sort="marked_invert", page=page),
+            "flag_invert": url_for("all_annotation_flags", sort="flag_invert", page=page),
+            "time_invert": url_for("all_annotation_flags", sort="time_invert", page=page),
+            "thrower_invert": url_for("all_annotation_flags", sort="thrower_invert", page=page),
+            "resolver_invert": url_for("all_annotation_flags", sort="resolver_invert", page=page),
+            "resolved_at_invert": url_for("all_annotation_flags", sort="resolved_at_invert", page=page),
+            "annotation": url_for("all_annotation_flags", sort="annotation", page=page),
+            "annotation_invert": url_for("all_annotation_flags", sort="annotation_invert", page=page),
+            "book": url_for("all_annotation_flags", sort="book", page=page),
+            "book_invert": url_for("all_annotation_flags", sort="book_invert", page=page),
+            }
+
+    next_page = url_for("annotation_flags", annotation_id=annotation.id,
+            page=flags.next_num, sort=sort) if flags.has_next else None
+    prev_page = url_for("annotation_flags", annotation_id=annotation.id,
+            page=flags.prev_num, sort=sort) if flags.has_prev else None
+    return render_template("indexes/all_annotation_flags.html",
+            title=f"Annotation Flags", flags=flags.items, sort=sort,
+            sorts=sorts, next_page=next_page, prev_page=prev_page)
+
+# annotation flags
 @app.route("/admin/flags/annotation/<annotation_id>/")
 @login_required
 def annotation_flags(annotation_id):
