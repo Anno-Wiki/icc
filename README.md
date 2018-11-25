@@ -10,4 +10,6 @@ Primary files consist of:
 2. `insertannotations.py`: a script to process `.anno` files output by `preprocessor.py` into the icc database
 3. `app/routes.py`: the main application view logic of the app
 4. `app/models.py`: the main data logic of the app
-5. `app/templates/*`: the templating logic of the app
+5. `app/search.py`: some logic related to elasticsearch
+6. `app/funky.py`: some modularized functions for use in `app/routes.py`
+7. `app/templates/*`: the templating logic of the app
