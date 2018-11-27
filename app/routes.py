@@ -28,6 +28,24 @@ def before_request():
         logout_user()
     g.search_form = SearchForm()
 
+@app.route("/admin/annotation/<annotation_id>/delete/", methods=["GET", "POST"])
+@login_required
+def delete_annotation_check(annotation_id):
+    form = AreYouSureForm()
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("index")
+    current_user.authorize_rights("delete_annotations")
+    annotation = Annotation.query.get_or_404(annotation_id)
+    if form.validate_on_submit():
+        db.session.delete(annotation)
+        db.session.commit()
+        flash(f"Annotation [{annotation_id}] deleted.")
+        return redirect(next_page)
+    return render_template("forms/delete_annotation_check.html", 
+    title=f"Delete [{annotation_id}]", form=form)
+
+
 @app.route("/search")
 def search():
     if not g.search_form.validate():
