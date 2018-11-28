@@ -1,52 +1,42 @@
 
-ID Age  P Project Tags         Description                                  Urg
--- ---- - ------- ------------ -------------------------------------------- ----
-16 2w   H web     feature      add notifications to user flags for           7.9
-                               following admins
-17 2w   H web     feature      add notifications to annotation flags for     7.9
-                               following admins
-18 2w   H web     feature      annotation locking notifications              7.9
-22 5d   H web     bug          Prevent people from changing their vote (on  7.83
-                               anything) after a day or so
-23 5d   H web     feature      Create see all user flags route              7.83
-24 5d   H web     feature      Create see all annotation flags route        7.83
-25 5d   H web     feature      option to delete annotation permanently      7.83
-26 5d   H web     feature      option to delete edit permanently            7.83
-27 5d   H web     feature      option to rollback annotation                7.83
-28 5d   H web     feature      option to delete book-request permanently    7.83
-29 5d   H web     feature      option to delete tag-request permanently     7.83
-30 5d   H web     feature      moderator option to anonymize user account   7.83
-                               forcibly
-31 5d   H web     feature      moderator option to delete user account      7.83
-                               forcibly and delete all associated activity
-                               (including edits, which will be difficult
-33 4d   H web     feature      we need to annotate without ever opening a   7.82
-                               chapter page
-72 4d   H web     feature      sort annotations by last line number         7.82
-73 4d   H web     feature      sort annotations by first line number        7.82
-74 4d   H web     bug          track user reputation changes, because right 7.82
-                               now they don't actually work right without
-                               it
-75 4d   H web     feature      flags need comments for resolution based on  7.82
-                               investigation
-76 4h   H web     cleanup      normalize urls                                7.8
-78 1min H web     bug          Fix up book table of contents with level      7.8
-                               labels
-79 1min H web     bug          Fix all bugs relating to major conversion     7.8
-32 5d   H web                  Re do css and layout                         7.03
-12 5w   M web     feature      Add css rule for quotations                   5.9
-19 2w   M web     bug          Fix the back button on 404 and other errors  5.78
-77 4h   M web     bug          investigate why it takes so long for war and  5.7
-                               peace to generate a chapter
- 3 3mo  L web     JS feature   write javascript for pe char-level           4.26
-                               annotation
- 4 3mo  L web     AJAX feature Write javascript for popup annotations on    4.22
-                               read view.
- 5 3mo  L web     test         Test more formats!                           4.12
-13 4w   L web     feature      see about tag intersection                   3.78
-14 3w   L web     feature      anonymous edits and annotations              3.74
-15 3w   L web     feature      anonymous annotation approval                3.74
-20 8d     web     feature      add default about me                         1.84
-21 8d     web     feature      add default displayname                      1.84
+ID Age P Project Tags         Description                                   Urg
+-- --- - ------- ------------ --------------------------------------------- ----
+13 12d H web     feature      option to delete book-request permanently     7.87
+14 12d H web     feature      option to delete tag-request permanently      7.87
+15 12d H web     feature      moderator option to anonymize user account    7.87
+                              forcibly
+16 12d H web     feature      moderator option to delete user account       7.87
+                              forcibly and delete all associated activity
+                              (including edits, which will be difficult
+18 11d H web     feature      we need to annotate without ever opening a    7.86
+                              chapter page
+57 11d H web     bug          track user reputation changes, because right  7.86
+                              now they don't actually work right without it
+60 4d  H web     feature      view all items followed view so it can be     7.82
+                              edited
+61 4d  H web     feature      verifications                                 7.82
+62 2d  H web     feature      Convert books to texts                        7.81
+63 2d  H web     feature      each text can have multiple editions, upvotes 7.81
+                              will determine the community accepted text; a
+                              special attribute will be the officiator
+64 2d  H web     feature      authors will be writers                       7.81
+65 2d  H web     feature      writers will have attributes corresponding to 7.81
+                              translator editor author etc
+66 2d  H web     feature      a text can only have authors                  7.81
+67 2d  H web     feature      an edition can have editors or translators    7.81
+                              but not authors
+68 2d  H web     feature      comments on annotations for discussion        7.81
+69 1d  H web     feature      public flags                                  7.81
+70 1d  H web     feature      Edit Flags                                    7.81
+17 12d H web                  Re do css and layout                          7.07
+11 6w  M web     feature      Add css rule for quotations                   5.94
+59 4d  M web     feature      separate user annotations to new page         5.72
+71 3h  M web     bug          Debug ondelete=cascade                         5.7
+ 2 3mo L web     JS feature   write javascript for pe char-level annotation  4.3
+ 3 3mo L web     AJAX feature Write javascript for popup annotations on     4.26
+                              read view.
+ 4 3mo L web     test         Test more formats!                            4.16
+12 5w  L web     feature      see about tag intersection                    3.82
+58 4d    web     feature      improve pagination                            1.82
 
-33 tasks
+26 tasks
