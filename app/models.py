@@ -697,12 +697,14 @@ class Annotation(SearchableMixin, db.Model):
                 "Line.line_num<=Edit.last_line_num+5,"
                 "Line.book_id==Edit.book_id)",
             viewonly=True, uselist=True, passive_deletes=True)
+
     flag_history = db.relationship("AnnotationFlagEvent",
             primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
             lazy="dynamic")
     active_flags = db.relationship("AnnotationFlagEvent",
             primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
             "AnnotationFlagEvent.resolved_by==None)", passive_deletes=True)
+
     edits = db.relationship("Edit",
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
                 "Edit.approved==True)", lazy="joined", passive_deletes=True)
@@ -710,8 +712,8 @@ class Annotation(SearchableMixin, db.Model):
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
                 "Edit.approved==True)", lazy="dynamic", passive_deletes=True)
     all_edits = db.relationship("Edit",
-            primaryjoin="Edit.annotation_id==Annotation.id",
-            lazy="dynamic", passive_deletes=True)
+            primaryjoin="Edit.annotation_id==Annotation.id", lazy="dynamic",
+            passive_deletes=True)
 
     def __getattr__(self, attr):
         if attr.startswith("annotator_"):

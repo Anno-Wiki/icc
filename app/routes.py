@@ -2246,6 +2246,9 @@ def delete_annotation(annotation_id):
 If you click submit the annotation, all of the edits to the annotation, all of
 the votes to the edits, all of the votes to the annotation, and all of the
 reputation changes based on the annotation, will be deleted permanently.
+
+This is not something to take lightly. Unless there is illegal content
+associated with the annotation, you really ought to simply deactivate it.
     """
     return render_template("forms/delete_check.html", 
             title=f"Delete [{annotation_id}]", form=form, text=text)
@@ -2275,6 +2278,8 @@ If you click submit the edit, all of the votes for the edit, and all of the
 reputation changes based on the edit being approved will be deleted. The edit
 numbers of all the subsequent edits will be decremented by one. It will
 therefore be as though the edit never even existed.
+
+The only reason for this is if there is illegal content in the edit.
     """
     return render_template("forms/delete_check.html", 
             title=f"Delete edit #{edit.edit_num} of [{edit.annotation_id}]",
