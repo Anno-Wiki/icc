@@ -115,6 +115,20 @@
                 {{ annotation.HEAD.modified }}
             {% endif %}
         </h4>
+            
+        <em>
+            <a href="{{ url_for("edit_history", annotation_id=annotation.id) }}">
+                version history
+            </a>
+        </em>
+        |
+        <em>
+            <a href="{{ url_for("view_edit", annotation_id=annotation.id,
+                edit_num=annotation.HEAD.previous.edit_num) }}">
+                previous version
+            </a>
+        </em>
+        <br>
 
         <!--flagging dropdown-->
         <div class="dropdown">
@@ -163,7 +177,7 @@
             {% endif %}
             {% if current_user.has_right("delete_annotations") %}
                 |
-                <a href="{{ url_for("delete_annotation_check",
+                <a href="{{ url_for("delete_annotation",
                     annotation_id=annotation.id)
                     }}">
                     delete

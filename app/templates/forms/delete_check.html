@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Are you sure?</h1>
+{{ text|markdown }}
+<form action="" method="POST" novalidate>
+    {{ form.hidden_tag() }} 
+    {{ form.submit }}
+</form>
+{% endblock %}

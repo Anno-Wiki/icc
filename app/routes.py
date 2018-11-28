@@ -28,8 +28,6 @@ def before_request():
         logout_user()
     g.search_form = SearchForm()
 
-
-
 @app.route("/search")
 def search():
     if not g.search_form.validate():
@@ -308,19 +306,7 @@ def flag_user(flag_id, user_id):
     flash(f"User {user.displayname} flagged \"{flag.flag}\"")
     return redirect(next_page)
 
-@app.route("/user/delete_account/")
-@login_required
-def delete_account():
-    current_user.displayname = f"deleted_user_{current_user.id}"
-    current_user.email = ""
-    current_user.password_hash = "***"
-    current_user.about_me = ""
-    db.session.commit()
-    logout_user()
-    flash("Account anonymized.")
-    return redirect(url_for("index"))
-
-@app.route("/user/delete_account_check/", methods=["GET", "POST"])
+@app.route("/user/delete/account/", methods=["GET", "POST"])
 @login_required
 def delete_account_check():
     form = AreYouSureForm()
@@ -330,10 +316,38 @@ def delete_account_check():
         next_page = url_for("user", user_id=user.id)
 
     if form.validate_on_submit():
-        return redirect(url_for("delete_account"))
+        current_user.displayname = f"x_user_{current_user.id}"
+        current_user.email = ""
+        current_user.password_hash = "***"
+        current_user.about_me = ""
+        db.session.commit()
+        logout_user()
+        flash("Account anonymized.")
+        return redirect(url_for("index"))
 
-    return render_template("forms/delete_account_check.html", form=form,
-            title="Are you sure?")
+    text = f"""
+You have clicked the link to delete your account. This page serves as a double
+check to make sure that you’re really sure you want to delete your account. You
+will not be able to undo this. Annopedia is not like Facebook. We don’t secretly
+keep your personal information so you can reactivate your account later on. If
+you delete it, it’s done.
+
+Please note, however, that the account itself will not be expunged from our
+database. Annopedia is a collaborative effort, and we therefore reserve the
+right to retain all of your contributions. This deletion is an anonymization of
+your account. Your display name, email address, and about me will all be erased
+and anonymized. Every interaction you have ever made with the site will be
+associated with an account which cannot be logged into and whose display name
+will be `x_user_{current_user.id}` But you will never be able to log back in
+and retrieve your account.
+
+If you’re really sure about this, click the button “Yes, I’m sure.” Otherwise,
+press back in your browser, or _close_ your browser, or even pull the power cord
+from the back of your computer. Because if you click “Yes, I’m sure,” then your
+account is gone.
+    """
+    return render_template("forms/delete_check.html", form=form,
+            title="Are you sure?", text=text)
 
 ###################
 ## follow routes ##
@@ -2216,20 +2230,55 @@ def rescind(edit_id):
 
 @app.route("/admin/annotation/<annotation_id>/delete/", methods=["GET", "POST"])
 @login_required
-def delete_annotation_check(annotation_id):
+def delete_annotation(annotation_id):
     form = AreYouSureForm()
+    current_user.authorize_rights("delete_annotations")
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("index")
-    current_user.authorize_rights("delete_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
     if form.validate_on_submit():
         db.session.delete(annotation)
         db.session.commit()
         flash(f"Annotation [{annotation_id}] deleted.")
         return redirect(next_page)
-    return render_template("forms/delete_annotation_check.html", 
-            title=f"Delete [{annotation_id}]", form=form)
+    text = """
+If you click submit the annotation, all of the edits to the annotation, all of
+the votes to the edits, all of the votes to the annotation, and all of the
+reputation changes based on the annotation, will be deleted permanently.
+    """
+    return render_template("forms/delete_check.html", 
+            title=f"Delete [{annotation_id}]", form=form, text=text)
+
+@app.route("/admin/edit/<edit_id>/delete/", methods=["GET", "POST"])
+@login_required
+def delete_edit(edit_id):
+    form = AreYouSureForm()
+    current_user.authorize_rights("delete_annotations")
+    edit = Edit.query.get_or_404(edit_id)
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).loc != "":
+        next_page = url_for("annotation", annotation_id=edit.annotation_id)
+    if form.validate_on_submit():
+        if edit.current:
+            edit.previous.current = True
+        else:
+            for e in edit.annotation.all_edits.order_by(Edit.edit_num.desc()).all():
+                if e.edit_num > edit.edit_num:
+                    e.edit_num -= 1
+        flash(f"Edit #{edit.edit_num} of [{edit.annotation_id}] deleted.")
+        db.session.delete(edit)
+        db.session.commit()
+        return redirect(next_page)
+    text = """
+If you click submit the edit, all of the votes for the edit, and all of the
+reputation changes based on the edit being approved will be deleted. The edit
+numbers of all the subsequent edits will be decremented by one. It will
+therefore be as though the edit never even existed.
+    """
+    return render_template("forms/delete_check.html", 
+            title=f"Delete edit #{edit.edit_num} of [{edit.annotation_id}]",
+            form=form, text=text)
 
 #####################
 ## Content Editing ##

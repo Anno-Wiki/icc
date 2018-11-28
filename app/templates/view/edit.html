@@ -5,7 +5,16 @@
     {% if edit.rejected == True %}
         <h1 class="rejected">&#10007; Edit Rejected<h1>
     {% endif %}
-    <h1>Annotation {{ edit.annotation.id }} of {{ edit.book.title }}</h1>
+    <h1>
+        Annotation
+        <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+            [{{ edit.annotation.id }}]
+        </a>
+        of 
+        <a href="{{ url_for("book", book_url=edit.book.url) }}">
+            {{ edit.book.title }}
+        </a>
+    </h1>
     <h2>Edit #{{ edit.edit_num }}</h2>
     <em>
         <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id) }}">
@@ -19,6 +28,15 @@
             previous version
         </a>
     </em>
+    {% if current_user.is_authenticated
+        and current_user.has_right("delete_edits") %}
+        |
+        <em>
+            <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">
+                delete
+            </a>
+        </em>
+    {% endif %}
 
     {% if current_user.is_authenticated and current_user.has_right("review_edits") %}
         {% if current_user.get_vote(edit) %}
@@ -49,21 +67,21 @@
         {% for line in context %}
             {% if line in edit.lines and line in edit.previous.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="highlight">
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} highlight">
                     {{ line.line }}
                 </line>
             {% elif line in edit.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="plus">
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} plus">
                     {{ line.line }}
                 </line>
             {% elif line in edit.previous.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="delta">
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} delta">
                     {{ line.line }}
                 </line>
             {% else %}
-                <line id="{{ line.line_num }}"> 
+                <line id="{{ line.line_num }}" class="{{ line.label.label }}"> 
                     {{ line.line }}
                 </line>
             {% endif %}
