@@ -79,8 +79,8 @@
             </a>
             by
         </em>
-        <a href="{{ url_for("user", user_id=edit.pointer.author.id) }}">
-            {{ edit.pointer.author.displayname }}
+        <a href="{{ url_for("user", user_id=edit.pointer.annotator.id) }}">
+            {{ edit.pointer.annotator.displayname }}
         </a>
         {{ edit.pointer.added }}
     </annotation>

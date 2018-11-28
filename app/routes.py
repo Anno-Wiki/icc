@@ -8,9 +8,9 @@ from werkzeug.urls import url_parse
 from sqlalchemy import or_, and_
 from app import app, db
 from app.models import User, Book, Author, Line, LineLabel, Annotation, \
-        AnnotationVersion, Tag, EditVote, AdminRight, Vote, BookRequest, \
-        BookRequestVote, TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
-        NotificationType, NotificationEvent, tags as tags_table, UserFlagEvent,\
+        Edit, Tag, EditVote, Right, Vote, BookRequest, BookRequestVote, \
+        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, NotificationType,\
+        NotificationEvent, tags as tags_table, UserFlagEvent, \
         AnnotationFlagEvent
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
@@ -28,22 +28,6 @@ def before_request():
         logout_user()
     g.search_form = SearchForm()
 
-@app.route("/admin/annotation/<annotation_id>/delete/", methods=["GET", "POST"])
-@login_required
-def delete_annotation_check(annotation_id):
-    form = AreYouSureForm()
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("index")
-    current_user.authorize_rights("delete_annotations")
-    annotation = Annotation.query.get_or_404(annotation_id)
-    if form.validate_on_submit():
-        db.session.delete(annotation)
-        db.session.commit()
-        flash(f"Annotation [{annotation_id}] deleted.")
-        return redirect(next_page)
-    return render_template("forms/delete_annotation_check.html", 
-    title=f"Delete [{annotation_id}]", form=form)
 
 
 @app.route("/search")
@@ -86,11 +70,11 @@ def index():
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
         annotations = Annotation.query\
-                .outerjoin(AnnotationVersion,
-                        and_(Annotation.id==AnnotationVersion.pointer_id,
-                            AnnotationVersion.current==True))\
+                .outerjoin(Edit,
+                        and_(Annotation.id==Edit.annotation_id,
+                            Edit.current==True))\
                 .group_by(Annotation.id)\
-                .order_by(AnnotationVersion.modified.desc())\
+                .order_by(Edit.modified.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = Annotation.query.filter_by(active=True)\
@@ -451,7 +435,7 @@ def follow_annotation(annotation_id):
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("annotation", annotation_id=annotation.id)
-    if annotation.author == current_user:
+    if annotation.annotator == current_user:
         flash("You cannot follow your own annotation.")
         redirect(next_page)
     elif annotation in current_user.followed_annotations:
@@ -576,11 +560,11 @@ def tag_index():
         # This doesn't do anything but the same sort yet
         tags = Tag.query\
                 .outerjoin(tags_table)\
-                .outerjoin(AnnotationVersion, and_(
-                    AnnotationVersion.id==tags_table.c.annotation_version_id,
-                    AnnotationVersion.current==True))\
+                .outerjoin(Edit, and_(
+                    Edit.id==tags_table.c.edit_id,
+                    Edit.current==True))\
                 .group_by(Tag.id)\
-                .order_by(db.func.count(AnnotationVersion.id).desc())\
+                .order_by(db.func.count(Edit.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         tags = Tag.query\
@@ -619,11 +603,11 @@ def user_index():
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "edits":
         users = User.query\
-                .outerjoin(AnnotationVersion,
-                    and_(AnnotationVersion.editor_id==User.id,
-                        AnnotationVersion.edit_num>0))\
+                .outerjoin(Edit,
+                    and_(Edit.editor_id==User.id,
+                        Edit.edit_num>0))\
                     .group_by(User.id)\
-                    .order_by(db.func.count(AnnotationVersion.id).desc())\
+                    .order_by(db.func.count(Edit.id).desc())\
                     .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         users = User.query\
@@ -734,10 +718,10 @@ def book_annotations(book_url):
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "line":
         annotations = book.annotations\
-                .outerjoin(AnnotationVersion, and_(
-                    AnnotationVersion.pointer_id==Annotation.id,
-                    AnnotationVersion.current==True))\
-                .order_by(AnnotationVersion.last_line_num.asc())\
+                .outerjoin(Edit, and_(
+                    Edit.annotation_id==Annotation.id,
+                    Edit.current==True))\
+                .order_by(Edit.last_line_num.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = book.annotations\
@@ -786,7 +770,7 @@ def tag(tag):
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
         annotations = tag.annotations\
-                .order_by(AnnotationVersion.modified.desc())\
+                .order_by(Edit.modified.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = tag.annotations\
@@ -834,51 +818,51 @@ def edit_history(annotation_id):
 
     if sort == "edit_num":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.edit_num.asc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.edit_num.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "edit_num_invert":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.edit_num.desc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.edit_num.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "editor":
         edits = annotation.history.outerjoin(User)\
-                .filter(AnnotationVersion.approved==True)\
+                .filter(Edit.approved==True)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "editor_invert":
         edits = annotation.history.outerjoin(User)\
-                .filter(AnnotationVersion.approved==True)\
+                .filter(Edit.approved==True)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.modified.asc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.modified.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.modified.desc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.modified.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.edit_reason.asc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.edit_reason.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason_invert":
         edits = annotation.history\
-                .filter(AnnotationVersion.approved==True)\
-                .order_by(AnnotationVersion.edit_reason.desc())\
+                .filter(Edit.approved==True)\
+                .order_by(Edit.edit_reason.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         edits = annotation.history\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==AnnotationVersion.id)
+                            EditVote.edit_id==Edit.id)
                         )\
-                .filter(AnnotationVersion.approved==True)\
+                .filter(Edit.approved==True)\
                 .order_by(EditVote.delta.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
         sort = "voted"
@@ -895,21 +879,21 @@ def edit_history(annotation_id):
 
 @app.route("/annotation/<annotation_id>/edit/<edit_num>/")
 def view_edit(annotation_id, edit_num):
-    edit = AnnotationVersion.query.filter(
-            AnnotationVersion.pointer_id==annotation_id,
-            AnnotationVersion.edit_num==edit_num,
-            AnnotationVersion.approved==True
+    edit = Edit.query.filter(
+            Edit.annotation_id==annotation_id,
+            Edit.edit_num==edit_num,
+            Edit.approved==True
             ).first_or_404()
 
     if not edit.previous:
         return render_template("view/first_version.html",
-                title=f"First Version of [{edit.pointer.id}]", edit=edit)
+                title=f"First Version of [{edit.annotation.id}]", edit=edit)
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
     # careful to do this for both unix and windows return variants (i.e. be
     # careful of \r's).
-    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.annotation)
-    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.annotation)
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.body)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.body)
 
     diff = list(difflib.Differ().compare(diff1.splitlines(),
         diff2.splitlines()))
@@ -1044,27 +1028,27 @@ def read(book_url):
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.annotations\
                 .filter(Annotation.book_id==book.id,
-                        AnnotationVersion.first_line_num>=lines[0].line_num,
-                        AnnotationVersion.last_line_num<=lines[-1].line_num)\
+                        Edit.first_line_num>=lines[0].line_num,
+                        Edit.last_line_num<=lines[-1].line_num)\
                 .all()
         tags = None
     else:
-        annotations = book.annotations.join(AnnotationVersion,
-                and_(AnnotationVersion.pointer_id==Annotation.id,
-                    AnnotationVersion.current==True))\
-                .filter(AnnotationVersion.last_line_num<=lines[-1].line_num,
-                        AnnotationVersion.first_line_num>=lines[0].line_num)\
+        annotations = book.annotations.join(Edit,
+                and_(Edit.annotation_id==Annotation.id,
+                    Edit.current==True))\
+                .filter(Edit.last_line_num<=lines[-1].line_num,
+                        Edit.first_line_num>=lines[0].line_num)\
                 .all()
         # this query is like 5 times faster than the old double-for loop. I am,
         # however, wondering if some of the join conditions should be offloaded
         # into a filter
         tags = Tag.query.outerjoin(tags_table)\
-                .join(AnnotationVersion, and_(
-                    AnnotationVersion.id==tags_table.c.annotation_version_id,
-                    AnnotationVersion.current==True,
-                    AnnotationVersion.book_id==book.id,
-                    AnnotationVersion.first_line_num>=lines[0].line_num,
-                    AnnotationVersion.last_line_num<=lines[-1].line_num)
+                .join(Edit, and_(
+                    Edit.id==tags_table.c.edit_id,
+                    Edit.current==True,
+                    Edit.book_id==book.id,
+                    Edit.first_line_num>=lines[0].line_num,
+                    Edit.last_line_num<=lines[-1].line_num)
                     )\
                 .all()
 
@@ -1078,7 +1062,7 @@ def read(book_url):
 
     # I have to query this so I only make a db call once instead of each time
     # for every line to find out if the user has edit_rights
-    edit_right = AdminRight.query.filter_by(right="edit_lines").first()
+    edit_right = Right.query.filter_by(right="edit_lines").first()
 
     # This custom method for replacing underscores with <em> tags is still way
     # faster than the markdown converter. Since I'm not using anything other
@@ -1155,17 +1139,17 @@ def annotate(book_url, first_line, last_line):
 
         locked = form.locked.data and current_user.has_right("lock_annotations")
 
-        # Create the annotation pointer with HEAD pointing to anno
-        head = Annotation(book=book, author=current_user, locked=locked)
+        # Create the annotation annotation with HEAD pointing to anno
+        head = Annotation(book=book, annotator=current_user, locked=locked)
 
         # I'll use the language of git
-        # Create the inital transient sqlalchemy AnnotationVersion object
-        commit = AnnotationVersion(
+        # Create the inital transient sqlalchemy Edit object
+        commit = Edit(
                 book=book, approved=True, current=True, editor=current_user,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags, pointer=head,
+                body=form.annotation.data, tags=tags, annotation=head,
                 edit_reason="Initial version"
                 )
 
@@ -1196,10 +1180,10 @@ def annotate(book_url, first_line, last_line):
     return render_template("forms/annotation.html", title=book.title, form=form,
              book=book, lines=lines, context=context)
 
-@app.route("/edit/<anno_id>/", methods=["GET", "POST"])
+@app.route("/edit/<annotation_id>/", methods=["GET", "POST"])
 @login_required
-def edit(anno_id):
-    annotation = Annotation.query.get_or_404(anno_id)
+def edit(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
 
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
@@ -1247,7 +1231,7 @@ def edit(anno_id):
 
         # approved is true if the user can edit immediately
         approved = current_user.has_right("immediate_edits")\
-                or annotation.author == current_user
+                or annotation.annotator == current_user
 
         lockchange = False
         if current_user.has_right("lock_annotations"):
@@ -1267,14 +1251,14 @@ def edit(anno_id):
         edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
                 else 1
         # both the approved and current variables are based on approved
-        edit = AnnotationVersion(book=annotation.book,
+        edit = Edit(book=annotation.book,
                 editor_id=current_user.id, edit_num=edit_num,
-                edit_reason=form.reason.data, pointer_id=anno_id,
+                edit_reason=form.reason.data, annotation_id=annotation_id,
                 approved=approved, current=approved,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
-                annotation=form.annotation.data, tags=tags,
+                body=form.annotation.data, tags=tags,
                 )
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
@@ -1321,7 +1305,7 @@ def edit(anno_id):
         form.last_line.data = annotation.HEAD.last_line_num
         form.first_char_idx.data = annotation.HEAD.first_char_idx
         form.last_char_idx.data = annotation.HEAD.last_char_idx
-        form.annotation.data = annotation.HEAD.annotation
+        form.annotation.data = annotation.HEAD.body
         form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
 
@@ -1334,7 +1318,7 @@ def edit(anno_id):
 @login_required
 def rollback_edit(annotation_id, edit_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+    edit = Edit.query.get_or_404(edit_id)
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("edit_history", annotation_id=annotation.id)
@@ -1346,9 +1330,9 @@ def rollback_edit(annotation_id, edit_id):
         flash("That annotation is locked from editing.")
         return redirect(next_page)
     approved = current_user.has_right("immediate_edits")
-    new_edit = AnnotationVersion(
+    new_edit = Edit(
             book_id=annotation.book_id,
-            pointer_id=annotation.id,
+            annotation_id=annotation.id,
             editor_id=current_user.id,
             first_line_num=edit.first_line_num,
             last_line_num=edit.last_line_num,
@@ -1374,15 +1358,15 @@ def rollback_edit(annotation_id, edit_id):
         flash("Edit submitted for review.")
     return redirect(next_page)
 
-@app.route("/upvote/<anno_id>/")
+@app.route("/upvote/<annotation_id>/")
 @login_required
-def upvote(anno_id):
-    annotation = Annotation.query.get_or_404(anno_id)
+def upvote(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = annotation.lines[0].get_url()
 
-    if current_user == annotation.author:
+    if current_user == annotation.annotator:
         flash("You cannot vote on your own annotations.")
         return redirect(next_page)
     elif current_user.already_voted(annotation):
@@ -1403,16 +1387,16 @@ def upvote(anno_id):
 
     return redirect(next_page)
 
-@app.route("/downvote/<anno_id>/")
+@app.route("/downvote/<annotation_id>/")
 @login_required
-def downvote(anno_id):
-    annotation = Annotation.query.get_or_404(anno_id)
+def downvote(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
 
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = annotation.lines[0].get_url()
 
-    if current_user == annotation.author:
+    if current_user == annotation.annotator:
         flash("You cannot vote on your own annotation.")
         return redirect(next_page)
     elif current_user.already_voted(annotation):
@@ -2017,99 +2001,99 @@ def edit_review_queue():
     sort = request.args.get("sort", "voted", type=str)
 
     if sort == "voted":
-        edits = AnnotationVersion.query\
+        edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==AnnotationVersion.id)
+                            EditVote.edit_id==Edit.id)
                         )\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "voted_invert":
-        edits = AnnotationVersion.query\
+        edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==AnnotationVersion.id)
+                            EditVote.edit_id==Edit.id)
                         )\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(EditVote.delta.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "id":
-        edits = AnnotationVersion.query.outerjoin(Annotation)\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+        edits = Edit.query.outerjoin(Annotation)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(Annotation.id.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "id_invert":
-        edits = AnnotationVersion.query.outerjoin(Annotation)\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+        edits = Edit.query.outerjoin(Annotation)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(Annotation.id.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "edit_num":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.edit_num.asc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.edit_num.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "edit_num_invert":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.edit_num.desc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.edit_num.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "editor":
-        edits = AnnotationVersion.query.outerjoin(User)\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+        edits = Edit.query.outerjoin(User)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "editor_invert":
-        edits = AnnotationVersion.query.outerjoin(User)\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+        edits = Edit.query.outerjoin(User)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "time":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.modified.asc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.modified.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.modified.desc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.modified.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "reason":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.edit_reason.asc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.edit_reason.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason_invert":
-        edits = AnnotationVersion.query\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
-                .order_by(AnnotationVersion.edit_reason.desc())\
+        edits = Edit.query\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
+                .order_by(Edit.edit_reason.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
-        edits = AnnotationVersion.query\
+        edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==AnnotationVersion.id)
+                            EditVote.edit_id==Edit.id)
                         )\
-                .filter(AnnotationVersion.approved==False,
-                        AnnotationVersion.rejected==False)\
+                .filter(Edit.approved==False,
+                        Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
         sort = "voted"
@@ -2131,9 +2115,9 @@ def edit_review_queue():
 def review_edit(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+    edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
-        return redirect(url_for("view_edit", annotation_id=edit.pointer_id,
+        return redirect(url_for("view_edit", annotation_id=edit.annotation_id,
             edit_num=edit.edit_num))
 
     # we have to replace single returns with spaces because markdown only
@@ -2168,9 +2152,9 @@ def review_edit(edit_id):
 def approve(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+    edit = Edit.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.pointer.id}")
+        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
         return redirect(url_for("edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
@@ -2179,8 +2163,8 @@ def approve(edit_id):
     if edit.weight >= app.config["MIN_APPROVAL_RATING"] or \
             current_user.has_right("approve_edits"):
         edit.approved = True
-        edit.pointer.edit_pending = False
-        edit.pointer.HEAD.current = False
+        edit.annotation.edit_pending = False
+        edit.annotation.HEAD.current = False
         edit.current = True
         edit.notify_edit("approved")
         flash(f"Edit {edit.edit_num} approved.")
@@ -2192,9 +2176,9 @@ def approve(edit_id):
 def reject(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+    edit = Edit.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.pointer.id}")
+        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
         return redirect(url_for("edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
@@ -2202,7 +2186,7 @@ def reject(edit_id):
     edit.reject(current_user)
     if edit.weight <= app.config["MIN_REJECTION_RATING"] or \
             current_user.has_right("approve_edits"):
-        edit.pointer.edit_pending = False
+        edit.annotation.edit_pending = False
         edit.rejected = True
         edit.notify_edit("rejected")
         flash(f"Edit {edit.edit_num} rejected.")
@@ -2214,7 +2198,7 @@ def reject(edit_id):
 def rescind(edit_id):
     if not current_user.has_right("review_edits"):
         current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-    edit = AnnotationVersion.query.get_or_404(edit_id)
+    edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")
         return redirect(url_for("edit_review_queue"))
@@ -2229,6 +2213,23 @@ def rescind(edit_id):
     db.session.commit()
     flash("Vote rescinded")
     return redirect(url_for("edit_review_queue"))
+
+@app.route("/admin/annotation/<annotation_id>/delete/", methods=["GET", "POST"])
+@login_required
+def delete_annotation_check(annotation_id):
+    form = AreYouSureForm()
+    next_page = request.args.get("next")
+    if not next_page or url_parse(next_page).netloc != "":
+        next_page = url_for("index")
+    current_user.authorize_rights("delete_annotations")
+    annotation = Annotation.query.get_or_404(annotation_id)
+    if form.validate_on_submit():
+        db.session.delete(annotation)
+        db.session.commit()
+        flash(f"Annotation [{annotation_id}] deleted.")
+        return redirect(next_page)
+    return render_template("forms/delete_annotation_check.html", 
+            title=f"Delete [{annotation_id}]", form=form)
 
 #####################
 ## Content Editing ##
@@ -2318,11 +2319,11 @@ def edit_tag(tag_id):
 ## Annotation Administration ##
 ###############################
 
-@app.route("/admin/deactivate/annotation/<anno_id>/")
+@app.route("/admin/deactivate/annotation/<annotation_id>/")
 @login_required
-def deactivate(anno_id):
+def deactivate(annotation_id):
     current_user.authorize_rights("deactivate_annotations")
-    annotation = Annotation.query.get_or_404(anno_id)
+    annotation = Annotation.query.get_or_404(annotation_id)
     annotation.active = not annotation.active
     db.session.commit()
     if annotation.active:

@@ -46,11 +46,11 @@
 
     <!--body of the annotation-->
     <div class="annotation_content">
-        {%- if len(annotation.HEAD.annotation) < 255 -%}
-            {{ annotation.HEAD.annotation|markdown }}
+        {%- if len(annotation.HEAD.body) < 255 -%}
+            {{ annotation.HEAD.body|markdown }}
         {%- else -%}
             <span class="cutoff">
-                {{ annotation.HEAD.annotation[:255]|markdown }}
+                {{ annotation.HEAD.body[:255]|markdown }}
             </span>
             <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
                 View More 
@@ -76,10 +76,10 @@
             annotated 
         </a>
         by
-        <a href="{{ url_for("user", user_id=annotation.author.id) }}">
-            {{ annotation.author.displayname }}
+        <a href="{{ url_for("user", user_id=annotation.annotator.id) }}">
+            {{ annotation.annotator.displayname }}
         </a>
-        <strong>{{ annotation.author.readable_reputation() }}</strong>
+        <strong>{{ annotation.annotator.readable_reputation() }}</strong>
         {{ annotation.added }}
     {%- else -%}
         <a href="{{ url_for("view_edit", annotation_id=annotation.id,
@@ -97,12 +97,12 @@
     |
     <!--up/downvote buttons-->
     {% if uservotes and annotation.id in uservotes and uservotes[annotation.id] %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id,
+        <a href="{{ url_for("upvote", annotation_id=annotation.id,
             next=request.full_path) }}" class="voted">
             up
         </a>
     {% else %}
-        <a href="{{ url_for("upvote", anno_id=annotation.id,
+        <a href="{{ url_for("upvote", annotation_id=annotation.id,
             next=request.full_path) }}" class="notvoted">
             up
         </a>
@@ -110,19 +110,19 @@
     /
     {%- if uservotes and annotation.id in uservotes and not
         uservotes[annotation.id] %}
-        <a href="{{ url_for("downvote", anno_id=annotation.id,
+        <a href="{{ url_for("downvote", annotation_id=annotation.id,
             next=request.full_path) }}" class="voted">
             down
         </a>
     {% else %}
-        <a href="{{ url_for("downvote", anno_id=annotation.id,
+        <a href="{{ url_for("downvote", annotation_id=annotation.id,
             next=request.full_path) }}" class="notvoted">
             down
         </a>
     {% endif -%}
 
     <!--follow/unfollow buttons-->
-    {% if current_user != annotation.author %}
+    {% if current_user != annotation.annotator %}
         {% if current_user.is_authenticated and annotation in
             current_user.followed_annotations %}
             | <a href="{{ url_for("follow_annotation",
@@ -153,33 +153,13 @@
 
     {% if current_user.is_authenticated %}
     <!--authenticated user routes-->
-        {% if current_user.has_right("resolve_annotation_flags") %}
-            | <a href="{{ url_for("annotation_flags",
-                annotation_id=annotation.id) }}">
-                flags
-            </a>
-        {% endif %}
-
         {% if current_user.has_right("edit_locked_annotations") or not
             annotation.locked %}
-            | <a href="{{ url_for("edit", anno_id=annotation.id,
+            | <a href="{{ url_for("edit", annotation_id=annotation.id,
                 next=request.full_path) }}">
                 edit
             </a>
         {% endif %}
 
-        {% if current_user.has_right("deactivate_annotations") %}
-            {% if annotation.active %}
-                | <a href="{{ url_for("deactivate", anno_id=annotation.id,
-                    next=request.full_path) }}">
-                    deactivate
-                </a>
-            {% else %}
-                | <a href="{{ url_for("deactivate", anno_id=annotation.id,
-                    next=request.full_path) }}">
-                    reactivate
-                </a>
-            {% endif %}
-        {% endif %}
     {% endif %}
 </annotation>

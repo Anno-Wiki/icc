@@ -1,6 +1,6 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
-from app.models import Book, Line, User, Annotation, AnnotationVersion, Tag
+from app.models import Book, Line, User, Annotation, Edit, Tag
 import sys
 import codecs
 import argparse
@@ -69,14 +69,14 @@ for line in fin:
 
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(book_id=args.book, author=user, locked=True)
+    head = Annotation(book_id=args.book, annotator=user, locked=True)
 
-    commit = AnnotationVersion(
-            pointer=head, approved=True, current=True, 
+    commit = Edit(
+            annotation=head, approved=True, current=True, 
             book_id=args.book, editor=user,
             first_line_num=l.line_num, last_line_num=l.line_num,
             first_char_idx=0, last_char_idx=-1,
-            annotation=fields[0], tags=tags,
+            body=fields[0], tags=tags,
             edit_num=0, edit_reason="Initial version")
 
     # add commit and head, commit both
