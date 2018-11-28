@@ -1,4 +1,4 @@
-INSERT INTO admin_right (`right`) VALUES
+INSERT INTO `right` (`right`) VALUES
     ("approve_edits"),
     ("create_tags"),
     ("delete_annotations"),
