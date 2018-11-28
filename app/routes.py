@@ -812,6 +812,9 @@ def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlag.query.all()
 
+    if not annotation.active:
+        current_user.authorize("view_deactivated_annotations")
+
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "edit_num_invert", type=str)
 
@@ -1193,6 +1196,8 @@ def edit(annotation_id):
             and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
         return redirect(redirect_url)
+    elif not annotation.active:
+        current_user.authorize("edit_deactivated_annotations")
 
     lines = annotation.lines
     context = annotation.context
@@ -1324,6 +1329,8 @@ def rollback(annotation_id, edit_id):
             and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
         return redirect(redirect_url)
+    elif not annotation.active:
+        current_user.authorize("edit_deactivated_annotations")
 
     if annotation.HEAD == edit:
         flash("You can't roll back an annotation to its current version.")
@@ -1453,6 +1460,9 @@ def upvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = generate_next(url_for("annotation",
         annotation_id=annotation_id))
+    if not annotation.active:
+        flash("You cannot vote on deactivated annotations.")
+        return redirect(redirect_url)
     if current_user == annotation.annotator:
         flash("You cannot vote on your own annotations.")
         return redirect(redirect_url)
@@ -1478,6 +1488,8 @@ def downvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = generate_next(url_for("annotation",
         annotation_id=annotation_id))
+    if not annotation.active:
+        flash("You cannot vote on deactivated annotations.")
     if current_user == annotation.annotator:
         flash("You cannot vote on your own annotation.")
         return redirect(redirect_url)
@@ -1503,6 +1515,8 @@ def downvote(annotation_id):
 @login_required
 def flag_annotation(flag_id, annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
+    if not annotation.active:
+        current_user.authorize("view_deactivated_annotations")
     flag = AnnotationFlag.query.get_or_404(flag_id)
 
     redirect_url = generate_next(url_for("annotation",
@@ -1522,7 +1536,7 @@ def flag_annotation(flag_id, annotation_id):
 @app.route("/admin/lock/user/<user_id>/")
 @login_required
 def lock_user(user_id):
-    current_user.authorize_rights("lock_users")
+    current_user.authorize("lock_users")
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for("user", user_id=user.id))
     user.locked = not user.locked
@@ -1536,7 +1550,7 @@ def lock_user(user_id):
 def all_annotation_flags():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize_rights("resolve_annotation_flags")
+    current_user.authorize("resolve_annotation_flags")
 
     if sort == "marked":
         flags = AnnotationFlagEvent.query\
@@ -1664,7 +1678,9 @@ def all_annotation_flags():
 def annotation_flags(annotation_id):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize_rights("resolve_annotation_flags")
+    current_user.authorize("resolve_annotation_flags")
+    if not annotation.active:
+        current_user.authorize("resolve_deactivated_annotation_flags")
     annotation = Annotation.query.get_or_404(annotation_id)
 
     if sort == "marked":
@@ -1777,7 +1793,7 @@ def annotation_flags(annotation_id):
 @app.route("/admin/flags/annotation/mark/<flag_id>/")
 @login_required
 def mark_annotation_flag(flag_id):
-    current_user.authorize_rights("resolve_annotation_flags")
+    current_user.authorize("resolve_annotation_flags")
     flag = AnnotationFlagEvent.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("annotation_flags",
         annotation_id=flag.annotation_id))
@@ -1791,8 +1807,10 @@ def mark_annotation_flag(flag_id):
 @app.route("/admin/flags/annotation/<annotation_id>/mark/all/")
 @login_required
 def mark_annotation_flags(annotation_id):
-    current_user.authorize_rights("resolve_annotation_flags")
+    current_user.authorize("resolve_annotation_flags")
     annotation = Annotation.query.get_or_404(annotation_id)
+    if not annotation.active:
+        current_user.authorize("resolve_deactivated_annotation_flags")
     redirect_url = generate_next(url_for("annotation_flags",
         annotation_id=annotation_id))
     for flag in annotation.active_flags:
@@ -1806,7 +1824,7 @@ def mark_annotation_flags(annotation_id):
 def all_user_flags():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize_rights("resolve_user_flags")
+    current_user.authorize("resolve_user_flags")
 
     if sort == "marked":
         flags = UserFlagEvent.query\
@@ -1929,7 +1947,7 @@ def all_user_flags():
 def user_flags(user_id):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize_rights("resolve_user_flags")
+    current_user.authorize("resolve_user_flags")
     user = User.query.get_or_404(user_id)
     if sort == "marked":
         flags = user.flag_history\
@@ -2039,7 +2057,7 @@ def user_flags(user_id):
 @app.route("/admin/flags/mark/user_flag/<flag_id>/")
 @login_required
 def mark_user_flag(flag_id):
-    current_user.authorize_rights("resolve_user_flags")
+    current_user.authorize("resolve_user_flags")
     flag = UserFlagEvent.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("user_flags", user_id=flag.user_id))
     if flag.resolved:
@@ -2052,7 +2070,7 @@ def mark_user_flag(flag_id):
 @app.route("/admin/flags/mark_all/<user_id>/")
 @login_required
 def mark_user_flags(user_id):
-    current_user.authorize_rights("resolve_user_flags")
+    current_user.authorize("resolve_user_flags")
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for("user_flags", user_id=user.id))
     for flag in user.active_flags:
@@ -2190,6 +2208,8 @@ def review_edit(edit_id):
     if edit.approved == True:
         return redirect(url_for("view_edit", annotation_id=edit.annotation_id,
             edit_num=edit.edit_num))
+    if not edit.annotation.active:
+        current_user.authorize("review_deactivated_annotation_edits")
 
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
@@ -2223,6 +2243,8 @@ def review_edit(edit_id):
 def approve(edit_id):
     current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
+    if not edit.annotation.active:
+        current_user.authorize("review_deactivated_annotation_edits")
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
         return redirect(url_for("edit_review_queue"))
@@ -2246,6 +2268,8 @@ def approve(edit_id):
 def reject(edit_id):
     current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
+    if not edit.annotation.active:
+        current_user.authorize("review_deactivated_annotation_edits")
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
         return redirect(url_for("edit_review_queue"))
@@ -2267,6 +2291,8 @@ def reject(edit_id):
 def rescind(edit_id):
     current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
+    if not edit.annotation.active:
+        current_user.authorize("review_deactivated_annotation_edits")
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")
         return redirect(url_for("edit_review_queue"))
@@ -2310,7 +2336,7 @@ associated with the annotation, you really ought to simply deactivate it.
 @login_required
 def delete_edit(edit_id):
     form = AreYouSureForm()
-    current_user.authorize_rights("delete_annotations")
+    current_user.authorize("delete_annotations")
     edit = Edit.query.get_or_404(edit_id)
     redirect_url = generate_next(url_for("annotation",
         annotation_id=edit.annotation_id))
@@ -2344,7 +2370,7 @@ The only reason for this is if there is illegal content in the edit.
 @app.route("/admin/edit/line/<line_id>/", methods=["GET", "POST"])
 @login_required
 def edit_line(line_id):
-    current_user.authorize_rights("edit_lines")
+    current_user.authorize("edit_lines")
     line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
@@ -2360,7 +2386,7 @@ def edit_line(line_id):
 @app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
 @login_required
 def edit_bio(author_id):
-    current_user.authorize_rights("edit_bios")
+    current_user.authorize("edit_bios")
     author = Author.query.get_or_404(author_id)
     form = TextForm()
     redirect_url = generate_next(url_for("author", name=author.url))
@@ -2378,7 +2404,7 @@ def edit_bio(author_id):
 @app.route("/admin/edit/book_summary/<book_id>/", methods=["GET", "POST"])
 @login_required
 def edit_summary(book_id):
-    current_user.authorize_rights("edit_summaries")
+    current_user.authorize("edit_summaries")
     book = Book.query.get_or_404(book_id)
     form = TextForm()
     redirect_url = generate_next(url_for("book", book_url=book.url))
@@ -2395,7 +2421,7 @@ def edit_summary(book_id):
 @app.route("/admin/edit/tag/<tag_id>/", methods=["GET", "POST"])
 @login_required
 def edit_tag(tag_id):
-    current_user.authorize_rights("edit_tags")
+    current_user.authorize("edit_tags")
     tag = Tag.query.get_or_404(tag_id)
     form = TagForm()
     if form.validate_on_submit():
@@ -2419,7 +2445,7 @@ def edit_tag(tag_id):
 @app.route("/admin/deactivate/annotation/<annotation_id>/")
 @login_required
 def deactivate(annotation_id):
-    current_user.authorize_rights("deactivate_annotations")
+    current_user.authorize("deactivate_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
     annotation.active = not annotation.active
     db.session.commit()
@@ -2435,7 +2461,7 @@ def deactivate(annotation_id):
 @app.route("/admin/list/deactivated/annotations/")
 @login_required
 def view_deactivated_annotations():
-    current_user.authorize_rights("view_deactivated_annotations")
+    current_user.authorize("view_deactivated_annotations")
     sort = request.args.get("sort", "added", type=str)
     page = request.args.get("page", 1, type=int)
     if sort == "added":
@@ -2546,7 +2572,7 @@ def book_request():
 def edit_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
     if current_user != book_request.requester:
-        current_user.authorize_rights("edit_book_requests")
+        current_user.authorize("edit_book_requests")
     form = BookRequestForm()
     if form.validate_on_submit():
         book_request.title = form.title.data
@@ -2680,7 +2706,7 @@ def tag_request():
 def edit_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     if tag_request.requester != current_user:
-        current_user.authorize_rights("edit_tag_requests")
+        current_user.authorize("edit_tag_requests")
     form = TagRequestForm()
     if form.validate_on_submit():
         tag_request.tag = form.tag.data
@@ -2746,7 +2772,7 @@ def downvote_tag_request(tag_request_id):
 @app.route("/admin/tags/create/<tag_request_id>/", methods=["GET","POST"])
 @login_required
 def create_tag(tag_request_id):
-    current_user.authorize_rights("create_tags")
+    current_user.authorize("create_tags")
     tag_request = None
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
@@ -2773,7 +2799,7 @@ def create_tag(tag_request_id):
 @app.route("/admin/tags/reject/<tag_request_id>/")
 @login_required
 def reject_tag(tag_request_id):
-    current_user.authorize_rights("create_tags")
+    current_user.authorize("create_tags")
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     redirect_url = generate_next(url_for("tag_request_index"))
     tag_request.rejected = True
