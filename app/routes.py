@@ -1328,49 +1328,142 @@ def edit(annotation_id):
             book=annotation.HEAD.book, lines=lines,
             annotation=annotation, context=context)
 
-@app.route("/rollback/edit/<annotation_id>/<edit_id>/")
+@app.route("/rollback/<annotation_id>/edit/<edit_id>/", methods=["GET", "POST"])
 @login_required
-def rollback_edit(annotation_id, edit_id):
+def rollback(annotation_id, edit_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     edit = Edit.query.get_or_404(edit_id)
+
     next_page = request.args.get("next")
     if not next_page or url_parse(next_page).netloc != "":
         next_page = url_for("edit_history", annotation_id=annotation.id)
-    if annotation.HEAD == edit:
-        flash("You can't roll back an annotation to it's current version.")
-        return redirect(next_page)
-    if annotation.locked == True and not \
-            current_user.has_right("edit_locked_annotations"):
+
+    if annotation.locked == True\
+            and not current_user.has_right("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
         return redirect(next_page)
-    approved = current_user.has_right("immediate_edits")
-    new_edit = Edit(
-            book_id=annotation.book_id,
-            annotation_id=annotation.id,
-            editor_id=current_user.id,
-            first_line_num=edit.first_line_num,
-            last_line_num=edit.last_line_num,
-            first_char_idx=edit.first_char_idx,
-            last_char_idx=edit.last_char_idx,
-            annotation=edit.annotation,
-            modified=datetime.utcnow(),
-            approved=approved
-            )
-    # if the approved is true (i.e., the user has immediate_edit rights),
-    # then the value of edit_pending needs to be not true, and vice versa.
-    annotation.edit_pending = not approved
-    if approved:
-        edit.current = False
-        new_edit.current = True
-        new_edit.approved = True
-        annotation.HEAD = new_edit
-    db.session.commit()
-    if approved:
-        flash("Edit complete.")
-        edit.notify_edit("approved")
-    else:
-        flash("Edit submitted for review.")
-    return redirect(next_page)
+
+    if annotation.HEAD == edit:
+        flash("You can't roll back an annotation to its current version.")
+        return redirect(next_page)
+
+    lines = annotation.lines
+    context = annotation.context
+    form = AnnotationForm()
+
+    if form.validate_on_submit():
+        # line number boilerplate
+        fl = int(form.first_line.data)
+        ll = int(form.last_line.data)
+        if fl < 1:
+            fl = 1
+        if ll < 1:
+            fl = 1
+            ll = 1
+        if ll < fl:
+            tmp = ll
+            ll = fl
+            fl = tmp
+
+        # Process all the tags
+        raw_tags = form.tags.data.split()
+        tags = []
+        fail = False
+        for tag in raw_tags:
+            t = Tag.query.filter_by(tag=tag).first()
+            if t:
+                tags.append(t)
+            else:
+                fail = True
+                flash(f"tag {tag} does not exist.")
+
+        if len(tags) > 5:
+            fail = True
+            flash("There is a five tag limit.")
+
+
+        # approved is true if the user can edit immediately
+        approved = current_user.has_right("immediate_edits")\
+                or annotation.annotator == current_user
+
+        lockchange = False
+        if current_user.has_right("lock_annotations"):
+            # the lock changes if the annotation's lock value is different from
+            # the form's locked data. We have to specify this because this won't
+            # show up in edit's hash_id and will fail the uniqueness test.
+            lockchange = annotation.locked != form.locked.data
+            annotation.locked = form.locked.data
+
+        # if a reason isn't provided and there's no lockchange, fail the
+        # submission
+        if not form.reason.data and not lockchange:
+            flash("Please provide a reason for your edit.")
+            fail = True
+
+
+        edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
+                else 1
+        # both the approved and current variables are based on approved
+        edit = Edit(book=annotation.book,
+                editor_id=current_user.id, edit_num=edit_num,
+                edit_reason=form.reason.data, annotation_id=annotation_id,
+                approved=approved, current=approved,
+                first_line_num=fl, last_line_num=ll,
+                first_char_idx=form.first_char_idx.data,
+                last_char_idx=form.last_char_idx.data,
+                body=form.annotation.data, tags=tags,
+                )
+
+        if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
+            flash("Your suggested edit is no different from the previous version.")
+            fail = True
+
+        lockchangenotedit = False
+
+        if fail:
+            return render_template("forms/annotation.html",
+                    title=annotation.HEAD.book.title, form=form,
+                    book=annotation.HEAD.book, lines=lines,
+                    annotation=annotation)
+        elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
+            flash("Annotation Locked")
+            lockchangenotedit = True
+        else:
+            annotation.edit_pending = not approved
+            if approved:
+                annotation.HEAD.current = False
+                edit.current = True
+                flash("Edit complete.")
+            else:
+                flash("Edit submitted for review.")
+            db.session.add(edit)
+
+        db.session.commit()
+        if approved and not lockchangenotedit:
+            edit.notify_edit("approved")
+        if lockchange:
+            annotation.notify_lockchange()
+        db.session.commit()
+
+        return redirect(next_page)
+
+    elif not annotation.edit_pending:
+        tag_strings = []
+        for t in edit.tags:
+            tag_strings.append(t.tag)
+        form.first_line.data = edit.first_line_num
+        form.last_line.data = edit.last_line_num
+        form.first_char_idx.data = edit.first_char_idx
+        form.last_char_idx.data = edit.last_char_idx
+        form.annotation.data = edit.body
+        form.tags.data = " ".join(tag_strings)
+        form.locked.data = annotation.locked
+        form.reason.data = f"Rollback to edit #{edit.edit_num}"
+
+    return render_template("forms/annotation.html",
+            title=f"Edit Annotation {annotation.id}", form=form,
+            book=annotation.HEAD.book, lines=lines,
+            annotation=annotation, context=context)
 
 @app.route("/upvote/<annotation_id>/")
 @login_required
