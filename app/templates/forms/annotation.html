@@ -91,7 +91,7 @@
                     {% endfor %}
                 </th>
                 <th>
-                    {% if current_user.has_right("lock_annotations") %}
+                    {% if current_user.is_authorized("lock_annotations") %}
                         {{ form.locked.label }}
                         {{ form.locked }}
                     {% endif %}

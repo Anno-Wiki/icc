@@ -17,7 +17,7 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
         AreYouSureForm, SearchForm
 from app.email import send_password_reset_email
-from app.funky import preplines, is_filled
+from app.funky import preplines, is_filled, generate_next
 import difflib
 import re
 import time
@@ -37,16 +37,16 @@ def search():
             app.config["LINES_PER_SEARCH_PAGE"])
     annotations, annotation_total = Annotation.search(g.search_form.q.data,
             page, app.config["ANNOTATIONS_PER_SEARCH_PAGE"])
-    next_url = url_for("search", q=g.search_form.q.data, page=page + 1)\
+    next_page = url_for("search", q=g.search_form.q.data, page=page + 1)\
         if line_total > page * app.config["LINES_PER_SEARCH_PAGE"]\
         or annotation_total > page * app.config["ANNOTATIONS_PER_SEARCH_PAGE"]\
         else None
-    prev_url = url_for("search", q=g.search_form.q.data, page=page - 1) \
+    prev_page = url_for("search", q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
     return render_template("indexes/search.html", title="Search", lines=lines,
             line_total=line_total, annotations=annotations,
-            annotation_total=annotation_total, next_url=next_url,
-            prev_url=prev_url)
+            annotation_total=annotation_total, next_page=next_page,
+            prev_page=prev_page)
 
 ###########
 ## Index ##
@@ -123,11 +123,8 @@ def login():
             return redirect(url_for("login"))
         login_user(user, remember=form.remember_me.data)
 
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = url_for("index")
-
-        return redirect(next_page)
+        redirect_url = generate_next(url_for("index"))
+        return redirect(redirect_url)
 
     return render_template("login.html", title="Sign In", form=form)
 
@@ -233,28 +230,24 @@ def inbox():
 @app.route("/user/inbox/mark/<event_id>/")
 @login_required
 def mark_notification(event_id):
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("inbox")
+    redirect_url = generate_next(url_for("inbox"))
     notification = NotificationEvent.query.get_or_404(event_id)
     if notification.seen:
         notification.mark_unread()
     else:
         notification.mark_read()
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/inbox/mark/all/")
 @login_required
 def mark_all_read():
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("inbox")
+    redirect_url = generate_next(url_for("inbox"))
     notifications = current_user.new_notifications
     for notification in notifications:
         notification.mark_read()
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 
 @app.route("/user/reset/password/", methods=["GET", "POST"])
@@ -268,7 +261,7 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
             flash("Check your email for the instructions to request your "
-            "password.")
+                    "password.")
             return redirect(url_for("login"))
         else:
             flash("Email not found.")
@@ -296,25 +289,17 @@ def reset_password(token):
 def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
     flag = UserFlag.query.get_or_404(flag_id)
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
-
+    redirect_url = generate_next(url_for("user", user_id=user.id))
     user.flag(flag, current_user)
     db.session.commit()
     flash(f"User {user.displayname} flagged \"{flag.flag}\"")
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/delete/account/", methods=["GET", "POST"])
 @login_required
 def delete_account_check():
     form = AreYouSureForm()
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
-
+    redirect_url = generate_next(url_for("user", user_id=user.id))
     if form.validate_on_submit():
         current_user.displayname = f"x_user_{current_user.id}"
         current_user.email = ""
@@ -323,7 +308,7 @@ def delete_account_check():
         db.session.commit()
         logout_user()
         flash("Account anonymized.")
-        return redirect(url_for("index"))
+        return redirect(redirect_url)
 
     text = f"""
 You have clicked the link to delete your account. This page serves as a double
@@ -357,23 +342,20 @@ account is gone.
 @login_required
 def follow_book(book_id):
     book = Book.query.get_or_404(book_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book", book_url=book.url)
+    redirect_url = generate_next(url_for("book", book_url=book.url))
     if book in current_user.followed_books:
         current_user.followed_books.remove(book)
     else:
         current_user.followed_books.append(book)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/book_request/<book_request_id>/")
 @login_required
 def follow_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("view_book_request", book_request_id=book_request.id)
+    redirect_url = generate_next(url_for("view_book_request",
+        book_request_id=book_request.id))
     if book_request.approved:
         flash("You cannot follow a book request that has already been approved.")
     if book_request in current_user.followed_book_requests:
@@ -381,83 +363,81 @@ def follow_book_request(book_request_id):
     else:
         current_user.followed_book_requests.append(book_request)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/author/<author_id>/")
 @login_required
 def follow_author(author_id):
     author = Author.query.get_or_404(author_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("author", name=author.url)
+    redirect_url = generate_next(url_for("author", name=author.url))
     if author in current_user.followed_authors:
         current_user.followed_authors.remove(author)
     else:
         current_user.followed_authors.append(author)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/user/<user_id>/")
 @login_required
 def follow_user(user_id):
     user = User.query.get_or_404(user_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
+    redirect_url = url_for("user", user_id=user.id)
     if user == current_user:
         flash("You can't follow yourself.")
-        redirect(next_page)
+        redirect(redirect_url)
     elif user in current_user.followed_users:
         current_user.followed_users.remove(user)
     else:
         current_user.followed_users.append(user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/tag/<tag_id>/")
 @login_required
 def follow_tag(tag_id):
     tag = Tag.query.get_or_404(tag_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag", tag=tag.tag)
+    redirect_url = generate_next(url_for("tag", tag=tag.tag))
     if tag in current_user.followed_tags:
         current_user.followed_tags.remove(tag)
     else:
         current_user.followed_tags.append(tag)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/tag_request/<tag_request_id>/")
 @login_required
 def follow_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("view_tag_request", tag_request_id=tag_request.id)
+    redirect_url = generate_next(url_for("view_tag_request",
+        tag_request_id=tag_request.id))
     if tag_request in current_user.followed_tag_requests:
         current_user.followed_tag_requests.remove(tag_request)
     else:
         current_user.followed_tag_requests.append(tag_request)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/user/follow/annotation/<annotation_id>/")
 @login_required
 def follow_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation", annotation_id=annotation.id)
+
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation.id))
+
+    if not annotation.active:
+        flash("You cannot follow deactivated annotations.")
+        redirect(redirect_url)
+
     if annotation.annotator == current_user:
         flash("You cannot follow your own annotation.")
-        redirect(next_page)
+        redirect(redirect_url)
     elif annotation in current_user.followed_annotations:
         current_user.followed_annotations.remove(annotation)
     else:
         current_user.followed_annotations.append(annotation)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 #############
 ## Indexes ##
@@ -815,6 +795,9 @@ def tag(tag):
 @app.route("/annotation/<annotation_id>/")
 def annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
+    if not annotation.active:
+        current_user.authorize("view_deactivated_annotations")
+
     annotationflags = AnnotationFlag.query.all()
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
@@ -1076,7 +1059,10 @@ def read(book_url):
 
     # I have to query this so I only make a db call once instead of each time
     # for every line to find out if the user has edit_rights
-    edit_right = Right.query.filter_by(right="edit_lines").first()
+    if current_user.is_authenticated:
+        can_edit_lines = current_user.is_authorized("edit_lines")
+    else:
+        can_edit_lines = False
 
     # This custom method for replacing underscores with <em> tags is still way
     # faster than the markdown converter. Since I'm not using anything other
@@ -1087,7 +1073,7 @@ def read(book_url):
     return render_template("read.html", title=book.title, form=form, book=book,
             lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
             tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
-            edit_right=edit_right, annotationflags=annotationflags)
+            can_edit_lines=can_edit_lines, annotationflags=annotationflags)
 
 #######################
 ## Annotation System ##
@@ -1107,9 +1093,7 @@ def annotate(book_url, first_line, last_line):
         first_line = 1
         last_line = 1
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = lines[0].get_url()
+    redirect_url = generate_next(lines[0].get_url())
 
     book = Book.query.filter_by(url=book_url).first_or_404()
     lines = book.lines.filter(Line.line_num>=first_line,
@@ -1151,7 +1135,8 @@ def annotate(book_url, first_line, last_line):
             return render_template("forms/annotation.html", title=book.title,
                     form=form, book=book, lines=lines, context=context)
 
-        locked = form.locked.data and current_user.has_right("lock_annotations")
+        locked = form.locked.data\
+                and current_user.is_authorized("lock_annotations")
 
         # Create the annotation annotation with HEAD pointing to anno
         head = Annotation(book=book, annotator=current_user, locked=locked)
@@ -1184,7 +1169,7 @@ def annotate(book_url, first_line, last_line):
 
         flash("Annotation Submitted")
 
-        return redirect(next_page)
+        return redirect(redirect_url)
     else:
         form.first_line.data = first_line
         form.last_line.data = last_line
@@ -1199,14 +1184,13 @@ def annotate(book_url, first_line, last_line):
 def edit(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = lines[0].get_url()
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation_id))
 
     if annotation.locked == True\
-            and not current_user.has_right("edit_locked_annotations"):
+            and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
-        return redirect(next_page)
+        return redirect(redirect_url)
 
     lines = annotation.lines
     context = annotation.context
@@ -1244,11 +1228,11 @@ def edit(annotation_id):
 
 
         # approved is true if the user can edit immediately
-        approved = current_user.has_right("immediate_edits")\
+        approved = current_user.is_authorized("immediate_edits")\
                 or annotation.annotator == current_user
 
         lockchange = False
-        if current_user.has_right("lock_annotations"):
+        if current_user.is_authorized("lock_annotations"):
             # the lock changes if the annotation's lock value is different from
             # the form's locked data. We have to specify this because this won't
             # show up in edit's hash_id and will fail the uniqueness test.
@@ -1306,10 +1290,7 @@ def edit(annotation_id):
             annotation.notify_lockchange()
         db.session.commit()
 
-        next_page = request.args.get("next")
-        if not next_page or url_parse(next_page).netloc != "":
-            next_page = lines[0].get_url()
-        return redirect(next_page)
+        return redirect(redirect_url)
 
     elif not annotation.edit_pending:
         tag_strings = []
@@ -1334,18 +1315,17 @@ def rollback(annotation_id, edit_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     edit = Edit.query.get_or_404(edit_id)
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("edit_history", annotation_id=annotation.id)
+    redirect_url = generate_next(url_for("edit_history",
+        annotation_id=annotation.id))
 
     if annotation.locked == True\
-            and not current_user.has_right("edit_locked_annotations"):
+            and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
-        return redirect(next_page)
+        return redirect(redirect_url)
 
     if annotation.HEAD == edit:
         flash("You can't roll back an annotation to its current version.")
-        return redirect(next_page)
+        return redirect(redirect_url)
 
     lines = annotation.lines
     context = annotation.context
@@ -1383,11 +1363,11 @@ def rollback(annotation_id, edit_id):
 
 
         # approved is true if the user can edit immediately
-        approved = current_user.has_right("immediate_edits")\
+        approved = current_user.is_authorized("immediate_edits")\
                 or annotation.annotator == current_user
 
         lockchange = False
-        if current_user.has_right("lock_annotations"):
+        if current_user.is_authorized("lock_annotations"):
             # the lock changes if the annotation's lock value is different from
             # the form's locked data. We have to specify this because this won't
             # show up in edit's hash_id and will fail the uniqueness test.
@@ -1445,7 +1425,7 @@ def rollback(annotation_id, edit_id):
             annotation.notify_lockchange()
         db.session.commit()
 
-        return redirect(next_page)
+        return redirect(redirect_url)
 
     elif not annotation.edit_pending:
         tag_strings = []
@@ -1469,60 +1449,53 @@ def rollback(annotation_id, edit_id):
 @login_required
 def upvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = annotation.lines[0].get_url()
-
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation_id))
     if current_user == annotation.annotator:
         flash("You cannot vote on your own annotations.")
-        return redirect(next_page)
+        return redirect(redirect_url)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         diff = datetime.utcnow() - vote.time
         if diff.days > 0 and annotation.HEAD.modified < vote.time:
             flash("Your vote is locked until the annotation is modified.")
-            return redirect(next_page)
+            return redirect(redirect_url)
         elif vote.is_up():
             annotation.rollback(vote)
             db.session.commit()
-            return redirect(next_page)
+            return redirect(redirect_url)
         else:
             annotation.rollback(vote)
-
     annotation.upvote(current_user)
     db.session.commit()
-
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/downvote/<annotation_id>/")
 @login_required
 def downvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = annotation.lines[0].get_url()
-
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation_id))
     if current_user == annotation.annotator:
         flash("You cannot vote on your own annotation.")
-        return redirect(next_page)
+        return redirect(redirect_url)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
         diff = datetime.utcnow() - vote.time
         if diff.days > 0 and annotation.HEAD.modified < vote.time:
             flash("Your vote is locked until the annotation is modified.")
-            return redirect(next_page)
+            return redirect(redirect_url)
         elif not vote.is_up():
             annotation.rollback(vote)
             db.session.commit()
-            return redirect(next_page)
+            return redirect(redirect_url)
         else:
             annotation.rollback(vote)
 
     annotation.downvote(current_user)
     db.session.commit()
 
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/annotation/<annotation_id>/flag/<flag_id>/")
 @login_required
@@ -1530,14 +1503,13 @@ def flag_annotation(flag_id, annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     flag = AnnotationFlag.query.get_or_404(flag_id)
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation", annotation_id=annotation.id)
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation.id))
 
     annotation.flag(flag, current_user)
     db.session.commit()
     flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 #################################
 #################################
@@ -1550,13 +1522,11 @@ def flag_annotation(flag_id, annotation_id):
 def lock_user(user_id):
     current_user.authorize_rights("lock_users")
     user = User.query.get_or_404(user_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user", user_id=user.id)
+    redirect_url = generate_next(url_for("user", user_id=user.id))
     user.locked = not user.locked
     db.session.commit()
     flash(f"User account {user.displayname} locked.")
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 # annotation flags
 @app.route("/admin/flags/annotation/all/")
@@ -1807,28 +1777,26 @@ def annotation_flags(annotation_id):
 def mark_annotation_flag(flag_id):
     current_user.authorize_rights("resolve_annotation_flags")
     flag = AnnotationFlagEvent.query.get_or_404(flag_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation_flags", annotation_id=flag.annotation_id)
+    redirect_url = generate_next(url_for("annotation_flags",
+        annotation_id=flag.annotation_id))
     if flag.resolved:
         flag.unresolve()
     else:
         flag.resolve(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/admin/flags/annotation/<annotation_id>/mark/all/")
 @login_required
 def mark_annotation_flags(annotation_id):
     current_user.authorize_rights("resolve_annotation_flags")
     annotation = Annotation.query.get_or_404(annotation_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("annotation_flags", annotation_id=annotation.id)
+    redirect_url = generate_next(url_for("annotation_flags",
+        annotation_id=annotation_id))
     for flag in annotation.active_flags:
         flag.resolve(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 # user flags
 @app.route("/admin/flags/user/all/")
@@ -2071,28 +2039,24 @@ def user_flags(user_id):
 def mark_user_flag(flag_id):
     current_user.authorize_rights("resolve_user_flags")
     flag = UserFlagEvent.query.get_or_404(flag_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user_flags", user_id=flag.user_id)
+    redirect_url = generate_next(url_for("user_flags", user_id=flag.user_id))
     if flag.resolved:
         flag.unresolve()
     else:
         flag.resolve(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/admin/flags/mark_all/<user_id>/")
 @login_required
 def mark_user_flags(user_id):
     current_user.authorize_rights("resolve_user_flags")
     user = User.query.get_or_404(user_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("user_flags", user_id=user.id)
+    redirect_url = generate_next(url_for("user_flags", user_id=user.id))
     for flag in user.active_flags:
         flag.resolve(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 #################
 ## Edit Review ##
@@ -2101,9 +2065,7 @@ def mark_user_flags(user_id):
 @app.route("/admin/edits/")
 @login_required
 def edit_review_queue():
-    if not current_user.has_right("review_edits"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
-
+    current_user.authorize("review_edits")
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "voted", type=str)
 
@@ -2220,8 +2182,8 @@ def edit_review_queue():
 @app.route("/admin/edit/<edit_id>/")
 @login_required
 def review_edit(edit_id):
-    if not current_user.has_right("review_edits"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize("review_edits")
+
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
         return redirect(url_for("view_edit", annotation_id=edit.annotation_id,
@@ -2257,8 +2219,7 @@ def review_edit(edit_id):
 @app.route("/admin/approve/edit/<edit_id>/")
 @login_required
 def approve(edit_id):
-    if not current_user.has_right("review_edits"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
@@ -2268,7 +2229,7 @@ def approve(edit_id):
         return redirect(url_for("edit_review_queue"))
     edit.approve(current_user)
     if edit.weight >= app.config["MIN_APPROVAL_RATING"] or \
-            current_user.has_right("approve_edits"):
+            current_user.is_authorized("approve_edits"):
         edit.approved = True
         edit.annotation.edit_pending = False
         edit.annotation.HEAD.current = False
@@ -2281,8 +2242,7 @@ def approve(edit_id):
 @app.route("/admin/reject/edit/<edit_id>/")
 @login_required
 def reject(edit_id):
-    if not current_user.has_right("review_edits"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
     if current_user.get_edit_vote(edit):
         flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
@@ -2292,7 +2252,7 @@ def reject(edit_id):
         return redirect(url_for("edit_review_queue"))
     edit.reject(current_user)
     if edit.weight <= app.config["MIN_REJECTION_RATING"] or \
-            current_user.has_right("approve_edits"):
+            current_user.is_authorized("approve_edits"):
         edit.annotation.edit_pending = False
         edit.rejected = True
         edit.notify_edit("rejected")
@@ -2303,8 +2263,7 @@ def reject(edit_id):
 @app.route("/admin/rescind_vote/edit/<edit_id>/")
 @login_required
 def rescind(edit_id):
-    if not current_user.has_right("review_edits"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["EDIT_QUEUE"])
+    current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
         flash("This annotation is already approved; your vote cannot be rescinded.")
@@ -2325,16 +2284,15 @@ def rescind(edit_id):
 @login_required
 def delete_annotation(annotation_id):
     form = AreYouSureForm()
-    current_user.authorize_rights("delete_annotations")
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("index")
+    current_user.authorize("delete_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
+    redirect_url = generate_next(url_for("book_annotations",
+        book_url=annotation.book.url))
     if form.validate_on_submit():
         db.session.delete(annotation)
         db.session.commit()
         flash(f"Annotation [{annotation_id}] deleted.")
-        return redirect(next_page)
+        return redirect(redirect_url)
     text = """
 If you click submit the annotation, all of the edits to the annotation, all of
 the votes to the edits, all of the votes to the annotation, and all of the
@@ -2352,9 +2310,8 @@ def delete_edit(edit_id):
     form = AreYouSureForm()
     current_user.authorize_rights("delete_annotations")
     edit = Edit.query.get_or_404(edit_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).loc != "":
-        next_page = url_for("annotation", annotation_id=edit.annotation_id)
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=edit.annotation_id))
     if form.validate_on_submit():
         if edit.current:
             edit.previous.current = True
@@ -2365,7 +2322,7 @@ def delete_edit(edit_id):
         flash(f"Edit #{edit.edit_num} of [{edit.annotation_id}] deleted.")
         db.session.delete(edit)
         db.session.commit()
-        return redirect(next_page)
+        return redirect(redirect_url)
     text = """
 If you click submit the edit, all of the votes for the edit, and all of the
 reputation changes based on the edit being approved will be deleted. The edit
@@ -2389,15 +2346,13 @@ def edit_line(line_id):
     line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("index")
+    redirect_url = generate_next(url_for(line.get_url()))
     if form.validate_on_submit():
         if form.line.data != None and len(form.line.data) <= 200:
             line.line = form.line.data
             db.session.commit()
             flash("Line updated.")
-            return redirect(next_page)
+            return redirect(redirect_url)
     return render_template("forms/line.html", title="Edit Line", form=form)
 
 @app.route("/admin/edit/author_bio/<author_id>/", methods=["GET", "POST"])
@@ -2406,15 +2361,13 @@ def edit_bio(author_id):
     current_user.authorize_rights("edit_bios")
     author = Author.query.get_or_404(author_id)
     form = TextForm()
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("author", name=author.url)
+    redirect_url = generate_next(url_for("author", name=author.url))
     if form.validate_on_submit():
         if form.text.data != None:
             author.bio = form.text.data
             db.session.commit()
             flash("Bio updated.")
-            return redirect(next_page)
+            return redirect(redirect_url)
     else:
         form.text.data = author.bio
 
@@ -2426,15 +2379,13 @@ def edit_summary(book_id):
     current_user.authorize_rights("edit_summaries")
     book = Book.query.get_or_404(book_id)
     form = TextForm()
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book", book_url=book.url)
+    redirect_url = generate_next(url_for("book", book_url=book.url))
     if form.validate_on_submit():
         if form.text.data != None:
             book.summary = form.text.data
             db.session.commit()
             flash("Summary updated.")
-            return redirect(next_page)
+            return redirect(redirect_url)
     else:
         form.text.data = book.summary
     return render_template("forms/text.html", title="Edit Summary", form=form)
@@ -2445,18 +2396,15 @@ def edit_tag(tag_id):
     current_user.authorize_rights("edit_tags")
     tag = Tag.query.get_or_404(tag_id)
     form = TagForm()
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag", tag=tag.tag)
     if form.validate_on_submit():
         if form.tag.data != None and form.description.data != None:
             tag.tag = form.tag.data
             tag.description = form.description.data
             db.session.commit()
             flash("Tag updated.")
-            # we have to reinitiate tag url bc tag changed
-            next_page = url_for("tag", tag=tag.tag)
-            return redirect(next_page)
+            # we have to initiate tag url here bc tag changed
+            redirect_url = generate_next(url_for("tag", tag=tag.tag))
+            return redirect(redirect_url)
     else:
         form.tag.data = tag.tag
         form.description.data = tag.description
@@ -2478,10 +2426,9 @@ def deactivate(annotation_id):
     else:
         flash(f"Annotation {annotation.id} deactivated.")
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("index")
-    return redirect(next_page)
+    redirect_url = generate_next(url_for("annotation",
+        annotation_id=annotation_id))
+    return redirect(redirect_url)
 
 @app.route("/admin/list/deactivated/annotations/")
 @login_required
@@ -2572,8 +2519,7 @@ def view_book_request(book_request_id):
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
 def book_request():
-    if not current_user.has_right("request_books"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["BOOK_REQUEST"])
+    current_user.authorize("request_books")
     form = BookRequestForm()
     if form.validate_on_submit():
         book_request = BookRequest(title=form.title.data,
@@ -2625,9 +2571,7 @@ def edit_book_request(book_request_id):
 @login_required
 def upvote_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book_request_index")
+    redirect_url = generate_next(url_for("book_request_index"))
     if current_user.already_voted_book_request(book_request):
         vote = current_user.book_request_ballots.filter(
                 BookRequestVote.book_request==book_request).first()
@@ -2635,18 +2579,16 @@ def upvote_book_request(book_request_id):
         book_request.rollback(vote)
         db.session.commit()
         if rd:
-            return redirect(next_page)
+            return redirect(redirect_url)
     book_request.upvote(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/downvote/book_request/<book_request_id>/")
 @login_required
 def downvote_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("book_request_index")
+    redirect_url = generate_next(url_for("book_request_index"))
     if current_user.already_voted_book_request(book_request):
         vote = current_user.book_request_ballots.filter(
                 BookRequestVote.book_request==book_request).first()
@@ -2654,10 +2596,10 @@ def downvote_book_request(book_request_id):
         book_request.rollback(vote)
         db.session.commit()
         if rd:
-            return redirect(next_page)
+            return redirect(redirect_url)
     book_request.downvote(current_user)
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 ##################
 ## Tag Requests ##
@@ -2714,8 +2656,7 @@ def view_tag_request(tag_request_id):
 @app.route("/request/tag/", methods=["GET", "POST"])
 @login_required
 def tag_request():
-    if not current_user.has_right("create_tags"):
-        current_user.authorize_rep(app.config["AUTHORIZATION"]["TAG_REQUEST"])
+    current_user.authorize("tag_request")
     form = TagRequestForm()
     if form.validate_on_submit():
         tag_request = TagRequest(tag=form.tag.data,
@@ -2761,9 +2702,7 @@ def edit_tag_request(tag_request_id):
 def upvote_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag_request_index")
+    redirect_url = generate_next(url_for("tag_request_index"))
 
     if current_user.already_voted_tag_request(tag_request):
         vote = current_user.tag_request_ballots.filter(
@@ -2772,21 +2711,19 @@ def upvote_tag_request(tag_request_id):
         tag_request.rollback(vote)
         db.session.commit()
         if rd:
-            return redirect(next_page)
+            return redirect(redirect_url)
 
     tag_request.upvote(current_user)
     db.session.commit()
 
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/downvote/tag_request/<tag_request_id>/")
 @login_required
 def downvote_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
 
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag_request_index")
+    redirect_url = generate_next(url_for("tag_request_index"))
 
     if current_user.already_voted_tag_request(tag_request):
         vote = current_user.tag_request_ballots.filter(
@@ -2795,12 +2732,12 @@ def downvote_tag_request(tag_request_id):
         tag_request.rollback(vote)
         db.session.commit()
         if rd:
-            return redirect(next_page)
+            return redirect(redirect_url)
 
     tag_request.downvote(current_user)
     db.session.commit()
 
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 @app.route("/admin/tags/create/", methods=["GET","POST"],
         defaults={"tag_request_id":None})
@@ -2811,9 +2748,7 @@ def create_tag(tag_request_id):
     tag_request = None
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag_request_index")
+    redirect_url = generate_next(url_for("tag_request_index"))
     form = TagForm()
     if form.validate_on_submit():
         if form.tag.data != None and form.description.data != None:
@@ -2821,7 +2756,7 @@ def create_tag(tag_request_id):
             db.session.add(tag)
             db.session.commit()
             flash("Tag created.")
-            return redirect(next_page)
+            return redirect(redirect_url)
     elif tag_request:
             tag = Tag(tag=tag_request.tag, description=tag_request.description)
             tag_request.created_tag = tag
@@ -2830,7 +2765,7 @@ def create_tag(tag_request_id):
             db.session.add(tag)
             db.session.commit()
             flash("Tag created.")
-            return redirect(next_page)
+            return redirect(redirect_url)
     return render_template("forms/tag.html", title="Create Tag", form=form)
 
 @app.route("/admin/tags/reject/<tag_request_id>/")
@@ -2838,13 +2773,11 @@ def create_tag(tag_request_id):
 def reject_tag(tag_request_id):
     current_user.authorize_rights("create_tags")
     tag_request = TagRequest.query.get_or_404(tag_request_id)
-    next_page = request.args.get("next")
-    if not next_page or url_parse(next_page).netloc != "":
-        next_page = url_for("tag_request_index")
+    redirect_url = generate_next(url_for("tag_request_index"))
     tag_request.rejected = True
     tag_request.notify_rejection()
     db.session.commit()
-    return redirect(next_page)
+    return redirect(redirect_url)
 
 #######################
 #######################

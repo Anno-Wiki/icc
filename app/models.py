@@ -307,21 +307,22 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
 
-    def authorize_rep(self, min_rep):
-        if self.reputation < min_rep:
+    def authorize(self, right):
+        r = Right.query.filter_by(right=right).first()
+        if app.config["AUTHORIZATION"][right] == -1 and not r in self.rights:
+            abort(403)
+        elif self.reputation >= app.config["AUTHORIZATION"][right]:
+            pass
+        elif not r in self.rights:
             abort(403)
 
-    def authorize_rights(self, right):
+    def is_authorized(self, right):
         r = Right.query.filter_by(right=right).first()
-        if not r in self.rights:
-            abort(403)
-
-    def has_right(self, right):
-        r = Right.query.filter_by(right=right).first()
-        return r in self.rights
-
-    def is_authorized(self, min_rep):
-        return self.reputation >= min_rep
+        if app.config["AUTHORIZATION"][right] == -1:
+            return r in self.rights
+        else:
+            return self.reputation >= app.config["AUTHORIZATION"][right]\
+                    or r in self.rights
 
     def notify(self, notification, link, information, *args, **kwargs):
         notification_type = NotificationType.query.filter_by(code=notification).first()

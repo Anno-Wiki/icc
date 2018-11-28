@@ -10,7 +10,7 @@
         </a>
     </em>
     {% if current_user.is_authenticated
-        and current_user.has_right("delete_edits") %}
+        and current_user.is_authorized("delete_edits") %}
         |
         <em>
             <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">

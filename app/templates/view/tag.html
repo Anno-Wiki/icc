@@ -10,7 +10,7 @@
         <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">follow</a>
     {% endif %}
 
-    {% if current_user.is_authenticated and current_user.has_right("edit_tags") %}
+    {% if current_user.is_authenticated and current_user.is_authorized("edit_tags") %}
         <a href="{{ url_for("edit_tag", tag_id=tag.id) }}">edit</a>
     {% endif %}
 

@@ -1,5 +1,7 @@
 from app import app, db
 from app.models import Tag
+from flask import request
+from werkzeug.urls import url_parse
 
 # This method is used to run through all the lines for a read view and convert/
 # prep them to be shown: (a) converts underscores to <em>/</em> tags, and (b)
@@ -33,10 +35,25 @@ def preplines(lines):
             lines[i].line = '<em>' + lines[i].line + '</em>'
 
 def is_filled(data):
-   if data == None:
-      return False
-   if data == '':
-      return False
-   if data == []:
-      return False
-   return True
+    if not data.strip():
+        return False
+    if data == None:
+        return False
+    if data == '':
+        return False
+    if data == []:
+        return False
+    return True
+
+def generate_next(alt_url):
+    redirect_url = request.args.get("next")
+    print(request.referrer)
+    if redirect_url and url_parse(redirect_url).netloc == "":
+        print("1")
+        return request.args.get("next")
+    elif request.referrer:
+        print("2")
+        return request.referrer
+    else:
+        print("3")
+        return alt_url

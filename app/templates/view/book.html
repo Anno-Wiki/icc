@@ -15,7 +15,7 @@
         | <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> follow </a>
     {% endif %}
 
-    {% if current_user.has_right("edit_summaries") %}
+    {% if current_user.is_authorized("edit_summaries") %}
         | <a href="{{ url_for("edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
     {% endif %}
 {% endif %}

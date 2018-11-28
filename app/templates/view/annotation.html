@@ -146,7 +146,7 @@
         <!--all of these controls require user to be logged in-->
         {% if current_user.is_authenticated %}
             <!--view all flags-->
-            {% if current_user.has_right("resolve_annotation_flags") %}
+            {% if current_user.is_authorized("resolve_annotation_flags") %}
                 | <a href="{{ url_for("annotation_flags",
                     annotation_id=annotation.id) }}">
                     flags
@@ -154,7 +154,7 @@
             {% endif %}
 
             <!--edit the annotation-->
-            {% if current_user.has_right("edit_locked_annotations") or not
+            {% if current_user.is_authorized("edit_locked_annotations") or not
                 annotation.locked %}
                 | <a href="{{ url_for("edit", annotation_id=annotation.id,
                     next=request.full_path) }}">
@@ -162,7 +162,7 @@
                 </a>
             {% endif %}
 
-            {% if current_user.has_right("deactivate_annotations") %}
+            {% if current_user.is_authorized("deactivate_annotations") %}
                 {% if annotation.active %}
                     | <a href="{{ url_for("deactivate", annotation_id=annotation.id,
                         next=request.full_path) }}">
@@ -175,7 +175,7 @@
                     </a>
                 {% endif %}
             {% endif %}
-            {% if current_user.has_right("delete_annotations") %}
+            {% if current_user.is_authorized("delete_annotations") %}
                 |
                 <a href="{{ url_for("delete_annotation",
                     annotation_id=annotation.id)

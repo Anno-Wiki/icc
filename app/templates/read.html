@@ -93,8 +93,7 @@
                     {% endfor %}
                 </span>
             {% endif %}
-            {% if current_user.is_authenticated
-                and edit_right in current_user.rights %}
+            {% if can_edit_lines %}
                 <span class="edit_line">
                     <a href="{{ url_for("edit_line", line_id=line.id,
                         next=request.path) }}">

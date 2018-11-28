@@ -38,7 +38,7 @@
         </em>
     {% endif %}
     {% if current_user.is_authenticated
-        and current_user.has_right("delete_edits") %}
+        and current_user.is_authorized("delete_edits") %}
         |
         <em>
             <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">
@@ -47,7 +47,7 @@
         </em>
     {% endif %}
 
-    {% if current_user.is_authenticated and current_user.has_right("review_edits") %}
+    {% if current_user.is_authenticated and current_user.is_authorized("review_edits") %}
         {% if current_user.get_vote(edit) %}
             <h3>
                 <a href="{{ url_for("rescind", edit_id=edit.id,
