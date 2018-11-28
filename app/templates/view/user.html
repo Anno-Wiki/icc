@@ -46,6 +46,10 @@
 </table>
 {% if user.about_me %}
     {{ user.about_me|markdown }}
+{% else %}
+    <p>
+        This user’s biography is silent.
+    </p>
 {% endif %}
 sort by:
 {% for type, url in sorts.items() %}

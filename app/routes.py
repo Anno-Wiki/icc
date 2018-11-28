@@ -154,7 +154,9 @@ def register():
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        current_user.displayname = form.displayname.data
+        current_user.displayname = form.displayname.data\
+                if is_filled(form.displayname.data)\
+                else f"user{current_user.id}"
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash("Your changes have been saved.")
@@ -301,7 +303,7 @@ def delete_account_check():
     form = AreYouSureForm()
     redirect_url = generate_next(url_for("user", user_id=user.id))
     if form.validate_on_submit():
-        current_user.displayname = f"x_user_{current_user.id}"
+        current_user.displayname = f"x_user{current_user.id}"
         current_user.email = ""
         current_user.password_hash = "***"
         current_user.about_me = ""
