@@ -1,9 +1,11 @@
 INSERT INTO `right` (`right`) VALUES
+    ("anonymize_users"),
     ("approve_edits"),
     ("create_tags"),
-    ("deactivate_annotations"),
     ("delete_annotations"),
+    ("delete_book_requests"),
     ("delete_edits"),
+    ("delete_tag_requests"),
     ("edit_bios"),
     ("edit_book_requests"),
     ("edit_deactivated_annotations"),
