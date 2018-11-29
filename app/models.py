@@ -70,8 +70,7 @@ db.event.listen(db.session, "after_commit", SearchableMixin.after_commit)
 tags = db.Table(
         "tags",
         db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
-        db.Column("edit_id", db.Integer,
-            db.ForeignKey("edit.id", ondelete="CASCADE"))
+        db.Column("edit_id", db.Integer, db.ForeignKey("edit.id", ondelete="CASCADE"))
         )
 
 conferred_right = db.Table(
@@ -176,12 +175,13 @@ class User(UserMixin, db.Model):
 
     # book request relationships
     book_request_ballots = db.relationship("BookRequestVote",
-            primaryjoin="User.id==BookRequestVote.user_id", lazy="dynamic")
+            primaryjoin="User.id==BookRequestVote.user_id", lazy="dynamic",
+            passive_deletes=True)
     book_request_votes = db.relationship("BookRequest",
             secondary="book_request_vote",
             primaryjoin="BookRequestVote.user_id==User.id",
             secondaryjoin="BookRequestVote.book_request_id==BookRequest.id",
-            backref="voters", lazy="dynamic")
+            backref="voters", lazy="dynamic", passive_deletes=True)
 
     # tag request relationships
     tag_request_ballots = db.relationship("TagRequestVote",
@@ -246,7 +246,7 @@ class User(UserMixin, db.Model):
             secondary="annotation_followers",
             primaryjoin="annotation_followers.c.user_id==User.id",
             secondaryjoin="annotation_followers.c.annotation_id==Annotation.id",
-            backref="followers")
+            backref=backref("followers", passive_deletes=True))
 
     # followed tag_requests
     followed_tag_requests = db.relationship("TagRequest",
@@ -260,7 +260,7 @@ class User(UserMixin, db.Model):
             secondary="book_request_followers",
             primaryjoin="book_request_followers.c.user_id==User.id",
             secondaryjoin="book_request_followers.c.book_request_id==BookRequest.id",
-            backref="followers")
+            backref="followers", passive_deletes=True)
 
     def __repr__(self):
         return "<User {}>".format(self.displayname)
@@ -507,7 +507,7 @@ class Tag(SearchableMixin, db.Model):
             primaryjoin="Tag.id==tags.c.tag_id",
             secondaryjoin="and_(Edit.annotation_id==Annotation.id,"
             "Annotation.active==True)",
-            lazy="dynamic")
+            lazy="dynamic", passive_deletes=True)
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
@@ -680,32 +680,12 @@ class Annotation(SearchableMixin, db.Model):
 
     annotator = db.relationship("User", lazy="joined")
     book = db.relationship("Book", lazy="joined")
+
+    # relationships to `Edit`
     HEAD = db.relationship("Edit",
             primaryjoin="and_(Edit.current==True,"
             "Edit.annotation_id==Annotation.id)", uselist=False,
-            lazy="joined", passive_deletes=True)
-    lines = db.relationship("Line", secondary="edit",
-            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
-                "Edit.current==True)",
-            secondaryjoin="and_(Line.line_num>=Edit.first_line_num,"
-                "Line.line_num<=Edit.last_line_num,"
-                "Line.book_id==Edit.book_id)",
-            viewonly=True, uselist=True, passive_deletes=True)
-    context = db.relationship("Line", secondary="edit",
-            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
-                "Edit.current==True)",
-            secondaryjoin="and_(Line.line_num>=Edit.first_line_num-5,"
-                "Line.line_num<=Edit.last_line_num+5,"
-                "Line.book_id==Edit.book_id)",
-            viewonly=True, uselist=True, passive_deletes=True)
-
-    flag_history = db.relationship("AnnotationFlagEvent",
-            primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
-            lazy="dynamic")
-    active_flags = db.relationship("AnnotationFlagEvent",
-            primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
-            "AnnotationFlagEvent.resolved_by==None)", passive_deletes=True)
-
+            lazy="joined")
     edits = db.relationship("Edit",
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
                 "Edit.approved==True)", lazy="joined", passive_deletes=True)
@@ -715,6 +695,30 @@ class Annotation(SearchableMixin, db.Model):
     all_edits = db.relationship("Edit",
             primaryjoin="Edit.annotation_id==Annotation.id", lazy="dynamic",
             passive_deletes=True)
+
+    # relationships to `Line`
+    lines = db.relationship("Line", secondary="edit",
+            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
+                "Edit.current==True)",
+            secondaryjoin="and_(Line.line_num>=Edit.first_line_num,"
+                "Line.line_num<=Edit.last_line_num,"
+                "Line.book_id==Edit.book_id)",
+            viewonly=True, uselist=True)
+    context = db.relationship("Line", secondary="edit",
+            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
+                "Edit.current==True)",
+            secondaryjoin="and_(Line.line_num>=Edit.first_line_num-5,"
+                "Line.line_num<=Edit.last_line_num+5,"
+                "Line.book_id==Edit.book_id)",
+            viewonly=True, uselist=True)
+
+    # Relationships to `Flag`
+    flag_history = db.relationship("AnnotationFlagEvent",
+            primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
+            lazy="dynamic")
+    active_flags = db.relationship("AnnotationFlagEvent",
+            primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
+            "AnnotationFlagEvent.resolved_by==None)", passive_deletes=True)
 
     def __getattr__(self, attr):
         if attr.startswith("annotator_"):
@@ -866,7 +870,8 @@ class EditVote(db.Model):
 
     user = db.relationship("User")
     edit = db.relationship("Edit", 
-            backref=backref("edit_ballots", lazy="dynamic"))
+            backref=backref("edit_ballots", lazy="dynamic",
+                passive_deletes=True))
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.edit}>"
@@ -876,27 +881,36 @@ class EditVote(db.Model):
 
 class Edit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    edit_num = db.Column(db.Integer, default=0)
     weight = db.Column(db.Integer, default=0)
+
     approved = db.Column(db.Boolean, default=False, index=True)
     rejected = db.Column(db.Boolean, default=False, index=True)
-    annotation_id = db.Column(db.Integer,
-            db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
+    current = db.Column(db.Boolean, default=False, index=True)
+
     hash_id = db.Column(db.String(40), index=True)
-    book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
+
+    edit_num = db.Column(db.Integer, default=0)
+    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id",
+        ondelete="CASCADE"), index=True)
+
+
     first_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"))
     last_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
+
     body = db.Column(db.Text)
-    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    current = db.Column(db.Boolean, default=False, index=True)
     edit_reason = db.Column(db.String(255))
+
+    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     editor = db.relationship("User")
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
+
     book = db.relationship("Book")
+
     previous = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
             "remote(Edit.edit_num)==foreign(Edit.edit_num-1))")
@@ -905,7 +919,7 @@ class Edit(db.Model):
             "remote(Edit.edit_num)<=foreign(Edit.edit_num-1))",
             uselist=True)
 
-    tags = db.relationship("Tag", secondary=tags)
+    tags = db.relationship("Tag", secondary=tags, passive_deletes=True)
 
     lines = db.relationship("Line",
         primaryjoin="and_(Line.line_num>=Edit.first_line_num,"
@@ -1083,7 +1097,8 @@ class BookRequestVote(db.Model):
     time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
-    book_request = db.relationship("BookRequest")
+    book_request = db.relationship("BookRequest", backref=backref("ballots",
+        passive_deletes=True))
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.book_request}>"

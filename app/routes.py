@@ -2545,6 +2545,26 @@ def view_book_request(book_request_id):
     book_request = BookRequest.query.get_or_404(book_request_id)
     return render_template("view/book_request.html", book_request=book_request)
 
+@app.route("/admin/request/book/<book_request_id>/delete/", methods=["GET", "POST"])
+@login_required
+def delete_book_request(book_request_id):
+    form = AreYouSureForm()
+    book_request = BookRequest.query.get_or_404(book_request_id)
+    if not current_user == book_request.requester:
+        current_user.authorize("delete_book_requests")
+    redirect_url = url_for("book_request_index")
+    if form.validate_on_submit():
+        flash(f"Book Request for {book_request.title} deleted.")
+        db.session.delete(book_request)
+        db.session.commit()
+        return redirect(redirect_url)
+    text = """
+If you click submit the book request and all of it's votes will be deleted
+permanently.
+    """
+    return render_template("forms/delete_check.html", 
+            title=f"Delete Book Request", form=form, text=text)
+
 @app.route("/request/book/", methods=["GET", "POST"])
 @login_required
 def book_request():

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 873bf95cb521
+Revision ID: f168e2595b97
 Revises: 
-Create Date: 2018-11-28 11:10:48.003450
+Create Date: 2018-11-29 14:30:44.711083
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '873bf95cb521'
+revision = 'f168e2595b97'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -321,22 +321,22 @@ def upgrade():
     op.create_index(op.f('ix_book_request_vote_user_id'), 'book_request_vote', ['user_id'], unique=False)
     op.create_table('edit',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=True),
-    sa.Column('edit_num', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('current', sa.Boolean(), nullable=True),
     sa.Column('hash_id', sa.String(length=40), nullable=True),
-    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('edit_num', sa.Integer(), nullable=True),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('modified', sa.DateTime(), nullable=True),
-    sa.Column('current', sa.Boolean(), nullable=True),
     sa.Column('edit_reason', sa.String(length=255), nullable=True),
+    sa.Column('modified', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),

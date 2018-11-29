@@ -11,7 +11,9 @@ class Config(object):
             "create_tags": -1,
             "deactivate_annotations": -1,
             "delete_annotations": -1,
+            "delete_book_requests": -1,
             "delete_edits": -1,
+            "delete_tag_requests": -1,
             "edit_bios": -1,
             "edit_book_requests": -1,
             "edit_deactivated_annotations": -1,
@@ -22,7 +24,6 @@ class Config(object):
             "edit_tags": -1,
             "immediate_edits": -1,
             "lock_annotations": -1,
-            "lock_user_accounts": -1,
             "lock_users": -1,
             "request_books": 100,
             "request_tags": 100,
@@ -33,7 +34,6 @@ class Config(object):
             "review_deactivated_annotation_edits": -1,
             "use_restricted_tags": -1,
             "view_deactivated_annotations": -1,
-            "view_deleted_annotations": -1,
             }
 
     CARDS_PER_PAGE = 15
