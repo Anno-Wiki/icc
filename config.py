@@ -7,6 +7,7 @@ class Config(object):
     ANNO_DOWN_FACTOR = 15
     ANNO_UP_FACTOR = 10
     AUTHORIZATION = { 
+            "anonymize_users": -1,
             "approve_edits": -1,
             "create_tags": -1,
             "deactivate_annotations": -1,

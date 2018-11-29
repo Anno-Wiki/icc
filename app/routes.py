@@ -301,10 +301,10 @@ def flag_user(flag_id, user_id):
 @login_required
 def delete_account_check():
     form = AreYouSureForm()
-    redirect_url = generate_next(url_for("user", user_id=user.id))
+    redirect_url = generate_next(url_for("user", user_id=current_user.id))
     if form.validate_on_submit():
         current_user.displayname = f"x_user{current_user.id}"
-        current_user.email = ""
+        current_user.email = "{current_user.id}"
         current_user.password_hash = "***"
         current_user.about_me = ""
         db.session.commit()
@@ -336,6 +336,27 @@ account is gone.
     return render_template("forms/delete_check.html", form=form,
             title="Are you sure?", text=text)
 
+@app.route("/admin/user/<user_id>/delete/", methods=["GET", "POST"])
+@login_required
+def anonymize_user(user_id):
+    form = AreYouSureForm()
+    current_user.authorize("anonymize_users")
+    user = User.query.get_or_404(user_id)
+    redirect_url = url_for("user", user_id=user.id)
+    if form.validate_on_submit():
+        user.displayname = f"x_user{user.id}"
+        user.email = f"{user.id}"
+        user.password_hash = "***"
+        user.about_me = ""
+        db.session.commit()
+        flash("Account anonymized.")
+        return redirect(redirect_url)
+
+    text = f"""
+If you click submit you will forcibly anonymize this user ({user.displayname}).
+    """
+    return render_template("forms/delete_check.html", form=form,
+            title="Are you sure?", text=text)
 ###################
 ## follow routes ##
 ###################
