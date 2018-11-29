@@ -2702,10 +2702,30 @@ def view_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     return render_template("view/tag_request.html", tag_request=tag_request)
 
+@app.route("/admin/request/tag/<tag_request_id>/delete/", methods=["GET", "POST"])
+@login_required
+def delete_tag_request(tag_request_id):
+    form = AreYouSureForm()
+    tag_request = TagRequest.query.get_or_404(tag_request_id)
+    if not current_user == tag_request.requester:
+        current_user.authorize("delete_tag_requests")
+    redirect_url = url_for("tag_request_index")
+    if form.validate_on_submit():
+        flash(f"Tag Request for {tag_request.tag} deleted.")
+        db.session.delete(tag_request)
+        db.session.commit()
+        return redirect(redirect_url)
+    text = """
+If you click submit the book request and all of it's votes will be deleted
+permanently.
+    """
+    return render_template("forms/delete_check.html", 
+            title=f"Delete Tag Request", form=form, text=text)
+
 @app.route("/request/tag/", methods=["GET", "POST"])
 @login_required
 def tag_request():
-    current_user.authorize("tag_request")
+    current_user.authorize("request_tags")
     form = TagRequestForm()
     if form.validate_on_submit():
         tag_request = TagRequest(tag=form.tag.data,

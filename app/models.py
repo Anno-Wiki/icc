@@ -1191,7 +1191,8 @@ class TagRequestVote(db.Model):
     time = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
-    tag_request = db.relationship("TagRequest")
+    tag_request = db.relationship("TagRequest", backref=backref("ballots",
+        passive_deletes=True))
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
