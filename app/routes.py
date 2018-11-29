@@ -1000,14 +1000,14 @@ def read(book_url):
 
     if form.validate_on_submit():
         # line number boiler plate
-        if not is_filled(form.first_line.data) and not is_filled(form.last_line.data):
+        if not form.first_line.data and not form.last_line.data:
             flash("Please enter a first and last line number to annotate a selection.")
             return redirect(url_for("read", book_url=book.url, tag=tag,
                 lvl1=lvl[0], lvl2=lvl[1], lvl3=lvl[2], lvl4=lvl[3]))
-        elif not is_filled(form.first_line.data):
+        elif not form.first_line.data:
             ll = int(form.last_line.data)
             fl = ll
-        elif not is_filled(form.last_line.data):
+        elif not form.last_line.data:
             fl = int(form.first_line.data)
             ll = fl
         else:
@@ -1098,7 +1098,6 @@ def annotate(book_url, first_line, last_line):
         first_line = 1
         last_line = 1
 
-    redirect_url = generate_next(lines[0].get_url())
 
     book = Book.query.filter_by(url=book_url).first_or_404()
     lines = book.lines.filter(Line.line_num>=first_line,
@@ -1109,6 +1108,8 @@ def annotate(book_url, first_line, last_line):
 
     if lines == None:
         abort(404)
+
+    redirect_url = generate_next(lines[0].get_url())
 
     if form.validate_on_submit():
         # line number boiler plate
@@ -1158,11 +1159,12 @@ def annotate(book_url, first_line, last_line):
                 )
 
         # because of the nature of the indexing system we have to create a
-        # temporary attribute to the head of the edit's annotation. Otherwise,
-        # since neither are committed to the system yet, the system wants to
-        # make a query to the system for the head's HEAD attribute, which isn't
-        # in existence yet. Adding this simple attribute eliminates the issue.
-        head.annotation = commit.annotation
+        # temporary attribute to the head of the body of the annotation.
+        # Otherwise, since neither are committed to the system yet, the system
+        # wants to make a query to the system for the head's HEAD attribute,
+        # which isn't in existence yet. Adding this simple attribute eliminates
+        # the issue.
+        head.body = commit.body
 
         db.session.add(commit)
         db.session.add(head)
@@ -2314,8 +2316,7 @@ def delete_annotation(annotation_id):
     form = AreYouSureForm()
     current_user.authorize("delete_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(url_for("book_annotations",
-        book_url=annotation.book.url))
+    redirect_url = url_for("book_annotations", book_url=annotation.book.url)
     if form.validate_on_submit():
         db.session.delete(annotation)
         db.session.commit()
