@@ -734,33 +734,24 @@ class Edit(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     weight = db.Column(db.Integer, default=0)
-
     approved = db.Column(db.Boolean, default=False, index=True)
     rejected = db.Column(db.Boolean, default=False, index=True)
     current = db.Column(db.Boolean, default=False, index=True)
-
     hash_id = db.Column(db.String(40), index=True)
-
     edit_num = db.Column(db.Integer, default=0)
     annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id",
         ondelete="CASCADE"), index=True)
-
-
     first_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"))
     last_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
-
     body = db.Column(db.Text)
     edit_reason = db.Column(db.String(255))
-
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     editor = db.relationship("User")
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
-
     book = db.relationship("Book")
-
     previous = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
             "remote(Edit.edit_num)==foreign(Edit.edit_num-1))")
@@ -768,9 +759,7 @@ class Edit(db.Model):
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
             "remote(Edit.edit_num)<=foreign(Edit.edit_num-1))",
             uselist=True)
-
     tags = db.relationship("Tag", secondary=tags, passive_deletes=True)
-
     lines = db.relationship("Line",
         primaryjoin="and_(Line.line_num>=Edit.first_line_num,"
             "Line.line_num<=Edit.last_line_num,"

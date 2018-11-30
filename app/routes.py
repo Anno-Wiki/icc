@@ -2333,6 +2333,8 @@ def delete_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = url_for("book_annotations", book_url=annotation.book.url)
     if form.validate_on_submit():
+        for e in annotation.all_edits:
+            e.tags = []
         db.session.delete(annotation)
         db.session.commit()
         flash(f"Annotation [{annotation_id}] deleted.")
