@@ -18,9 +18,7 @@ args = parser.parse_args()
 user = User.query.filter_by(displayname="Community").first()
 if user == None:
     user = User(displayname="Community", email="community@annopedia.org",
-            password_hash="***", locked=True,
-            reputation=0, cumulative_negative=0, cumulative_positive=0,
-            about_me=
+            password_hash="***", locked=True, about_me=
 """
 Hi, 
 

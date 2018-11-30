@@ -63,70 +63,45 @@ class SearchableMixin(object):
 db.event.listen(db.session, "before_commit", SearchableMixin.before_commit)
 db.event.listen(db.session, "after_commit", SearchableMixin.after_commit)
 
-############
-## Tables ##
-############
+#########################
+## Many-to-Many Tables ##
+#########################
 
-tags = db.Table(
-        "tags",
+tags = db.Table("tags",
         db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
-        db.Column("edit_id", db.Integer, db.ForeignKey("edit.id", ondelete="CASCADE"))
-        )
-
-conferred_right = db.Table(
-        "conferred_rights",
+        db.Column("edit_id", db.Integer, db.ForeignKey("edit.id",
+            ondelete="CASCADE")))
+conferred_right = db.Table("conferred_rights",
         db.Column("right_id", db.Integer, db.ForeignKey("right.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-book_followers = db.Table(
-        "book_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+book_followers = db.Table("book_followers",
         db.Column("book_id", db.Integer, db.ForeignKey("book.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-author_followers = db.Table(
-        "author_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+author_followers = db.Table("author_followers",
         db.Column("author_id", db.Integer, db.ForeignKey("author.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-user_followers = db.Table(
-        "user_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+user_followers = db.Table("user_followers",
         db.Column("follower_id", db.Integer, db.ForeignKey("user.id")),
-        db.Column("followed_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-tag_followers = db.Table(
-        "tag_followers",
+        db.Column("followed_id", db.Integer, db.ForeignKey("user.id")))
+tag_followers = db.Table("tag_followers",
         db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-annotation_followers = db.Table(
-        "annotation_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+annotation_followers = db.Table("annotation_followers",
         db.Column("annotation_id", db.Integer, db.ForeignKey("annotation.id",
             ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-tag_request_followers = db.Table(
-        "tag_request_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+tag_request_followers = db.Table("tag_request_followers",
         db.Column("tag_request_id", db.Integer, db.ForeignKey("tag_request.id",
             ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
-
-book_request_followers = db.Table(
-        "book_request_followers",
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+book_request_followers = db.Table("book_request_followers",
         db.Column("book_request_id", db.Integer,
             db.ForeignKey("book_request.id", ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
-        )
+        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
 
-####################
-## User Functions ##
-####################
+#################
+## User Models ##
+#################
 
 class Right(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -135,14 +110,34 @@ class Right(db.Model):
     def __repr__(self):
         return f"<Right to {self.right}>"
 
+class ReputationChange(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(64))
+    default_delta = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<RC {self.code}>"
+
+class ReputationChangeEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    delta = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    repchange_id = db.Column(db.Integer,
+            db.ForeignKey("reputation_change.id"), nullable=False)
+
+    user = db.relationship("User", backref="changes")
+    type = db.relationship("ReputationChange")
+
+    def __repr__(self):
+        return f"<RCE {self.type} on {self.user.displayname}>"
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     reputation = db.Column(db.Integer, default=0)
-    cumulative_negative = db.Column(db.Integer, default=0)
-    cumulative_positive = db.Column(db.Integer, default=0)
     locked = db.Column(db.Boolean, default=False)
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
@@ -158,8 +153,6 @@ class User(UserMixin, db.Model):
     edits = db.relationship("Edit",
             primaryjoin="and_(User.id==Edit.editor_id,"
             "Edit.edit_num>0)", lazy="dynamic")
-    ballots = db.relationship("Vote", primaryjoin="User.id==Vote.user_id",
-            lazy="dynamic")
     votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==Vote.user_id",
             secondaryjoin="Annotation.id==Vote.annotation_id",
@@ -196,66 +189,45 @@ class User(UserMixin, db.Model):
     flags = db.relationship("UserFlag",
             secondary="user_flag_event",
             primaryjoin="and_(UserFlagEvent.user_id==User.id,"
-            "UserFlagEvent.resolved_by==None)",
+            "UserFlagEvent.resolver_id==None)",
             secondaryjoin="UserFlagEvent.user_flag_id==UserFlag.id",
             backref="users")
     flag_history = db.relationship("UserFlagEvent",
             primaryjoin="UserFlagEvent.user_id==User.id", lazy="dynamic")
     active_flags = db.relationship("UserFlagEvent",
             primaryjoin="and_(UserFlagEvent.user_id==User.id,"
-                "UserFlagEvent.resolved_by==None)")
+                "UserFlagEvent.resolver_id==None)")
 
-    # notification relationships
-    notifications = db.relationship("NotificationEvent",
-            primaryjoin="NotificationEvent.user_id==User.id", lazy="dynamic")
-    new_notifications = db.relationship("NotificationEvent",
-            primaryjoin="and_(NotificationEvent.user_id==User.id,"
-            "NotificationEvent.seen==False)",
-            lazy="joined")
-
-    # followed books
     followed_books = db.relationship("Book",
             secondary="book_followers",
             primaryjoin="book_followers.c.user_id==User.id",
             secondaryjoin="book_followers.c.book_id==Book.id",
             backref="followers")
-
-    # followed authors
     followed_authors = db.relationship("Author",
             secondary="author_followers",
             primaryjoin="author_followers.c.user_id==User.id",
             secondaryjoin="author_followers.c.author_id==Author.id",
             backref="followers")
-    
-    # followed users
     followed_users = db.relationship(
             "User", secondary=user_followers,
             primaryjoin=(user_followers.c.follower_id==id),
             secondaryjoin=(user_followers.c.followed_id==id),
             backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-
-    # followed tags
     followed_tags = db.relationship("Tag",
             secondary="tag_followers",
             primaryjoin="tag_followers.c.user_id==User.id",
             secondaryjoin="tag_followers.c.tag_id==Tag.id",
             backref="followers")
-
-    # followed annotations
     followed_annotations = db.relationship("Annotation",
             secondary="annotation_followers",
             primaryjoin="annotation_followers.c.user_id==User.id",
             secondaryjoin="annotation_followers.c.annotation_id==Annotation.id",
             backref=backref("followers", passive_deletes=True))
-
-    # followed tag_requests
     followed_tag_requests = db.relationship("TagRequest",
             secondary="tag_request_followers",
             primaryjoin="tag_request_followers.c.user_id==User.id",
             secondaryjoin="tag_request_followers.c.tag_request_id==TagRequest.id",
             backref="followers")
-
-    # followed book_requests
     followed_book_requests = db.relationship("BookRequest",
             secondary="book_request_followers",
             primaryjoin="book_request_followers.c.user_id==User.id",
@@ -270,18 +242,9 @@ class User(UserMixin, db.Model):
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
 
-    def notify_flag(self, event):
-        for f in self.followers:
-            if f.has_right("resolve_user_flags") and f != event.thrower:
-                f.notify("new_user_flag", 
-                        url_for("user_flags", user_id=self.id), 
-                        f"New \"{event.flag.flag}\" flag thrown on user "
-                        f"\"{self.displayname}\"")
-
     def flag(self, flag, thrower):
         event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
         db.session.add(event)
-        self.notify_flag(event)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -324,44 +287,6 @@ class User(UserMixin, db.Model):
             return self.reputation >= app.config["AUTHORIZATION"][right]\
                     or r in self.rights
 
-    def notify(self, notification, link, information, *args, **kwargs):
-        notification_type = NotificationType.query.filter_by(code=notification).first()
-        hash_string = kwargs.get("hash_string", None)
-        if notification_type:
-            if hash_string:
-                evt = NotificationEvent(time=datetime.utcnow(),
-                        notification=notification_type, user=self,
-                        information=information, link=link,
-                        hash_id=sha1(hash_string.encode("utf8")).hexdigest())
-            else:
-                evt = NotificationEvent(time=datetime.utcnow(),
-                        notification=notification_type, user=self,
-                        information=information, link=link)
-        else:
-            raise AttributeError(f"Notification type {notification} does not exist")
-        db.session.add(evt)
-
-    # Annotation utilities
-    def upvote(self):
-        self.reputation += 5
-        self.cumulative_positive += 5
-
-    def downvote(self):
-        self.reputation -= 2
-        if self.reputation <= 0:
-            self.reputation = 0
-        self.cumulative_negative -= 2
-
-    def rollback_upvote(self):
-        self.reputation -= 5
-        if self.reputation <= 0:
-            self.reputation = 0
-        self.cumulative_positive -= 5
-
-    def rollback_downvote(self):
-        self.reputation += 2
-        self.cumulative_negative += 2
-
     def up_power(self):
         if self.reputation <= 1:
             return 1
@@ -370,9 +295,9 @@ class User(UserMixin, db.Model):
 
     def down_power(self):
         if self.up_power() / 2 <= 1:
-            return 1
+            return -1
         else:
-            return int(self.up_power()/2)
+            return -int(self.up_power()/2)
 
     def readable_reputation(self):
         if self.reputation >= 1000000:
@@ -444,7 +369,7 @@ class Author(db.Model):
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
     bio = db.Column(db.Text)
-    added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     books = db.relationship("Book", primaryjoin="Book.author_id==Author.id")
     annotations = db.relationship("Annotation", secondary="book",
@@ -464,7 +389,7 @@ class Book(SearchableMixin, db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("author.id"), index=True)
     summary = db.Column(db.Text)
     published = db.Column(db.Date)
-    added = db.Column(db.DateTime)
+    timestamp = db.Column(db.DateTime)
 
     # we have to lazy="joined" author relationship for the sake of getattr()
     # during __searchable__ indexing because if we do not, when we access
@@ -655,11 +580,15 @@ class Vote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     annotation_id = db.Column(db.Integer, 
             db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
+    reputation_change_event_id = db.Column(db.Integer,
+            db.ForeignKey("reputation_change_event.id", ondelete="CASCADE"))
     delta = db.Column(db.Integer)
-    time = db.Column(db.DateTime, default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User")
-    annotation = db.relationship("Annotation")
+    user = db.relationship("User", backref=backref("ballots", lazy="dynamic"))
+    annotation = db.relationship("Annotation", backref=backref("ballots",
+        lazy="dynamic"))
+    repchange = db.relationship("ReputationChangeEvent", backref="vote")
 
     def __repr__(self):
         return f"<{self.user.id} {self.delta} on {self.annotation}>"
@@ -673,7 +602,7 @@ class Annotation(SearchableMixin, db.Model):
     annotator_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     weight = db.Column(db.Integer, default=0)
-    added = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     edit_pending = db.Column(db.Boolean, index=True, default=False)
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
@@ -718,7 +647,7 @@ class Annotation(SearchableMixin, db.Model):
             lazy="dynamic")
     active_flags = db.relationship("AnnotationFlagEvent",
             primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
-            "AnnotationFlagEvent.resolved_by==None)", passive_deletes=True)
+            "AnnotationFlagEvent.resolver_id==None)", passive_deletes=True)
 
     def __getattr__(self, attr):
         if attr.startswith("annotator_"):
@@ -731,125 +660,46 @@ class Annotation(SearchableMixin, db.Model):
             raise AttributeError(f"No such attribute {attr}")
 
     def upvote(self, voter):
+        reptype = ReputationChange.query.filter_by(code="upvote").first()
         weight = voter.up_power()
-        self.weight += weight
-        self.annotator.upvote()
-        vote = Vote(user=voter, annotation=self, delta=weight)
-        hash_string = f"{vote}"
-        self.annotator.notify("annotation_upvote",
-                url_for("annotation", annotation_id=self.id), 
-                information=f"Upvote on annotation [{self.id}] on "
-                f"\"{self.book.title}\"",
-                hash_string=hash_string)
+        repchange = ReputationChangeEvent(user=self.annotator, type=reptype,
+                delta=reptype.default_delta)
+        vote = Vote(user=voter, annotation=self, delta=weight,
+                repchange=repchange)
+        self.annotator.reputation += repchange.delta
+        self.weight += vote.delta
         db.session.add(vote)
+        db.session.add(repchange)
 
     def downvote(self, voter):
+        reptype = ReputationChange.query.filter_by(code="downvote").first()
         weight = voter.down_power()
-        weight = -weight
-        self.weight += weight
-        self.annotator.downvote()
-        vote = Vote(user=voter, annotation=self, delta=weight)
-        hash_string = f"{vote}"
-        self.annotator.notify("annotation_downvote", 
-                url_for("annotation", annotation_id=self.id), 
-                information=f"Downvote on annotation [{self.id}] on "
-                f"\"{self.book.title}\"",
-                hash_string=hash_string)
+        if self.annotator.reputation + reptype.default_delta < 0:
+            repdelta = -self.annotator.reputation
+        else:
+            repdelta = reptype.default_delta
+
+        repchange = ReputationChangeEvent(user=self.annotator, type=reptype,
+                delta=repdelta)
+        vote = Vote(user=voter, annotation=self, delta=weight,
+                repchange=repchange)
+        self.weight += vote.delta
+        self.annotator.reputation += repchange.delta
         db.session.add(vote)
 
     def rollback(self, vote):
         self.weight -= vote.delta
-        if vote.is_up():
-            self.annotator.rollback_upvote()
+        if self.annotator.reputation - vote.repchange.delta < 0:
+            delta = -self.annotator.reputation
         else:
-            self.annotator.rollback_downvote()
+            delta = vote.repchange.delta
+        self.annotator.reputation -= delta
         db.session.delete(vote)
-        hash_string = f"{vote}"
-        evt = NotificationEvent.query.filter_by(
-                hash_id=sha1(hash_string.encode("utf8")).hexdigest()
-                ).first()
-        if evt:
-            db.session.delete(evt)
+        db.session.delete(vote.repchange)
 
     def flag(self, flag, thrower):
         event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
-        self.notify_flag(event)
-
-    def notify_lockchange(self):
-        if self.locked:
-            for f in self.followers:
-                f.notify("annotation_locked",
-                        url_for("annotation", annotation_id=self.id),
-                        f"Annotation [{self.id}] on \"{self.book.title}\" "
-                        "locked from further editing")
-        else:
-            for f in self.followers:
-                f.notify("annotation_unlocked",
-                        url_for("annotation", annotation_id=self.id),
-                        f"Annotation [{self.id}] on \"{self.book.title}\" "
-                        "unlocked for editing")
-
-    def notify_flag(self, event):
-        for f in self.followers:
-            if f.has_right("resolve_annotation_flags") and f != event.thrower:
-                f.notify("new_annotation_flag",
-                        url_for("annotation_flags", annotation_id=self.id),
-                        f"New \"{event.flag.flag}\" flag thrown on annotation "
-                        f"[{self.id}]")
-
-    def notify_edit(self, notification, editor):
-        if self.annotator != editor:
-            # notify the annotator his annotation has been edited
-            # but only if he isn't the editor.
-            self.annotator.notify("edit_approved",
-                    url_for("annotation", annotation_id=self.id),
-                    f"New edit on your annotation [{self.id}] on "
-                    f"\"{self.book.title}\"",
-                    hash_string=f"newediton{self.id}at{datetime.utcnow()}")
-        # notify all the annotation's followers of a new edit.
-        for follower in self.followers:
-            follower.notify("edit_approved",
-                    url_for("annotation", annotation_id=self.id),
-                    f"New edit on followed annotation [{self.id}] on "
-                    f"\"{self.book.title}\"",
-                    hash_string=f"newediton{self.id}at{datetime.utcnow()}")
-    
-    def notify_new(self):
-        # followers of the annotation's book
-        for follower in self.book.followers:
-            follower.notify("new_annotation",
-                    url_for("annotation", annotation_id=self.id),
-                    f"New annotation on followed book \"{self.book.title}\"",
-                    hash_string=f"new_annotation{self.id}on{self.book.id}")
-        # follower of the annotation's book's author
-        for follower in self.book.author.followers:
-            follower.notify("new_annotation",
-                    url_for("annotation", annotation_id=self.id),
-                    f"New annotation on book \"{self.book.title}\" from "
-                    f"followed author \"{self.book.author.name}\"",
-                    hash_string=f"new_annotation{self.id}on{self.book.id}")
-        # followers of the annotator
-        for follower in self.annotator.followers:
-            follower.notify("new_annotation",
-                    url_for("annotation", annotation_id=self.id),
-                    f"New annotation from followed user "
-                    f"\"{self.annotator.displayname}\"",
-                    hash_string=f"new_annotation{self.id}on{self.book.id}")
-        for tag in self.HEAD.tags:
-            for follower in tag.followers:
-                follower.notify("new_annotation",
-                        url_for("annotation", annotation_id=self.id),
-                        f"New annotation with followed tag \"{tag.tag}\"",
-                        hash_string=f"new_annotation{self.id}on{self.book.id}")
-
-    def notify_reputation(self):
-        for follower in self.followers:
-            follower.notify("annotation_upvote",
-                    url_for("annotation", annotation_id=self.id),
-                    f"The reputation of annotation [{self.id}] on "
-                    f"\"{self.book.title}\" is now "
-                    "<strong>{self.reputation}</strong>")
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -866,7 +716,7 @@ class EditVote(db.Model):
             db.ForeignKey("edit.id", ondelete="CASCADE"),
             index=True)
     delta = db.Column(db.Integer)
-    time = db.Column(db.DateTime, default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     edit = db.relationship("Edit", 
@@ -904,7 +754,7 @@ class Edit(db.Model):
     body = db.Column(db.Text)
     edit_reason = db.Column(db.String(255))
 
-    modified = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     editor = db.relationship("User")
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
@@ -958,39 +808,19 @@ class Edit(db.Model):
         return lines
 
     def approve(self, voter):
-        self.weight += 1
-        vote = EditVote(user=voter, edit=self, delta=1)
+        reptype = ReputationChange.query.filter_by(code="edit_approval").first()
+        repchange = ReputationChangeEvent(user=self.editor, type=reptype,
+                delta=reptype.default_delta)
+        vote = EditVote(user=voter, edit=self, delta=1, repchange=repchange)
+        self.weight += vote.delta
+        self.editor.reputation += repchange.delta
         db.session.add(vote)
+        db.session.add(repchange)
 
     def reject(self, voter):
         self.weight -= 1
         vote = EditVote(user=voter, edit=self, delta=-1)
         db.session.add(vote)
-
-    def notify_edit(self, notification):
-        if notification == "approved":
-            # notify the editor
-            self.editor.notify("edit_approved",
-                    url_for("annotation", annotation_id=self.annotation_id),
-                    f"Edit #{self.edit_num} on annotation [{self.annotation_id}]"
-                    " approved.",
-                    hash_string=f"edit_approved{self.id}on{self.annotation_id}")
-            # notify all the editor's followers
-            for follower in self.editor.followers:
-                follower.notify("edit_approved",
-                        url_for("annotation", annotation_id=self.annotation_id),
-                        f"New edit approved from followed user"
-                        f" \"{self.editor.displayname}\"",
-                        hash_string=f"edit_approved{self.id}on{self.annotation_id}")
-            # notify the annotation's followers
-            self.annotation.notify_edit("approved", self.editor)
-        elif notification == "rejected":
-            # if it's rejected, only notify the editor.
-            self.editor.notify("edit_rejected",
-                    url_for("annotation", annotation_id=self.annotation_id),
-                    f"Edit #{self.edit_num} on annotation [{self.annotation_id}]"
-                    " rejected",
-                    hash_string=f"edit_rejected{self.id}on{self.annotation_id}")
 
 ####################
 ####################
@@ -1015,7 +845,7 @@ class BookRequest(db.Model):
     gutenberg = db.Column(db.String(127), default=None)
     requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
-    requested = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     requester = db.relationship("User", backref="book_requests")
     book = db.relationship("Book", backref="request")
@@ -1032,16 +862,12 @@ class BookRequest(db.Model):
         self.weight += weight
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
-        if self.weight % 25 == 0:
-            self.notify()
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
         vote = BookRequestVote(user=voter, book_request=self, delta=weight)
         db.session.add(vote)
-        if self.weight % 25 == 0:
-            self.notify()
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -1051,42 +877,8 @@ class BookRequest(db.Model):
         else:
             return f"{self.weight}"
 
-    def notify(self):
-        for follower in self.followers:
-            if self.weight > 0:
-                follower.notify("annotation_upvote",
-                        url_for("view_book_request", book_request_id=self.id),
-                        f"Followed book request for \"{self.title}\" now has"
-                        f" <strong>{self.weight}</strong> upvotes.")
-            elif self.weight < 0:
-                follower.notify("annotation_downvote",
-                        url_for("view_book_request", book_request_id=self.id),
-                        f"Followed book request for \"{self.title}\"     now has"
-                        f" <strong>{self.weight}</strong> downvotes.")
-
-    def notify_approval(self):
-        for follower in self.followers:
-            follower.notify("book_approved",
-                    url_for("view_book_request", book_request_id=self.id),
-                    f"The book request for \"{self.title}\" has been approved.")
-
     def reject(self):
         self.rejected=True
-        for follower in self.followers:
-            follower.notify("book_approved",
-                    url_for("view_book_request", book_request_id=self.id),
-                    f"The book request for \"{self.title}\" has been approved.")
-
-    def notify_added(self):
-        if self.book_id:
-            for follower in self.followers:
-                follower.notify("book_added",
-                        url_for("book", book_url=self.book.url),
-                        f"The book \"{self.book.title}\" has been added to the "
-                        "library.")
-        else:
-            print("C'mon, dude, get it together: link the book_request object"
-                    "to the book, _then_ send the notification.")
 
 class BookRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1094,7 +886,7 @@ class BookRequestVote(db.Model):
     book_request_id = db.Column(db.Integer,
             db.ForeignKey("book_request.id", ondelete="CASCADE"), index=True)
     delta = db.Column(db.Integer)
-    time = db.Column(db.DateTime, default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     book_request = db.relationship("BookRequest", backref=backref("ballots",
@@ -1121,7 +913,7 @@ class TagRequest(db.Model):
     notes = db.Column(db.Text)
     wikipedia = db.Column(db.String(127), default=None)
     requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    requested = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     requester = db.relationship("User", backref="tag_requests")
     created_tag = db.relationship("Tag", backref="tag_request")
@@ -1135,29 +927,12 @@ class TagRequest(db.Model):
         self.weight += weight
         vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
         db.session.add(vote)
-        if self.weight % 25 == 0:
-            self.notify()
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
         vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
         db.session.add(vote)
-        if self.weight % 25 == 0:
-            self.notify()
-
-    def notify(self):
-        for follower in self.followers:
-            if self.weight > 0:
-                follower.notify("annotation_upvote",
-                        url_for("view_tag_request", tag_request_id=self.id),
-                        f"Followed tag request for <tag>{self.tag}</tag> now "
-                        f"has <strong>{self.weight}</strong> upvotes.")
-            elif self.weight < 0:
-                follower.notify("annotation_downvote",
-                        url_for("view_tag_request", tag_request_id=self.id),
-                        f"Followed tag request for <tag>{self.tag}</tag> now "
-                        f"has <strong>{self.weight}</strong> downvotes.")
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
@@ -1167,20 +942,6 @@ class TagRequest(db.Model):
         else:
             return f"{self.weight}"
 
-    def notify_approval(self):
-        for follower in self.followers:
-            follower.notify("tag_approved",
-                    url_for("tag", tag=self.tag),
-                    f"The tag request for <tag>{self.tag}</tag> "
-                    "has been approved.")
-
-    def notify_rejection(self):
-        for follower in self.followers:
-            follower.notify("tag_rejected",
-                    url_for("tag_request", tag_request_id=self.id),
-                    f"The tag request for <tag>{self.tag}</tag> "
-                    "has been rejected.")
-
 class TagRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
@@ -1188,7 +949,7 @@ class TagRequestVote(db.Model):
             db.ForeignKey("tag_request.id", ondelete="CASCADE"),
             index=True)
     delta = db.Column(db.Integer)
-    time = db.Column(db.DateTime, default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
     tag_request = db.relationship("TagRequest", backref=backref("ballots",
@@ -1211,16 +972,20 @@ class UserFlagEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_flag_id = db.Column(db.Integer, db.ForeignKey("user_flag.id"),
             index=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+
     thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
-    resolved = db.Column(db.DateTime)
-    resolved_by = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+
+    time_resolved = db.Column(db.DateTime)
+    resolver_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
 
     user = db.relationship("User", foreign_keys=[user_id])
     thrower = db.relationship("User", foreign_keys=[thrower_id])
+    resolver = db.relationship("User", foreign_keys=[resolver_id])
+
     flag = db.relationship("UserFlag")
-    resolver = db.relationship("User", foreign_keys=[resolved_by])
 
     def __repr__(self):
         if self.resolved:
@@ -1229,11 +994,11 @@ class UserFlagEvent(db.Model):
             return f"<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>"
    
     def resolve(self, resolver):
-        self.resolved = datetime.utcnow()
+        self.time_resolved = datetime.utcnow()
         self.resolver = resolver
 
     def unresolve(self):
-        self.resolved = None
+        self.time_resolved = None
         self.resolver = None
 
 class AnnotationFlag(db.Model):
@@ -1249,15 +1014,17 @@ class AnnotationFlagEvent(db.Model):
             db.ForeignKey("annotation_flag.id"), index=True)
     annotation_id = db.Column(db.Integer,
             db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
+
     thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
-    resolved = db.Column(db.DateTime)
-    resolved_by = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+
+    time_resolved = db.Column(db.DateTime)
+    resolver_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
 
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
     thrower = db.relationship("User", foreign_keys=[thrower_id])
+    resolver = db.relationship("User", foreign_keys=[resolver_id])
     flag = db.relationship("AnnotationFlag")
-    resolver = db.relationship("User", foreign_keys=[resolved_by])
 
     def __repr__(self):
         if self.resolved:
@@ -1267,47 +1034,9 @@ class AnnotationFlagEvent(db.Model):
                         " {self.time_thrown}>"
    
     def resolve(self, resolver):
-        self.resolved = datetime.utcnow()
+        self.time_resolved = datetime.utcnow()
         self.resolver = resolver
 
     def unresolve(self):
-        self.resolved = None
+        self.time_resolved = None
         self.resolver = None
-
-##################
-## Notifactions ##
-##################
-
-class NotificationType(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(64), index=True)
-    description = db.Column(db.String(64))
-
-    def __repr__(self):
-        return f"<Notification {self.code}>"
-
-class NotificationEvent(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.DateTime, default=datetime.utcnow())
-    notification_id = db.Column(db.Integer, db.ForeignKey("notification_type.id"))
-    seen = db.Column(db.Boolean, default=False)
-    seen_on = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    information = db.Column(db.Text)
-    hash_id = db.Column(db.String(128))
-    link = db.Column(db.String(128))
-
-    notification = db.relationship("NotificationType",
-            foreign_keys=[notification_id])
-    user = db.relationship("User", foreign_keys=[user_id])
-
-    def __repr__(self):
-        return f"<{self.notification.event} for {self.user} on {self.time}>"
-
-    def mark_read(self):
-        self.seen = True
-        self.seen_on = datetime.utcnow()
-    
-    def mark_unread(self):
-        self.seen = False
-        self.seen_on = None

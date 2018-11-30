@@ -9,8 +9,8 @@ from sqlalchemy import or_, and_
 from app import app, db
 from app.models import User, Book, Author, Line, LineLabel, Annotation, \
         Edit, Tag, EditVote, Right, Vote, BookRequest, BookRequestVote, \
-        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, NotificationType,\
-        NotificationEvent, tags as tags_table, UserFlagEvent, \
+        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
+        tags as tags_table, UserFlagEvent, \
         AnnotationFlagEvent
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
@@ -60,11 +60,11 @@ def index():
 
     if sort == "newest":
         annotations = Annotation.query.filter_by(active=True)\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
         annotations = Annotation.query.filter_by(active=True)\
-                .order_by(Annotation.added.asc())\
+                .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
         annotations = Annotation.query\
@@ -72,7 +72,7 @@ def index():
                         and_(Annotation.id==Edit.annotation_id,
                             Edit.current==True))\
                 .group_by(Annotation.id)\
-                .order_by(Edit.modified.desc())\
+                .order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = Annotation.query.filter_by(active=True)\
@@ -80,7 +80,7 @@ def index():
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = Annotation.query.filter_by(active=True)\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -661,11 +661,11 @@ def author_annotations(name):
     author = Author.query.filter_by(url=name).first_or_404()
     if sort == "newest":
         annotations = author.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
         annotations = author.annotations\
-                .order_by(Annotation.added.asc())\
+                .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = author.annotations\
@@ -675,7 +675,7 @@ def author_annotations(name):
     # through the problems.
     else:
         annotations = author.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort == "newest"
 
@@ -723,11 +723,11 @@ def book_annotations(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
     if sort == "newest":
         annotations = book.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
         annotations = book.annotations\
-                .order_by(Annotation.added.asc())\
+                .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = book.annotations\
@@ -742,7 +742,7 @@ def book_annotations(book_url):
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = book.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort = "newest"
         
@@ -775,7 +775,7 @@ def tag(tag):
     tag = Tag.query.filter_by(tag=tag).first_or_404()
     if sort == "newest":
         annotations = tag.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = tag.annotations\
@@ -783,15 +783,15 @@ def tag(tag):
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
         annotations = tag.annotations\
-                .order_by(Annotation.added.asc())\
+                .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
         annotations = tag.annotations\
-                .order_by(Edit.modified.desc())\
+                .order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
         annotations = tag.annotations\
-                .order_by(Annotation.added.desc())\
+                .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     sorts = {
             "newest": url_for("tag", tag=tag.tag, page=page, sort="newest"),
@@ -824,9 +824,9 @@ def annotation(annotation_id):
     annotationflags = AnnotationFlag.query.all()
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    return render_template("view/annotation.html", title=annotation.book.title,
-            annotation=annotation, uservotes=uservotes,
-            annotationflags=annotationflags)
+    return render_template("view/annotation.html",
+            title=f"Annotation [{annotation.id}]", annotation=annotation,
+            uservotes=uservotes, annotationflags=annotationflags)
 
 @app.route("/annotation/<annotation_id>/edit/history/")
 def edit_history(annotation_id):
@@ -862,12 +862,12 @@ def edit_history(annotation_id):
     elif sort == "time":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.modified.asc())\
+                .order_by(Edit.timestamp.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.modified.desc())\
+                .order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason":
         edits = annotation.history\
@@ -947,13 +947,13 @@ def user(user_id):
         annotations = user.annotations.order_by(Annotation.weight.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "newest":
-        annotations = user.annotations.order_by(Annotation.added.desc()
+        annotations = user.annotations.order_by(Annotation.timestamp.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
-        annotations = user.annotations.order_by(Annotation.added.asc()
+        annotations = user.annotations.order_by(Annotation.timestamp.asc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
-        annotations = user.annotations.order_by(Annotation.added.desc()
+        annotations = user.annotations.order_by(Annotation.timestamp.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1191,10 +1191,6 @@ def annotate(book_url, first_line, last_line):
         db.session.add(head)
         db.session.commit()
 
-        # notify all the watchers
-        head.notify_new()
-        db.session.commit()
-
         flash("Annotation Submitted")
 
         return redirect(redirect_url)
@@ -1315,9 +1311,9 @@ def edit(annotation_id):
 
         db.session.commit()
         if approved and not lockchangenotedit:
-            edit.notify_edit("approved")
+            pass
         if lockchange:
-            annotation.notify_lockchange()
+            pass
         db.session.commit()
 
         return redirect(redirect_url)
@@ -1452,9 +1448,9 @@ def rollback(annotation_id, edit_id):
 
         db.session.commit()
         if approved and not lockchangenotedit:
-            edit.notify_edit("approved")
+            pass
         if lockchange:
-            annotation.notify_lockchange()
+            pass
         db.session.commit()
 
         return redirect(redirect_url)
@@ -1491,8 +1487,8 @@ def upvote(annotation_id):
         return redirect(redirect_url)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
-        diff = datetime.utcnow() - vote.time
-        if diff.days > 0 and annotation.HEAD.modified < vote.time:
+        diff = datetime.utcnow() - vote.timestamp
+        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
         elif vote.is_up():
@@ -1518,8 +1514,8 @@ def downvote(annotation_id):
         return redirect(redirect_url)
     elif current_user.already_voted(annotation):
         vote = current_user.ballots.filter(Vote.annotation==annotation).first()
-        diff = datetime.utcnow() - vote.time
-        if diff.days > 0 and annotation.HEAD.modified < vote.time:
+        diff = datetime.utcnow() - vote.timestamp
+        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
         elif not vote.is_up():
@@ -1577,11 +1573,11 @@ def all_annotation_flags():
 
     if sort == "marked":
         flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .order_by(AnnotationFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag":
         flags = AnnotationFlagEvent.query\
@@ -1613,21 +1609,21 @@ def all_annotation_flags():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver":
         flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at":
         flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .order_by(AnnotationFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "annotation":
         flags = AnnotationFlagEvent.query\
@@ -1646,7 +1642,7 @@ def all_annotation_flags():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1708,11 +1704,11 @@ def annotation_flags(annotation_id):
 
     if sort == "marked":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .order_by(AnnotationFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
@@ -1748,27 +1744,27 @@ def annotation_flags(annotation_id):
 
     elif sort == "resolver":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.resolved.asc())\
+                .order_by(AnnotationFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.resolved.desc())\
+                .order_by(AnnotationFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1851,11 +1847,11 @@ def all_user_flags():
 
     if sort == "marked":
         flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.resolved.asc())\
+                .order_by(UserFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
@@ -1891,22 +1887,22 @@ def all_user_flags():
 
     elif sort == "resolver":
         flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
         flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.resolved.asc())\
+                .order_by(UserFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "user":
@@ -1922,7 +1918,7 @@ def all_user_flags():
 
     else:
         flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1974,11 +1970,11 @@ def user_flags(user_id):
     user = User.query.get_or_404(user_id)
     if sort == "marked":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.resolved.asc())\
+                .order_by(UserFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
@@ -2014,27 +2010,27 @@ def user_flags(user_id):
 
     elif sort == "resolver":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.resolved_by)\
+                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.resolved.asc())\
+                .order_by(UserFlagEvent.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
         flags = user.flag_history\
-                .order_by(UserFlagEvent.resolved.desc())\
+                .order_by(UserFlagEvent.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -2176,13 +2172,13 @@ def edit_review_queue():
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.modified.asc())\
+                .order_by(Edit.timestamp.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.modified.desc())\
+                .order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "reason":
@@ -2281,7 +2277,6 @@ def approve(edit_id):
         edit.annotation.edit_pending = False
         edit.annotation.HEAD.current = False
         edit.current = True
-        edit.notify_edit("approved")
         flash(f"Edit {edit.edit_num} approved.")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
@@ -2304,7 +2299,6 @@ def reject(edit_id):
             current_user.is_authorized("approve_edits"):
         edit.annotation.edit_pending = False
         edit.rejected = True
-        edit.notify_edit("rejected")
         flash(f"Edit {edit.edit_num} rejected.")
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
@@ -2488,7 +2482,7 @@ def view_deactivated_annotations():
     page = request.args.get("page", 1, type=int)
     if sort == "added":
         annotations = Annotation.query.filter_by(active=False
-                ).order_by(Annotation.added.desc()
+                ).order_by(Annotation.timestamp.desc()
                 ).paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
         annotations = Annotation.query.filter_by(active=False
@@ -2851,7 +2845,6 @@ def create_tag(tag_request_id):
             tag = Tag(tag=tag_request.tag, description=tag_request.description)
             tag_request.created_tag = tag
             tag_request.approved = True
-            tag_request.notify_approval()
             db.session.add(tag)
             db.session.commit()
             flash("Tag created.")
@@ -2865,7 +2858,6 @@ def reject_tag(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     redirect_url = generate_next(url_for("tag_request_index"))
     tag_request.rejected = True
-    tag_request.notify_rejection()
     db.session.commit()
     return redirect(redirect_url)
 
