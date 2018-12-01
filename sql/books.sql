@@ -1,4 +1,5 @@
-insert into book (title, sort_title, url, author_id, published, added, summary) values 
+INSERT INTO book (title, sort_title, url, author_id, published, timestamp,
+    summary) VALUES
 
 ('Heart of Darkness', 'Heart of Darkness', 'heart_of_darkness',
     (select id from author where url='joseph_conrad'), '1899-00-00', NOW(),

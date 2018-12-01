@@ -1,5 +1,5 @@
 insert into author (name, first_name, last_name, url, birth_date, death_date,
-    added, bio) values
+    timestamp, bio) values
 
 ('Various', 'Various', 'Various', 'various', '0000-00-00', '0000-00-00', NOW(),
 'For use as author on books by multiple writers, e.g., the King James Bible'),

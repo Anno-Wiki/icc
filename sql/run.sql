@@ -1,8 +1,8 @@
-source authors.sql
-source books.sql
-source kinds.sql
-source rights.sql
-source tags.sql
-source notifications.sql
-source user_flags.sql
-source annotation_flags.sql
+source /home/malan/projects/icc/processor/sql/authors.sql
+source /home/malan/projects/icc/processor/sql/notifications.sql
+source /home/malan/projects/icc/processor/sql/books.sql
+source /home/malan/projects/icc/processor/sql/kinds.sql
+source /home/malan/projects/icc/processor/sql/rights.sql
+source /home/malan/projects/icc/processor/sql/tags.sql
+source /home/malan/projects/icc/processor/sql/reputation.sql
+source /home/malan/projects/icc/processor/sql/flags.sql

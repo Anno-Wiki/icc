@@ -17,6 +17,7 @@ INSERT INTO `right` (`right`) VALUES
     ("immediate_edits"),
     ("lock_annotations"),
     ("lock_users"),
+    ("reject_edits"),
     ("request_books"),
     ("request_tags"),
     ("resolve_annotation_flags"),

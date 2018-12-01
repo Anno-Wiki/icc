@@ -1,4 +1,4 @@
-INSERT INTO line_label (label, display) VALUES 
+INSERT INTO line_enum (label, display) VALUES 
 
     ("lvl1", "Level 1 Marker"),
     ("lvl2", "Level 2 Marker"),
