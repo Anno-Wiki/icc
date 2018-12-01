@@ -1,42 +1,78 @@
 
-ID Age P Project Tags         Description                                   Urg
--- --- - ------- ------------ --------------------------------------------- ----
-13 12d H web     feature      option to delete book-request permanently     7.87
-14 12d H web     feature      option to delete tag-request permanently      7.87
-15 12d H web     feature      moderator option to anonymize user account    7.87
-                              forcibly
-16 12d H web     feature      moderator option to delete user account       7.87
-                              forcibly and delete all associated activity
-                              (including edits, which will be difficult
-18 11d H web     feature      we need to annotate without ever opening a    7.86
-                              chapter page
-57 11d H web     bug          track user reputation changes, because right  7.86
-                              now they don't actually work right without it
-60 4d  H web     feature      view all items followed view so it can be     7.82
-                              edited
-61 4d  H web     feature      verifications                                 7.82
-62 2d  H web     feature      Convert books to texts                        7.81
-63 2d  H web     feature      each text can have multiple editions, upvotes 7.81
-                              will determine the community accepted text; a
-                              special attribute will be the officiator
-64 2d  H web     feature      authors will be writers                       7.81
-65 2d  H web     feature      writers will have attributes corresponding to 7.81
-                              translator editor author etc
-66 2d  H web     feature      a text can only have authors                  7.81
-67 2d  H web     feature      an edition can have editors or translators    7.81
-                              but not authors
-68 2d  H web     feature      comments on annotations for discussion        7.81
-69 1d  H web     feature      public flags                                  7.81
-70 1d  H web     feature      Edit Flags                                    7.81
-17 12d H web                  Re do css and layout                          7.07
-11 6w  M web     feature      Add css rule for quotations                   5.94
-59 4d  M web     feature      separate user annotations to new page         5.72
-71 3h  M web     bug          Debug ondelete=cascade                         5.7
- 2 3mo L web     JS feature   write javascript for pe char-level annotation  4.3
- 3 3mo L web     AJAX feature Write javascript for popup annotations on     4.26
-                              read view.
- 4 3mo L web     test         Test more formats!                            4.16
-12 5w  L web     feature      see about tag intersection                    3.82
-58 4d    web     feature      improve pagination                            1.82
+ID Age P Project Tags                  Due        Description               Urg
+-- --- - ------- --------------------- ---------- ------------------------- ----
+62 1d  H web     structure             2018-12-08 Design tests (I mean,     14.1
+                                                  c'mon, dude, this is
+                                                  ridiculous)
+70 14h H web     structure             2018-12-08 create blueprint system     14
+                                                  to break up routes and
+                                                  models (they are too
+                                                  massive)
+53 8d  H web     feature               2018-12-31 view all items followed   10.2
+                                                  view so it can be edited
+55 6d  H web     structure             2018-12-31 convert books to texts    10.2
+                                                  and create edition system
+56 6d  H web     structure             2018-12-31 convert authors to        10.2
+                                                  writers and give
+                                                  translator editor and
+                                                  author attributes
+57 6d  H web     feature               2018-12-31 comments on annotations   10.2
+                                                  for discussion
+59 3d  H web     feature               2018-12-31 view annotations per line 10.2
+                                                  from search
+61 2d  H web     structure             2018-12-31 convert chapter hierarchy 10.2
+                                                  and emphasis status to
+                                                  many-to-many line
+                                                  attribute system
+63 1d  H web     feature               2018-12-31 reputation                10.2
+                                                  history.monthly system
+64 1d  M web     expansion             2018-12-31 notifications of book     8.11
+                                                  request approval
+65 1d  M web     expansion             2038-01-18 notifications of new      8.11
+                                                  books on authors
+66 1d  M web     expansion             2038-01-18 notifications of tag      8.11
+                                                  request approval
+67 1d  M web     expansion             2038-01-18 notification of new       8.11
+                                                  annotations on everything
+68 1d  M web     bug                   2038-01-18 remove all notifications  8.11
+                                                  during annotation
+                                                  deletion
+69 1d  M web     bug                   2038-01-18 remove all notifications  8.11
+                                                  during edit deletion
+54 8d  H web     feature                          verifications             7.84
+60 3d  H web     feature                          search annotation text    7.82
+71 14h H web     feature                          make annotation flags      7.8
+                                                  public and make only
+                                                  resolvable by admins and
+                                                  make only one flag at a
+                                                  time
+10 6w  M web     layout                           Add css rule for          5.96
+                                                  quotations
+51 8d  M web     improvement                      improve pagination        5.74
+52 8d  M web     tweak                            separate user annotations 5.74
+                                                  to new page
+72 14h M web     feature                          Modify tag system for      5.7
+                                                  user specific tags for
+                                                  commentary purposes
+73 14h M web     feature                          Locked tags (should be     5.7
+                                                  called locked) should be
+                                                  required and uneditable
+                                                  and allowable if already
+                                                  present, regardless of
+                                                  edit, unless special
+                                                  admin privilege
+74 14h M web     feature                          Create groups for easy     5.7
+                                                  admin privilege granting
+ 3 3mo L web     AJAX JS feature                  Write javascript for      4.38
+                                                  popup annotations on read
+                                                  view.
+ 2 3mo L web     JS feature                       write javascript for pe   4.32
+                                                  char-level annotation
+11 6w  L web     feature investigation            see about tag             3.94
+                                                  intersection
+12 2w  L web     layout                           Re do css and layout      3.69
+58 3d  L web     bug                              why don't tags entries    3.62
+                                                  cascade delete from the
+                                                  system but do from mysql?
 
-26 tasks
+29 tasks
