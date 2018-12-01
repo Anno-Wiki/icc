@@ -91,7 +91,7 @@ if not args.dryrun:
     print("Now committing...")
     db.session.commit()
     print("Committed, now reindexing.")
-    Annotation.reindex()
+    Annotation.reindex(book_id=args.book)
     print("Done.")
 else:
     print(f"{cnt} annotations created.")

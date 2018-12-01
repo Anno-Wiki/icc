@@ -13,7 +13,6 @@ parser.add_argument("-p", "--password", action="store", type=str, required=True,
 
 args = parser.parse_args()
 rights = Right.query.all()
-
 malan = User.query.filter_by(displayname="malan").first()
 if not malan:
     malan = User(displayname="malan", email="malan@glendalepainting.com",
