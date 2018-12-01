@@ -116,7 +116,7 @@
                     </div>
                 {% endif %}
 
-                {% if current_user.new_notifications %}
+                {% if current_user.notifications.filter_by(seen=False).all() %}
                     <a href="{{ url_for("inbox") }}" class="new_messages">
                         (unread messages)
                     </a>

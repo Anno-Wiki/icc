@@ -1,18 +1,17 @@
-import jwt
+import jwt, inspect, sys, operator
 from time import time
 from hashlib import sha1, md5
 from math import log10 as l
 from datetime import datetime
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import or_, func
 from sqlalchemy.orm import backref
+from sqlalchemy import or_, func, orm
 from flask import url_for, abort
 from app.search import *
 # please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
 from app import app, db, login
-
 
 # Please note, about the searchable mixin before and after commit methods, that
 # if you run into a "session in committed state error" the reason is that you
@@ -110,27 +109,103 @@ class Right(db.Model):
     def __repr__(self):
         return f"<Right to {self.right}>"
 
-class ReputationChange(db.Model):
+class ReputationEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(64))
     default_delta = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"<RC {self.code}>"
+        return f"<{self.code}>"
 
-class ReputationChangeEvent(db.Model):
+class ReputationChange(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     delta = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    repchange_id = db.Column(db.Integer,
-            db.ForeignKey("reputation_change.id"), nullable=False)
+    enum_id = db.Column(db.Integer, db.ForeignKey("reputation_enum.id"),
+            nullable=False)
 
     user = db.relationship("User", backref="changes")
-    type = db.relationship("ReputationChange")
+    type = db.relationship("ReputationEnum")
 
     def __repr__(self):
-        return f"<RCE {self.type} on {self.user.displayname}>"
+        return f"<rep change {self.type} on {self.user.displayname}>"
+
+# This is an implementation of the [notification system detailed
+# here](https://stackoverflow.com/questions/9735578/building-a-notification-system)
+
+# The type of notification is the `NotificationEnum.code`; the
+# `NotificationEnum.entity_type` is a string that allows me to translate
+# `NotificationObject.entity_id` into an actual query based on my `classes`
+# dictionary
+class NotificationEnum(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(64))
+    public_code = db.Column(db.String(64))
+    entity_type = db.Column(db.String(64))
+    notification = db.Column(db.String(255))
+    vars = db.Column(db.String(255))
+
+    def __repr__(self):
+        return f"<{self.code} notification enum>"
+
+# NotificationObject describes the actual event.
+class NotificationObject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    enum_id = db.Column(db.Integer, db.ForeignKey("notification_enum.id"),
+            nullable=False)
+    entity_id = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    actor_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    
+    type = db.relationship("NotificationEnum")
+    actor = db.relationship("User")
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.entity = db.session.query(classes[self.type.entity_type])\
+                .get(self.entity_id)
+
+    def __repr__(self):
+        return f"<Notification {self.type.code}>"
+
+    def description(self):
+        var_names = self.type.vars.split(",")
+        vars = [operator.attrgetter(v)(self.entity) for v in var_names]
+        return self.type.notification.format(*vars)
+
+    @staticmethod
+    def find(entity, code):
+        enum = NotificationEnum.query.filter_by(code=code).first()
+        return NotificationObject.query.filter(NotificationObject.type==enum,
+                NotificationObject.entity_id==entity.id).first()
+
+# The `Notification` class connects a `NotificationObject` with a user and
+# whether he's seen it or not.
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    notification_object_id = db.Column(db.Integer,
+            db.ForeignKey("notification_object.id", ondelete="CASCADE"),
+            nullable=False)
+    notifier_id = db.Column(db.Integer, db.ForeignKey("user.id"),
+            nullable=False)
+    seen = db.Column(db.Boolean, default=False)
+
+    notifier = db.relationship("User", backref=backref("notifications",
+        lazy="dynamic"))
+    object = db.relationship("NotificationObject",
+            backref=backref("notifications", lazy="dynamic",
+                passive_deletes=True))
+
+    def __repr__(self):
+        return f"<{self.object.type.code} notification"\
+                f" for {self.notifier.displayname}>"
+
+    def mark_read(self):
+        self.seen = True
+
+    def mark_unread(self):
+        self.seen = False
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -580,18 +655,19 @@ class Vote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     annotation_id = db.Column(db.Integer, 
             db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
-    reputation_change_event_id = db.Column(db.Integer,
-            db.ForeignKey("reputation_change_event.id", ondelete="CASCADE"))
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey("reputation_change.id", ondelete="CASCADE"))
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User", backref=backref("ballots", lazy="dynamic"))
     annotation = db.relationship("Annotation", backref=backref("ballots",
         lazy="dynamic"))
-    repchange = db.relationship("ReputationChangeEvent", backref="vote")
+    repchange = db.relationship("ReputationChange", backref=backref("vote",
+        uselist=False))
 
     def __repr__(self):
-        return f"<{self.user.id} {self.delta} on {self.annotation}>"
+        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
 
     def is_up(self):
         return self.delta > 0
@@ -660,32 +736,48 @@ class Annotation(SearchableMixin, db.Model):
             raise AttributeError(f"No such attribute {attr}")
 
     def upvote(self, voter):
-        reptype = ReputationChange.query.filter_by(code="upvote").first()
+        reptype = ReputationEnum.query.filter_by(code="upvote").first()
         weight = voter.up_power()
-        repchange = ReputationChangeEvent(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=reptype.default_delta)
         vote = Vote(user=voter, annotation=self, delta=weight,
                 repchange=repchange)
         self.annotator.reputation += repchange.delta
         self.weight += vote.delta
         db.session.add(vote)
-        db.session.add(repchange)
+
+        # I'm breaking my rule never to commit in my models here! But I need the
+        # id!
+        db.session.commit()
+        notification_type = NotificationEnum.query\
+                .filter_by(code="upvote").first()
+        notification_obj = NotificationObject(type=notification_type,
+                entity_id=repchange.id, actor=voter)
+        notification = Notification(object=notification_obj,
+                notifier=self.annotator)
+        db.session.add(notification)
 
     def downvote(self, voter):
-        reptype = ReputationChange.query.filter_by(code="downvote").first()
+        reptype = ReputationEnum.query.filter_by(code="downvote").first()
         weight = voter.down_power()
         if self.annotator.reputation + reptype.default_delta < 0:
             repdelta = -self.annotator.reputation
         else:
             repdelta = reptype.default_delta
-
-        repchange = ReputationChangeEvent(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=repdelta)
         vote = Vote(user=voter, annotation=self, delta=weight,
                 repchange=repchange)
         self.weight += vote.delta
         self.annotator.reputation += repchange.delta
         db.session.add(vote)
+        notification_type = NotificationEnum.query\
+                .filter_by(code="downvote").first()
+        notification_obj = NotificationObject(type=notification_type,
+                entity_id=repchange.id, actor=voter)
+        notification = Notification(object=notification_obj,
+                notifier=self.annotator)
+        db.session.add(notification)
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -694,6 +786,9 @@ class Annotation(SearchableMixin, db.Model):
         else:
             delta = vote.repchange.delta
         self.annotator.reputation -= delta
+        code = "upvote" if vote.is_up() else "downvote"
+        notification = NotificationObject.find(vote.repchange, code)
+        db.session.delete(notification)
         db.session.delete(vote)
         db.session.delete(vote.repchange)
 
@@ -717,6 +812,10 @@ class EditVote(db.Model):
             index=True)
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey("reputation_change.id"), default=None)
+
+    reputation_change = db.relationship("ReputationChange", backref="edit_vote")
 
     user = db.relationship("User")
     edit = db.relationship("Edit", 
@@ -748,6 +847,7 @@ class Edit(db.Model):
     body = db.Column(db.Text)
     edit_reason = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
 
     editor = db.relationship("User")
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
@@ -797,8 +897,8 @@ class Edit(db.Model):
         return lines
 
     def approve(self, voter):
-        reptype = ReputationChange.query.filter_by(code="edit_approval").first()
-        repchange = ReputationChangeEvent(user=self.editor, type=reptype,
+        reptype = ReputationEnum.query.filter_by(code="edit_approval").first()
+        repchange = ReputationChange(user=self.editor, type=reptype,
                 delta=reptype.default_delta)
         vote = EditVote(user=voter, edit=self, delta=1, repchange=repchange)
         self.weight += vote.delta
@@ -1029,3 +1129,6 @@ class AnnotationFlagEvent(db.Model):
     def unresolve(self):
         self.time_resolved = None
         self.resolver = None
+
+# This has to be at the end of the file.
+classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

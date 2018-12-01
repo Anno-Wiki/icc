@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ace8f0f28004
+Revision ID: 62d3e9dc6b72
 Revises: 
-Create Date: 2018-11-30 11:46:44.164919
+Create Date: 2018-12-01 10:09:41.356572
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ace8f0f28004'
+revision = '62d3e9dc6b72'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,7 +49,16 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_line_label_label'), 'line_label', ['label'], unique=False)
-    op.create_table('reputation_change',
+    op.create_table('notification_enum',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('code', sa.String(length=64), nullable=True),
+    sa.Column('public_code', sa.String(length=64), nullable=True),
+    sa.Column('entity_type', sa.String(length=64), nullable=True),
+    sa.Column('notification', sa.String(length=255), nullable=True),
+    sa.Column('vars', sa.String(length=255), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('reputation_enum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('code', sa.String(length=64), nullable=True),
     sa.Column('default_delta', sa.Integer(), nullable=False),
@@ -115,13 +124,23 @@ def upgrade():
     sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('reputation_change_event',
+    op.create_table('notification_object',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('enum_id', sa.Integer(), nullable=False),
+    sa.Column('entity_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('actor_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['actor_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['enum_id'], ['notification_enum.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('reputation_change',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('repchange_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['repchange_id'], ['reputation_change.id'], ),
+    sa.Column('enum_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['enum_id'], ['reputation_enum.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -252,6 +271,15 @@ def upgrade():
     op.create_index(op.f('ix_line_lvl2'), 'line', ['lvl2'], unique=False)
     op.create_index(op.f('ix_line_lvl3'), 'line', ['lvl3'], unique=False)
     op.create_index(op.f('ix_line_lvl4'), 'line', ['lvl4'], unique=False)
+    op.create_table('notification',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('notification_object_id', sa.Integer(), nullable=False),
+    sa.Column('notifier_id', sa.Integer(), nullable=False),
+    sa.Column('seen', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['notification_object_id'], ['notification_object.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['notifier_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('tag_request_followers',
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -350,11 +378,11 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('annotation_id', sa.Integer(), nullable=True),
-    sa.Column('reputation_change_event_id', sa.Integer(), nullable=True),
+    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['reputation_change_event_id'], ['reputation_change_event.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -366,7 +394,9 @@ def upgrade():
     sa.Column('edit_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -414,6 +444,7 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
     op.drop_table('tag_request_followers')
+    op.drop_table('notification')
     op.drop_index(op.f('ix_line_lvl4'), table_name='line')
     op.drop_index(op.f('ix_line_lvl3'), table_name='line')
     op.drop_index(op.f('ix_line_lvl2'), table_name='line')
@@ -454,7 +485,8 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_approved'), table_name='tag_request')
     op.drop_table('tag_request')
     op.drop_table('tag_followers')
-    op.drop_table('reputation_change_event')
+    op.drop_table('reputation_change')
+    op.drop_table('notification_object')
     op.drop_table('conferred_rights')
     op.drop_index(op.f('ix_book_url'), table_name='book')
     op.drop_index(op.f('ix_book_title'), table_name='book')
@@ -470,7 +502,8 @@ def downgrade():
     op.drop_table('tag')
     op.drop_index(op.f('ix_right_right'), table_name='right')
     op.drop_table('right')
-    op.drop_table('reputation_change')
+    op.drop_table('reputation_enum')
+    op.drop_table('notification_enum')
     op.drop_index(op.f('ix_line_label_label'), table_name='line_label')
     op.drop_table('line_label')
     op.drop_index(op.f('ix_author_url'), table_name='author')

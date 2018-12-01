@@ -9,9 +9,9 @@ from sqlalchemy import or_, and_
 from app import app, db
 from app.models import User, Book, Author, Line, LineLabel, Annotation, \
         Edit, Tag, EditVote, Right, Vote, BookRequest, BookRequestVote, \
-        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, \
-        tags as tags_table, UserFlagEvent, \
-        AnnotationFlagEvent
+        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, Notification, \
+        tags as tags_table, UserFlagEvent, NotificationObject, \
+        AnnotationFlagEvent, classes
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -171,41 +171,40 @@ def edit_profile():
 @login_required
 def inbox():
     page = request.args.get("page", 1, type=int)
-    sort = request.args.get("sort", "read", type=str)
+    sort = request.args.get("sort", "seen", type=str)
     if sort == "time":
-        notifications = current_user.notifications.\
-                order_by(NotificationEvent.time.desc())\
+        notifications = current_user.notifications\
+                .outerjoin(NotificationObject)\
+                .order_by(NotificationObject.timestamp.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         notifications = current_user.notifications\
-                .order_by(NotificationEvent.time.asc())\
+                .outerjoin(NotificationObject)\
+                .order_by(NotificationObject.timestamp.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "type":
         notifications = current_user.notifications\
-                .join(NotificationType).\
-                order_by(NotificationType.code.desc(),
-                        NotificationEvent.time.desc())\
+                .join(NotificationObject)\
+                .join(NotificationEnum)\
+                .order_by(NotificationEnum.public_code.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "type_invert":
         notifications = current_user.notifications\
-                .join(NotificationType)\
-                .order_by(NotificationType.code.asc(),
-                        NotificationEvent.time.desc())\
+                .join(NotificationObject)\
+                .join(NotificationEnum)\
+                .order_by(NotificationEnum.public_code.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "information":
+    elif sort == "read":
         notifications = current_user.notifications\
-                .order_by(NotificationEvent.information.asc(),
-                        NotificationEvent.time.desc())\
+                .order_by(Notification.seen.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "information_invert":
+    elif sort == "read_invert":
         notifications = current_user.notifications\
-                .order_by(NotificationEvent.information.desc(),
-                        NotificationEvent.time.desc())\
+                .order_by(Notification.seen.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         notifications = current_user.notifications\
-                .order_by(NotificationEvent.seen.asc(),
-                        NotificationEvent.time.desc())\
+                .order_by(Notification.seen.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -229,11 +228,11 @@ def inbox():
             notifications=notifications.items, page=page, sort=sort,
             sorts=sorts, next_page=next_page, prev_page=prev_page)
 
-@app.route("/user/inbox/mark/<event_id>/")
+@app.route("/user/inbox/mark/<notification_id>/")
 @login_required
-def mark_notification(event_id):
+def mark_notification(notification_id):
     redirect_url = generate_next(url_for("inbox"))
-    notification = NotificationEvent.query.get_or_404(event_id)
+    notification = Notification.query.get_or_404(notification_id)
     if notification.seen:
         notification.mark_unread()
     else:
@@ -245,7 +244,7 @@ def mark_notification(event_id):
 @login_required
 def mark_all_read():
     redirect_url = generate_next(url_for("inbox"))
-    notifications = current_user.new_notifications
+    notifications = current_user.notifications.filter_by(seen=False).all()
     for notification in notifications:
         notification.mark_read()
     db.session.commit()
