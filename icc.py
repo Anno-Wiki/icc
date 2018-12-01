@@ -1,7 +1,7 @@
 from app import app, db, elasticsearch
 from app.models import Right, User, Vote, EditVote, Book, Author, Line, \
-    LineLabel, Tag, Annotation, Edit, BookRequest, BookRequestVote, \
-    UserFlag, UserFlagEvent, AnnotationFlag, AnnotationFlagEvent, \
+    LineEnum, Tag, Annotation, Edit, BookRequest, BookRequestVote, \
+    UserFlagEnum, UserFlag, AnnotationFlagEnum, AnnotationFlag, \
     TagRequest, TagRequestVote, ReputationChange, ReputationEnum, \
     Notification, NotificationEnum, NotificationObject
 
@@ -15,17 +15,17 @@ def make_shell_context():
             "NotificationObject": NotificationObject,
             "ReputationChange": ReputationChange,
             "ReputationEnum": ReputationEnum,
-            "UserFlag": UserFlag, "UserFlagEvent": UserFlagEvent,
+            "UserFlag": UserFlag, "UserFlagEnum": UserFlagEnum,
 
             "Vote": Vote, "EditVote": EditVote,
 
             "Book": Book, "Author": Author,
             "BookRequest": BookRequest, "BookRequestVote": BookRequestVote,
 
-            "Line": Line, "LineLabel": LineLabel, 
+            "Line": Line, "LineEnum": LineEnum, 
             "Annotation": Annotation, "Edit": Edit,
             "AnnotationFlag": AnnotationFlag,
-            "AnnotationFlagEvent": AnnotationFlagEvent,
+            "AnnotationFlagEnum": AnnotationFlagEnum,
 
             "Tag": Tag,
             "TagRequest": TagRequest, "TagRequestVote": TagRequestVote,

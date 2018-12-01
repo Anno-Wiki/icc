@@ -261,17 +261,17 @@ class User(UserMixin, db.Model):
             backref="voters", lazy="dynamic")
 
     # flag relationships
-    flags = db.relationship("UserFlag",
-            secondary="user_flag_event",
-            primaryjoin="and_(UserFlagEvent.user_id==User.id,"
-            "UserFlagEvent.resolver_id==None)",
-            secondaryjoin="UserFlagEvent.user_flag_id==UserFlag.id",
+    flags = db.relationship("UserFlagEnum",
+            secondary="user_flag",
+            primaryjoin="and_(UserFlag.user_id==User.id,"
+            "UserFlag.resolver_id==None)",
+            secondaryjoin="UserFlag.user_flag_id==UserFlagEnum.id",
             backref="users")
-    flag_history = db.relationship("UserFlagEvent",
-            primaryjoin="UserFlagEvent.user_id==User.id", lazy="dynamic")
-    active_flags = db.relationship("UserFlagEvent",
-            primaryjoin="and_(UserFlagEvent.user_id==User.id,"
-                "UserFlagEvent.resolver_id==None)")
+    flag_history = db.relationship("UserFlag",
+            primaryjoin="UserFlag.user_id==User.id", lazy="dynamic")
+    active_flags = db.relationship("UserFlag",
+            primaryjoin="and_(UserFlag.user_id==User.id,"
+                "UserFlag.resolver_id==None)")
 
     followed_books = db.relationship("Book",
             secondary="book_followers",
@@ -318,7 +318,7 @@ class User(UserMixin, db.Model):
         self.last_seen = datetime.utcnow()
 
     def flag(self, flag, thrower):
-        event = UserFlagEvent(flag=flag, user=self, thrower=thrower)
+        event = UserFlag(flag=flag, user=self, thrower=thrower)
         db.session.add(event)
 
     def set_password(self, password):
@@ -466,11 +466,6 @@ class Book(SearchableMixin, db.Model):
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime)
 
-    # we have to lazy="joined" author relationship for the sake of getattr()
-    # during __searchable__ indexing because if we do not, when we access
-    # author_name, we end up with an error from issuing sql after modification
-    # of the book before committing. If we load it immediately, which is no skin
-    # off our processor's back, we don't have to issue any sql!
     author = db.relationship("Author", lazy="joined")
     lines = db.relationship("Line", primaryjoin="Line.book_id==Book.id",
         lazy="dynamic")
@@ -516,7 +511,7 @@ class Tag(SearchableMixin, db.Model):
 ## Content Models ##
 ####################
 
-class LineLabel(db.Model):
+class LineEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(12), index=True)
     display = db.Column(db.String(64))
@@ -529,17 +524,17 @@ class Line(SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     line_num = db.Column(db.Integer, index=True)
-    label_id = db.Column(db.Integer, db.ForeignKey("line_label.id"), index=True)
+    label_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
     lvl1 = db.Column(db.Integer, index=True)
     lvl2 = db.Column(db.Integer, index=True)
     lvl3 = db.Column(db.Integer, index=True)
     lvl4 = db.Column(db.Integer, index=True)
-    em_id = db.Column(db.Integer, db.ForeignKey("line_label.id"), index=True)
+    em_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
     line = db.Column(db.String(200))
 
     book = db.relationship("Book", lazy="joined")
-    label = db.relationship("LineLabel", foreign_keys=[label_id])
-    em_status = db.relationship("LineLabel", foreign_keys=[em_id])
+    label = db.relationship("LineEnum", foreign_keys=[label_id])
+    em_status = db.relationship("LineEnum", foreign_keys=[em_id])
     context = db.relationship("Line",
             primaryjoin="and_(remote(Line.line_num)<=Line.line_num+1,"
                 "remote(Line.line_num)>=Line.line_num-1,"
@@ -718,12 +713,12 @@ class Annotation(SearchableMixin, db.Model):
             viewonly=True, uselist=True)
 
     # Relationships to `Flag`
-    flag_history = db.relationship("AnnotationFlagEvent",
-            primaryjoin="Annotation.id==AnnotationFlagEvent.annotation_id",
+    flag_history = db.relationship("AnnotationFlag",
+            primaryjoin="Annotation.id==AnnotationFlag.annotation_id",
             lazy="dynamic")
-    active_flags = db.relationship("AnnotationFlagEvent",
-            primaryjoin="and_(Annotation.id==AnnotationFlagEvent.annotation_id,"
-            "AnnotationFlagEvent.resolver_id==None)", passive_deletes=True)
+    active_flags = db.relationship("AnnotationFlag",
+            primaryjoin="and_(Annotation.id==AnnotationFlag.annotation_id,"
+            "AnnotationFlag.resolver_id==None)", passive_deletes=True)
 
     def __getattr__(self, attr):
         if attr.startswith("annotator_"):
@@ -793,7 +788,7 @@ class Annotation(SearchableMixin, db.Model):
         db.session.delete(vote.repchange)
 
     def flag(self, flag, thrower):
-        event = AnnotationFlagEvent(flag=flag, annotation=self, thrower=thrower)
+        event = AnnotationFlag(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
 
     def readable_weight(self):
@@ -1050,16 +1045,16 @@ class TagRequestVote(db.Model):
     def is_up(self):
         return self.delta > 0
 
-class UserFlag(db.Model):
+class UserFlagEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     flag = db.Column(db.String(127))
 
     def __repr__(self):
-        return f"<UserFlag {self.flag}>"
+        return f"<UserFlagEnum {self.flag}>"
 
-class UserFlagEvent(db.Model):
+class UserFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_flag_id = db.Column(db.Integer, db.ForeignKey("user_flag.id"),
+    user_flag_id = db.Column(db.Integer, db.ForeignKey("user_flag_enum.id"),
             index=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
@@ -1074,7 +1069,7 @@ class UserFlagEvent(db.Model):
     thrower = db.relationship("User", foreign_keys=[thrower_id])
     resolver = db.relationship("User", foreign_keys=[resolver_id])
 
-    flag = db.relationship("UserFlag")
+    flag = db.relationship("UserFlagEnum")
 
     def __repr__(self):
         if self.resolved:
@@ -1090,17 +1085,17 @@ class UserFlagEvent(db.Model):
         self.time_resolved = None
         self.resolver = None
 
-class AnnotationFlag(db.Model):
+class AnnotationFlagEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     flag = db.Column(db.String(127))
 
     def __repr__(self):
-        return f"<AnnotationFlag {self.flag}>"
+        return f"<AnnotationFlagEnum {self.flag}>"
 
-class AnnotationFlagEvent(db.Model):
+class AnnotationFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     annotation_flag_id = db.Column(db.Integer,
-            db.ForeignKey("annotation_flag.id"), index=True)
+            db.ForeignKey("annotation_flag_enum.id"), index=True)
     annotation_id = db.Column(db.Integer,
             db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
 
@@ -1113,7 +1108,7 @@ class AnnotationFlagEvent(db.Model):
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
     thrower = db.relationship("User", foreign_keys=[thrower_id])
     resolver = db.relationship("User", foreign_keys=[resolver_id])
-    flag = db.relationship("AnnotationFlag")
+    flag = db.relationship("AnnotationFlagEnum")
 
     def __repr__(self):
         if self.resolved:

@@ -1,6 +1,6 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
-from app.models import Book, Line, LineLabel
+from app.models import Book, Line, LineEnum
 import sys
 import codecs
 import argparse
@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
-labels = LineLabel.query.all()
+labels = LineEnum.query.all()
 label = {}
 for l in labels:
     label[f"{l.label}>{l.display}"] = l.id

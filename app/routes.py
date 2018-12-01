@@ -7,11 +7,11 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy import or_, and_
 from app import app, db
-from app.models import User, Book, Author, Line, LineLabel, Annotation, \
+from app.models import User, Book, Author, Line, LineEnum, Annotation, \
         Edit, Tag, EditVote, Right, Vote, BookRequest, BookRequestVote, \
-        TagRequest, TagRequestVote, UserFlag, AnnotationFlag, Notification, \
-        tags as tags_table, UserFlagEvent, NotificationObject, \
-        AnnotationFlagEvent, classes
+        TagRequest, TagRequestVote, UserFlagEnum, AnnotationFlag, Notification, \
+        tags as tags_table, UserFlag, NotificationObject, \
+        AnnotationFlagEnum, classes
 from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
@@ -90,7 +90,7 @@ def index():
             "weight": url_for("index", page=page, sort="weight"),
             }
 
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
     next_page = url_for("index", page=annotations.next_num, sort=sort) \
             if annotations.has_next else None
     prev_page = url_for("index", page=annotations.prev_num, sort=sort) \
@@ -289,7 +289,7 @@ def reset_password(token):
 @login_required
 def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
-    flag = UserFlag.query.get_or_404(flag_id)
+    flag = UserFlagEnum.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("user", user_id=user.id))
     user.flag(flag, current_user)
     db.session.commit()
@@ -687,7 +687,7 @@ def author_annotations(name):
                 sort="weight", page=page),
             }
 
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
     next_page = url_for("author_annotations", name=author.url, sort=sort,
             page=annotations.next_num) if annotations.has_next else None
     prev_page = url_for("author_annotations", name=author.url, sort=sort,
@@ -704,7 +704,7 @@ def book(book_url):
     book = Book.query.filter_by(url=book_url).first_or_404()
 
     # get the labels for each heierarchical chapter level
-    labels = LineLabel.query.filter(LineLabel.label.startswith("lvl")).all()
+    labels = LineEnum.query.filter(LineEnum.label.startswith("lvl")).all()
     label_ids = [l.id for l in labels]
 
 
@@ -745,7 +745,7 @@ def book_annotations(book_url):
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort = "newest"
         
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
     sorts = {
             "newest": url_for("book_annotations", book_url=book.url,
                 sort="newest", page=page),
@@ -798,7 +798,7 @@ def tag(tag):
             "weight": url_for("tag", tag=tag.tag, page=page, sort="weight"),
             "modified": url_for("tag", tag=tag.tag, page=page, sort="modified"),
             }
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
 
     next_page = url_for("tag", tag=tag.tag, page=annotations.next_num,
             sort=sort) if annotations.has_next else None
@@ -820,7 +820,7 @@ def annotation(annotation_id):
     if not annotation.active:
         current_user.authorize("view_deactivated_annotations")
 
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("view/annotation.html",
@@ -830,7 +830,7 @@ def annotation(annotation_id):
 @app.route("/annotation/<annotation_id>/edit/history/")
 def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
 
     if not annotation.active:
         current_user.authorize("view_deactivated_annotations")
@@ -960,8 +960,8 @@ def user(user_id):
             "oldest": url_for("user", user_id=user_id, sort="oldest", page=page),
             "weight": url_for("user", user_id=user_id, sort="weight", page=page),
             }
-    userflags = UserFlag.query.all()
-    annotationflags = AnnotationFlag.query.all()
+    userflags = UserFlagEnum.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
 
     next_page = url_for("user", user_id=user.id, page=annotations.next_num,
             sort=sort) if annotations.has_next else None
@@ -988,7 +988,7 @@ def read(book_url):
     lvl.append(request.args.get("l3", 0, type=int))
     lvl.append(request.args.get("l4", 0, type=int))
 
-    annotationflags = AnnotationFlag.query.all()
+    annotationflags = AnnotationFlagEnum.query.all()
 
     if lvl[3]:
         lines = book.lines.filter(
@@ -1535,7 +1535,7 @@ def flag_annotation(flag_id, annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize("view_deactivated_annotations")
-    flag = AnnotationFlag.query.get_or_404(flag_id)
+    flag = AnnotationFlagEnum.query.get_or_404(flag_id)
 
     redirect_url = generate_next(url_for("annotation",
         annotation_id=annotation.id))
@@ -1571,77 +1571,77 @@ def all_annotation_flags():
     current_user.authorize("resolve_annotation_flags")
 
     if sort == "marked":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_resolved.asc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(AnnotationFlag)\
-                .order_by(AnnotationFlag.flag.asc())\
+        flags = AnnotationFlag.query\
+                .outerjoin(AnnotationFlagEnum)\
+                .order_by(AnnotationFlagEnum.flag.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag_invert":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(AnnotationFlag)\
-                .order_by(AnnotationFlag.flag.desc())\
+        flags = AnnotationFlag.query\
+                .outerjoin(AnnotationFlagEnum)\
+                .order_by(AnnotationFlagEnum.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_thrown.desc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_thrown.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_thrown.asc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "thrower":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+        flags = AnnotationFlag.query\
+                .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "thrower_invert":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+        flags = AnnotationFlag.query\
+                .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
+        flags = AnnotationFlag.query\
+                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
-        flags = AnnotationFlagEvent.query\
-                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
+        flags = AnnotationFlag.query\
+                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_resolved.asc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "annotation":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.annotation_id.asc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.annotation_id.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "annotation_invert":
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.annotation_id.asc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.annotation_id.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "book":
-        flags = AnnotationFlagEvent.query\
+        flags = AnnotationFlag.query\
                 .outerjoin(Annotation,
-                        Annotation.id==AnnotationFlagEvent.annotation_id)\
+                        Annotation.id==AnnotationFlag.annotation_id)\
                 .outerjoin(Book, Book.id==Annotation.book_id)\
                 .order_by(Book.sort_title)\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
-        flags = AnnotationFlagEvent.query\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+        flags = AnnotationFlag.query\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1703,67 +1703,67 @@ def annotation_flags(annotation_id):
 
     if sort == "marked":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_resolved.asc())\
+                .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
         flags = annotation.flag_history\
-                .outerjoin(AnnotationFlag)\
-                .order_by(AnnotationFlag.flag.asc())\
+                .outerjoin(AnnotationFlagEnum)\
+                .order_by(AnnotationFlagEnum.flag.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag_invert":
         flags = annotation.flag_history\
-                .outerjoin(AnnotationFlag)\
-                .order_by(AnnotationFlag.flag.desc())\
+                .outerjoin(AnnotationFlagEnum)\
+                .order_by(AnnotationFlagEnum.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "time":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_thrown.desc())\
+                .order_by(AnnotationFlag.time_thrown.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_thrown.asc())\
+                .order_by(AnnotationFlag.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "thrower":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+                .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "thrower_invert":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.thrower_id)\
+                .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolver":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlagEvent.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_resolved.asc())\
+                .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
         flags = annotation.flag_history\
-                .order_by(AnnotationFlagEvent.time_resolved.desc())\
+                .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1812,7 +1812,7 @@ def annotation_flags(annotation_id):
 @login_required
 def mark_annotation_flag(flag_id):
     current_user.authorize("resolve_annotation_flags")
-    flag = AnnotationFlagEvent.query.get_or_404(flag_id)
+    flag = AnnotationFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("annotation_flags",
         annotation_id=flag.annotation_id))
     if flag.resolved:
@@ -1845,79 +1845,79 @@ def all_user_flags():
     current_user.authorize("resolve_user_flags")
 
     if sort == "marked":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_resolved.asc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
-        flags = UserFlagEvent.query\
-                .outerjoin(UserFlag)\
-                .order_by(UserFlag.flag.asc())\
+        flags = UserFlag.query\
+                .outerjoin(UserFlagEnum)\
+                .order_by(UserFlagEnum.flag.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag_invert":
-        flags = UserFlagEvent.query\
-                .outerjoin(UserFlag)\
-                .order_by(UserFlag.flag.desc())\
+        flags = UserFlag.query\
+                .outerjoin(UserFlagEnum)\
+                .order_by(UserFlagEnum.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "time":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_thrown.desc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_thrown.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_thrown.asc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "thrower":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "thrower_invert":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolver":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_resolved.asc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "user":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.user_id)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.user_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "user_invert":
-        flags = UserFlagEvent.query\
-                .outerjoin(User, User.id==UserFlagEvent.user_id)\
+        flags = UserFlag.query\
+                .outerjoin(User, User.id==UserFlag.user_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
-        flags = UserFlagEvent.query\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+        flags = UserFlag.query\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -1969,67 +1969,67 @@ def user_flags(user_id):
     user = User.query.get_or_404(user_id)
     if sort == "marked":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "marked_invert":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_resolved.asc())\
+                .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "flag":
         flags = user.flag_history\
-                .outerjoin(UserFlag)\
-                .order_by(UserFlag.flag.asc())\
+                .outerjoin(UserFlagEnum)\
+                .order_by(UserFlagEnum.flag.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "flag_invert":
         flags = user.flag_history\
-                .outerjoin(UserFlag)\
-                .order_by(UserFlag.flag.desc())\
+                .outerjoin(UserFlagEnum)\
+                .order_by(UserFlagEnum.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "time":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_thrown.desc())\
+                .order_by(UserFlag.time_thrown.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_invert":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_thrown.asc())\
+                .order_by(UserFlag.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "thrower":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+                .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "thrower_invert":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.thrower_id)\
+                .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolver":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlagEvent.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     elif sort == "resolved_at":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolved_at_invert":
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_resolved.asc())\
+                .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     else:
         flags = user.flag_history\
-                .order_by(UserFlagEvent.time_resolved.desc())\
+                .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
     sorts = {
@@ -2076,7 +2076,7 @@ def user_flags(user_id):
 @login_required
 def mark_user_flag(flag_id):
     current_user.authorize("resolve_user_flags")
-    flag = UserFlagEvent.query.get_or_404(flag_id)
+    flag = UserFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("user_flags", user_id=flag.user_id))
     if flag.resolved:
         flag.unresolve()
