@@ -55,8 +55,9 @@ class SearchableMixin(object):
         session._changes = None
 
     @classmethod
-    def reindex(cls):
-        for obj in cls.query:
+    def reindex(cls, **kwargs):
+        query = cls.query if not kwargs else cls.query.filter_by(**kwargs)
+        for obj in query:
             add_to_index(cls.__tablename__, obj)
 
 db.event.listen(db.session, "before_commit", SearchableMixin.before_commit)
