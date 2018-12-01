@@ -112,7 +112,7 @@
                     </a>
                 </td>
                 <td>
-                    {{ notification.object.timestamp }}
+                    {{ notification.object.timestamp.strftime(vars["TIME"]) }}
                 </td>
                 <td>
                     {{ notification.object.type.public_code }}

@@ -56,6 +56,7 @@ class Config(object):
     NOTIFICATIONS_PER_PAGE = 15
 
     USER_PAGE_AVATAR_SIZE = 255
+    TIME = "%I:%M %p %m/%d/%y (UTC)"
 
     # technicals
     SECRET_KEY = os.environ.get("SECRET_KEY") or "youllneverguess"
