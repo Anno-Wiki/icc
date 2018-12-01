@@ -57,3 +57,14 @@ def generate_next(alt_url):
     else:
         print("3")
         return alt_url
+
+def line_check(fl, ll):
+    # technically none of this can happen anyway because of my Edit.__init__(),
+    # but I'm doing this anyway.
+    fl = 1 if fl < 1 else fl
+    ll = 1 if ll < 1 else ll
+    if ll < fl:
+        tmp = ll
+        ll = fl
+        fl = tmp
+    return fl, ll
