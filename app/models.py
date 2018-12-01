@@ -56,8 +56,8 @@ class SearchableMixin(object):
 
     @classmethod
     def reindex(cls, **kwargs):
-        query = cls.query if not kwargs else cls.query.filter_by(**kwargs)
-        for obj in query:
+        qry = cls.query if not kwargs else cls.query.filter_by(**kwargs)
+        for obj in qry:
             add_to_index(cls.__tablename__, obj)
 
 db.event.listen(db.session, "before_commit", SearchableMixin.before_commit)
@@ -675,7 +675,6 @@ class Annotation(SearchableMixin, db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("book.id"), index=True)
     weight = db.Column(db.Integer, default=0)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    edit_pending = db.Column(db.Boolean, index=True, default=False)
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
@@ -687,6 +686,7 @@ class Annotation(SearchableMixin, db.Model):
             primaryjoin="and_(Edit.current==True,"
             "Edit.annotation_id==Annotation.id)", uselist=False,
             lazy="joined")
+
     edits = db.relationship("Edit",
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
                 "Edit.approved==True)", lazy="joined", passive_deletes=True)
@@ -695,6 +695,10 @@ class Annotation(SearchableMixin, db.Model):
                 "Edit.approved==True)", lazy="dynamic", passive_deletes=True)
     all_edits = db.relationship("Edit",
             primaryjoin="Edit.annotation_id==Annotation.id", lazy="dynamic",
+            passive_deletes=True)
+    edit_pending = db.relationship("Edit",
+            primaryjoin="and_(Edit.annotation_id==Annotation.id,"
+                "Edit.approved==False, Edit.rejected==False)",
             passive_deletes=True)
 
     # relationships to `Line`
@@ -742,17 +746,6 @@ class Annotation(SearchableMixin, db.Model):
         self.weight += vote.delta
         db.session.add(vote)
 
-        # I'm breaking my rule never to commit in my models here! But I need the
-        # id!
-        db.session.commit()
-        notification_type = NotificationEnum.query\
-                .filter_by(code="upvote").first()
-        notification_obj = NotificationObject(type=notification_type,
-                entity_id=repchange.id, actor=voter)
-        notification = Notification(object=notification_obj,
-                notifier=self.annotator)
-        db.session.add(notification)
-
     def downvote(self, voter):
         reptype = ReputationEnum.query.filter_by(code="downvote").first()
         weight = voter.down_power()
@@ -767,13 +760,6 @@ class Annotation(SearchableMixin, db.Model):
         self.weight += vote.delta
         self.annotator.reputation += repchange.delta
         db.session.add(vote)
-        notification_type = NotificationEnum.query\
-                .filter_by(code="downvote").first()
-        notification_obj = NotificationObject(type=notification_type,
-                entity_id=repchange.id, actor=voter)
-        notification = Notification(object=notification_obj,
-                notifier=self.annotator)
-        db.session.add(notification)
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -782,9 +768,6 @@ class Annotation(SearchableMixin, db.Model):
         else:
             delta = vote.repchange.delta
         self.annotator.reputation -= delta
-        code = "upvote" if vote.is_up() else "downvote"
-        notification = NotificationObject.find(vote.repchange, code)
-        db.session.delete(notification)
         db.session.delete(vote)
         db.session.delete(vote.repchange)
 
@@ -811,12 +794,12 @@ class EditVote(db.Model):
     reputation_change_id = db.Column(db.Integer,
             db.ForeignKey("reputation_change.id"), default=None)
 
-    reputation_change = db.relationship("ReputationChange", backref="edit_vote")
+    repchange = db.relationship("ReputationChange", backref=backref("edit_vote",
+        uselist=False))
 
     user = db.relationship("User")
-    edit = db.relationship("Edit", 
-            backref=backref("edit_ballots", lazy="dynamic",
-                passive_deletes=True))
+    edit = db.relationship("Edit", backref=backref("edit_ballots",
+        lazy="dynamic", passive_deletes=True))
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.edit}>"
@@ -889,23 +872,80 @@ class Edit(db.Model):
         else:
             lines[0].line = lines[0].line[self.first_char_idx:]
             lines[-1].line = lines[-1].line[:self.last_char_idx]
-
         return lines
 
+    def upvote(self, voter):
+        if self.weight >= app.config["MIN_EDIT_APPROVAL_RATING"]\
+                or voter.is_authorized("approve_edits"):
+            self.approve(voter)
+        else:
+            # create the repchange and the vote
+            vote = EditVote(user=voter, edit=self, delta=1, repchange=None)
+            db.session.add(vote)
+            # apply the repchanges
+            self.weight += vote.delta
+
     def approve(self, voter):
+        # apply the approval
+        self.annotation.HEAD.current = False 
+        self.current = True
+        self.approved = True
+        # create the repchange and the vote
         reptype = ReputationEnum.query.filter_by(code="edit_approval").first()
         repchange = ReputationChange(user=self.editor, type=reptype,
                 delta=reptype.default_delta)
         vote = EditVote(user=voter, edit=self, delta=1, repchange=repchange)
+        db.session.add(vote, repchange)
+        # apply the repchanges
         self.weight += vote.delta
         self.editor.reputation += repchange.delta
-        db.session.add(vote)
-        db.session.add(repchange)
+        db.session.commit()
+        # create the notification object
+        object = NotificationObject(entity_id=vote.id, actor=voter,
+                type=NotificationEnum.query\
+                        .filter_by(code="edit_approved").first())
+        # notify the editor
+        if not self.editor.is_authorized("immediate_edits"):
+            db.session.add(Notification(object=object, notifier=self.editor))
+        # notify the annotator unless he's the editor (immediate_edits) or the
+        # voter
+        if not self.editor == self.annotation.annotator\
+                and not voter == self.annotation.annotator:
+            db.session.add(Notification(object=object,
+                notifier=self.annotation.annotator))
+        self.notify_edit(object)
+
+    def notify_edit(self, object):
+        for follower in self.annotation.followers:
+            db.session.add(Notification(object=object, notifier=follower))
 
     def reject(self, voter):
-        self.weight -= 1
         vote = EditVote(user=voter, edit=self, delta=-1)
+        self.weight += vote.delta
+        self.rejected = True
         db.session.add(vote)
+        db.session.commit()
+        object = NotificationObject(entity_id=vote.id, actor=voter,
+                type=NotificationEnum.query\
+                        .filter_by(code="edit_rejected").first())
+        if not self.editor.is_authorized("immediate_edits"):
+            db.session.add(Notification(object=object, notifier=self.editor))
+        # notify the annotator
+        if not self.editor == self.annotation.annotator\
+                and not voter == self.annotation.annotator:
+            db.session.add(Notification(object=object,
+                notifier=self.annotation.annotator))
+
+    def downvote(self, voter):
+        if self.weight >= app.config["MIN_EDIT_REJECTION_RATING"]\
+                or voter.is_authorized("reject_edits"):
+            self.reject(voter)
+        else:
+            # create the repchange and the vote
+            vote = EditVote(user=voter, edit=self, delta=-1, repchange=None)
+            db.session.add(vote)
+            # apply the repchanges
+            self.weight += vote.delta
 
 ####################
 ####################

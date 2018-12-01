@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if current_user.new_notifications %}
+{% if current_user.notifications.filter_by(seen=False).all() %}
     <a href="{{ url_for("mark_all_read") }}">mark all read</a>
 {% endif %}
 <table class="inbox">
@@ -46,6 +46,26 @@
             </td>
         {% endif %}
 
+        {% if sort == "type" %}
+            <td class="highlight">
+                <a href="{{ sorts["type_invert"] }}">
+                    Notification &#9662;
+                </a>
+            </td>
+        {% elif sort == "information_invert" %}
+            <td class="highlight">
+                <a href="{{ sorts["type"] }}">
+                    Notification &#9652;
+                </a>
+            </td>
+        {% else %}
+            <td>
+                <a href="{{ sorts["type"] }}">
+                    Notification
+                </a>
+            </td>
+        {% endif %}
+
         {% if sort == "information" %}
             <td class="highlight">
                 <a href="{{ sorts["information_invert"] }}">
@@ -84,14 +104,21 @@
                 <td>
                     <a href="{{ url_for("mark_notification",
                         notification_id=notification.id) }}">
-                        &#10003;
+                        {% if notification.seen %}
+                            &#10003;
+                        {% else %}
+                            &#10007;
+                        {% endif %}
                     </a>
                 </td>
                 <td>
-                        {{ notification.object.timestamp }}
+                    {{ notification.object.timestamp }}
                 </td>
                 <td>
-                        {{ notification.object.description()|safe }}
+                    {{ notification.object.type.public_code }}
+                </td>
+                <td>
+                    {{ notification.object.description()|markdown|safe }}
                 </td>
             </tr>
     {% endfor %}

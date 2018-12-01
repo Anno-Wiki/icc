@@ -154,8 +154,8 @@
                     </td>
                     <td>
                         <a href="{{ url_for("annotation",
-                            annotation_id=edit.pointer_id) }}">
-                            {{ edit.pointer_id }}
+                            annotation_id=edit.annotation_id) }}">
+                            [{{ edit.annotation_id }}]
                         </a>
                     </td>
                     <td>
@@ -167,7 +167,7 @@
                         </a>
                     </td>
                     <td>
-                        {{ edit.modified }}
+                        {{ edit.timestamp }}
                     </td>
                     <td>
                         {{ edit.edit_reason }}
@@ -184,8 +184,8 @@
                     </td>
                     <td>
                         <a href="{{ url_for("annotation",
-                            annotation_id=edit.pointer_id) }}">
-                            {{ edit.pointer_id }}
+                            annotation_id=edit.annotation_id) }}">
+                            [{{ edit.annotation_id }}]
                         </a>
                     </td>
                     <td>
@@ -197,7 +197,7 @@
                         </a>
                     </td>
                     <td>
-                        {{ edit.modified }}
+                        {{ edit.timestamp }}
                     </td>
                     <td>
                         {{ edit.edit_reason }}

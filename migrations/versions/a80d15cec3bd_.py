@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c0ef28880669
+Revision ID: a80d15cec3bd
 Revises: 
-Create Date: 2018-12-01 11:04:25.045532
+Create Date: 2018-12-01 14:46:51.876847
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c0ef28880669'
+revision = 'a80d15cec3bd'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -203,7 +203,6 @@ def upgrade():
     sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('edit_pending', sa.Boolean(), nullable=True),
     sa.Column('locked', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['annotator_id'], ['user.id'], ),
@@ -212,7 +211,6 @@ def upgrade():
     )
     op.create_index(op.f('ix_annotation_annotator_id'), 'annotation', ['annotator_id'], unique=False)
     op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
-    op.create_index(op.f('ix_annotation_edit_pending'), 'annotation', ['edit_pending'], unique=False)
     op.create_index(op.f('ix_annotation_locked'), 'annotation', ['locked'], unique=False)
     op.create_index(op.f('ix_annotation_timestamp'), 'annotation', ['timestamp'], unique=False)
     op.create_table('book_followers',
@@ -466,7 +464,6 @@ def downgrade():
     op.drop_table('book_followers')
     op.drop_index(op.f('ix_annotation_timestamp'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_edit_pending'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_book_id'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')

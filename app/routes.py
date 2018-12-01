@@ -17,7 +17,7 @@ from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
         EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
         AreYouSureForm, SearchForm
 from app.email import send_password_reset_email
-from app.funky import preplines, is_filled, generate_next
+from app.funky import preplines, is_filled, generate_next, line_check
 import difflib
 import re
 import time
@@ -1133,13 +1133,7 @@ def annotate(book_url, first_line, last_line):
 
     if form.validate_on_submit():
         # line number boiler plate
-        fl = int(form.first_line.data)
-        ll = int(form.last_line.data)
-        if fl < 1:
-            fl = 1
-        if ll < 1:
-            ll = 1
-            fl = 1
+        fl, ll = line_check(int(form.first_line.data), int(form.last_line.data))
 
         # Process all the tags
         raw_tags = form.tags.data.split()
@@ -1206,39 +1200,23 @@ def annotate(book_url, first_line, last_line):
 @login_required
 def edit(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-
     redirect_url = generate_next(url_for("annotation",
         annotation_id=annotation_id))
-
     if annotation.locked == True\
             and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
         return redirect(redirect_url)
     elif not annotation.active:
         current_user.authorize("edit_deactivated_annotations")
-
     lines = annotation.lines
     context = annotation.context
     form = AnnotationForm()
-
     if form.validate_on_submit():
         # line number boilerplate
-        fl = int(form.first_line.data)
-        ll = int(form.last_line.data)
-        if fl < 1:
-            fl = 1
-        if ll < 1:
-            fl = 1
-            ll = 1
-        if ll < fl:
-            tmp = ll
-            ll = fl
-            fl = tmp
-
-        # Process all the tags
+        fl, ll = line_check(int(form.first_line.data), int(form.last_line.data))
+        fail = False # if at any point we run into problems, flip this var
         raw_tags = form.tags.data.split()
         tags = []
-        fail = False
         for tag in raw_tags:
             t = Tag.query.filter_by(tag=tag).first()
             if t:
@@ -1246,77 +1224,63 @@ def edit(annotation_id):
             else:
                 fail = True
                 flash(f"tag {tag} does not exist.")
-
         if len(tags) > 5:
             fail = True
             flash("There is a five tag limit.")
-
-
-        # approved is true if the user can edit immediately
-        approved = current_user.is_authorized("immediate_edits")\
-                or annotation.annotator == current_user
-
         lockchange = False
-        if current_user.is_authorized("lock_annotations"):
-            # the lock changes if the annotation's lock value is different from
-            # the form's locked data. We have to specify this because this won't
-            # show up in edit's hash_id and will fail the uniqueness test.
-            lockchange = annotation.locked != form.locked.data
+        if current_user.is_authorized("lock_annotations")\
+                and annotation.locked != form.locked.data:
+            lockchange = True
             annotation.locked = form.locked.data
-
         # if a reason isn't provided and there's no lockchange, fail the
         # submission
         if not form.reason.data and not lockchange:
             flash("Please provide a reason for your edit.")
             fail = True
 
-
         edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
                 else 1
-        # both the approved and current variables are based on approved
         edit = Edit(book=annotation.book,
-                editor_id=current_user.id, edit_num=edit_num,
-                edit_reason=form.reason.data, annotation_id=annotation_id,
-                approved=approved, current=approved,
+                editor=current_user, edit_num=edit_num,
+                edit_reason=form.reason.data, annotation=annotation,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 body=form.annotation.data, tags=tags,
+                weight=0
                 )
 
         if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
             flash("Your suggested edit is no different from the previous version.")
             fail = True
-
-        lockchangenotedit = False
-
-        if fail:
-            return render_template("forms/annotation.html",
-                    title=annotation.HEAD.book.title, form=form,
-                    book=annotation.HEAD.book, lines=lines,
-                    annotation=annotation)
+        # approved is true if the user can edit immediately
+        approved = current_user.is_authorized("immediate_edits")\
+                or annotation.annotator == current_user
+        if fail: # rerender the template with the work already filled
+            return render_template("forms/annotation.html", form=form,
+                    title=annotation.HEAD.book.title, lines=lines, 
+                    book=annotation.HEAD.book, annotation=annotation)
         elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
-            flash("Annotation Locked")
-            lockchangenotedit = True
+            # Don't add the edit, but flash lock message
+            if annotation.locked:
+                flash("Annotation Locked")
+            else:
+                flash("Annotation Unlocked")
         else:
-            annotation.edit_pending = not approved
+            # The edit is valid
+            if lockchange:
+                if annotation.locked:
+                    flash("Annotation Locked")
+                else:
+                    flash("Annotation Unlocked")
             if approved:
-                annotation.HEAD.current = False
-                edit.current = True
-                flash("Edit complete.")
+                edit.approve(current_user)
+                flash("Edit completed.")
             else:
                 flash("Edit submitted for review.")
             db.session.add(edit)
-
         db.session.commit()
-        if approved and not lockchangenotedit:
-            pass
-        if lockchange:
-            pass
-        db.session.commit()
-
         return redirect(redirect_url)
-
     elif not annotation.edit_pending:
         tag_strings = []
         for t in annotation.HEAD.tags:
@@ -1328,11 +1292,9 @@ def edit(annotation_id):
         form.annotation.data = annotation.HEAD.body
         form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
-
-    return render_template("forms/annotation.html",
-            title=f"Edit Annotation {annotation.id}", form=form,
-            book=annotation.HEAD.book, lines=lines,
-            annotation=annotation, context=context)
+    return render_template("forms/annotation.html", form=form,
+            title=f"Edit Annotation {annotation.id}", book=annotation.HEAD.book,
+            lines=lines, annotation=annotation, context=context)
 
 @app.route("/rollback/<annotation_id>/edit/<edit_id>/", methods=["GET", "POST"])
 @login_required
@@ -2233,8 +2195,8 @@ def review_edit(edit_id):
     # recognizes paragraph separation based on two returns. We also have to be
     # careful to do this for both unix and windows return variants (i.e. be
     # careful of \r's).
-    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.annotation)
-    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.annotation)
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.body)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.body)
 
     diff = list(difflib.Differ().compare(diff1.splitlines(),
         diff2.splitlines()))
@@ -2269,14 +2231,7 @@ def approve(edit_id):
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("edit_review_queue"))
-    edit.approve(current_user)
-    if edit.weight >= app.config["MIN_APPROVAL_RATING"] or \
-            current_user.is_authorized("approve_edits"):
-        edit.approved = True
-        edit.annotation.edit_pending = False
-        edit.annotation.HEAD.current = False
-        edit.current = True
-        flash(f"Edit {edit.edit_num} approved.")
+    edit.upvote(current_user)
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
@@ -2293,12 +2248,7 @@ def reject(edit_id):
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("edit_review_queue"))
-    edit.reject(current_user)
-    if edit.weight <= app.config["MIN_REJECTION_RATING"] or \
-            current_user.is_authorized("approve_edits"):
-        edit.annotation.edit_pending = False
-        edit.rejected = True
-        flash(f"Edit {edit.edit_num} rejected.")
+    edit.downvote(current_user)
     db.session.commit()
     return redirect(url_for("edit_review_queue"))
 
