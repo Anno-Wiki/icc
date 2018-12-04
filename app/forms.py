@@ -65,8 +65,9 @@ class AnnotationForm(FlaskForm):
 
     annotation = TextAreaField("Annotation", 
             render_kw={"placeholder":"Type your annotation here.",
-                "style":"width: 700px;"},
-            validators=[InputRequired()])
+                "style":"width: 700px;",
+                "maxlength": 60000},
+            validators=[InputRequired(), Length(min=0,max=60000)])
 
     tags = StringField("Tags", 
             render_kw={"placeholder":"e.g. (explanation freudian reference)",
