@@ -21,6 +21,9 @@ mail = Mail(app)
 elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 
+from .admin import admin
+app.register_blueprint(admin)
+
 # jinja environment variables
 app.jinja_env.globals["round"] = round
 app.jinja_env.globals["vars"] = app.config

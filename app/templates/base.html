@@ -88,27 +88,27 @@
                             {% if current_user.is_authorized(
                                 "view_deactivated_annotations") %}
                                 <a href="{{
-                                    url_for("view_deactivated_annotations") }}">
+                                    url_for("admin.view_deactivated_annotations") }}">
                                     deactivated
                                 </a>
                             {% endif %}
 
                             {% if current_user.is_authorized("review_edits") %}
-                                <a href="{{ url_for("edit_review_queue") }}">
+                                <a href="{{ url_for("admin.edit_review_queue") }}">
                                     edits
                                 </a>
                             {% endif %}
 
                             {% if current_user.is_authorized(
                                 "resolve_user_flags") %}
-                                <a href="{{ url_for("all_user_flags") }}">
+                                <a href="{{ url_for("admin.all_user_flags") }}">
                                     user flags
                                 </a>
                             {% endif %}
 
                             {% if current_user.is_authorized(
                                 "resolve_annotation_flags") %}
-                                <a href="{{ url_for("all_annotation_flags") }}">
+                                <a href="{{ url_for("admin.all_annotation_flags") }}">
                                     annotation flags
                                 </a>
                             {% endif %}

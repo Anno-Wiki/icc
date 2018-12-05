@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="content">
+    {% if edit.rejected == True %}
+        <h1 class="rejected">&#10007; Edit Rejected<h1>
+    {% endif %}
+    <h1>
+        Annotation
+        <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+            [{{ edit.annotation.id }}]
+        </a>
+        of 
+        <a href="{{ url_for("book", book_url=edit.book.url) }}">
+            {{ edit.book.title }}
+        </a>
+    </h1>
+    <h2>Edit #{{ edit.edit_num }}</h2>
+    <em>
+        <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id) }}">
+            version history
+        </a>
+    </em>
+    |
+    <em>
+        <a href="{{ url_for("view_edit", annotation_id=edit.annotation.id,
+            edit_num=edit.previous.edit_num) }}">
+            previous version
+        </a>
+    </em>
+    {% if not edit.current %}
+        |
+        <em>
+            <a href="{{ url_for("rollback", annotation_id=edit.annotation_id,
+                edit_id=edit.id) }}">
+                rollback
+            </a>
+        </em>
+    {% endif %}
+    {% if current_user.is_authenticated
+        and current_user.is_authorized("delete_edits") %}
+        |
+        <em>
+            <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">
+                delete
+            </a>
+        </em>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.is_authorized("review_edits") %}
+        {% if current_user.get_vote(edit) %}
+            <h3>
+                <a href="{{ url_for("rescind", edit_id=edit.id,
+                    next=request.full_path) }}">
+                    rescind your vote
+                </a>
+            </h3>
+        {% elif edit.approved == True or edit.rejected == True %}
+        {% else %}
+            <h3>
+                <a href="{{ url_for("approve", edit_id=edit.id) }}">keep</a>
+                /
+                <a href="{{ url_for("reject", edit_id=edit.id) }}">reject</a>
+            </h3>
+        {% endif %}
+    {% endif %}
+
+    <div class="diff">
+        {% if edit.first_line_num != edit.previous.first_line_num or
+            edit.last_line_num != edit.previous.last_line_num %}
+            <p><em>Line selection changes:</em></p>
+        {% else %}
+            <p><em>Line selection unchanged:</em></p>
+        {% endif %}
+
+        {% for line in context %}
+            {% if line in edit.lines and line in edit.previous.lines %}
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} highlight">
+                    {{ line.line }}
+                </line>
+            {% elif line in edit.lines %}
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} plus">
+                    {{ line.line }}
+                </line>
+            {% elif line in edit.previous.lines %}
+                <span class="linenum">{{ line.line_num }}</span>
+                <line id="{{ line.line_num }}" class="{{ line.label.label }} delta">
+                    {{ line.line }}
+                </line>
+            {% else %}
+                <line id="{{ line.line_num }}" class="{{ line.label.label }}"> 
+                    {{ line.line }}
+                </line>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <br>
+    <p><em>Difference:</em></p>
+    <annotation id="difference">
+        <div class="annotation_head">
+            Annotation
+            <sup>
+                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+                    }}">
+                    [{{ edit.annotation.id }}]
+                </a>
+            </sup>
+            {% if edit.previous.first_line_num == edit.first_line_num and
+                edit.previous.last_line_num == edit.last_line_num %}
+                on
+                <em>
+                    <a href="{{ edit.lines[0].get_url() }}#{{
+                        edit.first_line_num }}">
+                        {%- if edit.first_line_num == edit.last_line_num %}
+                            l.{{ edit.last_line_num }}
+                        {% else -%}
+                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                        {% endif -%}
+                    </a>
+                </em>
+            {% else %}
+                previously on
+                <em>
+                    <a href="{{ edit.previous.lines[0].get_url() }}#{{
+                        edit.previous.first_line_num }}">
+                        {%- if edit.previous.first_line_num ==
+                            edit.previous.last_line_num %}
+                            l.{{ edit.previous.last_line_num }},
+                        {% else %}
+                            ll.{{ edit.previous.first_line_num }}-{{
+                                edit.previous.last_line_num }},
+                        {% endif %}
+                    </a>
+                </em>
+                now on
+                <em>
+                    <a href="{{ edit.lines[0].get_url() }}#{{
+                        edit.first_line_num }}">
+                        {%- if edit.first_line_num == edit.last_line_num %}
+                            l.{{ edit.last_line_num }}
+                        {% else %}
+                            ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                        {% endif %}
+                    </a>
+                </em>
+            {% endif %}
+
+            {% if edit.annotation.locked %}
+                &#128274;
+            {% endif %}
+        </div>
+
+        <div class="annotation_content">
+            <div class="diff">
+                {% for line in diff %}
+                    {% if line.startswith("-") %}
+                        <div class="delta">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith("+") %}
+                        <div class="plus">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith(" ") %}
+                        <div>{{ line|markdown }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <tags>
+            {% for tag in tags %}
+                {% if tag in edit.tags and tag in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag>
+                            {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% elif tag in edit.tags and tag not in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag class="plus">
+                            + {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% elif tag not in edit.tags and tag in edit.previous.tags %}
+                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                        <tag class="delta">
+                            - {{ tag.tag }}
+                        </tag>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </tags>
+
+        <br> 
+
+        <!--annotation authorship-->
+        <em>
+            <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+                }}">
+                annotated
+            </a>
+            by
+        </em>
+        <a href="{{ url_for("user", user_id=edit.annotation.annotator.id) }}">
+            {{ edit.annotation.annotator.displayname }}
+        </a>
+        {{ edit.annotation.added }}
+        <br>
+
+        {% if edit.previous.edit_num != 0 %}
+            <em>
+                <a href="{{ url_for("view_edit", annotation_id=edit.annotation.id,
+                    edit_num=edit.previous.edit_num) }}">
+                    last edited
+                </a>
+                by
+            </em>
+            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
+                {{ edit.previous.editor.displayname }}
+            </a>
+            {{ edit.previous.modified }}
+            <br>
+        {% endif %}
+
+        <em>this time edited by</em>
+        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
+            {{ edit.editor.displayname }}
+        </a>
+        {{ edit.modified }}
+        <br>
+        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+    </annotation>
+    
+    <p><em>New version, edit #{{ edit.edit_num }}:</em></p>
+    <annotation id="e{{ edit.id }}">
+        <div class="annotation_head">
+            Annotation
+            <sup>
+                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+                    [{{ edit.annotation.id }}]
+                </a>
+            </sup>
+                on
+            <em>
+                <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num }}">
+                    {%- if edit.first_line_num == edit.last_line_num %}
+                        l.{{ edit.last_line_num }}
+                    {% else -%}
+                        ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
+                    {% endif -%}
+                </a>
+            </em>
+        </div>
+        <div class="annotation_content">
+            {{ edit.body|markdown }}
+        </div>
+
+        <tags>
+            {% for tag in edit.tags %}
+                <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <tag>
+                        {{ tag.tag }}
+                    </tag>
+                </a>
+            {% endfor %}
+        </tags>
+
+        <br>
+
+        <em>edited by</em>
+        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
+            {{ edit.editor.displayname }}
+        </a>
+        {{ edit.modified }}
+        <br>
+        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+    </annotation>
+    {% if edit.previous.edit_num > 0 %}
+        <p><em>Old version, edit #{{ edit.previous.edit_num }}:</em></p>
+    {% else %}
+        <p><em>Original version:</em></p>
+    {% endif %}
+    <annotation id="e{{ edit.previous.id }}">
+        <div class="annotation_head">
+            Annotation
+            <sup>
+                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+                    [{{ edit.annotation.id }}]
+                </a>
+            </sup>
+                on
+            <em>
+                <a href="{{ edit.previous.lines[0].get_url() }}#{{
+                    edit.previous.first_line_num }}">
+                    {%- if edit.previous.first_line_num ==
+                        edit.previous.last_line_num %}
+                        l.{{ edit.previous.last_line_num }}
+                    {% else -%}
+                        ll.{{ edit.previous.first_line_num }}-{{
+                            edit.previous.last_line_num }}
+                    {% endif -%}
+                </a>
+            </em>
+        </div>
+        <div class="annotation_content">
+            {{ edit.previous.body|markdown }}
+        </div>
+
+        <tags>
+            {% for tag in edit.previous.tags %}
+                <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <tag>
+                        {{ tag.tag }}
+                    </tag>
+                </a>
+            {% endfor %}
+        </tags>
+        <br>
+        {% if edit.previous.edit_num > 0 %}
+            <em>
+                <a href="{{ url_for("view_edit", annotation_id=edit.annotation_id,
+                    edit_num=edit.previous.edit_num) }}">
+                    last edited
+                </a>
+                by
+            </em>
+            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
+                {{ edit.previous.editor.displayname }}
+            </a>
+            {{ edit.previous.modified }}
+            <br>
+            <em>previous edit reason:</em>
+            &nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+        {% else %}
+            <em>
+                <a href="{{ url_for("annotation", annotation_id=edit.annotation_id) }}">
+                    originally annotated
+                </a>
+                by
+            </em>
+            <a href="{{ url_for("user", user_id=edit.annotation.annotator.id) }}">
+                {{ edit.annotation.annotator.displayname }}
+            </a>
+            {{ edit.annotation.added }}
+        {% endif %}
+    </annotation>
+</div>
+{% endblock %}
