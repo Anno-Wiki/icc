@@ -66,7 +66,7 @@ function autocomplete(event) {
 
     } else {
         var request = new XMLHttpRequest();
-        request.open("POST", "/autocomplete/tags/");
+        request.open("POST", "/ajax/autocomplete/tags/");
         request.onload = function () {
             const data = JSON.parse(request.responseText);
             var autocomplete_box = $("#autocomplete");
