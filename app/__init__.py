@@ -23,6 +23,8 @@ elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
 
 from .admin import admin
 app.register_blueprint(admin)
+from .requests import requests
+app.register_blueprint(requests)
 
 # jinja environment variables
 app.jinja_env.globals["round"] = round

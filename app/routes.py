@@ -68,8 +68,7 @@ def index():
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "modified":
         annotations = Annotation.query\
-                .outerjoin(Edit,
-                        and_(Annotation.id==Edit.annotation_id,
+                .outerjoin(Edit, and_(Annotation.id==Edit.annotation_id,
                             Edit.current==True))\
                 .group_by(Annotation.id)\
                 .order_by(Edit.timestamp.desc())\
