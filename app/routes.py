@@ -1,26 +1,18 @@
+import re
+import difflib
 from collections import defaultdict
 from datetime import datetime
-import hashlib
-from flask import render_template, flash, redirect, url_for, request, Markup, \
-        abort, jsonify, g
-from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from sqlalchemy import or_, and_
+
+from flask import render_template, flash, redirect, url_for, request, abort, g
+from flask_login import current_user, login_required
+from sqlalchemy import and_
+
 from app import app, db
-from app.models import User, Book, Author, Line, LineEnum, Annotation, \
-        Edit, Tag, EditVote, Right, Vote, BookRequest, BookRequestVote, \
-        TagRequest, TagRequestVote, UserFlagEnum, AnnotationFlag, Notification, \
-        tags as tags_table, UserFlag, NotificationObject, \
-        AnnotationFlagEnum, classes
-from app.forms import LoginForm, RegistrationForm, AnnotationForm, \
-        LineNumberForm, TagForm, LineForm, BookRequestForm, TagRequestForm, \
-        EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, TextForm,\
-        AreYouSureForm, SearchForm
-from app.email import send_password_reset_email
-from app.funky import preplines, is_filled, generate_next, line_check
-import difflib
-import re
-import time
+from app.models import User, Book, Author, Line, LineEnum, Annotation, Edit,\
+        Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum\
+        tags as tags_table
+from app.forms import AnnotationForm, LineNumberForm, SearchForm
+from app.funky import preplines, generate_next, line_check
 
 @app.before_request
 def before_request():
