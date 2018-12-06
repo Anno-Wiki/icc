@@ -5,7 +5,7 @@ from app import app, db
 from app.models import User, Book, Author, Annotation, Edit, Tag, BookRequest,\
         TagRequest, UserFlagEnum, Notification, NotificationObject,\
         AnnotationFlagEnum
-from app.email import send_password_reset_email
+from app.email.email import send_password_reset_email
 from app.funky import is_filled, generate_next
 from app.forms import AreYouSureForm
 
