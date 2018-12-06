@@ -257,7 +257,7 @@ def mark_user_flag(flag_id):
     current_user.authorize("resolve_user_flags")
     flag = UserFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("admin.user_flags", user_id=flag.user_id))
-    if flag.time.resolved:
+    if flag.time_resolved:
         flag.unresolve()
     else:
         flag.resolve(current_user)

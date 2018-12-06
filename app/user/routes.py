@@ -178,7 +178,7 @@ def edit_profile():
 @login_required
 def delete_profile_check():
     form = AreYouSureForm()
-    redirect_url = generate_next(url_for("user", user_id=current_user.id))
+    redirect_url = generate_next(url_for("user.profile", user_id=current_user.id))
     if form.validate_on_submit():
         current_user.displayname = f"x_user{current_user.id}"
         current_user.email = "{current_user.id}"

@@ -9,7 +9,7 @@ from sqlalchemy import and_
 
 from app import app, db
 from app.models import User, Book, Author, Line, LineEnum, Annotation, Edit,\
-        Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum\
+        Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum,\
         tags as tags_table
 from app.forms import AnnotationForm, LineNumberForm, SearchForm
 from app.funky import preplines, generate_next, line_check

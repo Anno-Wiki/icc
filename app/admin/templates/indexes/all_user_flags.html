@@ -140,28 +140,28 @@
                 </th>
             {% endif %}
 
-            {% if sort == "resolved_at" %}
+            {% if sort == "time_resolved" %}
                 <th class="highlight">
-                    <a href="{{ sorts["resolved_at_invert"] }}">
+                    <a href="{{ sorts["time_resolved_invert"] }}">
                         Resolve Time &#9662;
                     </a>
                 </th>
-            {% elif sort == "resolved_at_invert" %}
+            {% elif sort == "time_resolved_invert" %}
                 <th class="highlight">
-                    <a href="{{ sorts["resolved_at"] }}">
+                    <a href="{{ sorts["time_resolved"] }}">
                         Resolve Time &#9652;
                     </a>
                 </th>
             {% else %}
                 <th>
-                    <a href="{{ sorts["resolved_at"] }}">
+                    <a href="{{ sorts["time_resolved"] }}">
                         Resolve Time
                     </a>
                 </th>
             {% endif %}
         </tr>
         {% for flag in flags %}
-            {% if flag.resolved %}
+            {% if flag.time_resolved %}
             <tr class="read">
             {% else %}
             <tr class="unread">
@@ -169,7 +169,7 @@
                 <td>
                     <a href="{{ url_for("admin.mark_user_flag", flag_id=flag.id,
                         next=request.full_path) }}">
-                        {% if flag.resolved_by %}
+                        {% if flag.time_resolved %}
                             &#10003;
                         {% else %}
                             &#10007;
@@ -193,7 +193,7 @@
                     </a>
                 </td>
                 <td>
-                    {% if flag.resolved_by %}
+                    {% if flag.resolver %}
                         <a href="{{ url_for("user.profile", user_id=flag.resolver.id)
                             }}">
                             {{ flag.resolver.displayname }} </a>
@@ -202,8 +202,8 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if flag.resolved %}
-                        {{ flag.resolved }}
+                    {% if flag.time_resolved %}
+                        {{ flag.time_resolved }}
                     {% endif %}
                 </td>
             </tr>

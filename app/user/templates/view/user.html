@@ -54,13 +54,13 @@
                 {% if current_user.is_authenticated
                     and user in current_user.followed_users %}
                     |
-                    <a href="{{ url_for("follow_user", user_id=user.id,
+                    <a href="{{ url_for("user.follow_user", user_id=user.id,
                         next=request.full_path) }}">
                         unfollow
                     </a>
                 {% else %}
                     |
-                    <a href="{{ url_for("follow_user", user_id=user.id,
+                    <a href="{{ url_for("user.follow_user", user_id=user.id,
                         next=request.full_path) }}">
                         follow
                     </a>
@@ -69,7 +69,7 @@
                 {% if current_user.is_authenticated
                     and current_user.is_authorized("anonymize_users") %}
                     |
-                    <a href="{{ url_for("anonymize_user", user_id=user.id) }}">
+                    <a href="{{ url_for("admin.anonymize_user", user_id=user.id) }}">
                         anonymize
                     </a>
                 {% endif %}
