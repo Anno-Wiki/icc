@@ -1,10 +1,5 @@
 *.py[cod]
 
-# automating link
-populate.sh
-repopulate.sh
-recreate.sh
-
 # C extensions
 *.so
 
