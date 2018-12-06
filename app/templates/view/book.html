@@ -10,13 +10,13 @@
 
 {% if current_user.is_authenticated %}
     {% if book in current_user.followed_books %}
-        | <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> unfollow </a>
+        | <a href="{{ url_for("user.follow_book", book_id=book.id, next=request.full_path) }}"> unfollow </a>
     {% else %}
-        | <a href="{{ url_for("follow_book", book_id=book.id, next=request.full_path) }}"> follow </a>
+        | <a href="{{ url_for("user.follow_book", book_id=book.id, next=request.full_path) }}"> follow </a>
     {% endif %}
 
     {% if current_user.is_authorized("edit_summaries") %}
-        | <a href="{{ url_for("edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
+        | <a href="{{ url_for("admin.edit_summary", book_id=book.id, next=request.full_path) }}">edit</a>
     {% endif %}
 {% endif %}
 

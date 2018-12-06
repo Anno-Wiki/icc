@@ -5,13 +5,13 @@
     <h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
     {% if current_user.is_authenticated and tag in current_user.followed_tags %}
-        <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">unfollow</a>
+        <a href="{{ url_for("user.follow_tag", tag_id=tag.id, next=request.full_path) }}">unfollow</a>
     {% else %}
-        <a href="{{ url_for("follow_tag", tag_id=tag.id, next=request.full_path) }}">follow</a>
+        <a href="{{ url_for("user.follow_tag", tag_id=tag.id, next=request.full_path) }}">follow</a>
     {% endif %}
 
     {% if current_user.is_authenticated and current_user.is_authorized("edit_tags") %}
-        <a href="{{ url_for("edit_tag", tag_id=tag.id) }}">edit</a>
+        <a href="{{ url_for("admin.edit_tag", tag_id=tag.id) }}">edit</a>
     {% endif %}
 
     <br>

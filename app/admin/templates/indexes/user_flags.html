@@ -3,7 +3,7 @@
 {% block content %}
 <h2>
     User
-    <a href="{{ url_for("user", user_id=user.id) }}">
+    <a href="{{ url_for("user.profile", user_id=user.id) }}">
         {{ user.displayname }}
     </a>
     flags
@@ -11,7 +11,7 @@
 
 {% if flags %}
     {% if user.active_flags %}
-        <a href="{{ url_for("mark_user_flags", user_id=user.id,
+        <a href="{{ url_for("admin.mark_user_flags", user_id=user.id,
             next=request.full_path) }}">
             mark all resolved
         </a>
@@ -145,7 +145,7 @@
             <tr class="unread">
             {% endif %}
                 <td>
-                    <a href="{{ url_for("mark_user_flag", flag_id=flag.id,
+                    <a href="{{ url_for("admin.mark_user_flag", flag_id=flag.id,
                         next=request.full_path) }}">
                         {% if flag.resolved_by %}
                             &#10003;
@@ -161,13 +161,13 @@
                     {{ flag.time_thrown }}
                 </td>
                 <td>
-                    <a href="{{ url_for("user", user_id=flag.thrower.id) }}">
+                    <a href="{{ url_for("user.profile", user_id=flag.thrower.id) }}">
                         {{ flag.thrower.displayname }}
                     </a>
                 </td>
                 <td>
                     {% if flag.resolved_by %}
-                        <a href="{{ url_for("user", user_id=flag.resolver.id)
+                        <a href="{{ url_for("user.profile", user_id=flag.resolver.id)
                             }}">
                             {{ flag.resolver.displayname }}
                         </a>

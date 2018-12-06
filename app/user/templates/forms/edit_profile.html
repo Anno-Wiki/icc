@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Profile</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.displayname.label }}<br>
+        {{ form.displayname(size=32) }}<br>
+        {% for error in form.displayname.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.about_me.label }}<br>
+        {{ form.about_me(cols=50, rows=4) }}<br>
+        {% for error in form.about_me.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {{ form.submit() }}
+</form>
+<br><br>
+<p>
+    <a href="{{ url_for("delete_account_check", next=request.path) }}">
+        delete account
+    </a>
+</p>
+{% endblock %}

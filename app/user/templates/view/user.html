@@ -19,12 +19,12 @@
             {% if current_user.is_authenticated
                 and current_user.is_authorized("lock_users") %}
                 {% if user.locked %}
-                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                    <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">
                         unlock
                     </a>
                     |
                 {% else %}
-                    <a href="{{ url_for("lock_user", user_id=user.id) }}">
+                    <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">
                         lock
                     </a>
                     |
@@ -35,7 +35,7 @@
                 <a class="dropbtn">flag&#x25BE;</a>
                 <div class="dropdown-content">
                     {% for userflag in userflags %}
-                        <a href="{{ url_for("flag_user", flag_id=userflag.id,
+                        <a href="{{ url_for("user.flag_user", flag_id=userflag.id,
                             user_id=user.id, next=request.full_path) }}">
                             {{ userflag.flag }}
                         </a>
@@ -46,7 +46,7 @@
             {% if current_user.is_authenticated
                 and current_user.is_authorized("resolve_user_flags") %}
                 |
-                <a href="{{ url_for("user_flags", user_id=user.id) }}">
+                <a href="{{ url_for("admin.user_flags", user_id=user.id) }}">
                     flags
                 </a>
             {% endif %}

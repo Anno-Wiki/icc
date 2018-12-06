@@ -27,6 +27,8 @@ from .requests import requests
 app.register_blueprint(requests)
 from .ajax import ajax
 app.register_blueprint(ajax)
+from .user import user
+app.register_blueprint(user)
 
 # jinja environment variables
 app.jinja_env.globals["round"] = round

@@ -15,7 +15,7 @@
         {% for user in users %}
             <div class="card">
                 <h2>
-                    <a href="{{ url_for("user", user_id=user.id) }}">
+                    <a href="{{ url_for("user.profile", user_id=user.id) }}">
                         {{ user.displayname }}
                     </a>
                     {{ user.readable_reputation() }}
@@ -23,12 +23,12 @@
                 {% if current_user != user %}
                     {% if current_user.is_authenticated and user in
                         current_user.followed_users %}
-                        <a href="{{ url_for("follow_user", user_id=user.id,
+                        <a href="{{ url_for("user.follow_user", user_id=user.id,
                             next=request.full_path) }}">
                             unfollow
                         </a>
                     {% else %}
-                        <a href="{{ url_for("follow_user", user_id=user.id,
+                        <a href="{{ url_for("user.follow_user", user_id=user.id,
                             next=request.full_path) }}">
                             follow
                         </a>
@@ -55,7 +55,7 @@
                     </div>
                 {% endif %}
 
-                <a href="{{ url_for("user", user_id=user.id) }}">View More</a>
+                <a href="{{ url_for("user.profile", user_id=user.id) }}">View More</a>
             </div>
         {% endfor %}
     </div>

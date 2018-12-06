@@ -56,10 +56,10 @@
                 <a href="{{ url_for("tag_index") }}">TAGS</a>
             {% endif %}
             |
-            {% if request.path == url_for("user_index") %}
-                <a href="{{ url_for("user_index") }}" class="active">USERS</a>
+            {% if request.path == url_for("user.index") %}
+                <a href="{{ url_for("user.index") }}" class="active">USERS</a>
             {% else %}
-                <a href="{{ url_for("user_index") }}">USERS</a>
+                <a href="{{ url_for("user.index") }}">USERS</a>
             {% endif %}
 
         {% if g.search_form %}
@@ -73,8 +73,8 @@
 
         <div class="user_info">
             {%- if current_user.is_anonymous -%}
-                <a href="{{ url_for("register") }}">register</a>
-                <a href="{{ url_for("login") }}">login</a>
+                <a href="{{ url_for("user.register") }}">register</a>
+                <a href="{{ url_for("user.login") }}">login</a>
             {%- else %}
                 {% if current_user.is_authorized("view_deactivated_annotations") 
                     or current_user.is_authorized("review_edits")
@@ -117,27 +117,27 @@
                 {% endif %}
 
                 {% if current_user.notifications.filter_by(seen=False).all() %}
-                    <a href="{{ url_for("inbox") }}" class="new_messages">
+                    <a href="{{ url_for("user.inbox") }}" class="new_messages">
                         (unread messages)
                     </a>
                 {% endif %}
 
                 <div class="dropdown">
-                    <a href="{{ url_for("user", user_id=current_user.id) }}"
+                    <a href="{{ url_for("user.profile") }}"
                         class="dropbtn">
                         {{ current_user.displayname }}&#x25BE;
                     </a>
                     <div class="dropdown-content">
-                        <a href="{{ url_for("inbox") }}">inbox</a>
-                        <a href="{{ url_for("user", user_id=current_user.id) }}">
+                        <a href="{{ url_for("user.inbox") }}">inbox</a>
+                        <a href="{{ url_for("user.profile") }}">
                             profile
                         </a>
-                        <a href="{{ url_for("edit_profile") }}">edit profile</a>
+                        <a href="{{ url_for("user.edit_profile") }}">edit profile</a>
                     </div>
                 </div>
                 {{ current_user.readable_reputation() }}
 
-                | <a href="{{ url_for("logout") }}">logout</a>
+                | <a href="{{ url_for("user.logout") }}">logout</a>
 
                 <!--endif user is authenticated-->
             {%- endif %}

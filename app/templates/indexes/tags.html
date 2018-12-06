@@ -4,7 +4,7 @@
 <h1>Tags</h1>
 <h4>
     Don't see what you're looking for? Upvote it among our
-    <a href="{{ url_for("tag_request_index") }}">
+    <a href="{{ url_for("requests.tag_request_index") }}">
         tag requests.
     </a>
 </h4>
@@ -27,12 +27,12 @@ sort by:
             <br>
             {% if current_user.is_authenticated
                 and tag in current_user.followed_tags %}
-                <a href="{{ url_for("follow_tag", tag_id=tag.id,
+                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
                     next=request.full_path) }}">
                     unfollow
                 </a>
             {% else %}
-                <a href="{{ url_for("follow_tag", tag_id=tag.id,
+                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
                     next=request.full_path) }}">
                     follow
                 </a>

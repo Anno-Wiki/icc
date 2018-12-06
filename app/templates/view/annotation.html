@@ -77,12 +77,12 @@
             {% if current_user != annotation.annotator %}
                 {% if current_user.is_authenticated and annotation in
                     current_user.followed_annotations %}
-                    | <a href="{{ url_for("follow_annotation",
+                    | <a href="{{ url_for("user.follow_annotation",
                         annotation_id=annotation.id, next=request.full_path) }}">
                         unfollow
                     </a>
                 {% else %}
-                    | <a href="{{ url_for("follow_annotation",
+                    | <a href="{{ url_for("user.follow_annotation",
                         annotation_id=annotation.id, next=request.full_path) }}">
                         follow
                     </a>
@@ -95,7 +95,7 @@
                     edit_num=annotation.HEAD.edit_num) }}">
                     annotated by
                 </a>
-                <a href="{{ url_for("user", user_id=annotation.annotator.id) }}">
+                <a href="{{ url_for("user.profile", user_id=annotation.annotator.id) }}">
                     {{ annotation.annotator.displayname }}
                 </a>
                 <strong>{{ annotation.annotator.readable_reputation() }}</strong>
@@ -106,7 +106,7 @@
                     last edited
                 </a>
                 by
-                <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
+                <a href="{{ url_for("user.profile", user_id=annotation.HEAD.editor.id) }}">
                     {{ annotation.HEAD.editor.displayname }}
                 </a>
                 <strong>
@@ -147,7 +147,7 @@
         {% if current_user.is_authenticated %}
             <!--view all flags-->
             {% if current_user.is_authorized("resolve_annotation_flags") %}
-                | <a href="{{ url_for("annotation_flags",
+                | <a href="{{ url_for("admin.annotation_flags",
                     annotation_id=annotation.id) }}">
                     flags
                 </a>
@@ -164,12 +164,12 @@
 
             {% if current_user.is_authorized("deactivate_annotations") %}
                 {% if annotation.active %}
-                    | <a href="{{ url_for("deactivate", annotation_id=annotation.id,
+                    | <a href="{{ url_for("admin.deactivate", annotation_id=annotation.id,
                         next=request.full_path) }}">
                         deactivate
                     </a>
                 {% else %}
-                    | <a href="{{ url_for("deactivate", annotation_id=annotation.id,
+                    | <a href="{{ url_for("admin.deactivate", annotation_id=annotation.id,
                         next=request.full_path) }}">
                          reactivate
                     </a>
@@ -177,7 +177,7 @@
             {% endif %}
             {% if current_user.is_authorized("delete_annotations") %}
                 |
-                <a href="{{ url_for("delete_annotation",
+                <a href="{{ url_for("admin.delete_annotation",
                     annotation_id=annotation.id)
                     }}">
                     delete

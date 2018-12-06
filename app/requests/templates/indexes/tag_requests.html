@@ -4,7 +4,7 @@
 
 <h1>Tag Requests</h1>
 {% if current_user.is_authenticated %}
-    {% if current_user.is_authorized("create_tags") %}
+    {% if current_user.is_authorized("request_tags") %}
         <h4>
             Don't see what you’re looking for?
             <a href="{{ url_for("tag_request") }}">Try requesting it</a>.
@@ -18,7 +18,7 @@
     {% if current_user.is_authorized("create_tags") %}
         <h4>
             You have the appropriate permissions to
-            <a href="{{ url_for("create_tag") }}">create a tag</a>.
+            <a href="{{ url_for("admin.create_tag") }}">create a tag</a>.
         </h4>
     {% endif %}
 {% endif %}

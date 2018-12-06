@@ -14,7 +14,7 @@
 </h2>
 
 {% if flags %}
-    <a href="{{ url_for("mark_annotation_flags", annotation_id=annotation.id)
+    <a href="{{ url_for("admin.mark_annotation_flags", annotation_id=annotation.id)
         }}">
         mark all resolved
     </a>
@@ -147,7 +147,7 @@
             {% endif %}
 
                 <td>
-                    <a href="{{ url_for("mark_annotation_flag", flag_id=flag.id,
+                    <a href="{{ url_for("admin.mark_annotation_flag", flag_id=flag.id,
                         next=request.full_path) }}">
                         {% if flag.resolved_by %}
                             &#10003;
@@ -163,13 +163,13 @@
                     {{ flag.time_thrown }}
                 </td>
                 <td>
-                    <a href="{{ url_for("user", user_id=flag.thrower.id) }}">
+                    <a href="{{ url_for("user.profile", user_id=flag.thrower.id) }}">
                         {{ flag.thrower.displayname }}
                     </a>
                 </td>
                 <td>
                     {% if flag.resolved_by %}
-                        <a href="{{ url_for("user", user_id=flag.resolver.id)
+                        <a href="{{ url_for("user.profile", user_id=flag.resolver.id)
                             }}">
                             {{ flag.resolver.displayname }}
                         </a>

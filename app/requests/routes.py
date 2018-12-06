@@ -1,41 +1,11 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
+
 from app import app, db
-from . import requests
 from app.models import BookRequest, BookRequestVote, TagRequest, TagRequestVote
-from app.forms import BookRequestForm, TagRequestForm
 
-###################
-## Follow Routes ##
-###################
-
-@requests.route("/book/<book_request_id>/follow")
-@login_required
-def follow_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    redirect_url = generate_next(url_for("requests.view_book_request",
-        book_request_id=book_request.id))
-    if book_request.approved:
-        flash("You cannot follow a book request that has already been approved.")
-    if book_request in current_user.followed_book_requests:
-        current_user.followed_book_requests.remove(book_request)
-    else:
-        current_user.followed_book_requests.append(book_request)
-    db.session.commit()
-    return redirect(redirect_url)
-
-@requests.route("/tag/<tag_request_id>/follow")
-@login_required
-def follow_tag_request(tag_request_id):
-    tag_request = TagRequest.query.get_or_404(tag_request_id)
-    redirect_url = generate_next(url_for("requests.view_tag_request",
-        tag_request_id=tag_request.id))
-    if tag_request in current_user.followed_tag_requests:
-        current_user.followed_tag_requests.remove(tag_request)
-    else:
-        current_user.followed_tag_requests.append(tag_request)
-    db.session.commit()
-    return redirect(redirect_url)
+from app.requests import requests
+from app.requests.forms import BookRequestForm, TagRequestForm
 
 #################
 ## List Routes ##

@@ -1,14 +1,18 @@
+import re
+
 from flask import render_template, flash, redirect, url_for, request, abort,\
         Blueprint
 from flask_login import current_user, login_required
 from sqlalchemy import and_
+
 from app import app, db
-from . import admin
-from app.models import User, Book, Author, Line, Annotation, Edit, Tag,\
-        EditVote, BookRequest, TagRequest, UserFlag, AnnotationFlagEnum
-from app.forms import TagForm, LineForm, TextForm, AreYouSureForm
 from app.funky import generate_next
-import re
+from app.forms import AreYouSureForm
+from app.models import User, Book, Author, Line, Annotation, Edit, Tag,\
+        EditVote, BookRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
+        AnnotationFlag
+from app.admin import admin
+from app.admin.forms import TagForm, LineForm, TextForm
 
 #################
 ## User Routes ##
@@ -103,11 +107,11 @@ def all_user_flags():
                 .outerjoin(User, User.id==UserFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at":
+    elif sort == "time_resolved":
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at_invert":
+    elif sort == "time_resolved_invert":
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
@@ -137,8 +141,8 @@ def all_user_flags():
             "thrower_invert": url_for("admin.all_user_flags", sort="thrower_invert", page=page),
             "resolver": url_for("admin.all_user_flags", sort="resolver", page=page),
             "resolver_invert": url_for("admin.all_user_flags", sort="resolver_invert", page=page),
-            "resolved_at": url_for("admin.all_user_flags", sort="resolved_at", page=page),
-            "resolved_at_invert": url_for("admin.all_user_flags", sort="resolved_at_invert", page=page),
+            "time_resolved": url_for("admin.all_user_flags", sort="time_resolved", page=page),
+            "time_resolved_invert": url_for("admin.all_user_flags", sort="time_resolved_invert", page=page),
             "user": url_for("admin.all_user_flags", sort="user", page=page),
             "user_invert": url_for("admin.all_user_flags", sort="user_invert", page=page),
             }
@@ -210,11 +214,11 @@ def user_flags(user_id):
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
 
-    elif sort == "resolved_at":
+    elif sort == "time_resolved":
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at_invert":
+    elif sort == "time_resolved_invert":
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
@@ -235,8 +239,8 @@ def user_flags(user_id):
             "thrower_invert": url_for("admin.user_flags", user_id=user.id, sort="thrower_invert", page=page),
             "resolver": url_for("admin.user_flags", user_id=user.id, sort="resolver", page=page),
             "resolver_invert": url_for("admin.user_flags", user_id=user.id, sort="resolver_invert", page=page),
-            "resolved_at": url_for("admin.user_flags", user_id=user.id, sort="resolved_at", page=page),
-            "resolved_at_invert": url_for("admin.user_flags", user_id=user.id, sort="resolved_at_invert", page=page),
+            "time_resolved": url_for("admin.user_flags", user_id=user.id, sort="time_resolved", page=page),
+            "time_resolved_invert": url_for("admin.user_flags", user_id=user.id, sort="time_resolved_invert", page=page),
             }
 
     next_page = url_for("admin.user_flags", user_id=user.id, page=flags.next_num,
@@ -253,7 +257,7 @@ def mark_user_flag(flag_id):
     current_user.authorize("resolve_user_flags")
     flag = UserFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("admin.user_flags", user_id=flag.user_id))
-    if flag.resolved:
+    if flag.time.resolved:
         flag.unresolve()
     else:
         flag.resolve(current_user)
@@ -377,11 +381,11 @@ def all_annotation_flags():
                 .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at":
+    elif sort == "time_resolved":
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at_invert":
+    elif sort == "time_resolved_invert":
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
@@ -416,8 +420,8 @@ def all_annotation_flags():
             "thrower_invert": url_for("admin.all_annotation_flags", sort="thrower_invert", page=page),
             "resolver": url_for("admin.all_annotation_flags", sort="resolver", page=page),
             "resolver_invert": url_for("admin.all_annotation_flags", sort="resolver_invert", page=page),
-            "resolved_at": url_for("admin.all_annotation_flags", sort="resolved_at", page=page),
-            "resolved_at_invert": url_for("admin.all_annotation_flags", sort="resolved_at_invert", page=page),
+            "time_resolved": url_for("admin.all_annotation_flags", sort="time_resolved", page=page),
+            "time_resolved_invert": url_for("admin.all_annotation_flags", sort="time_resolved_invert", page=page),
             "annotation": url_for("admin.all_annotation_flags", sort="annotation", page=page),
             "annotation_invert": url_for("admin.all_annotation_flags", sort="annotation_invert", page=page),
             "book": url_for("admin.all_annotation_flags", sort="book", page=page),
@@ -488,11 +492,11 @@ def annotation_flags(annotation_id):
                 .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at":
+    elif sort == "time_resolved":
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "resolved_at_invert":
+    elif sort == "time_resolved_invert":
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
@@ -512,8 +516,8 @@ def annotation_flags(annotation_id):
             "thrower_invert": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="thrower_invert", page=page),
             "resolver": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="resolver", page=page),
             "resolver_invert": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="resolver_invert", page=page),
-            "resolved_at": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="resolved_at", page=page),
-            "resolved_at_invert": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="resolved_at_invert", page=page),
+            "time_resolved": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="time_resolved", page=page),
+            "time_resolved_invert": url_for("admin.annotation_flags", annotation_id=annotation.id, sort="time_resolved_invert", page=page),
             }
 
     next_page = url_for("admin.annotation_flags", annotation_id=annotation.id,
@@ -532,7 +536,7 @@ def mark_annotation_flag(flag_id):
     flag = AnnotationFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("admin.annotation_flags",
         annotation_id=flag.annotation_id))
-    if flag.resolved:
+    if flag.time_resolved:
         flag.unresolve()
     else:
         flag.resolve(current_user)

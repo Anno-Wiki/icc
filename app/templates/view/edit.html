@@ -41,7 +41,7 @@
         and current_user.is_authorized("delete_edits") %}
         |
         <em>
-            <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">
+            <a href="{{ url_for("admin.delete_edit", edit_id=edit.id) }}">
                 delete
             </a>
         </em>
@@ -50,7 +50,7 @@
     {% if current_user.is_authenticated and current_user.is_authorized("review_edits") %}
         {% if current_user.get_vote(edit) %}
             <h3>
-                <a href="{{ url_for("rescind", edit_id=edit.id,
+                <a href="{{ url_for("admin.rescind", edit_id=edit.id,
                     next=request.full_path) }}">
                     rescind your vote
                 </a>
@@ -58,9 +58,9 @@
         {% elif edit.approved == True or edit.rejected == True %}
         {% else %}
             <h3>
-                <a href="{{ url_for("approve", edit_id=edit.id) }}">keep</a>
+                <a href="{{ url_for("admin.approve", edit_id=edit.id) }}">keep</a>
                 /
-                <a href="{{ url_for("reject", edit_id=edit.id) }}">reject</a>
+                <a href="{{ url_for("admin.reject", edit_id=edit.id) }}">reject</a>
             </h3>
         {% endif %}
     {% endif %}
@@ -200,7 +200,7 @@
             </a>
             by
         </em>
-        <a href="{{ url_for("user", user_id=edit.annotation.annotator.id) }}">
+        <a href="{{ url_for("user.profile", user_id=edit.annotation.annotator.id) }}">
             {{ edit.annotation.annotator.displayname }}
         </a>
         {{ edit.annotation.added }}
@@ -214,7 +214,7 @@
                 </a>
                 by
             </em>
-            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
+            <a href="{{ url_for("user.profile", user_id=edit.previous.editor.id) }}">
                 {{ edit.previous.editor.displayname }}
             </a>
             {{ edit.previous.modified }}
@@ -222,7 +222,7 @@
         {% endif %}
 
         <em>this time edited by</em>
-        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
+        <a href="{{ url_for("user.profile", user_id=edit.editor.id) }}">
             {{ edit.editor.displayname }}
         </a>
         {{ edit.modified }}
@@ -267,7 +267,7 @@
         <br>
 
         <em>edited by</em>
-        <a href="{{ url_for("user", user_id=edit.editor.id) }}">
+        <a href="{{ url_for("user.profile", user_id=edit.editor.id) }}">
             {{ edit.editor.displayname }}
         </a>
         {{ edit.modified }}
@@ -323,7 +323,7 @@
                 </a>
                 by
             </em>
-            <a href="{{ url_for("user", user_id=edit.previous.editor.id) }}">
+            <a href="{{ url_for("user.profile", user_id=edit.previous.editor.id) }}">
                 {{ edit.previous.editor.displayname }}
             </a>
             {{ edit.previous.modified }}
@@ -337,7 +337,7 @@
                 </a>
                 by
             </em>
-            <a href="{{ url_for("user", user_id=edit.annotation.annotator.id) }}">
+            <a href="{{ url_for("user.profile", user_id=edit.annotation.annotator.id) }}">
                 {{ edit.annotation.annotator.displayname }}
             </a>
             {{ edit.annotation.added }}

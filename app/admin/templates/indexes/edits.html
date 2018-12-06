@@ -7,21 +7,21 @@
     <tr class="header">
         {% if sort == "voted" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="voted_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="voted_invert",
                     page=page) }}">
                     &#9662;
                 </a>
             </td>
         {% elif sort =="voted_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="voted",
+                <a href="{{ url_for("admin.edit_review_queue", sort="voted",
                     page=page) }}">
                     &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="voted",
+                <a href="{{ url_for("admin.edit_review_queue", sort="voted",
                     page=page) }}">
                     &nbsp;
                 </a>
@@ -30,21 +30,21 @@
 
         {% if sort == "id" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="id_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="id_invert",
                     page=page) }}">
                     Annotation &#9662;
                 </a>
             </td>
         {% elif sort =="id_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue",
+                <a href="{{ url_for("admin.edit_review_queue",
                     sort="id", page=page) }}">
                     Annotation &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="id", page=page)
+                <a href="{{ url_for("admin.edit_review_queue", sort="id", page=page)
                     }}">
                     Annotation
                 </a>
@@ -53,21 +53,21 @@
 
         {% if sort == "edit_num" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="edit_num_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="edit_num_invert",
                     page=page) }}">
                     Edit Number &#9662;
                 </a>
             </td>
         {% elif sort =="id_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="edit_num",
+                <a href="{{ url_for("admin.edit_review_queue", sort="edit_num",
                     page=page) }}">
                     Edit Number &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="edit_num",
+                <a href="{{ url_for("admin.edit_review_queue", sort="edit_num",
                     page=page) }}">
                     Edit Number
                 </a>
@@ -76,21 +76,21 @@
 
         {% if sort == "editor" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="editor_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="editor_invert",
                     page=page) }}">
                     Editor &#9662;
                 </a>
             </td>
         {% elif sort =="editor_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="editor",
+                <a href="{{ url_for("admin.edit_review_queue", sort="editor",
                     page=page) }}">
                     Editor &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="editor",
+                <a href="{{ url_for("admin.edit_review_queue", sort="editor",
                     page=page) }}">
                     Editor
                 </a>
@@ -99,21 +99,21 @@
 
         {% if sort == "time" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="time_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="time_invert",
                     page=page) }}">
                     Time &#9662;
                 </a>
             </td>
         {% elif sort =="time_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="time", page=page)
+                <a href="{{ url_for("admin.edit_review_queue", sort="time", page=page)
                     }}">
                     Time &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="time", page=page) }}">
+                <a href="{{ url_for("admin.edit_review_queue", sort="time", page=page) }}">
                     Time
                 </a>
             </td>
@@ -121,21 +121,21 @@
 
         {% if sort == "reason" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="reason_invert",
+                <a href="{{ url_for("admin.edit_review_queue", sort="reason_invert",
                     page=page) }}">
                     Reason &#9662;
                 </a>
             </td>
         {% elif sort =="reason_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_review_queue", sort="reason",
+                <a href="{{ url_for("admin.edit_review_queue", sort="reason",
                     page=page) }}">
                     Reason &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_review_queue", sort="reason",
+                <a href="{{ url_for("admin.edit_review_queue", sort="reason",
                     page=page) }}">
                     Reason
                 </a>
@@ -148,7 +148,7 @@
             {% if edit not in votes %}
                 <tr class="unread">
                     <td>
-                        <a href="{{ url_for("review_edit", edit_id=edit.id) }}">
+                        <a href="{{ url_for("admin.review_edit", edit_id=edit.id) }}">
                             view
                         </a>
                     </td>

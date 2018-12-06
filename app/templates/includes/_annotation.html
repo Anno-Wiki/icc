@@ -68,7 +68,7 @@
             annotated
         </a>
         by
-        <a href="{{ url_for("user", user_id=annotation.annotator.id) }}">
+        <a href="{{ url_for("user.profile", user_id=annotation.annotator.id) }}">
             {{ annotation.annotator.displayname }}
         </a>
         <strong>{{ annotation.annotator.readable_reputation() }}</strong>
@@ -78,7 +78,7 @@
             edit_num=annotation.HEAD.edit_num) }}">
             last edited
         </a>
-        by <a href="{{ url_for("user", user_id=annotation.HEAD.editor.id) }}">
+        by <a href="{{ url_for("user.profile", user_id=annotation.HEAD.editor.id) }}">
             {{ annotation.HEAD.editor.displayname }}
         </a>
         <strong>{{ annotation.HEAD.editor.readable_reputation() }}</strong>
@@ -116,12 +116,12 @@
     {% if annotation.annotator != current_user %}
         {% if current_user.is_authenticated and annotation in
             current_user.followed_annotations %}
-            | <a href="{{ url_for("follow_annotation",
+            | <a href="{{ url_for("user.follow_annotation",
                 annotation_id=annotation.id, next=request.full_path) }}">
                 unfollow
             </a>
         {% else %}
-            | <a href="{{ url_for("follow_annotation",
+            | <a href="{{ url_for("user.follow_annotation",
                 annotation_id=annotation.id, next=request.full_path) }}">
                 follow
             </a>
