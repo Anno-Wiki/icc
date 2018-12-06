@@ -1,78 +1,16 @@
 
-ID Age P Project Tags                  Due        Description               Urg
--- --- - ------- --------------------- ---------- ------------------------- ----
-62 1d  H web     structure             2018-12-08 Design tests (I mean,     14.1
-                                                  c'mon, dude, this is
-                                                  ridiculous)
-70 14h H web     structure             2018-12-08 create blueprint system     14
-                                                  to break up routes and
-                                                  models (they are too
-                                                  massive)
-53 8d  H web     feature               2018-12-31 view all items followed   10.2
-                                                  view so it can be edited
-55 6d  H web     structure             2018-12-31 convert books to texts    10.2
-                                                  and create edition system
-56 6d  H web     structure             2018-12-31 convert authors to        10.2
-                                                  writers and give
-                                                  translator editor and
-                                                  author attributes
-57 6d  H web     feature               2018-12-31 comments on annotations   10.2
-                                                  for discussion
-59 3d  H web     feature               2018-12-31 view annotations per line 10.2
-                                                  from search
-61 2d  H web     structure             2018-12-31 convert chapter hierarchy 10.2
-                                                  and emphasis status to
-                                                  many-to-many line
-                                                  attribute system
-63 1d  H web     feature               2018-12-31 reputation                10.2
-                                                  history.monthly system
-64 1d  M web     expansion             2018-12-31 notifications of book     8.11
-                                                  request approval
-65 1d  M web     expansion             2038-01-18 notifications of new      8.11
-                                                  books on authors
-66 1d  M web     expansion             2038-01-18 notifications of tag      8.11
-                                                  request approval
-67 1d  M web     expansion             2038-01-18 notification of new       8.11
-                                                  annotations on everything
-68 1d  M web     bug                   2038-01-18 remove all notifications  8.11
-                                                  during annotation
-                                                  deletion
-69 1d  M web     bug                   2038-01-18 remove all notifications  8.11
-                                                  during edit deletion
-54 8d  H web     feature                          verifications             7.84
-60 3d  H web     feature                          search annotation text    7.82
-71 14h H web     feature                          make annotation flags      7.8
-                                                  public and make only
-                                                  resolvable by admins and
-                                                  make only one flag at a
-                                                  time
-10 6w  M web     layout                           Add css rule for          5.96
-                                                  quotations
-51 8d  M web     improvement                      improve pagination        5.74
-52 8d  M web     tweak                            separate user annotations 5.74
-                                                  to new page
-72 14h M web     feature                          Modify tag system for      5.7
-                                                  user specific tags for
-                                                  commentary purposes
-73 14h M web     feature                          Locked tags (should be     5.7
-                                                  called locked) should be
-                                                  required and uneditable
-                                                  and allowable if already
-                                                  present, regardless of
-                                                  edit, unless special
-                                                  admin privilege
-74 14h M web     feature                          Create groups for easy     5.7
-                                                  admin privilege granting
- 3 3mo L web     AJAX JS feature                  Write javascript for      4.38
-                                                  popup annotations on read
-                                                  view.
- 2 3mo L web     JS feature                       write javascript for pe   4.32
-                                                  char-level annotation
-11 6w  L web     feature investigation            see about tag             3.94
-                                                  intersection
-12 2w  L web     layout                           Re do css and layout      3.69
-58 3d  L web     bug                              why don't tags entries    3.62
-                                                  cascade delete from the
-                                                  system but do from mysql?
+|ID|Age  |P|Project|Tag      |Due|Description                                                                         |Urg
+|--|-----|-|-------|---------|---|------------------------------------------------------------------------------------|----
+|62|4d   |H|web    |structure|3d |Design tests (I mean, c'mon, dude, this is ridiculous)                              |15.2
+|78|21min|H|web    |structure|3d |modularize search                                                                   |15.2
+|79|21min|H|web    |structure|3d |modularize email                                                                    |15.2
+|53|11d  |H|web    |feature  |3w |view all items followed view so it can be edited                                    |10.3
+|55|9d   |H|web    |structure|3w |convert books to texts and create edition system                                    |10.2
+|56|9d   |H|web    |structure|3w |convert authors to writers and give translator editor and author attributes         |10.2
+|57|9d   |H|web    |feature  |3w |comments on annotations for discussion                                              |10.2
+|59|5d   |H|web    |feature  |3w |view annotations per line from search                                               |10.2
+|61|5d   |H|web    |structure|3w |convert chapter hierarchy and emphasis status to many-to-many line attribute system |10.2
+|63|4d   |H|web    |feature  |3w |reputation history page                                                             |10.2
+|74|2d   |H|web    |feature  |3w |comments need starring for conclusions to                                           |10.2
 
-29 tasks
+34 tasks, truncated to 17 lines
