@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a80d15cec3bd
+Revision ID: f89d44bda4b5
 Revises: 
-Create Date: 2018-12-01 14:46:51.876847
+Create Date: 2018-12-08 14:35:36.157241
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a80d15cec3bd'
+revision = 'f89d44bda4b5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,25 +23,11 @@ def upgrade():
     sa.Column('flag', sa.String(length=127), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('author',
+    op.create_table('connection_enum',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('first_name', sa.String(length=128), nullable=True),
-    sa.Column('last_name', sa.String(length=128), nullable=True),
-    sa.Column('url', sa.String(length=128), nullable=True),
-    sa.Column('birth_date', sa.Date(), nullable=True),
-    sa.Column('death_date', sa.Date(), nullable=True),
-    sa.Column('bio', sa.Text(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('type', sa.String(length=128), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_author_birth_date'), 'author', ['birth_date'], unique=False)
-    op.create_index(op.f('ix_author_death_date'), 'author', ['death_date'], unique=False)
-    op.create_index(op.f('ix_author_first_name'), 'author', ['first_name'], unique=False)
-    op.create_index(op.f('ix_author_last_name'), 'author', ['last_name'], unique=False)
-    op.create_index(op.f('ix_author_name'), 'author', ['name'], unique=False)
-    op.create_index(op.f('ix_author_timestamp'), 'author', ['timestamp'], unique=False)
-    op.create_index(op.f('ix_author_url'), 'author', ['url'], unique=False)
     op.create_table('line_enum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('label', sa.String(length=12), nullable=True),
@@ -73,11 +59,22 @@ def upgrade():
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('tag', sa.String(length=128), nullable=True),
-    sa.Column('admin', sa.Boolean(), nullable=True),
+    sa.Column('locked', sa.Boolean(), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tag_tag'), 'tag', ['tag'], unique=True)
+    op.create_table('text',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=128), nullable=True),
+    sa.Column('sort_title', sa.String(length=128), nullable=True),
+    sa.Column('summary', sa.Text(), nullable=True),
+    sa.Column('published', sa.Date(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_text_sort_title'), 'text', ['sort_title'], unique=False)
+    op.create_index(op.f('ix_text_title'), 'text', ['title'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('displayname', sa.String(length=64), nullable=True),
@@ -96,33 +93,69 @@ def upgrade():
     sa.Column('flag', sa.String(length=127), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('author_followers',
-    sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['author.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('book',
+    op.create_table('writer',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=128), nullable=True),
-    sa.Column('sort_title', sa.String(length=128), nullable=True),
-    sa.Column('url', sa.String(length=128), nullable=True),
-    sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('summary', sa.Text(), nullable=True),
-    sa.Column('published', sa.Date(), nullable=True),
+    sa.Column('name', sa.String(length=128), nullable=True),
+    sa.Column('last_name', sa.String(length=128), nullable=True),
+    sa.Column('birth_date', sa.Date(), nullable=True),
+    sa.Column('death_date', sa.Date(), nullable=True),
+    sa.Column('bio', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['author.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_book_author_id'), 'book', ['author_id'], unique=False)
-    op.create_index(op.f('ix_book_sort_title'), 'book', ['sort_title'], unique=False)
-    op.create_index(op.f('ix_book_title'), 'book', ['title'], unique=False)
-    op.create_index(op.f('ix_book_url'), 'book', ['url'], unique=False)
+    op.create_index(op.f('ix_writer_birth_date'), 'writer', ['birth_date'], unique=False)
+    op.create_index(op.f('ix_writer_death_date'), 'writer', ['death_date'], unique=False)
+    op.create_index(op.f('ix_writer_last_name'), 'writer', ['last_name'], unique=False)
+    op.create_index(op.f('ix_writer_name'), 'writer', ['name'], unique=False)
+    op.create_index(op.f('ix_writer_timestamp'), 'writer', ['timestamp'], unique=False)
+    op.create_table('authors',
+    sa.Column('writer_id', sa.Integer(), nullable=True),
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], )
+    )
+    op.create_table('book_request',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=127), nullable=True),
+    sa.Column('authors', sa.String(length=127), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('approved', sa.Boolean(), nullable=True),
+    sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('wikipedia', sa.String(length=127), nullable=True),
+    sa.Column('gutenberg', sa.String(length=127), nullable=True),
+    sa.Column('requester_id', sa.Integer(), nullable=True),
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_book_request_approved'), 'book_request', ['approved'], unique=False)
+    op.create_index(op.f('ix_book_request_authors'), 'book_request', ['authors'], unique=False)
+    op.create_index(op.f('ix_book_request_rejected'), 'book_request', ['rejected'], unique=False)
+    op.create_index(op.f('ix_book_request_requester_id'), 'book_request', ['requester_id'], unique=False)
+    op.create_index(op.f('ix_book_request_text_id'), 'book_request', ['text_id'], unique=False)
+    op.create_index(op.f('ix_book_request_timestamp'), 'book_request', ['timestamp'], unique=False)
+    op.create_index(op.f('ix_book_request_title'), 'book_request', ['title'], unique=False)
+    op.create_index(op.f('ix_book_request_weight'), 'book_request', ['weight'], unique=False)
     op.create_table('conferred_rights',
     sa.Column('right_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
+    op.create_table('edition',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('edition_num', sa.Integer(), nullable=True),
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.Column('primary', sa.Boolean(), nullable=True),
+    sa.Column('history', sa.Text(), nullable=True),
+    sa.Column('published', sa.DateTime(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('notification_object',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -173,6 +206,12 @@ def upgrade():
     op.create_index(op.f('ix_tag_request_tag_id'), 'tag_request', ['tag_id'], unique=False)
     op.create_index(op.f('ix_tag_request_timestamp'), 'tag_request', ['timestamp'], unique=False)
     op.create_index(op.f('ix_tag_request_weight'), 'tag_request', ['weight'], unique=False)
+    op.create_table('text_followers',
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
     op.create_table('user_flag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_flag_id', sa.Integer(), nullable=True),
@@ -197,57 +236,49 @@ def upgrade():
     sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['follower_id'], ['user.id'], )
     )
+    op.create_table('writer_followers',
+    sa.Column('writer_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], )
+    )
     op.create_table('annotation',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('annotator_id', sa.Integer(), nullable=True),
-    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('locked', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['annotator_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_annotation_annotator_id'), 'annotation', ['annotator_id'], unique=False)
-    op.create_index(op.f('ix_annotation_book_id'), 'annotation', ['book_id'], unique=False)
+    op.create_index(op.f('ix_annotation_edition_id'), 'annotation', ['edition_id'], unique=False)
     op.create_index(op.f('ix_annotation_locked'), 'annotation', ['locked'], unique=False)
     op.create_index(op.f('ix_annotation_timestamp'), 'annotation', ['timestamp'], unique=False)
-    op.create_table('book_followers',
-    sa.Column('book_id', sa.Integer(), nullable=True),
+    op.create_table('book_request_followers',
+    sa.Column('book_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['book_request_id'], ['book_request.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('book_request',
+    op.create_table('book_request_vote',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=127), nullable=True),
-    sa.Column('author', sa.String(length=127), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
-    sa.Column('approved', sa.Boolean(), nullable=True),
-    sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('wikipedia', sa.String(length=127), nullable=True),
-    sa.Column('gutenberg', sa.String(length=127), nullable=True),
-    sa.Column('requester_id', sa.Integer(), nullable=True),
-    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('book_request_id', sa.Integer(), nullable=True),
+    sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
-    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['book_request_id'], ['book_request.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_book_request_approved'), 'book_request', ['approved'], unique=False)
-    op.create_index(op.f('ix_book_request_author'), 'book_request', ['author'], unique=False)
-    op.create_index(op.f('ix_book_request_book_id'), 'book_request', ['book_id'], unique=False)
-    op.create_index(op.f('ix_book_request_rejected'), 'book_request', ['rejected'], unique=False)
-    op.create_index(op.f('ix_book_request_requester_id'), 'book_request', ['requester_id'], unique=False)
-    op.create_index(op.f('ix_book_request_timestamp'), 'book_request', ['timestamp'], unique=False)
-    op.create_index(op.f('ix_book_request_title'), 'book_request', ['title'], unique=False)
-    op.create_index(op.f('ix_book_request_weight'), 'book_request', ['weight'], unique=False)
+    op.create_index(op.f('ix_book_request_vote_book_request_id'), 'book_request_vote', ['book_request_id'], unique=False)
+    op.create_index(op.f('ix_book_request_vote_user_id'), 'book_request_vote', ['user_id'], unique=False)
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('book_id', sa.Integer(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('line_num', sa.Integer(), nullable=True),
     sa.Column('label_id', sa.Integer(), nullable=True),
     sa.Column('lvl1', sa.Integer(), nullable=True),
@@ -256,12 +287,12 @@ def upgrade():
     sa.Column('lvl4', sa.Integer(), nullable=True),
     sa.Column('em_id', sa.Integer(), nullable=True),
     sa.Column('line', sa.String(length=200), nullable=True),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['em_id'], ['line_enum.id'], ),
     sa.ForeignKeyConstraint(['label_id'], ['line_enum.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_line_book_id'), 'line', ['book_id'], unique=False)
+    op.create_index(op.f('ix_line_edition_id'), 'line', ['edition_id'], unique=False)
     op.create_index(op.f('ix_line_em_id'), 'line', ['em_id'], unique=False)
     op.create_index(op.f('ix_line_label_id'), 'line', ['label_id'], unique=False)
     op.create_index(op.f('ix_line_line_num'), 'line', ['line_num'], unique=False)
@@ -296,6 +327,16 @@ def upgrade():
     )
     op.create_index(op.f('ix_tag_request_vote_tag_request_id'), 'tag_request_vote', ['tag_request_id'], unique=False)
     op.create_index(op.f('ix_tag_request_vote_user_id'), 'tag_request_vote', ['user_id'], unique=False)
+    op.create_table('writer_edition_connection',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('writer_id', sa.Integer(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
+    sa.ForeignKeyConstraint(['enum_id'], ['connection_enum.id'], ),
+    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('annotation_flag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('annotation_flag_id', sa.Integer(), nullable=True),
@@ -320,35 +361,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('book_request_followers',
-    sa.Column('book_request_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['book_request_id'], ['book_request.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('book_request_vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('book_request_id', sa.Integer(), nullable=True),
-    sa.Column('delta', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['book_request_id'], ['book_request.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_book_request_vote_book_request_id'), 'book_request_vote', ['book_request_id'], unique=False)
-    op.create_index(op.f('ix_book_request_vote_user_id'), 'book_request_vote', ['user_id'], unique=False)
     op.create_table('edit',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=True),
+    sa.Column('edit_num', sa.Integer(), nullable=True),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
     sa.Column('current', sa.Boolean(), nullable=True),
     sa.Column('hash_id', sa.String(length=40), nullable=True),
-    sa.Column('edit_num', sa.Integer(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
@@ -357,7 +379,6 @@ def upgrade():
     sa.Column('edit_reason', sa.String(length=255), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.line_num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.line_num'], ),
@@ -365,7 +386,6 @@ def upgrade():
     )
     op.create_index(op.f('ix_edit_annotation_id'), 'edit', ['annotation_id'], unique=False)
     op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
-    op.create_index(op.f('ix_edit_book_id'), 'edit', ['book_id'], unique=False)
     op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
     op.create_index(op.f('ix_edit_editor_id'), 'edit', ['editor_id'], unique=False)
     op.create_index(op.f('ix_edit_hash_id'), 'edit', ['hash_id'], unique=False)
@@ -424,20 +444,16 @@ def downgrade():
     op.drop_index(op.f('ix_edit_hash_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_editor_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_current'), table_name='edit')
-    op.drop_index(op.f('ix_edit_book_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')
     op.drop_index(op.f('ix_edit_annotation_id'), table_name='edit')
     op.drop_table('edit')
-    op.drop_index(op.f('ix_book_request_vote_user_id'), table_name='book_request_vote')
-    op.drop_index(op.f('ix_book_request_vote_book_request_id'), table_name='book_request_vote')
-    op.drop_table('book_request_vote')
-    op.drop_table('book_request_followers')
     op.drop_table('annotation_followers')
     op.drop_index(op.f('ix_annotation_flag_thrower_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_resolver_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_annotation_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_annotation_flag_id'), table_name='annotation_flag')
     op.drop_table('annotation_flag')
+    op.drop_table('writer_edition_connection')
     op.drop_index(op.f('ix_tag_request_vote_user_id'), table_name='tag_request_vote')
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
@@ -450,29 +466,25 @@ def downgrade():
     op.drop_index(op.f('ix_line_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_label_id'), table_name='line')
     op.drop_index(op.f('ix_line_em_id'), table_name='line')
-    op.drop_index(op.f('ix_line_book_id'), table_name='line')
+    op.drop_index(op.f('ix_line_edition_id'), table_name='line')
     op.drop_table('line')
-    op.drop_index(op.f('ix_book_request_weight'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_title'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_timestamp'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_requester_id'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_rejected'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_book_id'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_author'), table_name='book_request')
-    op.drop_index(op.f('ix_book_request_approved'), table_name='book_request')
-    op.drop_table('book_request')
-    op.drop_table('book_followers')
+    op.drop_index(op.f('ix_book_request_vote_user_id'), table_name='book_request_vote')
+    op.drop_index(op.f('ix_book_request_vote_book_request_id'), table_name='book_request_vote')
+    op.drop_table('book_request_vote')
+    op.drop_table('book_request_followers')
     op.drop_index(op.f('ix_annotation_timestamp'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
-    op.drop_index(op.f('ix_annotation_book_id'), table_name='annotation')
+    op.drop_index(op.f('ix_annotation_edition_id'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
+    op.drop_table('writer_followers')
     op.drop_table('user_followers')
     op.drop_index(op.f('ix_user_flag_user_id'), table_name='user_flag')
     op.drop_index(op.f('ix_user_flag_user_flag_id'), table_name='user_flag')
     op.drop_index(op.f('ix_user_flag_thrower_id'), table_name='user_flag')
     op.drop_index(op.f('ix_user_flag_resolver_id'), table_name='user_flag')
     op.drop_table('user_flag')
+    op.drop_table('text_followers')
     op.drop_index(op.f('ix_tag_request_weight'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_timestamp'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_tag_id'), table_name='tag_request')
@@ -484,17 +496,31 @@ def downgrade():
     op.drop_table('tag_followers')
     op.drop_table('reputation_change')
     op.drop_table('notification_object')
+    op.drop_table('edition')
     op.drop_table('conferred_rights')
-    op.drop_index(op.f('ix_book_url'), table_name='book')
-    op.drop_index(op.f('ix_book_title'), table_name='book')
-    op.drop_index(op.f('ix_book_sort_title'), table_name='book')
-    op.drop_index(op.f('ix_book_author_id'), table_name='book')
-    op.drop_table('book')
-    op.drop_table('author_followers')
+    op.drop_index(op.f('ix_book_request_weight'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_title'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_timestamp'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_text_id'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_requester_id'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_rejected'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_authors'), table_name='book_request')
+    op.drop_index(op.f('ix_book_request_approved'), table_name='book_request')
+    op.drop_table('book_request')
+    op.drop_table('authors')
+    op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
+    op.drop_index(op.f('ix_writer_name'), table_name='writer')
+    op.drop_index(op.f('ix_writer_last_name'), table_name='writer')
+    op.drop_index(op.f('ix_writer_death_date'), table_name='writer')
+    op.drop_index(op.f('ix_writer_birth_date'), table_name='writer')
+    op.drop_table('writer')
     op.drop_table('user_flag_enum')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_index(op.f('ix_user_displayname'), table_name='user')
     op.drop_table('user')
+    op.drop_index(op.f('ix_text_title'), table_name='text')
+    op.drop_index(op.f('ix_text_sort_title'), table_name='text')
+    op.drop_table('text')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
     op.drop_index(op.f('ix_right_right'), table_name='right')
@@ -503,13 +529,6 @@ def downgrade():
     op.drop_table('notification_enum')
     op.drop_index(op.f('ix_line_enum_label'), table_name='line_enum')
     op.drop_table('line_enum')
-    op.drop_index(op.f('ix_author_url'), table_name='author')
-    op.drop_index(op.f('ix_author_timestamp'), table_name='author')
-    op.drop_index(op.f('ix_author_name'), table_name='author')
-    op.drop_index(op.f('ix_author_last_name'), table_name='author')
-    op.drop_index(op.f('ix_author_first_name'), table_name='author')
-    op.drop_index(op.f('ix_author_death_date'), table_name='author')
-    op.drop_index(op.f('ix_author_birth_date'), table_name='author')
-    op.drop_table('author')
+    op.drop_table('connection_enum')
     op.drop_table('annotation_flag_enum')
     # ### end Alembic commands ###

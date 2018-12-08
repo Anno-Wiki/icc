@@ -1,5 +1,5 @@
 from app import app, db, elasticsearch
-from app.models import Right, User, Vote, EditVote, Book, Author, Line, \
+from app.models import Right, User, Vote, EditVote, Text, Writer, Line, \
     LineEnum, Tag, Annotation, Edit, BookRequest, BookRequestVote, \
     UserFlagEnum, UserFlag, AnnotationFlagEnum, AnnotationFlag, \
     TagRequest, TagRequestVote, ReputationChange, ReputationEnum, \

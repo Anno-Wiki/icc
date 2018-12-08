@@ -1,0 +1,9 @@
+source connection_enums.sql
+source flags.sql
+source line_enums.sql
+source notification_enums.sql
+source reputation_enums.sql
+source rights.sql
+source tags.sql
+source texts.sql
+source writers.sql

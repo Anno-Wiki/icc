@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if current_user.notifications.filter_by(seen=False).all() %}
+    <a href="{{ url_for("mark_all_read") }}">mark all read</a>
+{% endif %}
+<table class="inbox">
+    <tr class="header">
+        <th>
+            {{ column1 }}
+        </th>
+    </tr>
+
+    {% if not followings %}
+        <tr>
+            <td> 
+                You aren't following any {{ type }} yet.
+            </td>
+        </tr>
+    {% endif %}
+
+    {% for f in followings %}
+    <tr>
+        <td>
+            <a href="{{ f.unfollow_url }}">
+                &times;&nbsp;&nbsp;
+            </a>
+            <a href="{{ f.url }}">
+                {{ f.name }}
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

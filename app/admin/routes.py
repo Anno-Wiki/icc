@@ -8,7 +8,7 @@ from sqlalchemy import and_
 from app import app, db
 from app.funky import generate_next
 from app.forms import AreYouSureForm
-from app.models import User, Book, Author, Line, Annotation, Edit, Tag,\
+from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
         EditVote, BookRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
         AnnotationFlag
 from app.admin import admin

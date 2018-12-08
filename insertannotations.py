@@ -1,13 +1,13 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
-from app.models import Book, Line, User, Annotation, Edit, Tag
+from app.models import Line, User, Annotation, Edit, Tag, Edition
 import sys
 import codecs
 import argparse
 
 parser = argparse.ArgumentParser("Process icc .anno file into the database.")
-parser.add_argument("-b", "--book", action="store", type=int, required=True,
-        help="The book id")
+parser.add_argument("-e", "--edition_id", action="store", type=int, required=True,
+        help="The edition id.")
 parser.add_argument("-a", "--author", action="store", type=str, required=True,
         help="The name of the annotator in the form of a tag (i.e., no spaces)")
 parser.add_argument("-d", "--dryrun", action="store_true",
@@ -24,8 +24,8 @@ Hi,
 
 I’m not a real person. I’m an account used to author annotations by non-members,
 such as the authors of the books hosted on Annopedia.  An example would be the
-annotations provided by [Constance Garnett](https://en.wikipedia.org/wiki/War_and_Peace)
-in her translations of classic Russian literature like War and Peace.
+annotations provided by [[Writer:Constance Garnett]] in her translations of
+classic Russian literature like [[Text:War and Peace]].
 
 The original author of the annotations will always be tagged with a special tag
 that will be locked to users.
@@ -47,7 +47,8 @@ author_tag = Tag.query.filter_by(tag=args.author).first()
 
 if author_tag == None:
     author_tag = Tag(tag=args.author,
-        description=f"Original annotations from {args.author}.", admin=True)
+            description=f"Original annotations from [[Writer:{args.author}]]",
+            locked=True)
     if not args.dryrun:
         db.session.add(author_tag)
         db.session.commit()
@@ -67,11 +68,10 @@ for line in fin:
 
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(book_id=args.book, annotator=user, locked=True)
+    head = Annotation(edition_id=args.edition_id, annotator=user, locked=True)
 
     commit = Edit(
-            annotation=head, approved=True, current=True, 
-            book_id=args.book, editor=user,
+            annotation=head, approved=True, current=True, editor=user,
             first_line_num=l.line_num, last_line_num=l.line_num,
             first_char_idx=0, last_char_idx=-1,
             body=fields[0], tags=tags,
@@ -91,7 +91,7 @@ if not args.dryrun:
     print("Now committing...")
     db.session.commit()
     print("Committed, now reindexing.")
-    Annotation.reindex(book_id=args.book)
+    Annotation.reindex(edition_id=args.edition_id)
     print("Done.")
 else:
     print(f"{cnt} annotations created.")

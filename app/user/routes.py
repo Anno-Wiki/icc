@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 
 from app import app, db
-from app.models import User, Book, Author, Annotation, Edit, Tag, BookRequest,\
+from app.models import User, Text, Writer, Annotation, Edit, Tag, BookRequest,\
         TagRequest, UserFlagEnum, Notification, NotificationObject,\
         AnnotationFlagEnum
 from app.email.email import send_password_reset_email
@@ -341,12 +341,33 @@ def reset_password(token):
 ## follow routes ##
 ###################
 
+@user.route("/follow/list/users")
+@login_required
+def users_followed_idx():
+    followings = current_user.followed_users.all()
+    for f in followings:
+        f.url = url_for("user.profile", user_id=f.id)
+        f.name = f.displayname
+        f.unfollow_url = url_for("user.follow_user", user_id=f.id)
+    return render_template("indexes/followings.html", title="Followed Users",
+            followings=followings, type="users", column1="Display Name")
+
+@user.route("/follow/list/authors")
+@login_required
+def authors_followed_idx():
+    followings = current_user.followed_authors.all()
+    for f in followings:
+        f.url = url_for("author", name=f.url)
+        f.unfollow_url = url_for("user.follow_author", author_id=f.id)
+    return render_template("indexes/followings.html", title="Followed Authors",
+            followings=followings, type="authors", column1="Name")
+
 # follow user
 @user.route("/follow/user/<user_id>/")
 @login_required
 def follow_user(user_id):
     user = User.query.get_or_404(user_id)
-    redirect_url = url_for("user.profile", user_id=user.id)
+    redirect_url = generate_next(url_for("user.profile", user_id=user.id))
     if user == current_user:
         flash("You can't follow yourself.")
         redirect(redirect_url)
