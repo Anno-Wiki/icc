@@ -11,6 +11,6 @@ INSERT INTO notification_enum (code, public_code, entity_type, notification,
     ("edit_rejected",
         "Edit rejected",
         "EditVote",
-        "Edit #{} on [{}] of _{}_ by {}",
+        "Suggested edit #{} on [{}] of _{}_ by {}",
         "edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name")
     ;

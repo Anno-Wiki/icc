@@ -1,21 +1,8 @@
-insert into author (name, first_name, last_name, url, birth_date, death_date,
-    timestamp, bio) values
+INSERT INTO writer (name, last_name, birth_date, death_date, timestamp, bio)
+    VALUES
 
-('Various', 'Various', 'Various', 'various', '0000-00-00', '0000-00-00', NOW(),
-'For use as author on books by multiple writers, e.g., the King James Bible'),
-
-
-
-('Anonymous', 'Anonymous', 'Anonymous', 'anonymous', '0000-00-00', '0000-00-00',
-    NOW(),
-'For use as author on books by Anonymous authors, e.g., lyrical poetry by
-the troubadours.'),
-
-
-
-('Joseph Conrad', 'Joseph', 'Conrad', 'joseph_conrad', '1857-12-03',
-    '1924-08-03', NOW(),
-'Joseph Conrad (born Józef Teodor Konrad Korzeniowski; 3 December 1857 – 3
+("Joseph Conrad", "Conrad", "1857-12-03", "1924-08-03", NOW(),
+"Joseph Conrad (born Józef Teodor Konrad Korzeniowski; 3 December 1857 – 3
 August 1924) was a Polish-British writer regarded as one of the greatest
 novelists to write in the English language. Though he did not speak English
 fluently until his twenties, he was a master prose stylist who brought a
@@ -34,13 +21,12 @@ Writing near the peak of the British Empire, Conrad drew, among other things,
 on his native Poland’s national experiences and on his own experiences in the
 French and British merchant navies, to create short stories and novels that
 reflect aspects of a European-dominated world—including imperialism and
-colonialism—and that profoundly explore the human psyche.'),
+colonialism—and that profoundly explore the human psyche."),
 
 
 
-('William Shakespeare', 'William', 'Shakespeare', 'william_shakespeare',
-    '1564-04-26', '1616-04-23', NOW(),
-'William Shakespeare (26 April 1564 (baptised) – 23 April 1616) was an English
+("William Shakespeare", "Shakespeare", "1564-04-26", "1616-04-23", NOW(),
+"William Shakespeare (26 April 1564 (baptised) – 23 April 1616) was an English
 poet, playwright and actor, widely regarded as both the greatest writer in the
 English language and the world’s pre-eminent dramatist. He is often called
 England’s national poet and the “Bard of Avon”. His extant works, including
@@ -82,13 +68,12 @@ Throughout the 20th and 21st centuries, Shakespeare’s works have been
 continually adapted and rediscovered by new movements in scholarship and
 performance. His plays remain highly popular and are constantly studied,
 performed, and reinterpreted through various cultural and political contexts
-around the world.'),
+around the world."),
 
 
 
-('Charles Dickens', 'Charles', 'Dickens', 'charles_dickens', '1812-02-07',
-    '1870-06-09', NOW(),
-'Charles John Huffam Dickens (7 February 1812 – 9 June 1870) was an English
+("Charles Dickens", "Dickens", "1812-02-07", "1870-06-09", NOW(),
+"Charles John Huffam Dickens (7 February 1812 – 9 June 1870) was an English
 writer and social critic. He created some of the world’s best-known fictional
 characters and is regarded by many as the greatest novelist of the Victorian
 era. His works enjoyed unprecedented popularity during his lifetime, and by the
@@ -130,13 +115,11 @@ criticism. On the other hand, Oscar Wilde, Henry James, and Virginia Woolf
 complained of a lack of psychological depth, loose writing, and a vein of
 saccharine sentimentalism. The term Dickensian is used to describe something
 that is reminiscent of Dickens and his writings, such as poor social conditions
-or comically repulsive characters.'),
+or comically repulsive characters."),
 
 
-
-('Arthur Conan Doyle', 'Arthur', 'Doyle', 'arthur_conan_doyle', '1859-05-22',
-    '1930-07-07', NOW(),
-'Sir Arthur Ignatius Conan Doyle KStJ DL (22 May 1859 – 7 July 1930) was a
+("Arthur Conan Doyle", "Doyle", "1859-05-22", "1930-07-07", NOW(),
+"Sir Arthur Ignatius Conan Doyle KStJ DL (22 May 1859 – 7 July 1930) was a
 British writer best known for his detective fiction featuring the character
 Sherlock Holmes. Originally a physician, in 1887 he published A Study in
 Scarlet, the first of four novels about Holmes and Dr. Watson. In addition,
@@ -149,13 +132,12 @@ science fiction stories about Professor Challenger and humorous stories about
 the Napoleonic soldier Brigadier Gerard, as well as plays, romances, poetry,
 non-fiction and historical novels. One of Doyle’s early short stories, “J.
 Habakuk Jephson’s Statement”, helped to popularise the mystery of the Mary
-Celeste.'),
+Celeste."),
 
 
 
-('Leo Tolstoy', 'Leo', 'Tolstoy', 'leo_tolstoy', '1828-09-09', '1910-11-20',
-    NOW(),
-'Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28 August] 1828 –
+("Leo Tolstoy", "Tolstoy", "1828-09-09", "1910-11-20", NOW(),
+"Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28 August] 1828 –
 20 November [O.S. 7 November] 1910), usually referred to in English as Leo
 Tolstoy, was a Russian writer who is regarded as one of the greatest authors of
 all time.
@@ -178,12 +160,12 @@ resistance, expressed in such works as The Kingdom of God Is Within You (1894),
 were to have a profound impact on such pivotal 20th-century figures as Mohandas
 Karamchand Gandhi, and Martin Luther King, Jr. Tolstoy also became a dedicated
 advocate of Georgism, the economic philosophy of Henry George, which he
-incorporated into his writing, particularly Resurrection (1899).'),
+incorporated into his writing, particularly Resurrection (1899)."),
 
 
 
-('Fyodor Dostoevsky', 'Fyodor', 'Dostoevsky', 'fyodor_dostoevsky', '1821-11-11', '1881-02-09', NOW(),
-'Fyodor Mikhailovich Dostoevsky (11 November 1821 – 9 February 1881), sometimes
+("Fyodor Dostoevsky", "Dostoevsky", "1821-11-11", "1881-02-09", NOW(),
+"Fyodor Mikhailovich Dostoevsky (11 November 1821 – 9 February 1881), sometimes
 transliterated Dostoyevsky, was a Russian novelist, short story writer,
 essayist, journalist and philosopher. Dostoevsky’s literary works explore human
 psychology in the troubled political, social, and spiritual atmospheres of
@@ -220,13 +202,12 @@ Bakunin, Sand, Hoffmann, and Mickiewicz. His writings were widely read both
 within and beyond his native Russia and influenced an equally great number of
 later writers including Russians like Aleksandr Solzhenitsyn and Anton Chekhov
 as well as philosophers such as Friedrich Nietzsche and Jean-Paul Sartre. His
-books have been translated into more than 170 languages.'),
+books have been translated into more than 170 languages."),
 
 
 
-('Lewis Carroll', 'Lewis', 'Carroll', 'lewis_carroll', '1832-01-27',
-    '1898-01-14', NOW(),
-'Charles Lutwidge Dodgson (27 January 1832 – 14 January 1898), better known by
+("Lewis Carroll", "Carroll", "1832-01-27", "1898-01-14", NOW(),
+"Charles Lutwidge Dodgson (27 January 1832 – 14 January 1898), better known by
 his pen name Lewis Carroll, was an English writer of world-famous children’s
 fiction, notably Alice’s Adventures in Wonderland and its sequel Through the
 Looking-Glass. He was noted for his facility at word play, logic and fantasy.
@@ -243,13 +224,10 @@ though Carroll always denied this.
 Several aspects of Carroll’s life appear to strengthen suspicions that he was a
 pedophile, though scholars have also made a credible case in his defence. In
 the absence of hard evidence, the issue of Carroll’s hidden private life has
-provoked a lively debate, especially in recent times.'),
+provoked a lively debate, especially in recent times."),
 
-
-
-('Alexandre Dumas', 'Alexandre', 'Dumas', 'alexandre_dumas', '1802-07-24',
-    '1870-12-05', NOW(),
-'Alexandre Dumas (born Dumas Davy de la Pailleterie; 24 July 1802 – 5 December
+("Alexandre Dumas", "Dumas", "1802-07-24", "1870-12-05", NOW(),
+"Alexandre Dumas (born Dumas Davy de la Pailleterie; 24 July 1802 – 5 December
 1870), also known as Alexandre Dumas père (French for ‘father’), was a French
 writer. His works have been translated into many languages, and he is one of
 the most widely read French authors. Many of his historical novels of high
@@ -296,11 +274,10 @@ The English playwright Watts Phillips, who knew Dumas in his later life,
 described him as “the most generous, large-hearted being in the world. He also
 was the most delightfully amusing and egotistical creature on the face of the
 earth. His tongue was like a windmill – once set in motion, you never knew when
-he would stop, especially if the theme was himself.”'),
+he would stop, especially if the theme was himself.”"),
 
-('James Joyce', 'James', 'Joyce', 'james_joyce', '1882-02-02', '1941-01-13',
-    NOW(),
-'James Augustine Aloysius Joyce (2 February 1882 – 13 January 1941) was an Irish
+("James Joyce", "Joyce", "1882-02-02", "1941-01-13", NOW(),
+"James Augustine Aloysius Joyce (2 February 1882 – 13 January 1941) was an Irish
 novelist, short story writer, and poet. He contributed to the modernist
 avant-garde and is regarded as one of the most influential and important
 authors of the 20th century. Joyce is best known for Ulysses (1922), a landmark
@@ -326,4 +303,11 @@ particular is set with precision in the streets and alleyways of the city.
 Shortly after the publication of Ulysses, he elucidated this preoccupation
 somewhat, saying, “For myself, I always write about Dublin, because if I can
 get to the heart of Dublin I can get to the heart of all the cities of the
-world. In the particular is contained the universal.”');
+world. In the particular is contained the universal.”"),
+
+("Constance Garnett", "Garnett", "1861-12-19", "1946-12-17", NOW(),
+"Constance Clara Garnett (née Black; 19 December 1861 – 17 December 1946) was an
+English translator of nineteenth-century Russian literature. Garnett was one of
+the first English translators of Leo Tolstoy, Fyodor Dostoyevsky and Anton
+Chekhov and introduced them on a wide basis to the English-speaking public.")
+;
