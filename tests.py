@@ -5,7 +5,7 @@ from app import app, db
 from app.models import *
 
 class MyTest(unittest.TestCase):
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
     ELASTICSEARCH_URL = None
     TESTING = True
 
@@ -27,6 +27,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(u.avatar(128), 
                 ("https://www.gravatar.com/avatar/d4c74594d841139328695756648b6"
                 "bd6?d=identicon&s=128"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,7 +3,7 @@ from app.models import Right, User, Vote, EditVote, Text, Writer, Line, \
     LineEnum, Tag, Annotation, Edit, BookRequest, BookRequestVote, \
     UserFlagEnum, UserFlag, AnnotationFlagEnum, AnnotationFlag, \
     TagRequest, TagRequestVote, ReputationChange, ReputationEnum, \
-    Notification, NotificationEnum, NotificationObject
+    Notification, NotificationEnum, NotificationObject, Edition
 
 @app.shell_context_processor
 def make_shell_context():
@@ -19,7 +19,7 @@ def make_shell_context():
 
             "Vote": Vote, "EditVote": EditVote,
 
-            "Book": Book, "Author": Author,
+            "Text": Text, "Edition": Edition, "Writer": Writer,
             "BookRequest": BookRequest, "BookRequestVote": BookRequestVote,
 
             "Line": Line, "LineEnum": LineEnum, 
