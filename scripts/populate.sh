@@ -21,16 +21,20 @@ sudo mysql icc < $DIR/sql/texts.sql
 echo "populating writers..."
 sudo mysql icc < $DIR/sql/writers.sql
 
+
+echo "running last sql commands..."
+sudo mysql icc < $DIR/sql/last.sql
+
 echo "creating default users..."
 $DIR/../createdefaultusers.py -p $1
 
 echo "populating lines for Heart of Darkness by Joseph Conrad..."
 cat $DIR/../../data/hod/HeartofDarknessbyJosephConrad.icc | \
-    $DIR/../insertlines.py -t 1
+    $DIR/../insertlines.py -t 1 -p
 
 echo "populating lines for War and Peace by Leo Tolstoy"
 cat $DIR/../../data/wap/WarandPeacebygrafLeoTolstoy.icc | \
-    $DIR/../insertlines.py -t 2 -w "Constance Garnett(Translator)"
+    $DIR/../insertlines.py -t 2 -p -w "Constance Garnett(Translator)"
 
 echo "adding annotations for War and Peace by Constance Garnett..."
 cat $DIR/../../data/wap/WarandPeacebygrafLeoTolstoy.anno | \

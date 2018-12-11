@@ -2,150 +2,150 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
 
 from app import app, db
-from app.models import BookRequest, BookRequestVote, TagRequest, TagRequestVote
+from app.models import TextRequest, TextRequestVote, TagRequest, TagRequestVote
 
 from app.requests import requests
-from app.requests.forms import BookRequestForm, TagRequestForm
+from app.requests.forms import TextRequestForm, TagRequestForm
 
 #################
 ## List Routes ##
 #################
 
-@requests.route("book/list")
-def book_request_index():
+@requests.route("text/list")
+def text_request_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     if sort == "oldest":
-        book_requests = BookRequest.query\
-                .order_by(BookRequest.requested.asc())\
+        text_requests = TextRequest.query\
+                .order_by(TextRequest.requested.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        book_requests = BookRequest.query\
-                .order_by(BookRequest.requested.desc())\
+        text_requests = TextRequest.query\
+                .order_by(TextRequest.requested.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
-        book_requests = BookRequest.query\
-                .order_by(BookRequest.weight.desc())\
+        text_requests = TextRequest.query\
+                .order_by(TextRequest.weight.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "title":
-        requests = BookRequest.query\
-                .order_by(BookRequest.title.asc())\
+        requests = TextRequest.query\
+                .order_by(TextRequest.title.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
-        book_requests = BookRequest.query\
-                .order_by(BookRequest.author.asc())\
+        text_requests = TextRequest.query\
+                .order_by(TextRequest.author.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        book_requests = BookRequest.query\
-                .order_by(BookRequest.weight.desc())\
+        text_requests = TextRequest.query\
+                .order_by(TextRequest.weight.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
-            "oldest": url_for("requests.book_request_index", sort="oldest", page=page),
-            "newest": url_for("requests.book_request_index", sort="newest", page=page),
-            "weight": url_for("requests.book_request_index", sort="weight", page=page),
-            "title": url_for("requests.book_request_index", sort="title", page=page),
-            "author": url_for("requests.book_request_index", sort="author", page=page)
+            "oldest": url_for("requests.text_request_index", sort="oldest", page=page),
+            "newest": url_for("requests.text_request_index", sort="newest", page=page),
+            "weight": url_for("requests.text_request_index", sort="weight", page=page),
+            "title": url_for("requests.text_request_index", sort="title", page=page),
+            "author": url_for("requests.text_request_index", sort="author", page=page)
             }
 
-    next_page = url_for("requests.book_request_index", page=book_requests.next_num,
-            sort=sort) if book_requests.has_next else None
-    prev_page = url_for("requests.book_request_index", page=book_requests.prev_num,
-            sort=sort) if book_requests.has_prev else None
-    uservotes = current_user.get_book_request_vote_dict() \
+    next_page = url_for("requests.text_request_index", page=text_requests.next_num,
+            sort=sort) if text_requests.has_next else None
+    prev_page = url_for("requests.text_request_index", page=text_requests.prev_num,
+            sort=sort) if text_requests.has_prev else None
+    uservotes = current_user.get_text_request_vote_dict() \
             if current_user.is_authenticated else None
-    return render_template("indexes/book_requests.html", title="Book Requests",
+    return render_template("indexes/text_requests.html", title="Book Requests",
             next_page=next_page, prev_page=prev_page,
-            book_requests=book_requests.items,
+            text_requests=text_requests.items,
             uservotes=uservotes, sort=sort, sorts=sorts)
 
-@requests.route("/book/<book_request_id>")
-def view_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    return render_template("view/book_request.html", book_request=book_request)
+@requests.route("/text/<text_request_id>")
+def view_text_request(text_request_id):
+    text_request = TextRequest.query.get_or_404(text_request_id)
+    return render_template("view/text_request.html", text_request=text_request)
 
-@requests.route("/book/create", methods=["GET", "POST"])
+@requests.route("/text/create", methods=["GET", "POST"])
 @login_required
-def book_request():
-    current_user.authorize("request_books")
-    form = BookRequestForm()
+def text_request():
+    current_user.authorize("request_texts")
+    form = TextRequestForm()
     if form.validate_on_submit():
-        book_request = BookRequest(title=form.title.data,
+        text_request = TextRequest(title=form.title.data,
                 author=form.author.data, notes=form.notes.data,
                 description=form.description.data,
                 wikipedia=form.wikipedia.data, gutenberg=form.gutenberg.data,
                 requester=current_user,
                 weight=0)
-        db.session.add(book_request)
-        book_request.upvote(current_user)
-        current_user.followed_book_requests.append(book_request)
+        db.session.add(text_request)
+        text_request.upvote(current_user)
+        current_user.followed_text_requests.append(text_request)
         db.session.commit()
         flash("Book request created.")
-        flash(f"You have upvoted the request for {book_request.title}.")
-        flash("You are now following the request for {book_request.title}.")
-        return redirect(url_for("book_request_index"))
-    return render_template("forms/book_request.html", title="Request Book",
+        flash(f"You have upvoted the request for {text_request.title}.")
+        flash("You are now following the request for {text_request.title}.")
+        return redirect(url_for("text_request_index"))
+    return render_template("forms/text_request.html", title="Request Book",
             form=form)
 
-@requests.route("/book/<book_request_id>/edit", methods=["GET", "POST"])
+@requests.route("/text/<text_request_id>/edit", methods=["GET", "POST"])
 @login_required
-def edit_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    if current_user != book_request.requester:
-        current_user.authorize("edit_book_requests")
-    form = BookRequestForm()
+def edit_text_request(text_request_id):
+    text_request = TextRequest.query.get_or_404(text_request_id)
+    if current_user != text_request.requester:
+        current_user.authorize("edit_text_requests")
+    form = TextRequestForm()
     if form.validate_on_submit():
-        book_request.title = form.title.data
-        book_request.author = form.author.data
-        book_request.notes = form.notes.data
-        book_request.description = form.description.data
-        book_request.wikipedia = form.wikipedia.data
-        book_request.gutenberg = form.gutenberg.data
+        text_request.title = form.title.data
+        text_request.author = form.author.data
+        text_request.notes = form.notes.data
+        text_request.description = form.description.data
+        text_request.wikipedia = form.wikipedia.data
+        text_request.gutenberg = form.gutenberg.data
         db.session.commit()
         flash("Book request edit complete.")
-        return redirect(url_for("requests.view_book_request",
-            book_request_id=book_request_id))
+        return redirect(url_for("requests.view_text_request",
+            text_request_id=text_request_id))
     else:
-        form.title.data = book_request.title
-        form.author.data = book_request.author
-        form.notes.data = book_request.notes
-        form.description.data = book_request.description
-        form.wikipedia.data = book_request.wikipedia
-        form.gutenberg.data = book_request.gutenberg
-    return render_template("forms/book_request.html", title="Edit Book Request",
+        form.title.data = text_request.title
+        form.author.data = text_request.author
+        form.notes.data = text_request.notes
+        form.description.data = text_request.description
+        form.wikipedia.data = text_request.wikipedia
+        form.gutenberg.data = text_request.gutenberg
+    return render_template("forms/text_request.html", title="Edit Book Request",
             form=form)
 
-@requests.route("/book/<book_request_id>/upvote")
+@requests.route("/text/<text_request_id>/upvote")
 @login_required
-def upvote_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    redirect_url = generate_next(url_for("requests.book_request_index"))
-    if current_user.already_voted_book_request(book_request):
-        vote = current_user.book_request_ballots.filter(
-                BookRequestVote.book_request==book_request).first()
+def upvote_text_request(text_request_id):
+    text_request = TextRequest.query.get_or_404(text_request_id)
+    redirect_url = generate_next(url_for("requests.text_request_index"))
+    if current_user.already_voted_text_request(text_request):
+        vote = current_user.text_request_ballots.filter(
+                TextRequestVote.text_request==text_request).first()
         rd = True if vote.is_up() else False
-        book_request.rollback(vote)
+        text_request.rollback(vote)
         db.session.commit()
         if rd:
             return redirect(redirect_url)
-    book_request.upvote(current_user)
+    text_request.upvote(current_user)
     db.session.commit()
     return redirect(redirect_url)
 
-@requests.route("/book/<book_request_id>/downvote")
+@requests.route("/text/<text_request_id>/downvote")
 @login_required
-def downvote_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    redirect_url = generate_next(url_for("requests.book_request_index"))
-    if current_user.already_voted_book_request(book_request):
-        vote = current_user.book_request_ballots.filter(
-                BookRequestVote.book_request==book_request).first()
+def downvote_text_request(text_request_id):
+    text_request = TextRequest.query.get_or_404(text_request_id)
+    redirect_url = generate_next(url_for("requests.text_request_index"))
+    if current_user.already_voted_text_request(text_request):
+        vote = current_user.text_request_ballots.filter(
+                TextRequestVote.text_request==text_request).first()
         rd = True if not vote.is_up() else False
-        book_request.rollback(vote)
+        text_request.rollback(vote)
         db.session.commit()
         if rd:
             return redirect(redirect_url)
-    book_request.downvote(current_user)
+    text_request.downvote(current_user)
     db.session.commit()
     return redirect(redirect_url)
 

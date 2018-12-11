@@ -36,18 +36,18 @@
         {% endif %}
 
         <nav>
-            {% if request.path == url_for("author_index") %}
-                <a href="{{ url_for("author_index") }}" class="active">
-                    AUTHORS
+            {% if request.path == url_for("writer_index") %}
+                <a href="{{ url_for("writer_index") }}" class="active">
+                    WRITERS
                 </a>
             {% else %}
-                <a href="{{ url_for("author_index") }}">AUTHORS</a>
+                <a href="{{ url_for("writer_index") }}">WRITERS</a>
             {% endif %}
             |
-            {% if request.path == url_for("book_index") %}
-                <a href="{{ url_for("book_index") }}" class="active">BOOKS</a>
+            {% if request.path == url_for("text_index") %}
+                <a href="{{ url_for("text_index") }}" class="active">TEXTS</a>
             {% else %}
-                <a href="{{ url_for("book_index") }}">BOOKS</a>
+                <a href="{{ url_for("text_index") }}">TEXTS</a>
             {% endif %}
             |
             {% if request.path == url_for("tag_index") %}

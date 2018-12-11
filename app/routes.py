@@ -8,11 +8,13 @@ from flask_login import current_user, login_required
 from sqlalchemy import and_
 
 from app import app, db
-from app.models import User, Text, Writer, Line, LineEnum, Annotation, Edit,\
-        Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum,\
-        tags as tags_table
+from app.models import User, Text, Edition, Writer, Line, LineEnum, Annotation,\
+        Edit, Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum,\
+        tags as tags_table, authors as authors_table
 from app.forms import AnnotationForm, LineNumberForm, SearchForm
 from app.funky import preplines, generate_next, line_check
+
+from time import time
 
 @app.before_request
 def before_request():
@@ -27,18 +29,13 @@ def search():
     page = request.args.get("page", 1, type=int)
     lines, line_total = Line.search(g.search_form.q.data, page,
             app.config["LINES_PER_SEARCH_PAGE"])
-    annotations, annotation_total = Annotation.search(g.search_form.q.data,
-            page, app.config["ANNOTATIONS_PER_SEARCH_PAGE"])
     next_page = url_for("search", q=g.search_form.q.data, page=page + 1)\
         if line_total > page * app.config["LINES_PER_SEARCH_PAGE"]\
-        or annotation_total > page * app.config["ANNOTATIONS_PER_SEARCH_PAGE"]\
         else None
     prev_page = url_for("search", q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
     return render_template("indexes/search.html", title="Search", lines=lines,
-            line_total=line_total, annotations=annotations,
-            annotation_total=annotation_total, next_page=next_page,
-            prev_page=prev_page)
+            line_total=line_total, next_page=next_page, prev_page=prev_page)
 
 ###########
 ## Index ##
@@ -97,103 +94,110 @@ def index():
 ## Indexes ##
 #############
 
-@app.route("/list/authors/")
-def author_index():
+@app.route("/list/writers/")
+def writer_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "last name", type=str)
     if sort == "last name":
-        authors = Author.query\
-                .order_by(Author.last_name.asc())\
+        writers = Writer.query\
+                .order_by(Writer.last_name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "full name":
-        authors = Author.query\
-                .order_by(Author.name.asc())\
+        writers = Writer.query\
+                .order_by(Writer.name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
-        authors = Author.query\
-                .order_by(Author.birth_date.asc())\
+        writers = Writer.query\
+                .order_by(Writer.birth_date.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "youngest":
-        authors = Author.query\
-                .order_by(Author.birth_date.desc())\
+        writers = Writer.query\
+                .order_by(Writer.birth_date.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "books":
-        authors = Author.query\
-                .outerjoin(Book).group_by(Author.id)\
-                .order_by(db.func.count(Book.id).desc())\
+        writers = Writer.query\
+                .outerjoin(authors_table)\
+                .outerjoin(Text, Text.id==authors_table.c.text_id)\
+                .group_by(Writer.id)\
+                .order_by(db.func.count(Text.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        authors = Author.query\
-                .order_by(Author.last_name.asc())\
+        writers = Writer.query\
+                .order_by(Writer.last_name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     sorts = {
-            "last name": url_for("author_index", sort="last name", page=page),
-            "name": url_for("author_index", sort="name", page=page),
-            "oldest": url_for("author_index", sort="oldest", page=page),
-            "youngest": url_for("author_index", sort="youngest", page=page),
-            "books": url_for("author_index", sort="books", page=page),
+            "last name": url_for("writer_index", sort="last name", page=page),
+            "name": url_for("writer_index", sort="name", page=page),
+            "oldest": url_for("writer_index", sort="oldest", page=page),
+            "youngest": url_for("writer_index", sort="youngest", page=page),
+            "books": url_for("writer_index", sort="books", page=page),
             }
 
-    next_page = url_for("author_index", page=authors.next_num, sort=sort) \
-            if authors.has_next else None
-    prev_page = url_for("author_index", page=authors.prev_num, sort=sort) \
-            if authors.has_prev else None
+    next_page = url_for("writer_index", page=writers.next_num, sort=sort) \
+            if writers.has_next else None
+    prev_page = url_for("writer_index", page=writers.prev_num, sort=sort) \
+            if writers.has_prev else None
 
-    return render_template("indexes/authors.html", title="Authors",
-            authors=authors.items, next_page=next_page, prev_page=prev_page,
+    return render_template("indexes/writers.html", title="Authors",
+            writers=writers.items, next_page=next_page, prev_page=prev_page,
             sorts=sorts, sort=sort)
 
-@app.route("/list/books/")
-def book_index():
+@app.route("/list/texts/")
+def text_index():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "title", type=str)
     if sort == "title":
-        books = Book.query\
-                .order_by(Book.sort_title.asc())\
+        texts = Text.query\
+                .order_by(Text.sort_title.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
-        books = Book.query\
-                .join(Author)\
-                .order_by(Author.last_name.asc())\
+        texts = Text.query\
+                .join(authors_table)\
+                .join(Writer)\
+                .order_by(Writer.last_name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
-        books = Book.query\
-                .order_by(Book.published.asc())\
+        texts = Text.query\
+                .order_by(Text.published.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
-        books = Book.query\
-                .order_by(Book.published.desc())\
+        texts = Text.query\
+                .order_by(Text.published.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "length":
-        books = Book.query\
-                .outerjoin(Line).group_by(Book.id)\
+        texts = Text.query\
+                .join(Edition, and_(
+                    Edition.text_id==Text.id,Edition.primary==True))\
+                .outerjoin(Line).group_by(Text.id)\
                 .order_by(db.func.count(Line.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     elif sort == "annotations":
-        books = Book.query\
-                .outerjoin(Annotation).group_by(Book.id)\
+        texts = Text.query\
+                .outerjoin(Edition,
+                        and_(Edition.text_id==Text.id,Edition.primary==True))\
+                .outerjoin(Annotation).group_by(Text.id)\
                 .order_by(db.func.count(Annotation.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
-        books = Book.query.order_by(Book.sort_title.asc()
+        texts = Text.query.order_by(Text.sort_title.asc()
                 ).paginate(page, app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
-            "title": url_for("book_index", sort="title", page=page),
-            "author": url_for("book_index", sort="author", page=page),
-            "oldest": url_for("book_index", sort="oldest", page=page),
-            "newest": url_for("book_index", sort="newest", page=page),
-            "length": url_for("book_index", sort="length", page=page),
-            "annotations": url_for("book_index", sort="annotations", page=page),
+            "title": url_for("text_index", sort="title", page=page),
+            "author": url_for("text_index", sort="author", page=page),
+            "oldest": url_for("text_index", sort="oldest", page=page),
+            "newest": url_for("text_index", sort="newest", page=page),
+            "length": url_for("text_index", sort="length", page=page),
+            "annotations": url_for("text_index", sort="annotations", page=page),
     }
 
-    next_page = url_for("book_index", page=books.next_num, sort=sort) \
-            if books.has_next else None
-    prev_page = url_for("book_index", page=books.prev_num, sort=sort) \
-            if books.has_prev else None
+    next_page = url_for("text_index", page=texts.next_num, sort=sort) \
+            if texts.has_next else None
+    prev_page = url_for("text_index", page=texts.prev_num, sort=sort) \
+            if texts.has_prev else None
 
-    return render_template("indexes/books.html", title="Books",
-            books=books.items, prev_page=prev_page, next_page=next_page,
+    return render_template("indexes/texts.html", title="Texts",
+            texts=texts.items, prev_page=prev_page, next_page=next_page,
             sorts=sorts, sort=sort)
 
 @app.route("/list/tags/")
@@ -236,75 +240,69 @@ def tag_index():
 ## Single Item Views ##
 #######################
 
-@app.route("/author/<name>/")
-def author(name):
-    author = Author.query.filter_by(url=name).first_or_404()
-    return render_template("view/author.html", title=author.name, author=author)
+@app.route("/writer/<writer_url>/")
+def writer(writer_url):
+    writer = Writer.query.filter_by(name=writer_url.replace("_"," ")).first_or_404()
+    return render_template("view/writer.html", title=writer.name, writer=writer)
 
-@app.route("/author/<name>/annotations/")
-def author_annotations(name):
+@app.route("/writer/<writer_url>/annotations")
+def writer_annotations(writer_url):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
-    author = Author.query.filter_by(url=name).first_or_404()
+    writer = Writer.query.filter_by(name=writer_url.replace("_"," ")).first_or_404()
     if sort == "newest":
-        annotations = author.annotations\
+        annotations = writer.annotations\
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
-        annotations = author.annotations\
+        annotations = writer.annotations\
                 .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
-        annotations = author.annotations\
+        annotations = writer.annotations\
                 .order_by(Annotation.weight.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     # tried to do sort==modified except it's totally buggy and I gotta sort
     # through the problems.
     else:
-        annotations = author.annotations\
+        annotations = writer.annotations\
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort == "newest"
 
     sorts = {
-            "newest": url_for("author_annotations", name=author.url,
+            "newest": url_for("writer_annotations", writer_url=writer.url,
                 sort="newest", page=page),
-            "oldest": url_for("author_annotations", name=author.url,
+            "oldest": url_for("writer_annotations", writer_url=writer.url,
                 sort="oldest", page=page),
-            "weight": url_for("author_annotations", name=author.url,
+            "weight": url_for("writer_annotations", writer_url=writer.url,
                 sort="weight", page=page),
             }
 
     annotationflags = AnnotationFlagEnum.query.all()
-    next_page = url_for("author_annotations", name=author.url, sort=sort,
+    next_page = url_for("writer_annotations", writer_url=writer.url, sort=sort,
             page=annotations.next_num) if annotations.has_next else None
-    prev_page = url_for("author_annotations", name=author.url, sort=sort,
+    prev_page = url_for("writer_annotations", writer_url=writer.url, sort=sort,
             page=annotations.prev_num) if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("indexes/annotation_list.html",
-            title=f"{author.name} - Annotations", annotations=annotations.items,
+            title=f"{writer.name} - Annotations", annotations=annotations.items,
             sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
             annotationflags=annotationflags, uservotes=uservotes)
 
-@app.route("/book/<book_url>/")
-def book(book_url):
-    book = Book.query.filter_by(url=book_url).first_or_404()
+@app.route("/text/<text_url>")
+def text(text_url):
+    text = Text.query.filter_by(title=text_url.replace("_"," ")).first_or_404()
 
     # get the labels for each heierarchical chapter level
     labels = LineEnum.query.filter(LineEnum.label.startswith("lvl")).all()
     label_ids = [l.id for l in labels]
 
+    return render_template("view/text.html", title=text.title, text=text)
 
-    # get all the heierarchical chapter lines
-    hierarchy = book.lines.filter(Line.label_id.in_(label_ids))\
-            .order_by(Line.line_num.asc()).all()
-
-    return render_template("view/book.html", title=book.title, book=book,
-            hierarchy=hierarchy)
-
-@app.route("/book/<book_url>/annotations/")
-def book_annotations(book_url):
+@app.route("/text/<text_url>/annotations")
+def text_annotations(text_url):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
     book = Book.query.filter_by(url=book_url).first_or_404()
@@ -355,7 +353,11 @@ def book_annotations(book_url):
             sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
             annotationflags=annotationflags, uservotes=uservotes)
 
-@app.route("/tag/<tag>/")
+@app.route("/text/<text_url>/edition/<edition_num>")
+def edition(text_url, edition_num):
+    pass
+
+@app.route("/tag/<tag>")
 def tag(tag):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "modified", type=str)
@@ -402,7 +404,7 @@ def tag(tag):
             annotationflags=annotationflags, sorts=sorts, sort=sort,
             uservotes=uservotes)
 
-@app.route("/annotation/<annotation_id>/")
+@app.route("/annotation/<annotation_id>")
 def annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
@@ -415,7 +417,7 @@ def annotation(annotation_id):
             title=f"Annotation [{annotation.id}]", annotation=annotation,
             uservotes=uservotes, annotationflags=annotationflags)
 
-@app.route("/annotation/<annotation_id>/edit/history/")
+@app.route("/annotation/<annotation_id>/edit/history")
 def edit_history(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     annotationflags = AnnotationFlagEnum.query.all()
@@ -487,7 +489,7 @@ def edit_history(annotation_id):
             edits=edits.items, sort=sort, next_page=next_page,
             prev_page=prev_page, annotation=annotation, page=page)
 
-@app.route("/annotation/<annotation_id>/edit/<edit_num>/")
+@app.route("/annotation/<annotation_id>/edit/<edit_num>")
 def view_edit(annotation_id, edit_num):
     edit = Edit.query.filter(
             Edit.annotation_id==annotation_id,
@@ -529,9 +531,13 @@ def view_edit(annotation_id, edit_num):
 ## Reading Routes ##
 ####################
 
-@app.route("/read/<book_url>/", methods=["GET", "POST"])
-def read(book_url):
-    book = Book.query.filter_by(url=book_url).first_or_404()
+@app.route("/read/<text_url>/edition/<edition_num>", methods=["GET", "POST"],
+        defaults={"edition_url":None})
+@app.route("/read/<edition_url>", methods=["GET", "POST"],
+        defaults={"text_url":None,"edition_num":None})
+def read(text_url, edition_num, edition_url):
+    if text_url:
+        text = Text.query.filter_by(url=book_url).first_or_404()
     tag = request.args.get("tag", None, type=str)
     lvl = [request.args.get("l1", 0, type=int)]
     lvl.append(request.args.get("l2", 0, type=int))
@@ -541,24 +547,23 @@ def read(book_url):
     annotationflags = AnnotationFlagEnum.query.all()
 
     if lvl[3]:
-        lines = book.lines.filter(
-                Line.lvl4==lvl[3], Line.lvl3==lvl[2],
-                Line.lvl2==lvl[1], Line.lvl1==lvl[0]
-                ).order_by(Line.line_num.asc()).all()
+        lines = book.lines.filter( Line.lvl4==lvl[3], Line.lvl3==lvl[2],
+                Line.lvl2==lvl[1],
+                Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
     elif lvl[2]:
         lines = book.lines.filter(
                 Line.lvl3==lvl[2], Line.lvl2==lvl[1], Line.lvl1==lvl[0]
-                ).order_by(Line.line_num.asc()).all()
+                ).order_by(Line.num.asc()).all()
     elif lvl[1]:
         lines = book.lines.filter(
                 Line.lvl2==lvl[1], Line.lvl1==lvl[0]
-                ).order_by(Line.line_num.asc()).all()
+                ).order_by(Line.num.asc()).all()
     elif lvl[0]:
         lines = book.lines.filter(
                 Line.lvl1==lvl[0]
-                ).order_by(Line.line_num.asc()).all()
+                ).order_by(Line.num.asc()).all()
     else:
-        lines = book.lines.order_by(Line.line_num.asc()).all()
+        lines = book.lines.order_by(Line.num.asc()).all()
 
     if len(lines) <= 0:
         abort(404)
@@ -670,10 +675,10 @@ def annotate(book_url, first_line, last_line):
 
 
     book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines.filter(Line.line_num>=first_line,
-            Line.line_num<=last_line).all()
-    context = book.lines.filter(Line.line_num>=int(first_line)-5,
-            Line.line_num<=int(last_line)+5).all()
+    lines = book.lines.filter(Line.num>=first_line,
+            Line.num<=last_line).all()
+    context = book.lines.filter(Line.num>=int(first_line)-5,
+            Line.num<=int(last_line)+5).all()
     form = AnnotationForm()
 
     if lines == None:

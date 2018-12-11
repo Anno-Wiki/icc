@@ -80,7 +80,7 @@ for line in fin:
 
     fields = line.split("@")
 
-    l = Line(edition=edition, line_num=fields[0],
+    l = Line(edition=edition, num=fields[0],
             label_id=label[fields[1]], em_id=label[fields[2]],
             lvl1=fields[3], lvl2=fields[4], lvl3=fields[5], lvl4=fields[6],
             line=fields[7][:-1])

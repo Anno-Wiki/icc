@@ -1,8 +1,10 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 
+from sqlalchemy import and_
+
 from app import app, db
-from app.models import User, Text, Writer, Annotation, Edit, Tag, BookRequest,\
+from app.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
         TagRequest, UserFlagEnum, Notification, NotificationObject,\
         AnnotationFlagEnum
 from app.email.email import send_password_reset_email
@@ -378,29 +380,29 @@ def follow_user(user_id):
     db.session.commit()
     return redirect(redirect_url)
 
-# follow author
-@user.route("/follow/author/<author_id>")
+# follow writer
+@user.route("/follow/writer/<writer_id>")
 @login_required
-def follow_author(author_id):
-    author = Author.query.get_or_404(author_id)
-    redirect_url = generate_next(url_for("author", name=author.url))
-    if author in current_user.followed_authors:
-        current_user.followed_authors.remove(author)
+def follow_writer(writer_id):
+    writer = Writer.query.get_or_404(writer_id)
+    redirect_url = generate_next(url_for("writer", writer_url=writer.url))
+    if author in current_user.followed_writers:
+        current_user.followed_writers.remove(writer)
     else:
-        current_user.followed_authors.append(author)
+        current_user.followed_writers.append(writer)
     db.session.commit()
     return redirect(redirect_url)
 
-# follow book
-@user.route("/user/follow/book/<book_id>")
+# follow text
+@user.route("/user/follow/text/<text_id>")
 @login_required
-def follow_book(book_id):
-    book = Book.query.get_or_404(book_id)
-    redirect_url = generate_next(url_for("book", book_url=book.url))
-    if book in current_user.followed_books:
-        current_user.followed_books.remove(book)
+def follow_text(text_id):
+    text = Text.query.get_or_404(text_id)
+    redirect_url = generate_next(url_for("text", text_url=text.url))
+    if text in current_user.followed_texts:
+        current_user.followed_texts.remove(text)
     else:
-        current_user.followed_books.append(book)
+        current_user.followed_texts.append(text)
     db.session.commit()
     return redirect(redirect_url)
 
@@ -408,7 +410,7 @@ def follow_book(book_id):
 @user.route("/follow/request/book/<book_request_id>")
 @login_required
 def follow_book_request(book_request_id):
-    book_request = BookRequest.query.get_or_404(book_request_id)
+    book_request = TextRequest.query.get_or_404(book_request_id)
     redirect_url = generate_next(url_for("view_book_request",
         book_request_id=book_request.id))
     if book_request.approved:

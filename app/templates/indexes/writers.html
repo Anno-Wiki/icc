@@ -11,45 +11,45 @@ sort by:
     {% endif %}
 {% endfor %}
 <div class="index">
-    {% for author in authors %}
+    {% for writer in writers %}
         <div class="card">
             <h2>
-                <a href="{{ url_for("author", name=author.url) }}">
-                    {{ author.name }}
+                <a href="{{ url_for("writer", writer_url=writer.url) }}">
+                    {{ writer.name }}
                 </a>
-                {% if author.birth_date.year %}
+                {% if writer.birth_date.year %}
                     <div class="life_years">
-                        {{ author.birth_date.year }}-{{
-                            author.death_date.year }} 
+                        {{ writer.birth_date.year }}-{{
+                            writer.death_date.year }} 
                     </div>
                 {% endif %}
             </h2>
 
-            Books &times; {{ len(author.books) }}
+            Books &times; {{ len(writer.texts) }}
             <br>
 
-            {% if current_user.is_authenticated and author in
-                current_user.followed_authors %}
-                <a href="{{ url_for("user.follow_author", author_id=author.id,
+            {% if current_user.is_authenticated and writer in
+                current_user.followed_writers %}
+                <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
                     next=request.full_path) }}">
                     unfollow
                 </a>
             {% else %}
-                <a href="{{ url_for("user.follow_author", author_id=author.id,
+                <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
                     next=request.full_path) }}">
                     follow
                 </a>
             {% endif %}
 
-            {% if len(author.bio) >= 127 %}
+            {% if len(writer.bio) >= 127 %}
             <div class="card_text_cutoff">
             {% else %}
             <div>
             {% endif %}
-                {{ author.bio[:127]|markdown }}
+                {{ writer.bio[:127]|markdown }}
             </div>
 
-            <a href="{{ url_for("author", name=author.url) }}">View More</a>
+            <a href="{{ url_for("writer", writer_url=writer.url) }}">View More</a>
         </div>
     {% endfor %}
 </div>

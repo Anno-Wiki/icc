@@ -4,7 +4,7 @@
 <h1>Books</h1>
 <h4>
     Don’t see what you’re looking for? Upvote it among our
-    <a href="{{ url_for("requests.book_request_index") }}">book requests</a>.
+    <a href="{{ url_for("requests.text_request_index") }}">text requests</a>.
 </h4>
 
 sort by:
@@ -17,39 +17,39 @@ sort by:
 {% endfor %}
 
 <div class="index">
-    {% for book in books %}
+    {% for text in texts %}
         <div class="card">
-            <a href="{{ url_for("book", book_url=book.url) }}">
-                <h2>{{ book.title }}</h2>
+            <a href="{{ url_for("text", text_url=text.url) }}">
+                <h2>{{ text.title }}</h2>
             </a>
 
-            &times; {{ book.lines.count() }} lines
+            &times; {{ len(text.editions) }} editions
 
             <br>
             {% if current_user.is_authenticated
-                and book in current_user.followed_books %}
-                <a href="{{ url_for("user.follow_book", book_id=book.id,
+                and text in current_user.followed_texts %}
+                <a href="{{ url_for("user.follow_text", text_id=text.id,
                     next=request.full_path) }}">
                     unfollow
                 </a>
             {% else %}
-                <a href="{{ url_for("user.follow_book", book_id=book.id,
+                <a href="{{ url_for("user.follow_text", text_id=text.id,
                     next=request.full_path) }}">
                     follow
                 </a>
             {% endif %}
 
-            {% if len(book.summary) >= 127 %}
+            {% if len(text.summary) >= 127 %}
                 <div class="card_text_cutoff">
-                    {{ book.summary[:127]|markdown }}
+                    {{ text.summary[:127]|markdown }}
                 </div>
             {% else %}
                 <div>
-                    {{ book.summary[:127]|markdown }}
+                    {{ text.summary[:127]|markdown }}
                 </div>
             {% endif %}
 
-            <a href="{{ url_for("book", book_url=book.url) }}">
+            <a href="{{ url_for("text", text_url=text.url) }}">
                 View More
             </a>
         </div>

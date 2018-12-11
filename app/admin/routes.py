@@ -9,7 +9,7 @@ from app import app, db
 from app.funky import generate_next
 from app.forms import AreYouSureForm
 from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
-        EditVote, BookRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
+        EditVote, TextRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
         AnnotationFlag
 from app.admin import admin
 from app.admin.forms import TagForm, LineForm, TextForm
@@ -397,11 +397,11 @@ def all_annotation_flags():
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.annotation_id.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "book":
+    elif sort == "text":
         flags = AnnotationFlag.query\
                 .outerjoin(Annotation,
                         Annotation.id==AnnotationFlag.annotation_id)\
-                .outerjoin(Book, Book.id==Annotation.book_id)\
+                .outerjoin(Book, Book.id==Annotation.text_id)\
                 .order_by(Book.sort_title)\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
@@ -424,8 +424,8 @@ def all_annotation_flags():
             "time_resolved_invert": url_for("admin.all_annotation_flags", sort="time_resolved_invert", page=page),
             "annotation": url_for("admin.all_annotation_flags", sort="annotation", page=page),
             "annotation_invert": url_for("admin.all_annotation_flags", sort="annotation_invert", page=page),
-            "book": url_for("admin.all_annotation_flags", sort="book", page=page),
-            "book_invert": url_for("admin.all_annotation_flags", sort="book_invert", page=page),
+            "text": url_for("admin.all_annotation_flags", sort="text", page=page),
+            "text_invert": url_for("admin.all_annotation_flags", sort="text_invert", page=page),
             }
 
     next_page = url_for("admin.annotation_flags", annotation_id=annotation.id,
@@ -811,21 +811,21 @@ def edit_bio(author_id):
 
     return render_template("forms/text.html", title="Edit Bio", form=form)
 
-@admin.route("/edit/book_summary/<book_id>/", methods=["GET", "POST"])
+@admin.route("/edit/text_summary/<text_id>/", methods=["GET", "POST"])
 @login_required
-def edit_summary(book_id):
+def edit_summary(text_id):
     current_user.authorize("edit_summaries")
-    book = Book.query.get_or_404(book_id)
+    text = Book.query.get_or_404(text_id)
     form = TextForm()
-    redirect_url = generate_next(url_for("book", book_url=book.url))
+    redirect_url = generate_next(url_for("text", text_url=text.url))
     if form.validate_on_submit():
         if form.text.data != None:
-            book.summary = form.text.data
+            text.summary = form.text.data
             db.session.commit()
             flash("Summary updated.")
             return redirect(redirect_url)
     else:
-        form.text.data = book.summary
+        form.text.data = text.summary
     return render_template("forms/text.html", title="Edit Summary", form=form)
 
 @admin.route("/edit/tag/<tag_id>/", methods=["GET", "POST"])
@@ -900,7 +900,7 @@ def delete_annotation(annotation_id):
     form = AreYouSureForm()
     current_user.authorize("delete_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = url_for("book_annotations", book_url=annotation.book.url)
+    redirect_url = url_for("text_annotations", text_url=annotation.text.url)
     if form.validate_on_submit():
         for e in annotation.all_edits:
             e.tags = []
@@ -949,21 +949,21 @@ The only reason for this is if there is illegal content in the edit.
     return render_template("forms/delete_check.html", 
             title=f"Delete edit #{edit.edit_num} of [{edit.annotation_id}]",
             form=form, text=text)
-@admin.route("/request/book/<book_request_id>/delete/", methods=["GET", "POST"])
+@admin.route("/request/text/<text_request_id>/delete/", methods=["GET", "POST"])
 @login_required
-def delete_book_request(book_request_id):
+def delete_text_request(text_request_id):
     form = AreYouSureForm()
-    book_request = BookRequest.query.get_or_404(book_request_id)
-    if not current_user == book_request.requester:
-        current_user.authorize("delete_book_requests")
-    redirect_url = url_for("book_request_index")
+    text_request = TextRequest.query.get_or_404(text_request_id)
+    if not current_user == text_request.requester:
+        current_user.authorize("delete_text_requests")
+    redirect_url = url_for("text_request_index")
     if form.validate_on_submit():
-        flash(f"Book Request for {book_request.title} deleted.")
-        db.session.delete(book_request)
+        flash(f"Book Request for {text_request.title} deleted.")
+        db.session.delete(text_request)
         db.session.commit()
         return redirect(redirect_url)
     text = """
-If you click submit the book request and all of it's votes will be deleted
+If you click submit the text request and all of it's votes will be deleted
 permanently.
     """
     return render_template("forms/delete_check.html", 
@@ -983,7 +983,7 @@ def delete_tag_request(tag_request_id):
         db.session.commit()
         return redirect(redirect_url)
     text = """
-If you click submit the book request and all of it's votes will be deleted
+If you click submit the text request and all of it's votes will be deleted
 permanently.
     """
     return render_template("forms/delete_check.html", 

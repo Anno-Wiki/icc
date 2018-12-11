@@ -72,10 +72,10 @@ for line in fin:
 
     commit = Edit(
             annotation=head, approved=True, current=True, editor=user,
-            first_line_num=l.line_num, last_line_num=l.line_num,
+            first_line_num=l.num, last_line_num=l.num,
             first_char_idx=0, last_char_idx=-1,
             body=fields[0], tags=tags,
-            edit_num=0, edit_reason="Initial version")
+            num=0, edit_reason="Initial version")
 
     # add commit and head, commit both
     if not args.dryrun:

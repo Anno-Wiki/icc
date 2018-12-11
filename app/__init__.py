@@ -1,14 +1,19 @@
-from flask import Flask
+import os
+from time import time
+from elasticsearch import Elasticsearch
+
 from config import Config
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+
+from flask import Flask
 from flask_login import LoginManager
+from flask_mail import Mail
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
+
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
-import os
-from flask_mail import Mail
-from elasticsearch import Elasticsearch
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -34,6 +39,7 @@ app.register_blueprint(user)
 app.jinja_env.globals["round"] = round
 app.jinja_env.globals["vars"] = app.config
 app.jinja_env.globals["len"] = len
+app.jinja_env.globals["time"] = time
 
 if not app.debug:
     if app.config["MAIL_SERVER"]:

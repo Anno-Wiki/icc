@@ -11,12 +11,12 @@
                     {{ line.line_num }}
                 </a>
                 of 
-                <a href="{{ url_for("book", book_url=line.book.url) }}">
-                    {{ line.book.title }}
+                <a href="{{ url_for("text", text_url=line.text.url) }}">
+                    {{ line.text.title }}
                 </a>
                 by 
-                <a href="{{ url_for("author", name=line.book.author.url) }}">
-                    {{ line.book.author.name }}
+                <a href="{{ url_for("writer", writer_url=line.text.authors[0].url) }}">
+                    {{ line.text.authors[0].name }}
                 </a>
             </h3>
             {% for l in line.context %}

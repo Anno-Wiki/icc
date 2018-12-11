@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ writer.name }}</h1>
+<h2>&times; {{ len(writer.texts) }} Texts</h2>
+<div id="bio">{{ writer.bio|markdown }}</div>
+<a href="{{ url_for("writer_annotations", writer_url=writer.url) }}">
+    view all annotations
+</a>
+{% if current_user.is_authenticated %}
+    {% if writer in current_user.followed_writers %}
+        |
+        <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
+            next=request.full_path) }}">
+            unfollow
+        </a>
+    {% else %}
+        |
+        <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
+            next=request.full_path) }}">
+            follow
+        </a>
+    {% endif %}
+
+    {% if current_user.is_authorized("edit_bios") %}
+        |
+        <a href="{{ url_for("admin.edit_bio", writer_id=writer.id,
+            next=request.full_path) }}">
+            edit
+        </a>
+    {% endif %}
+{% endif%}
+<div class="index">
+    {% for text in writer.texts %}
+        <div class="card">
+            <a href="{{ url_for("text", text_url=text.url) }}">
+                <h2>{{ text.title }}</h2>
+            </a>
+            <div class="count">
+                &times; {{ text.primary.lines.count() }} lines
+            </div>
+
+            {% if len(text.summary) >= 127 %}
+                <div class="card_text_cutoff">
+                    {{ text.summary[:127]|markdown }}
+                </div>
+            {% else %}
+                <div>{{ text.summary[:127]|markdown }}
+                </div>
+            {% endif %}
+
+            <a href="{{ url_for("text", text_url=text.url) }}">View More</a>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

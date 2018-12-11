@@ -8,7 +8,7 @@
         </sup>
         on
         <em>
-            <a href="{{ annotation.HEAD.lines[0].get_url() }}#{{
+            <a href="{{ annotation.first_line.get_url() }}#{{
                 annotation.HEAD.first_line_num }}">
                 {%- if annotation.HEAD.first_line_num ==
                     annotation.HEAD.last_line_num %}
@@ -21,13 +21,13 @@
         </em>
         of
         <em>
-            <a href="{{ url_for("book", book_url=annotation.book.url) }}">
-                {{ annotation.book.title }}
+            <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+                {{ annotation.edition.text.title }}
             </a>
         </em>
         by
-        <a href="{{ url_for("author", name=annotation.book.author.url) }}">
-            {{ annotation.book.author.name }}
+        <a href="{{ url_for("writer", writer_url=annotation.text.authors[0].url) }}">
+            {{ annotation.edition.text.authors[0].name }}
         </a>
 
         <!--Weight-->

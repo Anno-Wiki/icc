@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ text.title }}</h1>
+<h2>
+    by
+    <a href="{{ url_for("writer", writer_url=text.authors[0].url) }}">
+    {{ text.authors[0].name }}
+    </a>
+</h2>
+
+<div id="summary"> {{ text.summary|markdown }} </div>
+
+<a href="{{ url_for("text_annotations", text_url=text.url) }}">
+    view all annotations
+</a>
+
+{% if current_user.is_authenticated %}
+    {% if text in current_user.followed_texts %}
+        |
+        <a href="{{ url_for("user.follow_text", text_id=text.id,
+            next=request.full_path) }}">
+            unfollow
+        </a>
+    {% else %}
+        |
+        <a href="{{ url_for("user.follow_text", text_id=text.id,
+            next=request.full_path) }}">
+            follow
+        </a>
+    {% endif %}
+
+    {% if current_user.is_authorized("edit_summaries") %}
+        |
+        <a href="{{ url_for("admin.edit_summary", text_id=text.id,
+            next=request.full_path) }}">
+            edit
+        </a>
+    {% endif %}
+{% endif %}
+
+<div class="index">
+    {% for edition in text.editions %}
+        <div class="card">
+            <a href="{{ url_for("edition", text_url=text.url,
+                edition_num=edition.num) }}">
+                <h2>Edition #{{ edition.num }}</h2> </a>
+            <div class="count"> &times; {{ edition.lines.count() }} lines </div>
+
+            {% if len(edition.history) >= 127 %}
+                <div class="card_text_cutoff">
+                    {{ edition.history[:127]|markdown }}
+                </div>
+            {% else %}
+                <div>
+                    {{ edition.history[:127]|markdown }}
+                </div>
+            {% endif %}
+
+            <a href="{{ url_for("edition", text_url=text.url,
+                edition_num=edition.num) }}">
+                View More
+            </a>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}:q
+

@@ -103,9 +103,9 @@ tag_request_followers = db.Table("tag_request_followers",
         db.Column("tag_request_id", db.Integer, db.ForeignKey("tag_request.id",
             ondelete="CASCADE")),
         db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-book_request_followers = db.Table("book_request_followers",
-        db.Column("book_request_id", db.Integer,
-            db.ForeignKey("book_request.id", ondelete="CASCADE")),
+text_request_followers = db.Table("text_request_followers",
+        db.Column("text_request_id", db.Integer,
+            db.ForeignKey("text_request.id", ondelete="CASCADE")),
         db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
 
 #################
@@ -237,7 +237,7 @@ class User(UserMixin, db.Model):
             "Annotation.active==True)", lazy="dynamic")
     edits = db.relationship("Edit",
             primaryjoin="and_(User.id==Edit.editor_id,"
-            "Edit.edit_num>0)", lazy="dynamic")
+            "Edit.num>0)", lazy="dynamic")
     votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==Vote.user_id",
             secondaryjoin="Annotation.id==Vote.annotation_id",
@@ -251,14 +251,14 @@ class User(UserMixin, db.Model):
             secondaryjoin="Edit.id==EditVote.edit_id",
             backref="edit_voters", lazy="dynamic")
 
-    # book request relationships
-    book_request_ballots = db.relationship("BookRequestVote",
-            primaryjoin="User.id==BookRequestVote.user_id", lazy="dynamic",
+    # text request relationships
+    text_request_ballots = db.relationship("TextRequestVote",
+            primaryjoin="User.id==TextRequestVote.user_id", lazy="dynamic",
             passive_deletes=True)
-    book_request_votes = db.relationship("BookRequest",
-            secondary="book_request_vote",
-            primaryjoin="BookRequestVote.user_id==User.id",
-            secondaryjoin="BookRequestVote.book_request_id==BookRequest.id",
+    text_request_votes = db.relationship("TextRequest",
+            secondary="text_request_vote",
+            primaryjoin="TextRequestVote.user_id==User.id",
+            secondaryjoin="TextRequestVote.text_request_id==TextRequest.id",
             backref="voters", lazy="dynamic", passive_deletes=True)
 
     # tag request relationships
@@ -314,10 +314,10 @@ class User(UserMixin, db.Model):
             primaryjoin="tag_request_followers.c.user_id==User.id",
             secondaryjoin="tag_request_followers.c.tag_request_id==TagRequest.id",
             backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_book_requests = db.relationship("BookRequest",
-            secondary="book_request_followers",
-            primaryjoin="book_request_followers.c.user_id==User.id",
-            secondaryjoin="book_request_followers.c.book_request_id==BookRequest.id",
+    followed_text_requests = db.relationship("TextRequest",
+            secondary="text_request_followers",
+            primaryjoin="text_request_followers.c.user_id==User.id",
+            secondaryjoin="text_request_followers.c.text_request_id==TextRequest.id",
             backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
 
     def __repr__(self):
@@ -405,19 +405,19 @@ class User(UserMixin, db.Model):
             v[vote.annotation.id] = vote.is_up()
         return v
 
-    # book request vote utilities
-    def get_book_request_vote_dict(self):
+    # text request vote utilities
+    def get_text_request_vote_dict(self):
         v = {}
-        for vote in self.book_request_ballots:
-            v[vote.book_request.id] = vote.is_up()
+        for vote in self.text_request_ballots:
+            v[vote.text_request.id] = vote.is_up()
         return v
 
-    def already_voted_book_request(self, book_request):
-        return book_request in self.book_request_votes
+    def already_voted_text_request(self, text_request):
+        return text_request in self.text_request_votes
 
-    def get_book_request_vote(self, book_request):
-        return self.book_request_ballots.filter(
-                BookRequestVote.book_request==book_request).first()
+    def get_text_request_vote(self, text_request):
+        return self.text_request_ballots.filter(
+                TextRequestVote.text_request==text_request).first()
 
     # tag request vote utilities
     def get_tag_request_vote_dict(self):
@@ -452,29 +452,20 @@ class Writer(db.Model):
     last_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
-    bio = db.Column(db.Text)
+    bio = db.Column(db.Text, default="This writer has no biography yet.")
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     texts = db.relationship("Text", secondary=authors)
-#    annotations = db.relationship("Annotation",
-#            secondary="join(authors, Text, authors.c.writer_id==Writer.id)"
-#            primaryjoin="Writer.id==authors.writer_id",
-#            secondaryjoin="and_(Annotation.book_id==Book.id,"
-#            "Annotation.active==True)", lazy="dynamic")
-#
-#    annotations = db.relationship("Annotation",
-#            secondary="join(tags, Edit,"
-#            "and_(tags.c.edit_id==Edit.id,"
-#            "Edit.current==True))",
-#            primaryjoin="Tag.id==tags.c.tag_id",
-#            secondaryjoin="and_(Edit.annotation_id==Annotation.id,"
-#            "Annotation.active==True)",
-#            lazy="dynamic", passive_deletes=True)
+    annotations = db.relationship("Annotation",
+            secondary="join(text,authors).join(Edition)",
+            primaryjoin="Writer.id==authors.c.writer_id",
+            secondaryjoin="and_(Text.id==Edition.text_id,Edition.primary==True,"
+            "Annotation.edition_id==Edition.id)",
+            lazy="dynamic")
 
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.name\
-                .translate(str.maketrans(dict.fromkeys(string.punctuation)))\
                 .replace(" ", "_")
         self.first_name = self.name.split(" ", 1)[0]
 
@@ -485,7 +476,7 @@ class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
-    summary = db.Column(db.Text)
+    summary = db.Column(db.Text, default="This text has no summary yet.")
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
@@ -518,14 +509,24 @@ class Text(db.Model):
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    edition_num = db.Column(db.Integer, default=1)
+    num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
     primary = db.Column(db.Boolean, default=False)
-    history = db.Column(db.Text)
+    history = db.Column(db.Text, default="This edition has no history yet.")
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     text = db.relationship("Text")
+    lines = db.relationship("Line", primaryjoin="Line.edition_id==Edition.id",
+            lazy="dynamic")
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.url = self.text.title\
+                .replace(" ", "_") + f"_{self.num}"
+        self.title = f"{self.text.title} Edition {self.num}*"\
+                if self.primary\
+                else f"{self.text.title} Edition {self.num}"
 
 class WriterEditionConnection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -580,7 +581,7 @@ class Line(SearchableMixin, db.Model):
     __searchable__ = ["line", "text_title"]
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
-    line_num = db.Column(db.Integer, index=True)
+    num = db.Column(db.Integer, index=True)
     label_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
     lvl1 = db.Column(db.Integer, index=True)
     lvl2 = db.Column(db.Integer, index=True)
@@ -590,26 +591,26 @@ class Line(SearchableMixin, db.Model):
     line = db.Column(db.String(200))
 
     edition = db.relationship("Edition", lazy="joined")
-    text = db.relationship("Text", secondary="edition", lazy="joined")
+    text = db.relationship("Text", secondary="edition", lazy="joined",
+            uselist=False)
     label = db.relationship("LineEnum", foreign_keys=[label_id])
     em_status = db.relationship("LineEnum", foreign_keys=[em_id])
-#    context = db.relationship("Line",
-#            primaryjoin="and_(remote(Line.line_num)<=Line.line_num+1,"
-#                "remote(Line.line_num)>=Line.line_num-1,"
-#                "remote(Line.edition_id)==Line.edition_id)",
-#            foreign_keys=[line_num, edition_id], remote_side=[line_num, edition_id],
-#            uselist=True, viewonly=True)
+    context = db.relationship("Line",
+            primaryjoin="and_(remote(Line.num)<=Line.num+1,"
+            "remote(Line.num)>=Line.num-1,"
+            "remote(Line.edition_id)==Line.edition_id)",
+            foreign_keys=[num, edition_id], remote_side=[num, edition_id],
+            uselist=True, viewonly=True)
 #    annotations = db.relationship("Annotation", secondary="edit",
-#            primaryjoin="and_(Edit.first_line_num<=foreign(Line.line_num),"
-#                    "Edit.last_line_num>=foreign(Line.line_num),"
-#                    "Edit.edition_id==foreign(Line.edition_id),"
-#                    "Edit.current==True)",
+#            primaryjoin="and_(Edit.first_line_num<=foreign(Line.num),"
+#            "Edit.last_line_num>=foreign(Line.num),"
+#            "Edit.edition_id==foreign(Line.edition_id),Edit.current==True)",
 #            secondaryjoin="and_(foreign(Edit.annotation_id)==Annotation.id,"
-#                    "Annotation.active==True)",
-#            uselist=True, foreign_keys=[line_num,edition_id])
+#            "Annotation.active==True)",
+#            uselist=True, foreign_keys=[num,edition_id])
 
     def __repr__(self):
-        return f"<l{self.id}: l{self.line_num} {self.edition.text.title} [{self.label.display}]>"
+        return f"<l{self.id}: l{self.num} {self.edition.text.title} [{self.label.display}]>"
 
     def __getattr__(self, attr):
         if attr.startswith("text_"):
@@ -632,18 +633,18 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3-1)\
-                        .order_by(Line.line_num.desc()).first()
+                        .order_by(Line.num.desc()).first()
         elif self.lvl2 > 1:
             line = Line.query.filter(
                     Line.edition_id==self.edition_id,
                     Line.lvl1==self.lvl1,
                     Line.lvl2==self.lvl2-1)\
-                            .order_by(Line.line_num.desc()).first()
+                            .order_by(Line.num.desc()).first()
         elif self.lvl1 > 1:
             line = Line.query.filter(
                     Line.edition_id==self.edition_id,
                     Line.lvl1==self.lvl1-1)\
-                            .order_by(Line.line_num.desc()).first()
+                            .order_by(Line.num.desc()).first()
         return line.get_url() if line else None
 
     def get_next_page(self):
@@ -659,7 +660,7 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3,
                     Line.lvl4==self.lvl4+1)\
-                        .order_by(Line.line_num.desc()).first()
+                        .order_by(Line.num.desc()).first()
             lvl4 = 1
         if self.lvl3 != 0 and not line:
             line = Line.query.filter(
@@ -668,7 +669,7 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl2==self.lvl2,
                     Line.lvl3==self.lvl3+1,
                     Line.lvl4==lvl4)\
-                        .order_by(Line.line_num.desc()).first()
+                        .order_by(Line.num.desc()).first()
             lvl3 = 1
         if self.lvl2 != 0 and not line:
             line = Line.query.filter(
@@ -677,7 +678,7 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl2==self.lvl2+1,
                     Line.lvl3==lvl3,
                     Line.lvl4==lvl4)\
-                        .order_by(Line.line_num.desc()).first()
+                        .order_by(Line.num.desc()).first()
             lvl2 = 1
         if self.lvl1 != 0 and not line:
             print(f"{self.lvl1+1},{lvl2},{lvl3},{lvl4}")
@@ -687,7 +688,7 @@ class Line(SearchableMixin, db.Model):
                     Line.lvl2==lvl2,
                     Line.lvl3==lvl3,
                     Line.lvl4==lvl4)\
-                        .order_by(Line.line_num.desc()).first()
+                        .order_by(Line.num.desc()).first()
         return line.get_url() if line else None
 
     def get_url(self):
@@ -736,7 +737,15 @@ class Annotation(SearchableMixin, db.Model):
     active = db.Column(db.Boolean, default=True)
 
     annotator = db.relationship("User", lazy="joined")
-    text = db.relationship("Text", secondary="edition", lazy="joined")
+    edition = db.relationship("Edition")
+    first_line = db.relationship("Line", secondary="edit",
+            primaryjoin="Edit.annotation_id==Annotation.id",
+            secondaryjoin="and_(Line.edition_id==Annotation.edition_id,"
+            "Edit.first_line_num==Line.num)",
+            uselist=False)
+
+    text = db.relationship("Text", secondary="edition", lazy="joined",
+            uselist=False)
 
     # relationships to `Edit`
     HEAD = db.relationship("Edit",
@@ -762,15 +771,15 @@ class Annotation(SearchableMixin, db.Model):
     lines = db.relationship("Line", secondary="edit",
             primaryjoin="and_(Annotation.id==Edit.annotation_id,"
                 "Edit.current==True)",
-            secondaryjoin="and_(Line.line_num>=Edit.first_line_num,"
-                "Line.line_num<=Edit.last_line_num,"
+            secondaryjoin="and_(Line.num>=Edit.first_line_num,"
+                "Line.num<=Edit.last_line_num,"
                 "Line.edition_id==Annotation.edition_id)",
             viewonly=True, uselist=True)
     context = db.relationship("Line", secondary="edit",
             primaryjoin="and_(Annotation.id==Edit.annotation_id,"
                 "Edit.current==True)",
-            secondaryjoin="and_(Line.line_num>=Edit.first_line_num-5,"
-                "Line.line_num<=Edit.last_line_num+5,"
+            secondaryjoin="and_(Line.num>=Edit.first_line_num-5,"
+                "Line.num<=Edit.last_line_num+5,"
                 "Line.edition_id==Annotation.edition_id)",
             viewonly=True, uselist=True)
 
@@ -867,7 +876,7 @@ class EditVote(db.Model):
 class Edit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    edit_num = db.Column(db.Integer, default=0)
+    num = db.Column(db.Integer, default=0)
     annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id",
         ondelete="CASCADE"), index=True)
 
@@ -878,8 +887,8 @@ class Edit(db.Model):
 
     hash_id = db.Column(db.String(40), index=True)
 
-    first_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"))
-    last_line_num = db.Column(db.Integer, db.ForeignKey("line.line_num"), index=True)
+    first_line_num = db.Column(db.Integer, db.ForeignKey("line.num"))
+    last_line_num = db.Column(db.Integer, db.ForeignKey("line.num"), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
 
@@ -892,24 +901,18 @@ class Edit(db.Model):
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
     previous = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
-            "remote(Edit.edit_num)==foreign(Edit.edit_num-1))")
+            "remote(Edit.num)==foreign(Edit.num-1))")
     priors = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
-            "remote(Edit.edit_num)<=foreign(Edit.edit_num-1))",
+            "remote(Edit.num)<=foreign(Edit.num-1))",
             uselist=True)
     tags = db.relationship("Tag", secondary=tags, passive_deletes=True)
-    lines = db.relationship("Line", secondary="annotation",
-        primaryjoin="Edit.annotation_id==Annotation.id",
-        secondaryjoin="and_(Line.line_num>=Edit.first_line_num,"
-            "Line.line_num<=Edit.last_line_num,"
-            "Line.edition_id==Annotation.edition_id)",
-            viewonly=True, uselist=True)
-#    context = db.relationship("Line",
-#        primaryjoin="and_(Line.line_num>=Edit.first_line_num-5,"
-#            "Line.line_num<=Edit.last_line_num+5,"
-#            "Line.edition_id==Edit.edition_id)",
-#            foreign_keys=[first_line_num,last_line_num],
-#            viewonly=True, uselist=True)
+#    lines = db.relationship("Line", secondary="annotation",
+#        primaryjoin="and_(Line.num>=Edit.first_line_num,"
+#            "Line.num<=Edit.last_line_num,"
+#            "Line.edition_id==Annotation.edition_id)",
+#            viewonly=True, uselist=True,
+#            foreign_keys=[annotation_id,first_line_num,last_line_num])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1017,7 +1020,7 @@ class Edit(db.Model):
 ## Book Requests ##
 ###################
 
-class BookRequest(db.Model):
+class TextRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
@@ -1032,7 +1035,7 @@ class BookRequest(db.Model):
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    requester = db.relationship("User", backref="book_requests")
+    requester = db.relationship("User", backref="text_requests")
     text = db.relationship("Text", backref="request")
 
     def __repr__(self):
@@ -1045,13 +1048,13 @@ class BookRequest(db.Model):
     def upvote(self, voter):
         weight = 1
         self.weight += weight
-        vote = BookRequestVote(user=voter, book_request=self, delta=weight)
+        vote = TextRequestVote(user=voter, text_request=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
-        vote = BookRequestVote(user=voter, book_request=self, delta=weight)
+        vote = TextRequestVote(user=voter, text_request=self, delta=weight)
         db.session.add(vote)
 
     def readable_weight(self):
@@ -1065,20 +1068,20 @@ class BookRequest(db.Model):
     def reject(self):
         self.rejected=True
 
-class BookRequestVote(db.Model):
+class TextRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    book_request_id = db.Column(db.Integer,
-            db.ForeignKey("book_request.id", ondelete="CASCADE"), index=True)
+    text_request_id = db.Column(db.Integer,
+            db.ForeignKey("text_request.id", ondelete="CASCADE"), index=True)
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     user = db.relationship("User")
-    book_request = db.relationship("BookRequest", backref=backref("ballots",
+    text_request = db.relationship("TextRequest", backref=backref("ballots",
         passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.book_request}>"
+        return f"<{self.user.displayname} {self.delta} on {self.text_request}>"
 
     def is_up(self):
         return self.delta > 0
