@@ -1,9 +1,16 @@
 from app import app, db, elasticsearch
-from app.models import Right, User, Vote, EditVote, Text, Writer, Line, \
-    LineEnum, Tag, Annotation, Edit, TextRequest, TextRequestVote, \
-    UserFlagEnum, UserFlag, AnnotationFlagEnum, AnnotationFlag, \
-    TagRequest, TagRequestVote, ReputationChange, ReputationEnum, \
-    Notification, NotificationEnum, NotificationObject, Edition
+from app.models import Right, User,\
+        Notification, NotificationEnum, NotificationObject,\
+        ReputationChange, ReputationEnum,\
+        UserFlagEnum, UserFlag,\
+        Vote, EditVote,\
+        Text, Edition, Writer,\
+        WriterEditionConnection, ConnectionEnum,\
+        TextRequest, TextRequestVote,\
+        Line, LineEnum,\
+        Annotation, Edit,\
+        AnnotationFlag, AnnotationFlagEnum,\
+        Tag, TagRequest, TagRequestVote
 
 @app.shell_context_processor
 def make_shell_context():
@@ -20,6 +27,8 @@ def make_shell_context():
             "Vote": Vote, "EditVote": EditVote,
 
             "Text": Text, "Edition": Edition, "Writer": Writer,
+            "WriterEditionConnection": WriterEditionConnection,
+            "ConnectionEnum": ConnectionEnum,
             "TextRequest": TextRequest, "TextRequestVote": TextRequestVote,
 
             "Line": Line, "LineEnum": LineEnum, 

@@ -495,9 +495,7 @@ class Text(db.Model):
     annotations = db.relationship("Annotation", secondary="edition",
         primaryjoin="Text.id==Edition.text_id",
         secondaryjoin="and_(Annotation.edition_id==Edition.id,"
-        "Annotation.active==True)",
-        lazy="dynamic")
-
+        "Annotation.active==True)", lazy="dynamic")
     primary = db.relationship("Edition",
             primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
             lazy="joined", uselist=False)
