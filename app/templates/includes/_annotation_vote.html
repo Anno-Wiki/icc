@@ -1,0 +1,25 @@
+{% if uservotes and annotation.id in uservotes and
+    uservotes[annotation.id] %}
+    <a href="{{ url_for("upvote", annotation_id=annotation.id,
+        next=request.full_path) }}" class="voted">
+        up
+    </a>
+{% else %}
+    <a href="{{ url_for("upvote", annotation_id=annotation.id,
+        next=request.full_path) }}" class="notvoted">
+        up
+    </a>
+{% endif -%}
+/
+{%- if uservotes and annotation.id in uservotes and not
+    uservotes[annotation.id] %}
+    <a href="{{ url_for("downvote", annotation_id=annotation.id,
+        next=request.full_path) }}" class="voted">
+        down
+    </a>
+{% else %}
+    <a href="{{ url_for("downvote", annotation_id=annotation.id,
+        next=request.full_path) }}" class="notvoted">
+        down
+    </a>
+{% endif -%}

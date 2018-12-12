@@ -1,0 +1,7 @@
+{% if annotation.weight > 0 %}
+    <weight class="up">{{ annotation.readable_weight() }}</weight>
+{% elif annotation.weight == 0 %}
+    <weight class="nil">{{ annotation.readable_weight() }}</weight>
+{% else %}
+    <weight class="down">{{ annotation.readable_weight() }}</weight>
+{% endif %}
