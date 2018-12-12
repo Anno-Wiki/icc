@@ -375,6 +375,24 @@ def text_annotations(text_url):
 
 @app.route("/text/<text_url>/edition/<edition_num>")
 def edition(text_url, edition_num):
+    text = Text.query.filter_by(title=text_url.replace("_"," ")).first_or_404()
+    edition = Edition.query.filter(Edition.text_id==text.id,
+        Edition.num==edition_num).first_or_404()
+
+    # get the labels for each heierarchical chapter level
+    labels = LineEnum.query.filter(LineEnum.label.startswith("lvl")).all()
+    label_ids = [l.id for l in labels]
+
+
+    # get all the heierarchical chapter lines
+    hierarchy = edition.lines.filter(Line.label_id.in_(label_ids))\
+            .order_by(Line.num.asc()).all()
+
+    return render_template("view/edition.html", hierarchy=hierarchy,
+            edition=edition, title=f"{text.title} #{edition.num}")
+
+@app.route("/text/<text_url>/edition/<edition_num>/annotations")
+def edition_annotations(text_url, edition_num):
     pass
 
 @app.route("/tag/<tag>")

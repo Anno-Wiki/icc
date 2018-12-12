@@ -9,6 +9,7 @@ INSERT INTO `right` (`right`) VALUES
     ("edit_bios"),
     ("edit_book_requests"),
     ("edit_deactivated_annotations"),
+    ("edit_edition_histories"),
     ("edit_lines"),
     ("edit_locked_annotations"),
     ("edit_summaries"),

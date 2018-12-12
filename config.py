@@ -16,6 +16,7 @@ class Config(object):
             "edit_bios": -1,
             "edit_book_requests": -1,
             "edit_deactivated_annotations": -1,
+            "edit_edition_histories": -1,
             "edit_lines": -1,
             "edit_locked_annotations": -1,
             "edit_summaries": -1,

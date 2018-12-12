@@ -460,12 +460,14 @@ class Writer(db.Model):
         secondary="join(WriterEditionConnection, ConnectionEnum)",
         primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
         "ConnectionEnum.type=='Editor')",
-        secondaryjoin="Edition.id==WriterEditionConnection.edition_id")
+        secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
+        backref="editors")
     translated = db.relationship("Edition",
         secondary="join(WriterEditionConnection, ConnectionEnum)",
         primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
         "ConnectionEnum.type=='Translator')",
-        secondaryjoin="Edition.id==WriterEditionConnection.edition_id")
+        secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
+        backref="translators")
     annotations = db.relationship("Annotation",
             secondary="join(text,authors).join(Edition)",
             primaryjoin="Writer.id==authors.c.writer_id",
