@@ -637,8 +637,9 @@ def read(text_url, edition_num):
 
         # redirect to annotate page, with next query param being the current
         # page. Multi-layered nested return statement. Read carefully.
-        return redirect(url_for("annotate", book_url=book_url, first_line=fl,
-            last_line=ll, next=request.full_path))
+        return redirect(url_for("annotate", text_url=text_url,
+            edition_num=edition.num, first_line=fl, last_line=ll,
+            next=request.full_path))
 
     # get all the annotations
     if tag:
@@ -701,10 +702,12 @@ def read(text_url, edition_num):
 ## Annotation System ##
 #######################
 
-@app.route("/annotate/<book_url>/<first_line>/<last_line>/",
+@app.route("/annotate/<text_url>/<first_line>/<last_line>/",
+        methods=["GET", "POST"], defaults={"edition_num":None})
+@app.route("/annotate/<text_url>/edition/<edition_num>/<first_line>/<last_line>/",
         methods=["GET", "POST"])
 @login_required
-def annotate(book_url, first_line, last_line):
+def annotate(text_url, edition_num, first_line, last_line):
     if int(first_line) > int(last_line):
         tmp = first_line
         first_line = last_line
@@ -715,11 +718,14 @@ def annotate(book_url, first_line, last_line):
         first_line = 1
         last_line = 1
 
-
-    book = Book.query.filter_by(url=book_url).first_or_404()
-    lines = book.lines.filter(Line.num>=first_line,
-            Line.num<=last_line).all()
-    context = book.lines.filter(Line.num>=int(first_line)-5,
+    text = Text.query.filter_by(title=text_url.replace("_"," ")).first_or_404()
+    if edition_num:
+        edition = Edition.query.filter(Edition.text_id==text.id,
+                Edition.num==edition_num).first_or_404()
+    else:
+        edition = text.primary
+    lines = edition.lines.filter(Line.num>=first_line, Line.num<=last_line).all()
+    context = edition.lines.filter(Line.num>=int(first_line)-5,
             Line.num<=int(last_line)+5).all()
     form = AnnotationForm()
 
@@ -746,22 +752,25 @@ def annotate(book_url, first_line, last_line):
 
         if fail:
             return render_template("forms/annotation.html", title=book.title,
-                    form=form, book=book, lines=lines, context=context)
+                    form=form, text=text, edition=edition, lines=lines,
+                    context=context)
         elif len(tags) > 5:
             flash("There is a five tag limit.")
             return render_template("forms/annotation.html", title=book.title,
-                    form=form, book=book, lines=lines, context=context)
+                    form=form, text=text, edition=edition, lines=lines,
+                    context=context)
 
         locked = form.locked.data\
                 and current_user.is_authorized("lock_annotations")
 
         # Create the annotation annotation with HEAD pointing to anno
-        head = Annotation(book=book, annotator=current_user, locked=locked)
+        head = Annotation(edition=edition, annotator=current_user, locked=locked)
 
         # I'll use the language of git
         # Create the inital transient sqlalchemy Edit object
         commit = Edit(
-                book=book, approved=True, current=True, editor=current_user,
+                edition=edition, approved=True, current=True,
+                editor=current_user,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
@@ -790,23 +799,23 @@ def annotate(book_url, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template("forms/annotation.html", title=book.title, form=form,
-             book=book, lines=lines, context=context)
+    return render_template("forms/annotation.html", title=text.title, form=form,
+             text=text, edition=edition, lines=lines, context=context)
 
 @app.route("/edit/<annotation_id>/", methods=["GET", "POST"])
 @login_required
 def edit(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(url_for("annotation",
-        annotation_id=annotation_id))
+    redirect_url = generate_next(
+            url_for("annotation", annotation_id=annotation_id))
     if annotation.locked == True\
             and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
         return redirect(redirect_url)
     elif not annotation.active:
         current_user.authorize("edit_deactivated_annotations")
-    lines = annotation.lines
-    context = annotation.context
+    lines = annotation.HEAD.lines
+    context = annotation.HEAD.context
     form = AnnotationForm()
     if form.validate_on_submit():
         # line number boilerplate
@@ -835,10 +844,9 @@ def edit(annotation_id):
             flash("Please provide a reason for your edit.")
             fail = True
 
-        edit_num = int(annotation.HEAD.edit_num+1) if annotation.HEAD.edit_num\
-                else 1
-        edit = Edit(book=annotation.book,
-                editor=current_user, edit_num=edit_num,
+        num = int(annotation.HEAD.num+1) if annotation.HEAD.num else 1
+        edit = Edit(edition=annotation.edition,
+                editor=current_user, num=num,
                 edit_reason=form.reason.data, annotation=annotation,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=form.first_char_idx.data,
@@ -855,8 +863,8 @@ def edit(annotation_id):
                 or annotation.annotator == current_user
         if fail: # rerender the template with the work already filled
             return render_template("forms/annotation.html", form=form,
-                    title=annotation.HEAD.book.title, lines=lines, 
-                    book=annotation.HEAD.book, annotation=annotation)
+                    title=annotation.text.title, lines=lines, 
+                    text=annotation.text, annotation=annotation)
         elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
             # Don't add the edit, but flash lock message
             if annotation.locked:
@@ -890,7 +898,7 @@ def edit(annotation_id):
         form.tags.data = " ".join(tag_strings)
         form.locked.data = annotation.locked
     return render_template("forms/annotation.html", form=form,
-            title=f"Edit Annotation {annotation.id}", book=annotation.HEAD.book,
+            title=f"Edit Annotation {annotation.id}", text=annotation.text,
             lines=lines, annotation=annotation, context=context)
 
 @app.route("/rollback/<annotation_id>/edit/<edit_id>/", methods=["GET", "POST"])
