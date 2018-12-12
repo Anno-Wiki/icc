@@ -815,7 +815,7 @@ def edit_bio(author_id):
 @login_required
 def edit_summary(text_id):
     current_user.authorize("edit_summaries")
-    text = Book.query.get_or_404(text_id)
+    text = Text.query.get_or_404(text_id)
     form = TextForm()
     redirect_url = generate_next(url_for("text", text_url=text.url))
     if form.validate_on_submit():
