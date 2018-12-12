@@ -4,9 +4,14 @@
 <h1>{{ text.title }}</h1>
 <h2>
     by
-    <a href="{{ url_for("writer", writer_url=text.authors[0].url) }}">
-    {{ text.authors[0].name }}
-    </a>
+    {% for author in text.authors %}
+        <a href="{{ url_for("writer", writer_url=author.url) }}">
+            {{ author.name }}
+        </a>
+        {% if author != text.authors[-1] %}
+            , 
+        {% endif %}
+    {% endfor %}
 </h2>
 
 <div id="summary"> {{ text.summary|markdown }} </div>

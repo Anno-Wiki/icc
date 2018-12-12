@@ -468,10 +468,20 @@ textarea {
 .card .card_text_cutoff p:after {
     content: "...";
 }
-.card h2 {
-    margin: 0 0 3px 0;
-    font-size: 20px;
+.card h1, .card h2, .card h3, .card h4, .card h5 {
     color: var(--base00);
+    margin: 0;
+}
+.card h1 {
+    font-size: 20px;
+}
+.card h2 {
+    font-size: 18px;
+    margin: 0 0 0 2px;
+}
+.card h3 {
+    font-size: 16px;
+    margin: 0 0 0 4px;
 }
 .card .externals {
     font-size: 12px;

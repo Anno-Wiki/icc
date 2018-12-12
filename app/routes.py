@@ -8,9 +8,11 @@ from flask_login import current_user, login_required
 from sqlalchemy import and_
 
 from app import app, db
-from app.models import User, Text, Edition, Writer, Line, LineEnum, Annotation,\
-        Edit, Tag, EditVote, Vote, AnnotationFlag, AnnotationFlagEnum,\
-        tags as tags_table, authors as authors_table
+from app.models import User, Text, Edition, Writer,\
+        WriterEditionConnection, ConnectionEnum,\
+        Line, LineEnum,\
+        Annotation, AnnotationFlag, AnnotationFlagEnum, Vote, Edit, EditVote,\
+        Tag, tags as tags_table, authors as authors_table
 from app.forms import AnnotationForm, LineNumberForm, SearchForm
 from app.funky import preplines, generate_next, line_check
 
@@ -102,7 +104,6 @@ def writer_index():
         writers = Writer.query\
                 .order_by(Writer.last_name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
-    elif sort == "full name":
         writers = Writer.query\
                 .order_by(Writer.name.asc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
@@ -114,12 +115,30 @@ def writer_index():
         writers = Writer.query\
                 .order_by(Writer.birth_date.desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
-    elif sort == "books":
+    elif sort == "authored":
         writers = Writer.query\
                 .outerjoin(authors_table)\
                 .outerjoin(Text, Text.id==authors_table.c.text_id)\
                 .group_by(Writer.id)\
                 .order_by(db.func.count(Text.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "edited":
+        writers = Writer.query\
+                .outerjoin(WriterEditionConnection)\
+                .outerjoin(ConnectionEnum,
+                        and_(ConnectionEnum.id==WriterEditionConnection.enum_id,
+                            ConnectionEnum.type=="Editor"))\
+                .group_by(Writer.id)\
+                .order_by(db.func.count(ConnectionEnum.id).desc())\
+                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+    elif sort == "translated":
+        writers = Writer.query\
+                .outerjoin(WriterEditionConnection)\
+                .outerjoin(ConnectionEnum,
+                        and_(ConnectionEnum.id==WriterEditionConnection.enum_id,
+                            ConnectionEnum.type=="Translator"))\
+                .group_by(Writer.id)\
+                .order_by(db.func.count(ConnectionEnum.id).desc())\
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     else:
         writers = Writer.query\
@@ -127,10 +146,11 @@ def writer_index():
                 .paginate(page, app.config["CARDS_PER_PAGE"], False)
     sorts = {
             "last name": url_for("writer_index", sort="last name", page=page),
-            "name": url_for("writer_index", sort="name", page=page),
             "oldest": url_for("writer_index", sort="oldest", page=page),
             "youngest": url_for("writer_index", sort="youngest", page=page),
-            "books": url_for("writer_index", sort="books", page=page),
+            "authored": url_for("writer_index", sort="authored", page=page),
+            "edited": url_for("writer_index", sort="edited", page=page),
+            "translated": url_for("writer_index", sort="translated", page=page),
             }
 
     next_page = url_for("writer_index", page=writers.next_num, sort=sort) \

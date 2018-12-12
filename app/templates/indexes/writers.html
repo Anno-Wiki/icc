@@ -20,14 +20,13 @@ sort by:
                 {% if writer.birth_date.year %}
                     <div class="life_years">
                         {{ writer.birth_date.year }}-{{
-                            writer.death_date.year }} 
+                            writer.death_date.year }}
                     </div>
                 {% endif %}
             </h2>
 
-            Books &times; {{ len(writer.texts) }}
+            Author &times; {{ len(writer.authored) }}
             <br>
-
             {% if current_user.is_authenticated and writer in
                 current_user.followed_writers %}
                 <a href="{{ url_for("user.follow_writer", writer_id=writer.id,

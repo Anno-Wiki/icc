@@ -455,7 +455,17 @@ class Writer(db.Model):
     bio = db.Column(db.Text, default="This writer has no biography yet.")
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    texts = db.relationship("Text", secondary=authors)
+    authored = db.relationship("Text", secondary=authors)
+    edited = db.relationship("Edition",
+        secondary="join(WriterEditionConnection, ConnectionEnum)",
+        primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
+        "ConnectionEnum.type=='Editor')",
+        secondaryjoin="Edition.id==WriterEditionConnection.edition_id")
+    translated = db.relationship("Edition",
+        secondary="join(WriterEditionConnection, ConnectionEnum)",
+        primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
+        "ConnectionEnum.type=='Translator')",
+        secondaryjoin="Edition.id==WriterEditionConnection.edition_id")
     annotations = db.relationship("Annotation",
             secondary="join(text,authors).join(Edition)",
             primaryjoin="Writer.id==authors.c.writer_id",
@@ -528,18 +538,27 @@ class Edition(db.Model):
                 if self.primary\
                 else f"{self.text.title} Edition {self.num}"
 
+    def __repr__(self):
+        return f"<Edition #{self.num} {self.text.title}>"
+
 class WriterEditionConnection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey("writer.id"))
     edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"))
     enum_id = db.Column(db.Integer, db.ForeignKey("connection_enum.id"))
 
-    writer = db.relationship("Writer")
+    writer = db.relationship("Writer", backref="connections")
     edition = db.relationship("Edition")
+    enum = db.relationship("ConnectionEnum")
+
+    def __repr__(self):
+        return f"<{self.writer.name} was {self.type.type} on {self.edition}>"
 
 class ConnectionEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(128))
+    def __repr__(self):
+        return f"<ConnEnum {self.type}>"
 
 ################
 ## Tag System ##
