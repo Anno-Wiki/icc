@@ -3,8 +3,7 @@
 {% block content %}
 
 <div id="content">
-    <div class="selection">
-        <!--header info, e.g., title, author, etc.-->
+        {% set text = annotation.text %}
         <h1>
             Annotation [{{ annotation.id }}]
             {% if annotation.locked %}
@@ -13,107 +12,27 @@
         </h1>
         <h2>
             on
-            <em>
-                <a href="{{ annotation.HEAD.lines[0].get_url() }}#{{
-                    annotation.HEAD.first_line_num }}">
-                    {%- if annotation.HEAD.first_line_num ==
-                        annotation.HEAD.last_line_num %}
-                        l.{{ annotation.HEAD.last_line_num }}
-                    {% else -%}
-                        ll.{{ annotation.HEAD.first_line_num }}-{{
-                        annotation.HEAD.last_line_num }}
-                    {% endif -%}
-                </a>
-            </em>
+            <em>{% include "includes/_annotation_line_nums.html" %}</em>
             of
             <em>
-                <a href="{{ url_for("book", book_url=annotation.book.url) }}">
-                    {{ annotation.book.title }}
+                <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+                    {{ annotation.text.title }}
                 </a>
             </em>
-            by
-            <a href="{{ url_for("author", name=annotation.book.author.url) }}">
-                {{ annotation.book.author.name }}
-            </a>
         </h2>
 
         <h3>
-            <!--Weight-->
-            {% if annotation.weight > 0 -%}
-                <weight class="up">{{ annotation.readable_weight() }}</weight>
-            {%- elif annotation.weight == 0 -%}
-                <weight class="nil">{{ annotation.readable_weight() }}</weight>
-            {%- else -%}
-                <weight class="down">{{ annotation.readable_weight() }}</weight>
-            {%- endif -%}
+            {% include "includes/_annotation_weight.html" %}
             &nbsp;|
-            <!--up/down vote buttons-->
-            {% if uservotes and annotation.id in uservotes and 
-                uservotes[annotation.id] %}
-                <a href="{{ url_for("upvote", annotation_id=annotation.id,
-                    next=request.full_path) }}" class="voted">
-                    up
-                </a>
-            {% else %}
-                <a href="{{ url_for("upvote", annotation_id=annotation.id,
-                    next=request.full_path) }}" class="notvoted">
-                    up
-                </a>
-            {% endif -%}
-            /
-            {%- if uservotes and annotation.id in uservotes and not
-                uservotes[annotation.id] %}
-                <a href="{{ url_for("downvote", annotation_id=annotation.id,
-                    next=request.full_path) }}" class="voted">
-                    down
-                </a>
-            {% else %}
-                <a href="{{ url_for("downvote", annotation_id=annotation.id,
-                    next=request.full_path) }}" class="notvoted">
-                    down
-                </a>
-            {% endif -%}
-
+            {% include "includes/_annotation_vote.html" %}
             {% if current_user != annotation.annotator %}
-                {% if current_user.is_authenticated and annotation in
-                    current_user.followed_annotations %}
-                    | <a href="{{ url_for("user.follow_annotation",
-                        annotation_id=annotation.id, next=request.full_path) }}">
-                        unfollow
-                    </a>
-                {% else %}
-                    | <a href="{{ url_for("user.follow_annotation",
-                        annotation_id=annotation.id, next=request.full_path) }}">
-                        follow
-                    </a>
-                {% endif %}
+                |
+                {% include "includes/_annotation_follow.html" %}
             {% endif %}
+
         </h3>
         <h4>
-            {%- if annotation.HEAD.edit_num == 0 %}
-                <a href="{{ url_for("view_edit", annotation_id=annotation.id,
-                    edit_num=annotation.HEAD.edit_num) }}">
-                    annotated by
-                </a>
-                <a href="{{ url_for("user.profile", user_id=annotation.annotator.id) }}">
-                    {{ annotation.annotator.displayname }}
-                </a>
-                <strong>{{ annotation.annotator.readable_reputation() }}</strong>
-                {{ annotation.added }}
-            {%- else -%}
-                <a href="{{ url_for("view_edit", annotation_id=annotation.id,
-                    edit_num=annotation.HEAD.edit_num) }}">
-                    last edited
-                </a>
-                by
-                <a href="{{ url_for("user.profile", user_id=annotation.HEAD.editor.id) }}">
-                    {{ annotation.HEAD.editor.displayname }}
-                </a>
-                <strong>
-                    {{ annotation.HEAD.editor.readable_reputation() }}
-                </strong>
-                {{ annotation.HEAD.modified }}
-            {% endif %}
+            {% include "includes/_annotation_authorship.html" %}
         </h4>
             
         <em>
