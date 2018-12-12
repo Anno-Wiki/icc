@@ -1,11 +1,15 @@
 from flask import app
-from app import elasticsearch
+from app import app, elasticsearch
 
 def add_to_index(index, model):
     if not elasticsearch:
         return
     payload = {}
+    if app.config["DEBUG"]:
+        print(model)
     for field in model.__searchable__:
+        if app.config["DEBUG"]:
+            print(field)
         payload[field] = getattr(model, field)
     elasticsearch.index(index=index, doc_type=index, id=model.id, body=payload)
 

@@ -17,12 +17,6 @@ from app.search import *
 # errors; please keep that as last.
 from app import app, db, login
 
-# Please note, about the searchable mixin before and after commit methods, that
-# if you run into a "session in committed state error" the reason is that you
-# are indexing a searchable field relationship that requires the calling of sql
-# to index. The answer is to make that relationship lazy="joined". I have had to
-# solve this problem numerous times and I am making this comment to never
-# forget.
 class SearchableMixin(object):
     @classmethod
     def search(cls, expression, page, per_page):
@@ -44,6 +38,15 @@ class SearchableMixin(object):
                 "update": list(session.dirty),
                 "delete": list(session.deleted)
                 }
+        # This accesses all the necessary fields in searchable so they are
+        # loaded into memory from sqlalchemy before we commit
+        print(session._changes)
+        for key, change in session._changes.items():
+            for obj in change:
+                if isinstance(obj, SearchableMixin):
+                    for field in obj.__searchable__:
+                        getattr(obj, field)
+
 
     @classmethod
     def after_commit(cls, session):
@@ -492,15 +495,15 @@ class Text(db.Model):
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    authors = db.relationship("Writer", secondary="authors", lazy="joined")
-    editions = db.relationship("Edition", lazy="joined")
+    authors = db.relationship("Writer", secondary="authors") 
+    editions = db.relationship("Edition")
     annotations = db.relationship("Annotation", secondary="edition",
             primaryjoin="Text.id==Edition.text_id",
             secondaryjoin="and_(Annotation.edition_id==Edition.id,"
             "Annotation.active==True)", lazy="dynamic")
     primary = db.relationship("Edition",
             primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
-            lazy="joined", uselist=False)
+            uselist=False)
 
     @orm.reconstructor
     def init_on_load(self):
@@ -608,9 +611,8 @@ class Line(SearchableMixin, db.Model):
     em_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
     line = db.Column(db.String(200))
 
-    edition = db.relationship("Edition", lazy="joined")
-    text = db.relationship("Text", secondary="edition", lazy="joined",
-            uselist=False)
+    edition = db.relationship("Edition")
+    text = db.relationship("Text", secondary="edition", uselist=False)
     label = db.relationship("LineEnum", foreign_keys=[label_id])
     em_status = db.relationship("LineEnum", foreign_keys=[em_id])
     context = db.relationship("Line",
@@ -753,28 +755,24 @@ class Annotation(SearchableMixin, db.Model):
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    annotator = db.relationship("User", lazy="joined")
-    edition = db.relationship("Edition")
+    annotator = db.relationship("User")
     first_line = db.relationship("Line", secondary="edit",
             primaryjoin="Edit.annotation_id==Annotation.id",
             secondaryjoin="and_(Line.edition_id==Annotation.edition_id,"
             "Edit.first_line_num==Line.num)",
             uselist=False)
 
-    text = db.relationship("Text", secondary="edition", lazy="joined",
-            uselist=False)
     edition = db.relationship("Edition",
             backref=backref("annotations", lazy="dynamic"))
 
     # relationships to `Edit`
     HEAD = db.relationship("Edit",
             primaryjoin="and_(Edit.current==True,"
-            "Edit.annotation_id==Annotation.id)", uselist=False,
-            lazy="joined")
+            "Edit.annotation_id==Annotation.id)", uselist=False)
 
     edits = db.relationship("Edit",
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
-            "Edit.approved==True)", lazy="joined", passive_deletes=True)
+            "Edit.approved==True)", passive_deletes=True)
     history = db.relationship("Edit",
             primaryjoin="and_(Edit.annotation_id==Annotation.id,"
             "Edit.approved==True)", lazy="dynamic", passive_deletes=True)
@@ -813,7 +811,7 @@ class Annotation(SearchableMixin, db.Model):
         if attr.startswith("annotator_"):
             return getattr(self.annotator, attr.replace("annotator_", "", 1))
         elif attr.startswith("text_"):
-            return getattr(self.text, attr.replace("text_", "", 1))
+            return getattr(self.edition.text, attr.replace("text_", "", 1))
         elif attr.startswith("body"):
             return self.HEAD.body
         else:

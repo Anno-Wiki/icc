@@ -2,6 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
+    DEBUG = True
     ADMINS = ["emails@futuretld.org"]
     ANNOTATIONS_PER_PAGE = 5
     AUTHORIZATION = { 
