@@ -325,51 +325,50 @@ def text(text_url):
 def text_annotations(text_url):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "weight", type=str)
-    book = Book.query.filter_by(url=book_url).first_or_404()
+    text = Text.query.filter_by(title=text_url.replace("_", " ")).first_or_404()
     if sort == "newest":
-        annotations = book.annotations\
+        annotations = text.annotations\
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "oldest":
-        annotations = book.annotations\
+        annotations = text.annotations\
                 .order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "weight":
-        annotations = book.annotations\
+        annotations = text.annotations\
                 .order_by(Annotation.weight.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     elif sort == "line":
-        annotations = book.annotations\
-                .outerjoin(Edit, and_(
-                    Edit.annotation_id==Annotation.id,
-                    Edit.current==True))\
+        annotations = text.annotations\
+                .join(Edit, Annotation.id==Edit.annotation_id)\
+                .filter(Edit.current==True)\
                 .order_by(Edit.last_line_num.asc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
     else:
-        annotations = book.annotations\
+        annotations = text.annotations\
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort = "newest"
         
     annotationflags = AnnotationFlagEnum.query.all()
     sorts = {
-            "newest": url_for("book_annotations", book_url=book.url,
+            "newest": url_for("text_annotations", text_url=text.url,
                 sort="newest", page=page),
-            "oldest": url_for("book_annotations", book_url=book.url,
+            "oldest": url_for("text_annotations", text_url=text.url,
                 sort="oldest", page=page),
-            "weight": url_for("book_annotations", book_url=book.url,
+            "weight": url_for("text_annotations", text_url=text.url,
                 sort="weight", page=page),
-            "line": url_for("book_annotations", book_url=book.url, sort="line",
+            "line": url_for("text_annotations", text_url=text.url, sort="line",
                 page=page),
             }
-    next_page = url_for("book_annotations", book_url=book.url, sort=sort,
+    next_page = url_for("text_annotations", text_url=text.url, sort=sort,
             page=annotations.next_num) if annotations.has_next else None
-    prev_page = url_for("book_annotations", book_url=book_url, sort=sort,
+    prev_page = url_for("text_annotations", text_url=text_url, sort=sort,
             page=annotations.prev_num) if annotations.has_prev else None
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
     return render_template("indexes/annotation_list.html",
-            title=f"{book.title} - Annotations", annotations=annotations.items,
+            title=f"{text.title} - Annotations", annotations=annotations.items,
             sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
             annotationflags=annotationflags, uservotes=uservotes)
 
@@ -382,7 +381,6 @@ def edition(text_url, edition_num):
     # get the labels for each heierarchical chapter level
     labels = LineEnum.query.filter(LineEnum.label.startswith("lvl")).all()
     label_ids = [l.id for l in labels]
-
 
     # get all the heierarchical chapter lines
     hierarchy = edition.lines.filter(Line.label_id.in_(label_ids))\
