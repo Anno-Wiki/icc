@@ -497,10 +497,6 @@ class Text(db.Model):
 
     authors = db.relationship("Writer", secondary="authors") 
     editions = db.relationship("Edition")
-    annotations = db.relationship("Annotation", secondary="edition",
-            primaryjoin="Text.id==Edition.text_id",
-            secondaryjoin="and_(Annotation.edition_id==Edition.id,"
-            "Annotation.active==True)", lazy="dynamic")
     primary = db.relationship("Edition",
             primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
             uselist=False)
@@ -514,11 +510,14 @@ class Text(db.Model):
     def __repr__(self):
         return f"<Text {self.id}: {self.title}>"
 
-#    def __getattr__(self, attr):
-#        if attr.startswith("author_"):
-#            return getattr(self.author, attr.replace("author_", "", 1))
-#        else:
-#            raise AttributeError(f"No such attribute {attr}")
+    def __getattr__(self, attr):
+        if attr.startswith("author_"):
+            authors = []
+            for author in self.authors:
+                authors.append(author.name)
+            return " ".join(authors)
+        else:
+            raise AttributeError(f"No such attribute {attr}")
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -764,6 +763,8 @@ class Annotation(SearchableMixin, db.Model):
 
     edition = db.relationship("Edition",
             backref=backref("annotations", lazy="dynamic"))
+    text = db.relationship("Text", secondary="edition",
+            backref=backref("annotations", lazy="dynamic"), uselist=False)
 
     # relationships to `Edit`
     HEAD = db.relationship("Edit",
