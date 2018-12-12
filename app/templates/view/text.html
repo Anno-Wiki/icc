@@ -4,14 +4,33 @@
 <h1>{{ text.title }}</h1>
 <h2>
     by
-    {% for author in text.authors %}
+    {% if len(text.authors) == 2 %}
+        <a href="{{ url_for("writer", writer_url=text.authors[0].url) }}">
+            {{ text.authors[0].name }}
+        </a>
+        and
+        <a href="{{ url_for("writer", writer_url=text.authors[1].url) }}">
+            {{ text.authors[1].name }}
+        </a>
+    {% elif len(text.authors) == 1 %}
+        <a href="{{ url_for("writer", writer_url=text.authors[0].url) }}">
+            {{ text.authors[0].name }}
+        </a>
+    {% elif len(text.authors) == 0 %}
+        Unattributed
+    {% else %}
+        {% for author in text.authors %}
+            {% if author == text.authors[-1] and author != text.authors[0] %}
+                and
+            {% endif %}
         <a href="{{ url_for("writer", writer_url=author.url) }}">
             {{ author.name }}
         </a>
-        {% if author != text.authors[-1] %}
-            , 
-        {% endif %}
-    {% endfor %}
+            {% if author != text.authors[-1] %}
+                , 
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 </h2>
 
 <div id="summary"> {{ text.summary|markdown }} </div>
