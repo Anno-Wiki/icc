@@ -700,7 +700,6 @@ class Line(SearchableMixin, db.Model):
                         .order_by(Line.num.desc()).first()
             lvl2 = 1
         if self.lvl1 != 0 and not line:
-            print(f"{self.lvl1+1},{lvl2},{lvl3},{lvl4}")
             line = Line.query.filter(
                     Line.edition_id==self.edition_id,
                     Line.lvl1==self.lvl1+1,
@@ -715,8 +714,8 @@ class Line(SearchableMixin, db.Model):
         lvl2 = self.lvl2 if self.lvl2 > 0 else None
         lvl3 = self.lvl3 if self.lvl3 > 0 else None
         lvl4 = self.lvl4 if self.lvl4 > 0 else None
-        return url_for("read", edition_url=self.edition.url, l1=lvl1,
-                l2=lvl2, l3=lvl3, l4=lvl4)
+        return url_for("read", text_url=self.edition.text.url,
+                edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
 
 
 #################
@@ -765,6 +764,8 @@ class Annotation(SearchableMixin, db.Model):
 
     text = db.relationship("Text", secondary="edition", lazy="joined",
             uselist=False)
+    edition = db.relationship("Edition",
+            backref=backref("annotations", lazy="dynamic"))
 
     # relationships to `Edit`
     HEAD = db.relationship("Edit",

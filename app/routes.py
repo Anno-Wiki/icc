@@ -567,13 +567,19 @@ def view_edit(annotation_id, edit_num):
 ## Reading Routes ##
 ####################
 
-@app.route("/read/<text_url>/edition/<edition_num>", methods=["GET", "POST"],
-        defaults={"edition_url":None})
-@app.route("/read/<edition_url>", methods=["GET", "POST"],
-        defaults={"text_url":None,"edition_num":None})
-def read(text_url, edition_num, edition_url):
-    if text_url:
-        text = Text.query.filter_by(url=book_url).first_or_404()
+@app.route("/read/<text_url>/edition/<edition_num>", methods=["GET", "POST"])
+@app.route("/read/<text_url>", methods=["GET", "POST"],
+        defaults={"edition_num":None})
+def read(text_url, edition_num):
+    if edition_num:
+        text = Text.query.filter_by(title=text_url.replace("_", " "))\
+                .first_or_404()
+        edition = Edition.query.filter(Edition.text_id==text.id,
+                Edition.num==edition_num).first_or_404()
+    else:
+        text = Text.query.filter_by(title=text_url.replace("_", " "))\
+                .first_or_404()
+        edition = text.primary
     tag = request.args.get("tag", None, type=str)
     lvl = [request.args.get("l1", 0, type=int)]
     lvl.append(request.args.get("l2", 0, type=int))
@@ -583,23 +589,24 @@ def read(text_url, edition_num, edition_url):
     annotationflags = AnnotationFlagEnum.query.all()
 
     if lvl[3]:
-        lines = book.lines.filter( Line.lvl4==lvl[3], Line.lvl3==lvl[2],
-                Line.lvl2==lvl[1],
-                Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
+        lines = edition.lines.filter(
+                Line.lvl4==lvl[3], Line.lvl3==lvl[2],
+                Line.lvl2==lvl[1], Line.lvl1==lvl[0]
+                ).order_by(Line.num.asc()).all()
     elif lvl[2]:
-        lines = book.lines.filter(
+        lines = edition.lines.filter(
                 Line.lvl3==lvl[2], Line.lvl2==lvl[1], Line.lvl1==lvl[0]
                 ).order_by(Line.num.asc()).all()
     elif lvl[1]:
-        lines = book.lines.filter(
+        lines = edition.lines.filter(
                 Line.lvl2==lvl[1], Line.lvl1==lvl[0]
                 ).order_by(Line.num.asc()).all()
     elif lvl[0]:
-        lines = book.lines.filter(
+        lines = edition.lines.filter(
                 Line.lvl1==lvl[0]
                 ).order_by(Line.num.asc()).all()
     else:
-        lines = book.lines.order_by(Line.num.asc()).all()
+        lines = edition.lines.order_by(Line.num.asc()).all()
 
     if len(lines) <= 0:
         abort(404)
@@ -613,8 +620,7 @@ def read(text_url, edition_num, edition_url):
         # line number boiler plate
         if not form.first_line.data and not form.last_line.data:
             flash("Please enter a first and last line number to annotate a selection.")
-            return redirect(url_for("read", book_url=book.url, tag=tag,
-                lvl1=lvl[0], lvl2=lvl[1], lvl3=lvl[2], lvl4=lvl[3]))
+            return redirect(request.full_path)
         elif not form.first_line.data:
             ll = int(form.last_line.data)
             fl = ll
@@ -640,29 +646,29 @@ def read(text_url, edition_num, edition_url):
     if tag:
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.annotations\
-                .filter(Annotation.book_id==book.id,
-                        Edit.first_line_num>=lines[0].line_num,
-                        Edit.last_line_num<=lines[-1].line_num)\
+                .filter(Annotation.edition_id==text.id,
+                        Edit.first_line_num>=lines[0].num,
+                        Edit.last_line_num<=lines[-1].num)\
                 .all()
         tags = None
     else:
-        annotations = book.annotations.join(Edit,
-                and_(Edit.annotation_id==Annotation.id,
-                    Edit.current==True))\
-                .filter(Edit.last_line_num<=lines[-1].line_num,
-                        Edit.first_line_num>=lines[0].line_num)\
+        annotations = edition.annotations.join(Edit,
+                and_(Edit.annotation_id==Annotation.id, Edit.current==True))\
+                .filter(Edit.last_line_num<=lines[-1].num,
+                        Edit.first_line_num>=lines[0].num)\
                 .all()
         # this query is like 5 times faster than the old double-for loop. I am,
         # however, wondering if some of the join conditions should be offloaded
         # into a filter
         tags = Tag.query.outerjoin(tags_table)\
-                .join(Edit, and_(
-                    Edit.id==tags_table.c.edit_id,
+                .join(Edit,
+                    and_(Edit.id==tags_table.c.edit_id,
                     Edit.current==True,
-                    Edit.book_id==book.id,
-                    Edit.first_line_num>=lines[0].line_num,
-                    Edit.last_line_num<=lines[-1].line_num)
+                    Edit.first_line_num>=lines[0].num,
+                    Edit.last_line_num<=lines[-1].num)
                     )\
+                .join(Annotation)\
+                .filter(Annotation.edition_id==edition.id)\
                 .all()
 
     # index the annotations in a dictionary
@@ -685,11 +691,13 @@ def read(text_url, edition_num, edition_url):
     # than underscores for italics in the body of the actual text (e.g., I'm
     # using other methods to indicate blockquotes), I'll just keep using this.
     preplines(lines)
+    print("made it through the route")
 
-    return render_template("read.html", title=book.title, form=form, book=book,
-            lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
-            tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
-            can_edit_lines=can_edit_lines, annotationflags=annotationflags)
+    return render_template("read.html", title=text.title, form=form, text=text,
+            edition=edition, lines=lines, annotations_idx=annotations_idx,
+            uservotes=uservotes, tags=tags, tag=tag, next_page=next_page,
+            prev_page=prev_page, can_edit_lines=can_edit_lines,
+            annotationflags=annotationflags)
 
 #######################
 ## Annotation System ##
