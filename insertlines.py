@@ -67,7 +67,7 @@ if args.writers:
             db.session.add(writer)
             print(f"Writer {writer.name} created and added to the database.")
             print(f"Please edit {writer.name}'s information in the database.")
-        conn = WriterEditionConnection(writer=writer, edition=edition)
+        conn = WriterEditionConnection(writer=writer, edition=edition, enum=enum)
         db.session.add(conn)
 
 
