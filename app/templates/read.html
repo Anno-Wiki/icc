@@ -6,35 +6,7 @@
 <div class="running_head">
 
     <a href="{{ url_for("text", text_url=text.url) }}">{{ text.title }}</a> 
-    by
-    {% if len(edition.text.authors) == 2 %}
-        <a href="{{ url_for("writer", writer_url=edition.text.authors[0].url) }}">
-            {{ edition.text.authors[0].name }}
-        </a>
-        and
-        <a href="{{ url_for("writer", writer_url=edition.text.authors[1].url) }}">
-            {{ edition.text.authors[1].name }}
-        </a>
-    {% elif len(edition.text.authors) == 1 %}
-        <a href="{{ url_for("writer", writer_url=edition.text.authors[0].url) }}">
-            {{ edition.text.authors[0].name }}
-        </a>
-    {% elif len(edition.text.authors) == 0 %}
-        Unattributed
-    {% else %}
-        {% for author in edition.text.authors %}
-            {% if author == edition.text.authors[-1]
-                and author != edition.text.authors[0] %}
-                and
-            {% endif %}
-            <a href="{{ url_for("writer", writer_url=author.url) }}">
-                {{ author.name }}
-            </a>
-            {% if author != edition.text.authors[-1] %}
-                , 
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% include "includes/_authors.html" %}
 
     &#167;
     {% if lines[0].lvl4 != 0 %}
@@ -54,35 +26,7 @@
 
     {% if edition.translators %}
         <br>
-        translated by
-        {% if len(edition.translators) == 2 %}
-            <a href="{{ url_for("writer", writer_url=edition.translators[0].url) }}">
-                {{ edition.translators[0].name }}
-            </a>
-            and
-            <a href="{{ url_for("writer", writer_url=edition.translators[1].url) }}">
-                {{ edition.translators[1].name }}
-            </a>
-        {% elif len(edition.translators) == 1 %}
-            <a href="{{ url_for("writer", writer_url=edition.text.authors[0].url) }}">
-                {{ edition.translators[0].name }}
-            </a>
-        {% elif len(edition.translators) == 0 %}
-            Unattributed
-        {% else %}
-            {% for translator in edition.translators %}
-                {% if translator == edition.translators[-1]
-                    and author != edition.text.authors[0] %}
-                    and
-                {% endif %}
-                <a href="{{ url_for("writer", writer_url=translator.url) }}">
-                    {{ translator.name }}
-                </a>
-                {% if translator != edition.translators[-1] %}
-                    , 
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+        {% include "includes/_translators.html" %}
     {% endif %}
 
 </div>
