@@ -28,15 +28,6 @@
             previous version
         </a>
     </em>
-    {% if not edit.current %}
-        |
-        <em>
-            <a href="{{ url_for("rollback", annotation_id=edit.annotation_id,
-                edit_id=edit.id) }}">
-                rollback
-            </a>
-        </em>
-    {% endif %}
     {% if current_user.is_authenticated
         and current_user.is_authorized("delete_edits") %}
         |
