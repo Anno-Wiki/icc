@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 2c77e881ef49
+Revision ID: ef169421132d
 Revises: 
-Create Date: 2018-12-11 16:41:18.488085
+Create Date: 2018-12-12 16:50:01.649916
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2c77e881ef49'
+revision = 'ef169421132d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -364,6 +364,7 @@ def upgrade():
     op.create_table('edit',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('editor_id', sa.Integer(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
@@ -379,6 +380,7 @@ def upgrade():
     sa.Column('edit_reason', sa.String(length=255), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.num'], ),
@@ -387,6 +389,7 @@ def upgrade():
     op.create_index(op.f('ix_edit_annotation_id'), 'edit', ['annotation_id'], unique=False)
     op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
     op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
+    op.create_index(op.f('ix_edit_edition_id'), 'edit', ['edition_id'], unique=False)
     op.create_index(op.f('ix_edit_editor_id'), 'edit', ['editor_id'], unique=False)
     op.create_index(op.f('ix_edit_hash_id'), 'edit', ['hash_id'], unique=False)
     op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
@@ -443,6 +446,7 @@ def downgrade():
     op.drop_index(op.f('ix_edit_last_line_num'), table_name='edit')
     op.drop_index(op.f('ix_edit_hash_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_editor_id'), table_name='edit')
+    op.drop_index(op.f('ix_edit_edition_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_current'), table_name='edit')
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')
     op.drop_index(op.f('ix_edit_annotation_id'), table_name='edit')

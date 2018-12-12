@@ -72,6 +72,7 @@ for line in fin:
 
     commit = Edit(
             annotation=head, approved=True, current=True, editor=user,
+            edition_id=args.edition_id,
             first_line_num=l.num, last_line_num=l.num,
             first_char_idx=0, last_char_idx=-1,
             body=fields[0], tags=tags,

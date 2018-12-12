@@ -896,6 +896,7 @@ class EditVote(db.Model):
 class Edit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
     num = db.Column(db.Integer, default=0)
     annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id",
         ondelete="CASCADE"), index=True)
@@ -927,12 +928,15 @@ class Edit(db.Model):
             "remote(Edit.num)<=foreign(Edit.num-1))",
             uselist=True)
     tags = db.relationship("Tag", secondary=tags, passive_deletes=True)
-#    lines = db.relationship("Line", secondary="annotation",
-#        primaryjoin="and_(Line.num>=Edit.first_line_num,"
-#            "Line.num<=Edit.last_line_num,"
-#            "Line.edition_id==Annotation.edition_id)",
-#            viewonly=True, uselist=True,
-#            foreign_keys=[annotation_id,first_line_num,last_line_num])
+    lines = db.relationship("Line",
+            primaryjoin="and_(Line.num>=Edit.first_line_num,"
+            "Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)",
+            uselist=True, foreign_keys=[edition_id,first_line_num,last_line_num])
+    context = db.relationship("Line",
+            primaryjoin="and_(Line.num>=Edit.first_line_num-5,"
+            "Line.num<=Edit.last_line_num+5, Line.edition_id==Edit.edition_id)",
+            uselist=True, viewonly=True,
+            foreign_keys=[edition_id,first_line_num,last_line_num])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
