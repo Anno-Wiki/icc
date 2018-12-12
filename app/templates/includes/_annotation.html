@@ -50,7 +50,10 @@
     |
     {% include "includes/_annotation_vote.html" %}
 
-    {% include "includes/_annotation_follow.html" %}
+    {% if current_user != annotation.annotator %}
+        |
+        {% include "includes/_annotation_follow.html" %}
+    {% endif %}
 
     <div class="dropdown">
         | <a class="dropbtn">flag&#x25be;</a>
@@ -75,5 +78,4 @@
             </a>
         {% endif %}
     {% endif %}
-
 </annotation>

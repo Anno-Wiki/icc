@@ -1,14 +1,12 @@
-{% if annotation.annotator != current_user %}
-    {% if current_user.is_authenticated and annotation in
-        current_user.followed_annotations %}
-        | <a href="{{ url_for("user.follow_annotation",
-            annotation_id=annotation.id, next=request.full_path) }}">
-            unfollow
-        </a>
-    {% else %}
-        | <a href="{{ url_for("user.follow_annotation",
-            annotation_id=annotation.id, next=request.full_path) }}">
-            follow
-        </a>
-    {% endif %}
+{% if current_user.is_authenticated and annotation in
+    current_user.followed_annotations %}
+    <a href="{{ url_for("user.follow_annotation",
+        annotation_id=annotation.id, next=request.full_path) }}">
+        unfollow
+    </a>
+{% else %}
+    <a href="{{ url_for("user.follow_annotation",
+        annotation_id=annotation.id, next=request.full_path) }}">
+        follow
+    </a>
 {% endif %}

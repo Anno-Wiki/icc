@@ -63,7 +63,10 @@
     |
     {% include "includes/_annotation_vote.html" %}
 
-    {% include "includes/_annotation_follow.html" %}
+    {% if current_user != annotation.annotator %}
+        |
+        {% include "includes/_annotation_follow.html" %}
+    {% endif %}
 
     <!--flagging dropdown-->
     <div class="dropdown">
