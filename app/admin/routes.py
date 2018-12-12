@@ -10,7 +10,7 @@ from app.funky import generate_next
 from app.forms import AreYouSureForm
 from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
         EditVote, TextRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
-        AnnotationFlag
+        AnnotationFlag, Edition
 from app.admin import admin
 from app.admin.forms import TagForm, LineForm, TextForm
 
@@ -829,8 +829,22 @@ def edit_summary(text_id):
     return render_template("forms/text.html", title="Edit Summary", form=form)
 
 @admin.route("/edit/edition_history/<edition_id>/", methods=["GET", "POST"])
+@login_required
 def edit_history(edition_id):
-    pass
+    current_user.authorize("edit_summaries")
+    edition = Edition.query.get_or_404(edition_id)
+    form = TextForm()
+    redirect_url = generate_next(url_for("edition", text_url=edition.text.url,
+        edition_num=edition.num))
+    if form.validate_on_submit():
+        if form.text.data != None:
+            edition.history = form.text.data
+            db.session.commit()
+            flash("History updated.")
+            return redirect(redirect_url)
+    else:
+        form.text.data = edition.history
+    return render_template("forms/text.html", title="Edit History", form=form)
 
 @admin.route("/edit/tag/<tag_id>/", methods=["GET", "POST"])
 @login_required
