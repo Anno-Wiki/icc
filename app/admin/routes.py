@@ -828,6 +828,10 @@ def edit_summary(text_id):
         form.text.data = text.summary
     return render_template("forms/text.html", title="Edit Summary", form=form)
 
+@admin.route("/edit/edition_history/<edition_id>/", methods=["GET", "POST"])
+def edit_history(edition_id):
+    pass
+
 @admin.route("/edit/tag/<tag_id>/", methods=["GET", "POST"])
 @login_required
 def edit_tag(tag_id):

@@ -115,17 +115,16 @@
             <tr class="unread">
                 <td>
                     <a href="{{ url_for("view_edit",
-                        annotation_id=annotation.id, edit_num=edit.edit_num)
-                        }}">
-                        {{ edit.edit_num }}
+                        annotation_id=annotation.id, edit_num=edit.num) }}">
+                        {{ edit.num }}
                     </a>
                 </td>
                 <td>
-                    <a href="{{ url_for("user", user_id=edit.editor_id) }}">
+                    <a href="{{ url_for("user.profile", user_id=edit.editor_id) }}">
                         {{ edit.editor.displayname }}
                     </a>
                 </td>
-                <td> {{ edit.modified }} </td>
+                <td> {{ edit.timestamp }} </td>
                 <td> {{ edit.edit_reason }} </td>
             </tr>
         {% endfor %}

@@ -1,6 +1,6 @@
-{%- if annotation.HEAD.edit_num == 0 %}
+{%- if annotation.HEAD.num == 0 %}
     <a href="{{ url_for("view_edit", annotation_id=annotation.id,
-        edit_num=annotation.HEAD.edit_num) }}">
+        num=annotation.HEAD.num) }}">
         annotated
     </a>
     by
@@ -11,7 +11,7 @@
     {{ annotation.added }}
 {%- else -%}
     <a href="{{ url_for("view_edit", annotation_id=annotation.id,
-        edit_num=annotation.HEAD.edit_num) }}">
+        num=annotation.HEAD.num) }}">
         last edited
     </a>
     by <a href="{{ url_for("user.profile", user_id=annotation.HEAD.editor.id) }}">

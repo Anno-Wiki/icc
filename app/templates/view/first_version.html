@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="content">
-    <h1>Annotation {{ edit.annotation.id }} of {{ edit.book.title }}</h1>
+    <h1>Annotation {{ edit.annotation.id }} of {{ edit.edition.text.title }}</h1>
     <h2>Initial Version</h2>
     <em>
         <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id) }}">

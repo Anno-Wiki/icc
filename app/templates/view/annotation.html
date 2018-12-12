@@ -43,7 +43,7 @@
         |
         <em>
             <a href="{{ url_for("view_edit", annotation_id=annotation.id,
-                edit_num=annotation.HEAD.previous.edit_num) }}">
+                num=annotation.HEAD.previous.num) }}">
                 previous version
             </a>
         </em>
@@ -121,7 +121,7 @@
             {% else %}
                 <line class="{{ line.label.label }}" id="{{ line.line_num }}">
                     {%- if line.label.label == 'hr' -%}
-                        <hr class="book_separator">
+                        <hr class="text_separator">
                     {%- else -%}
                         {{ line.line|safe }}
                     {%- endif -%}

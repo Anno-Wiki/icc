@@ -462,17 +462,17 @@ def edit_history(annotation_id):
         current_user.authorize("view_deactivated_annotations")
 
     page = request.args.get("page", 1, type=int)
-    sort = request.args.get("sort", "edit_num_invert", type=str)
+    sort = request.args.get("sort", "num_invert", type=str)
 
-    if sort == "edit_num":
+    if sort == "num":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.edit_num.asc())\
+                .order_by(Edit.num.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-    elif sort == "edit_num_invert":
+    elif sort == "num_invert":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.edit_num.desc())\
+                .order_by(Edit.num.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "editor":
         edits = annotation.history.outerjoin(User)\
@@ -506,10 +506,8 @@ def edit_history(annotation_id):
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         edits = annotation.history\
-                .outerjoin(EditVote,
-                        and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==Edit.id)
-                        )\
+                .outerjoin(EditVote, and_(EditVote.user_id==current_user.id,
+                            EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==True)\
                 .order_by(EditVote.delta.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
@@ -525,11 +523,11 @@ def edit_history(annotation_id):
             edits=edits.items, sort=sort, next_page=next_page,
             prev_page=prev_page, annotation=annotation, page=page)
 
-@app.route("/annotation/<annotation_id>/edit/<edit_num>")
-def view_edit(annotation_id, edit_num):
+@app.route("/annotation/<annotation_id>/edit/<num>")
+def view_edit(annotation_id, num):
     edit = Edit.query.filter(
             Edit.annotation_id==annotation_id,
-            Edit.edit_num==edit_num,
+            Edit.num==num,
             Edit.approved==True
             ).first_or_404()
 
@@ -560,7 +558,7 @@ def view_edit(annotation_id, edit_num):
             if line not in context:
                 context.append(line)
 
-    return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
+    return render_template("view/edit.html", title=f"Edit number {edit.num}",
             diff=diff, edit=edit, tags=tags, context=context)
 
 ####################

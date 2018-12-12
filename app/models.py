@@ -916,6 +916,7 @@ class Edit(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 
+    edition = db.relationship("Edition")
     editor = db.relationship("User")
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
     previous = db.relationship("Edit",
