@@ -57,6 +57,10 @@ fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
 tags = [original_tag, author_tag]
 
+edition = Edition.query.get(args.edition_id)
+if not edition:
+    parser.error("edition_id not in database.")
+
 cnt = 0
 for line in fin:
     fields = line.split("@")
@@ -68,15 +72,16 @@ for line in fin:
 
 
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(edition_id=args.edition_id, annotator=user, locked=True)
+    head = Annotation(edition=edition, annotator=user, locked=True)
 
     commit = Edit(
             annotation=head, approved=True, current=True, editor=user,
-            edition_id=args.edition_id,
-            first_line_num=l.num, last_line_num=l.num,
+            edition=edition, first_line_num=l.num, last_line_num=l.num,
             first_char_idx=0, last_char_idx=-1,
             body=fields[0], tags=tags,
             num=0, edit_reason="Initial version")
+
+    head.HEAD = commit
 
     # add commit and head, commit both
     if not args.dryrun:

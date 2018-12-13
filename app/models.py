@@ -17,6 +17,13 @@ from app.search import *
 # errors; please keep that as last.
 from app import app, db, login
 
+# if you encounter an error while committing to the effect that "NoneType has no
+# attribute <x>" what you have done is specify an id# instead of an object. Use
+# the ORM. if that is not the case, it is because, for example, in the case of
+# Annotation.HEAD, you have created a new Annotation and Edit for HEAD to point
+# to, but because of the complex relationship to form HEAD, HEAD is still empty.
+# Simply add the expression `<annotation>.HEAD = <edit>` and you'll be gold,
+# even if it _is_ unecessary.
 class SearchableMixin(object):
     @classmethod
     def search(cls, expression, page, per_page):
@@ -40,7 +47,6 @@ class SearchableMixin(object):
                 }
         # This accesses all the necessary fields in searchable so they are
         # loaded into memory from sqlalchemy before we commit
-        print(session._changes)
         for key, change in session._changes.items():
             for obj in change:
                 if isinstance(obj, SearchableMixin):
@@ -629,7 +635,7 @@ class Line(SearchableMixin, db.Model):
             uselist=True, foreign_keys=[num,edition_id])
 
     def __repr__(self):
-        return f"<l{self.id}: l{self.num} {self.edition.text.title} [{self.label.display}]>"
+        return f"<l{self.num} {self.edition.text.title} [{self.label.display}]>"
 
     def __getattr__(self, attr):
         if attr.startswith("text_"):

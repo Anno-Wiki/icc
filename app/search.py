@@ -5,8 +5,6 @@ def add_to_index(index, model):
     if not elasticsearch:
         return
     payload = {}
-    if app.config["DEBUG"]:
-        print(model)
     for field in model.__searchable__:
         if app.config["DEBUG"]:
             print(field)

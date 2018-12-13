@@ -55,7 +55,7 @@ if args.writers:
         writer = data[0]
         enum = ConnectionEnum.query.filter_by(type=conn_type).first()
         if not enum:
-            db.session.rollbac()
+            db.session.rollback()
             parser.error(f"Your connection type for {writer}, {conn_type}, does"
                     " not exist in the database.")
         writer_query = Writer.query.filter_by(name=writer).first()
@@ -74,14 +74,14 @@ if args.writers:
 labels = LineEnum.query.all()
 label = {}
 for l in labels:
-    label[f"{l.label}>{l.display}"] = l.id
+    label[f"{l.label}>{l.display}"] = l
 i = 1
 for line in fin:
 
     fields = line.split("@")
 
     l = Line(edition=edition, num=fields[0],
-            label_id=label[fields[1]], em_id=label[fields[2]],
+            label=label[fields[1]], em_status=label[fields[2]],
             lvl1=fields[3], lvl2=fields[4], lvl3=fields[5], lvl4=fields[6],
             line=fields[7][:-1])
 

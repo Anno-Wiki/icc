@@ -9,6 +9,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 echo "populating enum tables..."
 sudo mysql icc < $DIR/sql/connection_enums.sql
+sudo mysql icc < $DIR/sql/flags.sql
 sudo mysql icc < $DIR/sql/line_enums.sql
 sudo mysql icc < $DIR/sql/notification_enums.sql
 sudo mysql icc < $DIR/sql/reputation_enums.sql
