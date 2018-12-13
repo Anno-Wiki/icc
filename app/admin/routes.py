@@ -373,12 +373,12 @@ def all_annotation_flags():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver":
         flags = AnnotationFlag.query\
-                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = AnnotationFlag.query\
-                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_resolved":
@@ -395,14 +395,15 @@ def all_annotation_flags():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "annotation_invert":
         flags = AnnotationFlag.query\
-                .order_by(AnnotationFlag.annotation_id.asc())\
+                .order_by(AnnotationFlag.annotation_id.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "text":
         flags = AnnotationFlag.query\
-                .outerjoin(Annotation,
+                .join(Annotation,
                         Annotation.id==AnnotationFlag.annotation_id)\
-                .outerjoin(Book, Book.id==Annotation.text_id)\
-                .order_by(Book.sort_title)\
+                .join(Edition, Edition.id==Annotation.edition_id)\
+                .join(Text, Text.id==Edition.text_id)\
+                .order_by(Text.sort_title)\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         flags = AnnotationFlag.query\
@@ -442,9 +443,9 @@ def annotation_flags(annotation_id):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
     current_user.authorize("resolve_annotation_flags")
+    annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize("resolve_deactivated_annotation_flags")
-    annotation = Annotation.query.get_or_404(annotation_id)
 
     if sort == "marked":
         flags = annotation.flag_history\
@@ -484,12 +485,12 @@ def annotation_flags(annotation_id):
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = annotation.flag_history\
-                .outerjoin(User, User.id==AnnotationFlag.time_resolved_by)\
+                .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_resolved":

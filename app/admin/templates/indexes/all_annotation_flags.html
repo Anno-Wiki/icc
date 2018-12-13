@@ -45,21 +45,21 @@
                 </th>
             {% endif %}
 
-            {% if sort == "book" %}
+            {% if sort == "text" %}
                 <th class="highlight">
-                    <a href="{{ sorts["book_invert"] }}">
+                    <a href="{{ sorts["text_invert"] }}">
                         Book &#9662;
                     </a>
                 </th>
-            {% elif sort == "book_invert" %}
+            {% elif sort == "text_invert" %}
                 <th class="highlight">
-                    <a href="{{ sorts["book"] }}">
+                    <a href="{{ sorts["text"] }}">
                         Book &#9652;
                     </a>
                 </th>
             {% else %}
                 <th>
-                    <a href="{{ sorts["book"] }}">
+                    <a href="{{ sorts["text"] }}">
                         Book
                     </a>
                 </th>
@@ -169,7 +169,7 @@
 
         {% for flag in flags %}
 
-            {% if flag.time_resolved %}
+            {% if flag.resolver %}
             <tr class="read">
             {% else %}
             <tr class="unread">
@@ -178,7 +178,7 @@
                 <td>
                     <a href="{{ url_for("admin.mark_annotation_flag", flag_id=flag.id,
                         next=request.full_path) }}">
-                        {% if flag.resolved_by %}
+                        {% if flag.resolver %}
                         &#10003;
                         {% else %}
                         &#10007;
@@ -194,9 +194,9 @@
                 </td>
 
                 <td>
-                    <a href="{{ url_for("book",
-                        book_url=flag.annotation.book.url) }}">
-                        {{ flag.annotation.book.title }}
+                    <a href="{{ url_for("text",
+                        text_url=flag.annotation.text.url) }}">
+                        {{ flag.annotation.text.title }}
                     </a>
                 </td>
                 <td>
@@ -219,8 +219,8 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if flag.resolved %}
-                        {{ flag.resolved }}
+                    {% if flag.resolver %}
+                        {{ flag.time_resolved }}
                     {% endif %}
                 </td>
             </tr>

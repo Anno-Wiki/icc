@@ -7,8 +7,8 @@
         [{{ annotation.id }}]
     </a>
     on
-    <a href="{{ url_for("book", book_url=annotation.book.url) }}">
-        {{ annotation.book.title }}
+    <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+        {{ annotation.text.title }}
     </a>
     flags
 </h2>
@@ -140,7 +140,7 @@
         </tr>
         {% for flag in flags %}
 
-            {% if flag.resolved %}
+            {% if flag.resolver %}
             <tr class="read">
             {% else %}
             <tr class="unread">
@@ -149,7 +149,7 @@
                 <td>
                     <a href="{{ url_for("admin.mark_annotation_flag", flag_id=flag.id,
                         next=request.full_path) }}">
-                        {% if flag.resolved_by %}
+                        {% if flag.resolver %}
                             &#10003;
                         {% else %}
                             &#10007;
@@ -168,7 +168,7 @@
                     </a>
                 </td>
                 <td>
-                    {% if flag.resolved_by %}
+                    {% if flag.resolver %}
                         <a href="{{ url_for("user.profile", user_id=flag.resolver.id)
                             }}">
                             {{ flag.resolver.displayname }}
@@ -176,8 +176,8 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if flag.resolved %}
-                        {{ flag.resolved }}
+                    {% if flag.resolver %}
+                        {{ flag.time_resolved }}
                     {% endif %}
                 </td>
             </tr>

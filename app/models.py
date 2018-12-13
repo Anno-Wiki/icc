@@ -1243,7 +1243,7 @@ class AnnotationFlag(db.Model):
     flag = db.relationship("AnnotationFlagEnum")
 
     def __repr__(self):
-        if self.resolved:
+        if self.resolver:
             return f"<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>"
         else:
             return f"<AnnotationFlag thrown: {self.flag.flag} at" \
