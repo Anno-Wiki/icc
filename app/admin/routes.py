@@ -9,8 +9,8 @@ from app import app, db
 from app.funky import generate_next
 from app.forms import AreYouSureForm
 from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
-        EditVote, TextRequest, TagRequest, UserFlag, AnnotationFlagEnum,\
-        AnnotationFlag, Edition
+        EditVote, TextRequest, TagRequest, UserFlag, UserFlagEnum, \
+        AnnotationFlagEnum, AnnotationFlag, Edition
 from app.admin import admin
 from app.admin.forms import TagForm, LineForm, TextForm
 
@@ -99,12 +99,12 @@ def all_user_flags():
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver":
         flags = UserFlag.query\
-                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = UserFlag.query\
-                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "time_resolved":
@@ -171,7 +171,6 @@ def user_flags(user_id):
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "flag":
         flags = user.flag_history\
                 .outerjoin(UserFlagEnum)\
@@ -182,7 +181,6 @@ def user_flags(user_id):
                 .outerjoin(UserFlagEnum)\
                 .order_by(UserFlagEnum.flag.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "time":
         flags = user.flag_history\
                 .order_by(UserFlag.time_thrown.desc())\
@@ -191,7 +189,6 @@ def user_flags(user_id):
         flags = user.flag_history\
                 .order_by(UserFlag.time_thrown.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "thrower":
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
@@ -202,18 +199,16 @@ def user_flags(user_id):
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "resolver":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "resolver_invert":
         flags = user.flag_history\
-                .outerjoin(User, User.id==UserFlag.time_resolved_by)\
+                .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "time_resolved":
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.desc())\
