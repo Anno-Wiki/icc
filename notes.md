@@ -205,3 +205,6 @@ have to implement separate things for act/scene).
     1. .org
     2. .info
     3. .io
+- The processor is now capable of doing line printing in the format I need for
+  entering into mysql.
+- I need to get argparse working.
