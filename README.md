@@ -2,30 +2,45 @@
 
 The ICC (Intertextual Canon Cloud) is a web app designed for a collaborative annotations wiki of public domain literature.
 
-It is currently in development.
+It is currently in development. Documentation will be radically expanded closer
+to completion.
 
 Primary files consist of:
 
-1. `insertlines.py`: a script to process `.icc` files output by `processor.py` into the icc database
-2. `insertannotations.py`: a script to process `.anno` files output by `preprocessor.py` into the icc database
-3. `app/routes.py`: the main application view logic of the app
-4. `app/models.py`: the main data logic of the app
-5. `app/search.py`: some logic related to elasticsearch
-6. `app/funky.py`: some modularized functions for use in `app/routes.py`
-7. `app/templates/*`: the templating logic of the app
-
-# ICC Processor
-
-The ICC processor consists of two scripts designed to process Project Gutenberg texts into an ICC readable format.
-
-1. `preprocessor.py`, which performs the following actions:
+## Scripts
+1. `preprocessor.py`, designed for preprocessing text/markdown files, originally
+   from Project Gutenberg, but hopefully from other sources as well (untested in
+   that regard) which performs the following actions:
     - Process double dashes (`--`) into em dashes (— `U+2014`)
     - Process dumb quotes (' and ") into smart quotes (‘ ’ “ ” `U+2018`, `U+2019`, `U+201C`, `U+201D`); 
       still requires manual intervention, especially for single quotes
     - Process footnotes within the text, based on regex, into csv format such that the `icc.insertannotations.py`
       script can process them into the icc system.
-2. `processor.py`, which performs the following actions:
+2. `processor.py`, designed for _processing_ the same files into an `*.icc`
+   format that I can use the next few scripts to insert in the database. It
+   performs the following actions:
     - Process markdown style underscores into icc storable attributes
     - Process markdown style preformatted code marks (triple backticks) into icc storable attributes
     - Process markdown style block quotation code marks (`>`) into icc storable attributes
     - Process lines into general icc storable csv format
+3. `insertlines.py`: a script to process `.icc` files output by `processor.py`
+   into the icc database. It ***requires*** some flags so see the `-h` flag for
+   more information.
+4. `insertannotations.py`: a script to process `.anno` files output by
+   `preprocessor.py` into the icc database. It _also_ ***requires*** some flags.
+   See `-h` for more information.
+
+## Main application
+1. `app/routes.py`: the main application view logic of the app
+2. `app/models.py`: the main data logic of the app
+3. `app/search.py`: some logic related to elasticsearch
+4. `app/funky.py`: some modularized functions for use in `app/routes.py`
+5. `app/templates/*`: the templating logic of the app
+
+## The sub applications
+1. `app/admin/*`: all admin routes and systems
+2. `app/ajax/*`: all ajax routes
+3. `app/email/*`: all email routes and systems
+4. `app/requests/*`: all routes and templates concerned with the `BookRequest`
+   and `TagRequest` systems
+5. `app/user/*`: all routes and templates concerned with general user systems.
