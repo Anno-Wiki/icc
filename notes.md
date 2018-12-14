@@ -208,3 +208,12 @@ have to implement separate things for act/scene).
 - The processor is now capable of doing line printing in the format I need for
   entering into mysql.
 - I need to get argparse working.
+- In order to realign all the lines in a text we need the following code snippet
+  for vim:
+
+```
+G:a
+
+.
+:g/^./ .,/^$/-1 join
+```
