@@ -217,3 +217,95 @@ G:a
 .
 :g/^./ .,/^$/-1 join
 ```
+- The highlighted (linked) text will need to be displayed in an AJAX-based
+  window. I _will_ need AJAX.
+    - Actually, if I load all the data right away, I don't need it. So perhaps
+      not. However, generating new link targets will need AJAX.  (see next
+      note).
+- To allow a user to search a new piece of text I will need AJAX.
+    - The user will have to be presented with a browsing method and a searching
+      method. The searching method will probably be the best.  However, real
+      links are not 1:1's. So simply searching will not always be effective.
+      Furthermore, it would require a user to know what is _worth_ searching
+      for. Algorithmically searching for cross-text would generate a wealth of
+      false positive 1:1's (e.g.  the:the).
+- It would be highly useful for there to be a 'link' style page. That is, a page
+  that can be used to show text from two works laid side by side to show the
+  link. As in:
+```
+    Not a whit, we defy augury: there's a special
+    providence in the fall of a sparro. If it be now,
+    'tis not to come; if it be not to come, it will be
+    now; if it be not now, yet it will come: the
+    readiness is all: since no man has aught of what he
+    leaves, what is't to leave betimes?
+```
+  on the left and 
+  
+  >[29] Are not two sparrows sold for a farthing? and one of
+  them shall not fall on the ground without your Father. [30] But the very hairs
+  on your head are all numbered. [31] Fear ye not therefore, ye are of more
+  value than many sparrows.
+
+  on the right.
+- I like Wikipedia's idea of limiting advertising to search pages. But I am
+  leary about seeming commercial. Fuck. I'm getting infected by GNU-syndrome.
+- Apparently I should avoid natural joins.
+- Handler for parsing data. Needs to read pos and next pos and determine whether
+  to add a space afterwards or not. This could become more complicated down the
+  road when considering idiosycratic writers (The different uses of ellipses,
+  for instance). Caveat: normalizing styles across authors might not be a
+  terrible idea, though I could theoretically handle different uses of ellipses
+  through specifying ellipses.
+- Epigraph indicators
+- python book.??.py infile outfile [first]
+- Body indicators
+- Bracketted numbers for citations
+- \>4 .'s for separation - They're called dotleaders
+- line preservation for poetry.
+- space preservation for based on >1 leading spaces
+- regular brackets (i.e. not containing number)
+- put a pass:# print for the first freaking line. That way we can activate and
+  deactivate various features (like number reading). This would decomplexify a
+  ton of tasks.
+- Create a tag data input for chapter/part headings. This would allow you to
+  parse the chapter heads on the first run through and then they don't matter
+  anymore
+- Test for actual em dash in utf8-encoding U+2014 —
+- Ensure <emdash> can handle space pre <emdash>
+- Questionable combinations:
+    - :—
+    - " —Text.
+- It might behoove me to create chapter links in lengthy texts. I can do this
+  with a slight modification to the <ch> tags, that is, keep a running count and
+  include an identifier. I have a number column now, this could work.
+- Alice in Wonderland has a very peculiar asterisk pattern
+- I'm going to have to opt for curly's. This is going to be difficult. For the
+  records:
+    - ‘ Curly single open U+2018
+    - ’ Curly single close U+2019
+    - “ Curly double open U+201c
+    - ” Curly double close U+201d
+    - This is going to be eminently difficult for ellided words as the
+      apostrophe's preferred rendering is a closed single.
+- Our biggest problem seems to be irregular line breaking. We may be able to
+  overcome this through notes on lines 8 and 12.
+- Meta data table should include strict pagination
+- Pagination should be optional.
+- The Meta Table is going to have to be pretty fucking sophisticated. We're
+  going to have to have a 'genre' system: fiction, nonfiction, drama, and
+  poetry. This way we can include meta information pertaining to each category
+  in the meta table. The DP for instance, will have to be in the meta table.
+- It seems that surrounding _ are used for some purpose around latin/foreign
+  text
+- Need to run at least two passes due to the regex matching
+- There are edge cases for single quotes: 'im, 'em, etc. Elision. It fucks it
+  up.
+- I think that one method to track edge cases is to run the resulting dictionary
+  through an actual dictionary and print any words not in it.  Then eliminate
+  hyphenated words. That should result in a list of the edge cases to be
+  investigated. If there are too many I can worry about it then.
+- Next question to ask on stackoverflow is how to process a list into mysql such
+  that the list matches a pre-existing dictionary (you know what the fuck you
+  mean). ((Actually, as of Mon Aug 13 09:03:38 EDT 2018 I already forgot.))
+- The Psalms pose a serious issue for chapter headings.
