@@ -19,49 +19,28 @@
 
 <body>
     <div class="header">
-        {% if request.path == url_for("index") %}
-            <div class="logo active"> 
-                <a href="{{ url_for("index") }}">
-                    <img src="{{ url_for("static", filename="images/n2.png")}}">
-                </a>
-                <a href="{{ url_for("index") }}">Annopedia</a>
-            </div>
-        {% else %}
-            <div class="logo">
-                <a href="{{ url_for("index") }}">
-                    <img src="{{ url_for("static", filename="images/n2.png")}}">
-                </a>
-                <a href="{{ url_for("index") }}">Annopedia</a>
-            </div>
-        {% endif %}
+        <div class="logo{% if active_page == "index" %} active{% endif %}">
+            <a href="{{ url_for("index") }}">
+                <img src="{{ url_for("static", filename="images/n2.png")}}">
+            </a>
+            <a href="{{ url_for("index") }}">Annopedia</a>
+        </div>
 
+        {% set navigation_bar = [
+            (url_for("writer_index"), "writers", "Writers"),
+            (url_for("text_index"), "texts", "Texts"),
+            (url_for("tag_index"), "tags", "Tags"),
+            (url_for("user.index"), "users", "Users")] 
+        %}
         <nav>
-            {% if request.path == url_for("writer_index") %}
-                <a href="{{ url_for("writer_index") }}" class="active">
-                    WRITERS
+            {% for href, id, caption in navigation_bar %}
+                <a href="{{ href|e }}"{% if id == active_page 
+                    %} class="active"{% endif %}>
+                    {{ caption|e }}
                 </a>
-            {% else %}
-                <a href="{{ url_for("writer_index") }}">WRITERS</a>
-            {% endif %}
-            |
-            {% if request.path == url_for("text_index") %}
-                <a href="{{ url_for("text_index") }}" class="active">TEXTS</a>
-            {% else %}
-                <a href="{{ url_for("text_index") }}">TEXTS</a>
-            {% endif %}
-            |
-            {% if request.path == url_for("tag_index") %}
-                <a href="{{ url_for("tag_index") }}" class="active">TAGS</a>
-            {% else %}
-                <a href="{{ url_for("tag_index") }}">TAGS</a>
-            {% endif %}
-            |
-            {% if request.path == url_for("user.index") %}
-                <a href="{{ url_for("user.index") }}" class="active">USERS</a>
-            {% else %}
-                <a href="{{ url_for("user.index") }}">USERS</a>
-            {% endif %}
-
+            {% endfor %}
+        </nav>
+        
         {% if g.search_form %}
             <form method="get" action="{{ url_for("search") }}" class="search">
                     {{ g.search_form.q(size=20,

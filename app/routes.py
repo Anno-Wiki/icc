@@ -91,7 +91,8 @@ def index():
     return render_template("indexes/annotation_list.html", title="Home",
             annotations=annotations.items, uservotes=uservotes,
             next_page=next_page, prev_page=prev_page,
-            annotationflags=annotationflags, sort=sort, sorts=sorts)
+            annotationflags=annotationflags, sort=sort, sorts=sorts,
+            active_page="index")
 
 #############
 ## Indexes ##
