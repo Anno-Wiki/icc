@@ -30,6 +30,15 @@
 
 /******************************************************************************/
 
+#comments {
+}
+.comment {
+    padding: 5px;
+    border: 1px solid black;
+    margin: 5px 0 5px 15px;
+}
+    
+
 /* general body styles */
 body {
     font-family: "EB Garamond", serif;

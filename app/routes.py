@@ -11,9 +11,10 @@ from app import app, db
 from app.models import User, Text, Edition, Writer,\
         WriterEditionConnection, ConnectionEnum,\
         Line, LineEnum,\
-        Annotation, AnnotationFlag, AnnotationFlagEnum, Vote, Edit, EditVote,\
+        Annotation, Comment, AnnotationFlag, AnnotationFlagEnum, Vote, Edit,\
+        EditVote,\
         Tag, tags as tags_table, authors as authors_table
-from app.forms import AnnotationForm, LineNumberForm, SearchForm
+from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm
 from app.funky import preplines, generate_next, line_check
 
 from time import time
@@ -439,6 +440,46 @@ def tag(tag):
             next_page=next_page, prev_page=prev_page,
             annotationflags=annotationflags, sorts=sorts, sort=sort,
             uservotes=uservotes)
+
+@app.route("/annotation/<annotation_id>/comments", methods=["GET", "POST"])
+@login_required
+def comments(annotation_id):
+    page = request.args.get("page", 1, type=int)
+    form = CommentForm()
+    annotation = Annotation.query.get_or_404(annotation_id)
+    comments = annotation.comments.filter(Comment.depth==0).paginate(page,
+            app.config["COMMENTS_PER_PAGE"], False)
+    if form.validate_on_submit():
+        comment = Comment(annotation=annotation, body=form.comment.data,
+                poster=current_user)
+        db.session.add(comment)
+        db.session.commit()
+        flash("Comment posted")
+        return redirect(url_for("comments", annotation_id=annotation.id))
+    return render_template("indexes/comments.html", form=form,
+            title=f"[{annotation.id}] comments", annotation=annotation,
+            comments=comments.items)
+
+@app.route("/annotation/<annotation_id>/comment/<comment_id>/reply",
+        methods=["GET", "POST"])
+@login_required
+def reply(annotation_id, comment_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    comment = Comment.query.get_or_404(comment_id)
+    form = CommentForm()
+    print("test")
+    if form.validate_on_submit():
+        reply = Comment(annotation=annotation, body=form.comment.data,
+                poster=current_user, parent=comment, depth=comment.depth+1)
+        print(comment.depth)
+        print(comment.depth+1)
+        db.session.add(reply)
+        db.session.commit()
+        flash("Reply posted")
+        print("what's going on")
+        return redirect(url_for("comments", annotation_id=annotation.id))
+    return render_template("forms/reply.html", title="Reply", form=form,
+            comment=comment)
 
 @app.route("/annotation/<annotation_id>")
 def annotation(annotation_id):

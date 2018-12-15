@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ef169421132d
+Revision ID: fa710b231fe1
 Revises: 
-Create Date: 2018-12-12 16:50:01.649916
+Create Date: 2018-12-14 16:58:07.551494
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ef169421132d'
+revision = 'fa710b231fe1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -361,6 +361,23 @@ def upgrade():
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
+    op.create_table('comment',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('poster_id', sa.Integer(), nullable=False),
+    sa.Column('annotation_id', sa.Integer(), nullable=False),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('depth', sa.Integer(), nullable=True),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['parent_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['poster_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_comment_annotation_id'), 'comment', ['annotation_id'], unique=False)
+    op.create_index(op.f('ix_comment_parent_id'), 'comment', ['parent_id'], unique=False)
+    op.create_index(op.f('ix_comment_poster_id'), 'comment', ['poster_id'], unique=False)
     op.create_table('edit',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('editor_id', sa.Integer(), nullable=True),
@@ -451,6 +468,10 @@ def downgrade():
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')
     op.drop_index(op.f('ix_edit_annotation_id'), table_name='edit')
     op.drop_table('edit')
+    op.drop_index(op.f('ix_comment_poster_id'), table_name='comment')
+    op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')
+    op.drop_index(op.f('ix_comment_annotation_id'), table_name='comment')
+    op.drop_table('comment')
     op.drop_table('annotation_followers')
     op.drop_index(op.f('ix_annotation_flag_thrower_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_resolver_id'), table_name='annotation_flag')

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Replying to:</h1>
+{{ comment.poster.displayname }}
+{{ comment.timestamp }}
+{{ comment.body|markdown }}
+<form action="" method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.comment(rows=10, cols=70) }}
+    <br>
+    {% for error in form.comment.errors %}
+        <span style="color: red;"> [{{ error }}] </span>
+    {% endfor %}
+    <br>
+    {{ form.submit }}
+</form>
+{% endblock %}

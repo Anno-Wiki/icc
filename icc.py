@@ -8,7 +8,7 @@ from app.models import Right, User,\
         WriterEditionConnection, ConnectionEnum,\
         TextRequest, TextRequestVote,\
         Line, LineEnum,\
-        Annotation, Edit,\
+        Annotation, Edit, Comment,\
         AnnotationFlag, AnnotationFlagEnum,\
         Tag, TagRequest, TagRequestVote
 
@@ -32,7 +32,7 @@ def make_shell_context():
             "TextRequest": TextRequest, "TextRequestVote": TextRequestVote,
 
             "Line": Line, "LineEnum": LineEnum, 
-            "Annotation": Annotation, "Edit": Edit,
+            "Annotation": Annotation, "Edit": Edit, "Comment": Comment,
             "AnnotationFlag": AnnotationFlag,
             "AnnotationFlagEnum": AnnotationFlagEnum,
 

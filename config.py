@@ -53,6 +53,7 @@ class Config(object):
     # per pages
     ANNOTATIONS_PER_SEARCH_PAGE = 5
     CARDS_PER_PAGE = 15
+    COMMENTS_PER_PAGE = 25
     LINES_PER_PAGE = 30
     LINES_PER_SEARCH_PAGE = 10
     NOTIFICATIONS_PER_PAGE = 15
@@ -65,5 +66,5 @@ class Config(object):
     ELASTICSEARCH_URL = os.environ.get("ELASTICSEARCH_URL")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "mysql+pymysql://root@localhost/icc?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-#    SQLALCHEMY_ECHO = 1
-#    SERVER_NAME = "www.annopedia.org:5000"
+    SQLALCHEMY_ECHO = 0
+    #SERVER_NAME = "www.annopedia.org:5000"

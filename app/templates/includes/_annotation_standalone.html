@@ -91,6 +91,9 @@
                 edit
             </a>
         {% endif %}
-
     {% endif %}
+    |
+    <a href="{{ url_for("comments", annotation_id=annotation.id) }}">
+        comments
+    </a>
 </annotation>

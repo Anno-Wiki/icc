@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="{{ url_for("static", filename="scripts/comments.js") }}"></script>
+
+{% include "includes/_annotation_standalone.html" %}
+<form action="" method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.comment(rows=10, cols=70) }}
+    <br>
+    {{ form.submit }}
+</form>
+
+
+<div id="comments">
+    {% for comment in comments %}
+        <div class="comment">
+            <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">
+                {{ comment.poster.displayname }}
+            </a>
+            {{ comment.timestamp }}
+            <br>
+            {{ comment.body|markdown }}
+            <br>
+            <a href="{{ url_for("reply", annotation_id=annotation.id,
+                comment_id=comment.id) }}">
+                reply
+            </a>
+            {% for reply in comment.children recursive %}
+                <div class="comment">
+                    <a href="{{ url_for("user.profile",
+                        user_id=reply.poster.id) }}">
+                        {{ reply.poster.displayname }}
+                    </a>
+                    {{ reply.timestamp }}
+                    <a href="#">-</a>
+                    <div class="comment_body">
+                        {{ reply.body|markdown }}
+                        <a href="{{ url_for("reply", annotation_id=annotation.id,
+                            comment_id=reply.id) }}">
+                            reply
+                        </a>
+                        {{ loop(reply.children) }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

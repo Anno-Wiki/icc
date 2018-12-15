@@ -578,7 +578,7 @@ class Tag(SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
-    description = db.Column(db.Text)
+    description = db.Column(db.Text, default="This tag has no description yet.")
 
     annotations = db.relationship("Annotation",
             secondary="join(tags, Edit, and_(tags.c.edit_id==Edit.id,"
@@ -749,6 +749,31 @@ class Vote(db.Model):
 
     def is_up(self):
         return self.delta > 0
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    poster_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
+            nullable=False)
+    annotation_id = db.Column(db.Integer,
+            db.ForeignKey("annotation.id", ondelete="CASCADE"),
+            index=True, nullable=False)
+    parent_id = db.Column(db.Integer,
+            db.ForeignKey("comment.id", ondelete="CASCADE"),
+            index=True, default=None)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    weight = db.Column(db.Integer, default=0)
+    depth = db.Column(db.Integer, default=0)
+    body = db.Column(db.Text)
+
+    poster = db.relationship("User",
+            backref=backref("comments", lazy="dynamic"))
+    annotation = db.relationship("Annotation",
+            backref=backref("comments", lazy="dynamic", passive_deletes=True))
+    parent = db.relationship("Comment", remote_side=[id],
+            backref=backref("children", lazy="dynamic"))
+
+    def __repr__(self):
+            return f"<Comment {self.parent_id} on [{self.annotation_id}]>"
 
 class Annotation(SearchableMixin, db.Model):
     __searchable__ = ["text_title", "annotator_displayname", "body"]

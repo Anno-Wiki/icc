@@ -14,6 +14,11 @@ class LineNumberForm(FlaskForm):
             validators=[Optional()])
     submit = SubmitField("Annotate")
 
+class CommentForm(FlaskForm):
+    comment = TextAreaField("Comment",
+            validators=[InputRequired(), Length(min=10, max=60000)])
+    submit = SubmitField("Add Comment")
+
 class AnnotationForm(FlaskForm):
     first_line = IntegerField("First Line", validators=[InputRequired()])
     last_line = IntegerField("Last Line", validators=[InputRequired()])
