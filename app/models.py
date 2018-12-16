@@ -572,9 +572,7 @@ class ConnectionEnum(db.Model):
 ## Tag System ##
 ################
 
-class Tag(SearchableMixin, db.Model):
-    __searchable__ = ["tag", "description"]
-
+class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
@@ -775,8 +773,7 @@ class Comment(db.Model):
     def __repr__(self):
             return f"<Comment {self.parent_id} on [{self.annotation_id}]>"
 
-class Annotation(SearchableMixin, db.Model):
-    __searchable__ = ["text_title", "annotator_displayname", "body"]
+class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     annotator_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
@@ -838,16 +835,6 @@ class Annotation(SearchableMixin, db.Model):
     active_flags = db.relationship("AnnotationFlag",
             primaryjoin="and_(Annotation.id==AnnotationFlag.annotation_id,"
             "AnnotationFlag.resolver_id==None)", passive_deletes=True)
-
-    def __getattr__(self, attr):
-        if attr.startswith("annotator_"):
-            return getattr(self.annotator, attr.replace("annotator_", "", 1))
-        elif attr.startswith("text_"):
-            return getattr(self.edition.text, attr.replace("text_", "", 1))
-        elif attr.startswith("body"):
-            return self.HEAD.body
-        else:
-            raise AttributeError(f"No such attribute {attr}")
 
     def upvote(self, voter):
         reptype = ReputationEnum.query.filter_by(code="upvote").first()
