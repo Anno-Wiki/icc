@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: fa710b231fe1
+Revision ID: d3642889e659
 Revises: 
-Create Date: 2018-12-14 16:58:07.551494
+Create Date: 2018-12-16 13:23:05.726828
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fa710b231fe1'
+revision = 'd3642889e659'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,25 +56,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_right_right'), 'right', ['right'], unique=False)
-    op.create_table('tag',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('tag', sa.String(length=128), nullable=True),
-    sa.Column('locked', sa.Boolean(), nullable=True),
-    sa.Column('description', sa.Text(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_tag_tag'), 'tag', ['tag'], unique=True)
-    op.create_table('text',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=128), nullable=True),
-    sa.Column('sort_title', sa.String(length=128), nullable=True),
-    sa.Column('summary', sa.Text(), nullable=True),
-    sa.Column('published', sa.Date(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_text_sort_title'), 'text', ['sort_title'], unique=False)
-    op.create_index(op.f('ix_text_title'), 'text', ['title'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('displayname', sa.String(length=64), nullable=True),
@@ -93,43 +74,15 @@ def upgrade():
     sa.Column('flag', sa.String(length=127), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('writer',
+    op.create_table('wiki',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('last_name', sa.String(length=128), nullable=True),
-    sa.Column('birth_date', sa.Date(), nullable=True),
-    sa.Column('death_date', sa.Date(), nullable=True),
-    sa.Column('bio', sa.Text(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_writer_birth_date'), 'writer', ['birth_date'], unique=False)
-    op.create_index(op.f('ix_writer_death_date'), 'writer', ['death_date'], unique=False)
-    op.create_index(op.f('ix_writer_last_name'), 'writer', ['last_name'], unique=False)
-    op.create_index(op.f('ix_writer_name'), 'writer', ['name'], unique=False)
-    op.create_index(op.f('ix_writer_timestamp'), 'writer', ['timestamp'], unique=False)
-    op.create_table('authors',
-    sa.Column('writer_id', sa.Integer(), nullable=True),
-    sa.Column('text_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
-    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], )
     )
     op.create_table('conferred_rights',
     sa.Column('right_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('edition',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('text_id', sa.Integer(), nullable=True),
-    sa.Column('primary', sa.Boolean(), nullable=True),
-    sa.Column('history', sa.Text(), nullable=True),
-    sa.Column('published', sa.DateTime(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
-    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('notification_object',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -149,6 +102,108 @@ def upgrade():
     sa.Column('enum_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['enum_id'], ['reputation_enum.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('tag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('tag', sa.String(length=128), nullable=True),
+    sa.Column('locked', sa.Boolean(), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_tag_tag'), 'tag', ['tag'], unique=True)
+    op.create_table('text',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=128), nullable=True),
+    sa.Column('sort_title', sa.String(length=128), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('published', sa.Date(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_text_sort_title'), 'text', ['sort_title'], unique=False)
+    op.create_index(op.f('ix_text_title'), 'text', ['title'], unique=False)
+    op.create_table('user_flag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_flag_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('time_thrown', sa.DateTime(), nullable=True),
+    sa.Column('time_resolved', sa.DateTime(), nullable=True),
+    sa.Column('resolver_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_flag_id'], ['user_flag_enum.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_flag_resolver_id'), 'user_flag', ['resolver_id'], unique=False)
+    op.create_index(op.f('ix_user_flag_thrower_id'), 'user_flag', ['thrower_id'], unique=False)
+    op.create_index(op.f('ix_user_flag_user_flag_id'), 'user_flag', ['user_flag_id'], unique=False)
+    op.create_index(op.f('ix_user_flag_user_id'), 'user_flag', ['user_id'], unique=False)
+    op.create_table('user_followers',
+    sa.Column('follower_id', sa.Integer(), nullable=True),
+    sa.Column('followed_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], )
+    )
+    op.create_table('wiki_edit',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('num', sa.Integer(), nullable=True),
+    sa.Column('current', sa.Boolean(), nullable=True),
+    sa.Column('editor_id', sa.Integer(), nullable=False),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_wiki_edit_current'), 'wiki_edit', ['current'], unique=False)
+    op.create_index(op.f('ix_wiki_edit_timestamp'), 'wiki_edit', ['timestamp'], unique=False)
+    op.create_table('writer',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=128), nullable=True),
+    sa.Column('last_name', sa.String(length=128), nullable=True),
+    sa.Column('birth_date', sa.Date(), nullable=True),
+    sa.Column('death_date', sa.Date(), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_writer_birth_date'), 'writer', ['birth_date'], unique=False)
+    op.create_index(op.f('ix_writer_death_date'), 'writer', ['death_date'], unique=False)
+    op.create_index(op.f('ix_writer_last_name'), 'writer', ['last_name'], unique=False)
+    op.create_index(op.f('ix_writer_name'), 'writer', ['name'], unique=False)
+    op.create_index(op.f('ix_writer_timestamp'), 'writer', ['timestamp'], unique=False)
+    op.create_table('authors',
+    sa.Column('writer_id', sa.Integer(), nullable=True),
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], )
+    )
+    op.create_table('edition',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('num', sa.Integer(), nullable=True),
+    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.Column('primary', sa.Boolean(), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('published', sa.DateTime(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('notification',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('notification_object_id', sa.Integer(), nullable=False),
+    sa.Column('notifier_id', sa.Integer(), nullable=False),
+    sa.Column('seen', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['notification_object_id'], ['notification_object.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['notifier_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('tag_followers',
@@ -212,30 +267,6 @@ def upgrade():
     op.create_index(op.f('ix_text_request_timestamp'), 'text_request', ['timestamp'], unique=False)
     op.create_index(op.f('ix_text_request_title'), 'text_request', ['title'], unique=False)
     op.create_index(op.f('ix_text_request_weight'), 'text_request', ['weight'], unique=False)
-    op.create_table('user_flag',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_flag_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('thrower_id', sa.Integer(), nullable=True),
-    sa.Column('time_thrown', sa.DateTime(), nullable=True),
-    sa.Column('time_resolved', sa.DateTime(), nullable=True),
-    sa.Column('resolver_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['user_flag_id'], ['user_flag_enum.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_user_flag_resolver_id'), 'user_flag', ['resolver_id'], unique=False)
-    op.create_index(op.f('ix_user_flag_thrower_id'), 'user_flag', ['thrower_id'], unique=False)
-    op.create_index(op.f('ix_user_flag_user_flag_id'), 'user_flag', ['user_flag_id'], unique=False)
-    op.create_index(op.f('ix_user_flag_user_id'), 'user_flag', ['user_id'], unique=False)
-    op.create_table('user_followers',
-    sa.Column('follower_id', sa.Integer(), nullable=True),
-    sa.Column('followed_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['follower_id'], ['user.id'], )
-    )
     op.create_table('writer_followers',
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -282,15 +313,6 @@ def upgrade():
     op.create_index(op.f('ix_line_lvl3'), 'line', ['lvl3'], unique=False)
     op.create_index(op.f('ix_line_lvl4'), 'line', ['lvl4'], unique=False)
     op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
-    op.create_table('notification',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('notification_object_id', sa.Integer(), nullable=False),
-    sa.Column('notifier_id', sa.Integer(), nullable=False),
-    sa.Column('seen', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['notification_object_id'], ['notification_object.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['notifier_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('tag_request_followers',
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -487,7 +509,6 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
     op.drop_table('tag_request_followers')
-    op.drop_table('notification')
     op.drop_index(op.f('ix_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_lvl4'), table_name='line')
     op.drop_index(op.f('ix_line_lvl3'), table_name='line')
@@ -503,12 +524,6 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
     op.drop_table('writer_followers')
-    op.drop_table('user_followers')
-    op.drop_index(op.f('ix_user_flag_user_id'), table_name='user_flag')
-    op.drop_index(op.f('ix_user_flag_user_flag_id'), table_name='user_flag')
-    op.drop_index(op.f('ix_user_flag_thrower_id'), table_name='user_flag')
-    op.drop_index(op.f('ix_user_flag_resolver_id'), table_name='user_flag')
-    op.drop_table('user_flag')
     op.drop_index(op.f('ix_text_request_weight'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_title'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_timestamp'), table_name='text_request')
@@ -528,10 +543,8 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_approved'), table_name='tag_request')
     op.drop_table('tag_request')
     op.drop_table('tag_followers')
-    op.drop_table('reputation_change')
-    op.drop_table('notification_object')
+    op.drop_table('notification')
     op.drop_table('edition')
-    op.drop_table('conferred_rights')
     op.drop_table('authors')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
     op.drop_index(op.f('ix_writer_name'), table_name='writer')
@@ -539,15 +552,28 @@ def downgrade():
     op.drop_index(op.f('ix_writer_death_date'), table_name='writer')
     op.drop_index(op.f('ix_writer_birth_date'), table_name='writer')
     op.drop_table('writer')
-    op.drop_table('user_flag_enum')
-    op.drop_index(op.f('ix_user_email'), table_name='user')
-    op.drop_index(op.f('ix_user_displayname'), table_name='user')
-    op.drop_table('user')
+    op.drop_index(op.f('ix_wiki_edit_timestamp'), table_name='wiki_edit')
+    op.drop_index(op.f('ix_wiki_edit_current'), table_name='wiki_edit')
+    op.drop_table('wiki_edit')
+    op.drop_table('user_followers')
+    op.drop_index(op.f('ix_user_flag_user_id'), table_name='user_flag')
+    op.drop_index(op.f('ix_user_flag_user_flag_id'), table_name='user_flag')
+    op.drop_index(op.f('ix_user_flag_thrower_id'), table_name='user_flag')
+    op.drop_index(op.f('ix_user_flag_resolver_id'), table_name='user_flag')
+    op.drop_table('user_flag')
     op.drop_index(op.f('ix_text_title'), table_name='text')
     op.drop_index(op.f('ix_text_sort_title'), table_name='text')
     op.drop_table('text')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
+    op.drop_table('reputation_change')
+    op.drop_table('notification_object')
+    op.drop_table('conferred_rights')
+    op.drop_table('wiki')
+    op.drop_table('user_flag_enum')
+    op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_index(op.f('ix_user_displayname'), table_name='user')
+    op.drop_table('user')
     op.drop_index(op.f('ix_right_right'), table_name='right')
     op.drop_table('right')
     op.drop_table('reputation_enum')

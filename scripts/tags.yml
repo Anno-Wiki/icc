@@ -1,0 +1,40 @@
+tags:
+    - tag: biblical
+      description: For references to the bible
+      locked: false
+    - tag: definition
+      description: For definitions of words not easily found (e.g., ancient words, specialized vocabulary, etc.)
+      locked: false
+    - tag: explanation
+      description: For explanations of difficult passages
+      locked: false
+    - tag: intertextuality
+      description: For making explicit instances of intertextuality
+      locked: false
+    - tag: meter
+      description: For analysis of particular deviations from standard meter
+      locked: false
+    - tag: mythology
+      description: For references to mythology
+      locked: false
+    - tag: original
+      description: For annotations from the original work
+      locked: false
+    - tag: political
+      description: For explanation of political subtext and context
+      locked: false
+    - tag: cultural
+      description: For explanation of cultural subtext and context
+      locked: false
+    - tag: shakespearean
+      description: For references to Shakespeare
+      locked: false
+    - tag: textual-issues
+      description: For descriptions of complications with textual history (i.e., conflicting manuscripts, etc.)
+      locked: false
+    - tag: translation
+      description: For translation of foreign phrases
+      locked: false
+    - tag: context
+      description: For providing context to modern audiences
+      locked: false

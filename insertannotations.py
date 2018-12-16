@@ -1,65 +1,46 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
 from app import db
-from app.models import Line, User, Annotation, Edit, Tag, Edition
-import sys
-import codecs
-import argparse
+from app.models import Line, User, Annotation, Edit, Tag, Edition, Text
+import sys, codecs, argparse
 
-parser = argparse.ArgumentParser("Process icc .anno file into the database.")
-parser.add_argument("-e", "--edition_id", action="store", type=int, required=True,
-        help="The edition id.")
-parser.add_argument("-a", "--author", action="store", type=str, required=True,
+parser = argparse.ArgumentParser("Process icc .ano file into the database.")
+parser.add_argument("-t", "--title", action="store", type=str, required=True,
+        help="The title of the text for the annotations")
+parser.add_argument("-e", "--edition_num", action="store", type=int,
+        required=True, help="The edition number of the text for the annotations.")
+parser.add_argument("-a", "--annotator", action="store", type=str, required=True,
         help="The name of the annotator in the form of a tag (i.e., no spaces)")
 parser.add_argument("-d", "--dryrun", action="store_true",
         help="Flag for a dry run test.")
 
 args = parser.parse_args()
 
-user = User.query.filter_by(displayname="Community").first()
-if user == None:
-    user = User(displayname="Community", email="community@annopedia.org",
-            password_hash="***", locked=True, about_me=
-"""
-Hi, 
-
-I’m not a real person. I’m an account used to author annotations by non-members,
-such as the authors of the books hosted on Annopedia.  An example would be the
-annotations provided by [[Writer:Constance Garnett]] in her translations of
-classic Russian literature like [[Text:War and Peace]].
-
-The original author of the annotations will always be tagged with a special tag
-that will be locked to users.
-
-I hope you enjoy their annotations!
-
-Sincerely,
-
-The Annopedia Team
-"""
-            )
-
-    if not args.dryrun:
-        db.session.add(user)
-        db.session.commit()
+community = User.query.filter_by(email="community@annopedia.org").first()
+if not community:
+    sys.exit("The Community user hasn't been created in the database yet.")
 
 original_tag = Tag.query.filter_by(tag="original").first()
-author_tag = Tag.query.filter_by(tag=args.author).first()
+annotator_tag = Tag.query.filter_by(tag=args.annotator).first()
 
-if author_tag == None:
-    author_tag = Tag(tag=args.author,
-            description=f"Original annotations from [[Writer:{args.author}]]",
+if annotator_tag == None:
+    annotator_tag = Tag(tag=args.annotator,
+            description=f"Original annotations from [[Writer:{args.annotator}]]",
             locked=True)
     if not args.dryrun:
-        db.session.add(author_tag)
+        db.session.add(annotator_tag)
         db.session.commit()
 
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 
-tags = [original_tag, author_tag]
+tags = [original_tag, annotator_tag]
 
-edition = Edition.query.get(args.edition_id)
+text = Text.query.filter_by(title=args.title).first()
+if not text:
+    parser.error(f"The text {args.title} was not found.")
+edition = text.editions.filter_by(num=args.edition_num).first()
 if not edition:
-    parser.error("edition_id not in database.")
+    parser.error(f"The edition number {args.edition_num} was not found for"
+            f"{text.title}")
 
 cnt = 0
 for line in fin:
@@ -70,23 +51,20 @@ for line in fin:
         db.session.rollback()
         sys.exit(f"Fail on {cnt}: {fields}")
 
-
     # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(edition=edition, annotator=user, locked=True)
+    head = Annotation(edition=edition, annotator=community, locked=True)
 
     commit = Edit(
-            annotation=head, approved=True, current=True, editor=user,
+            annotation=head, approved=True, current=True, editor=community,
             edition=edition, first_line_num=l.num, last_line_num=l.num,
-            first_char_idx=0, last_char_idx=-1,
-            body=fields[0], tags=tags,
-            num=0, edit_reason="Initial version")
+            first_char_idx=0, last_char_idx=-1, body=fields[0], tags=tags,
+            num=0, edit_reason="Initial version"
+            )
 
-    head.HEAD = commit
+    head.HEAD = commit # this is strictly for elasticsearch indexing
 
-    # add commit and head, commit both
-    if not args.dryrun:
-        db.session.add(head)
-        db.session.add(commit)
+    db.session.add(head)
+    db.session.add(commit)
 
     cnt += 1
     if cnt % 25 == 0:
@@ -96,8 +74,13 @@ if not args.dryrun:
     print(f"{cnt} annotations added.")
     print("Now committing...")
     db.session.commit()
-    print("Committed, now reindexing.")
-    Annotation.reindex(edition_id=args.edition_id)
+    print("Committed.")
+    # I don't want to import SearchableMixin to test this, but I don't want to
+    # eliminate the method in case I change my mind.
+    if "SearchableMixin" in str(Annotation.__bases__):
+        Annotation.reindex(edition_id=args.edition_id)
+        print("Now reindexing...")
     print("Done.")
 else:
+    db.session.rollback()
     print(f"{cnt} annotations created.")

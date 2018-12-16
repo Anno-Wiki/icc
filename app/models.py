@@ -455,26 +455,58 @@ def load_user(id):
 ## Content Data ##
 ##################
 
+class Wiki(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    current = db.relationship("WikiEdit",
+            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,WikiEdit.current==True)",
+            uselist=False, lazy="joined")
+
+    def __init__(self, *args, **kwargs):
+        body = kwargs.pop("body", None)
+        body = "This wiki is currently blank." if not body else body
+        super().__init__(*args, **kwargs)
+        self.versions.append(WikiEdit(current=True, body=body))
+
+    def __repr__(self):
+        return f"<Wiki HEAD {self.id} at version {self.current.num}>"
+
+class WikiEdit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    num = db.Column(db.Integer, default=1)
+    current = db.Column(db.Boolean, index=True)
+    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False,
+            default=1)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
+
+    wiki = db.relationship("Wiki", backref=backref("versions", lazy="dynamic"))
+
+    def __repr__(self):
+        return f"<Wiki edit {self.num} of {self.wiki_id}>"
+
 class Writer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
     last_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
-    bio = db.Column(db.Text, default="This writer has no biography yet.")
+    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    wiki = db.relationship("Wiki")
     authored = db.relationship("Text", secondary=authors)
     edited = db.relationship("Edition",
             secondary="join(WriterEditionConnection, ConnectionEnum)",
             primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
-            "ConnectionEnum.type=='Editor')",
+            "ConnectionEnum.type=='editor')",
             secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
             backref="editors")
     translated = db.relationship("Edition",
             secondary="join(WriterEditionConnection, ConnectionEnum)",
             primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
-            "ConnectionEnum.type=='Translator')",
+            "ConnectionEnum.type=='translator')",
             secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
             backref="translators")
     annotations = db.relationship("Annotation",
@@ -484,6 +516,13 @@ class Writer(db.Model):
             "Annotation.edition_id==Edition.id)",
             lazy="dynamic")
 
+    def __init__(self, *args, **kwargs):
+        description = kwargs.pop("description", None)
+        description = "This writer does not have a biography yet."\
+                if not description else description
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description)
+
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.name\
@@ -491,18 +530,19 @@ class Writer(db.Model):
         self.first_name = self.name.split(" ", 1)[0]
 
     def __repr__(self):
-        return f"<Author: {self.name}>"
+        return f"<Writer: {self.name}>"
 
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
-    summary = db.Column(db.Text, default="This text has no summary yet.")
+    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
+    wiki = db.relationship("Wiki")
     authors = db.relationship("Writer", secondary="authors") 
-    editions = db.relationship("Edition")
+    editions = db.relationship("Edition", lazy="dynamic")
     primary = db.relationship("Edition",
             primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
             uselist=False)
@@ -513,30 +553,34 @@ class Text(db.Model):
                 .translate(str.maketrans(dict.fromkeys(string.punctuation)))\
                 .replace(" ", "_")
 
+    def __init__(self, *args, **kwargs):
+        description = kwargs.pop("description", None)
+        description = "This wiki is blank." if not description else description
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description)
+
     def __repr__(self):
         return f"<Text {self.id}: {self.title}>"
-
-    def __getattr__(self, attr):
-        if attr.startswith("author_"):
-            authors = []
-            for author in self.authors:
-                authors.append(author.name)
-            return " ".join(authors)
-        else:
-            raise AttributeError(f"No such attribute {attr}")
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
     primary = db.Column(db.Boolean, default=False)
-    history = db.Column(db.Text, default="This edition has no history yet.")
+    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
+    wiki = db.relationship("Wiki")
     text = db.relationship("Text")
     lines = db.relationship("Line", primaryjoin="Line.edition_id==Edition.id",
             lazy="dynamic")
+
+    def __init__(self, *args, **kwargs):
+        description = kwargs.pop("description", None)
+        description = "This wiki is blank." if not description else description
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description)
 
     @orm.reconstructor
     def init_on_load(self):
@@ -544,7 +588,7 @@ class Edition(db.Model):
                 .replace(" ", "_") + f"_{self.num}"
         self.title = f"{self.text.title} Edition {self.num}*"\
                 if self.primary\
-                else f"{self.text.title} Edition {self.num}"
+                else f"{self.text.title} Edition #{self.num}"
 
     def __repr__(self):
         return f"<Edition #{self.num} {self.text.title}>"
@@ -576,8 +620,9 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
-    description = db.Column(db.Text, default="This tag has no description yet.")
+    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
 
+    wiki = db.relationship("Wiki")
     annotations = db.relationship("Annotation",
             secondary="join(tags, Edit, and_(tags.c.edit_id==Edit.id,"
             "Edit.current==True))",
@@ -585,6 +630,13 @@ class Tag(db.Model):
             secondaryjoin="and_(Edit.annotation_id==Annotation.id,"
             "Annotation.active==True)",
             lazy="dynamic", passive_deletes=True)
+
+    def __init__(self, *args, **kwargs):
+        description = kwargs.pop("description", None)
+        description = "This tag has no description yet." if not description\
+                else description
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description)
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"

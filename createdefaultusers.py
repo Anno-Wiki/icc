@@ -6,7 +6,7 @@ import argparse
 parser = argparse.ArgumentParser("Process icc .anno file into the database.")
 parser.add_argument("-d", "--dryrun", action="store_true",
         help="Flag for a dry run test.")
-parser.add_argument("-m", "--malanonly", action="store_true",
+parser.add_argument("-c", "--communityonly", action="store_true",
         help="Flag for a dry run test.")
 parser.add_argument("-p", "--password", action="store", type=str, required=True,
         help="Set the password for all the users.")
@@ -27,16 +27,13 @@ I am the puppetmaster.
 I also really like wine.
             """)
     malan.set_password(args.password)
-    db.session.add(malan)
 
 ########################
-if not args.malanonly:
 
-    ###################
-    community = User.query.filter_by(displayname="Community").first()
-    if not community:
-        community = User(displayname="Community",
-                email="community@annopedia.org", about_me=
+community = User.query.filter_by(displayname="Community").first()
+if not community:
+    community = User(displayname="Community",
+            email="community@annopedia.org", about_me=
                 """
 Hi, 
 
@@ -55,36 +52,37 @@ Sincerely,
 The Annopedia Team
                 """)
 
-        community.set_password(args.password)
-        db.session.add(community)
+    community.set_password(args.password)
 
-    ################
-    chris = User.query.filter_by(displayname="chris").first()
-    if not chris:
-        chris = User(displayname="chris", email="chriss@glendalepainting.com",
-                about_me=
-                """
+################
+chris = User.query.filter_by(displayname="chris").first()
+if not chris:
+    chris = User(displayname="chris", email="chriss@glendalepainting.com",
+            about_me=
+            """
 I'm a fake user created by malan to be used like a puppet.
 
 I also like beer.
                 """)
-        chris.set_password(args.password)
-        db.session.add(chris)
+    chris.set_password(args.password)
 
-    ################
-    nick = User.query.filter_by(displayname="nick").first()
-    if not nick:
-        nick = User(displayname="nick", email="nsendker@gmail.com",
-                about_me=
+################
+nick = User.query.filter_by(displayname="nick").first()
+if not nick:
+    nick = User(displayname="nick", email="nsendker@gmail.com",
+            about_me=
                 """
 I'm a fake user created by malan to be used like a puppet.
 
 I also like cocktails.
                 """)
-        nick.set_password(args.password)
-        db.session.add(nick)
+    nick.set_password(args.password)
 
-
+db.session.add(community)
+if not args.communityonly:
+    db.session.add(malan)
+    db.session.add(chris)
+    db.session.add(nick)
 
 if args.dryrun:
     db.session.rollback()
