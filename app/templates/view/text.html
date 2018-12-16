@@ -6,7 +6,7 @@
     {% include "includes/_authors.html" %}
 </h2>
 
-<div id="summary"> {{ text.summary|markdown }} </div>
+<div id="summary"> {{ text.wiki.current.body|markdown }} </div>
 
 <a href="{{ url_for("text_annotations", text_url=text.url) }}">
     view all annotations
@@ -50,15 +50,9 @@
             </a>
             <div class="count"> &times; {{ edition.lines.count() }} lines </div>
 
-            {% if len(edition.history) >= 127 %}
-                <div class="card_text_cutoff">
-                    {{ edition.history[:127]|markdown }}
-                </div>
-            {% else %}
-                <div>
-                    {{ edition.history[:127]|markdown }}
-                </div>
-            {% endif %}
+            <div{% if len(edition.wiki.current.body) >= 127 %} class="card_text_cutoff"{% endif %}>
+                {{ edition.wiki.current.body[:127]|markdown }}
+            </div>
 
             <a href="{{ url_for("edition", text_url=text.url,
                 edition_num=edition.num) }}">

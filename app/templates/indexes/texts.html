@@ -24,31 +24,22 @@ sort by:
                 <h2>{{ text.title }}</h2>
             </a>
 
-            &times; {{ len(text.editions) }} editions
+            &times; {{ text.editions.count() }} editions
 
             <br>
-            {% if current_user.is_authenticated
-                and text in current_user.followed_texts %}
-                <a href="{{ url_for("user.follow_text", text_id=text.id,
-                    next=request.full_path) }}">
+            <a href="{{ url_for("user.follow_text", text_id=text.id,
+                next=request.full_path) }}">
+                {% if current_user.is_authenticated
+                    and text in current_user.followed_texts %}
                     unfollow
-                </a>
-            {% else %}
-                <a href="{{ url_for("user.follow_text", text_id=text.id,
-                    next=request.full_path) }}">
+                {% else %}
                     follow
-                </a>
-            {% endif %}
+                {% endif %}
+            </a>
 
-            {% if len(text.summary) >= 127 %}
-                <div class="card_text_cutoff">
-                    {{ text.summary[:127]|markdown }}
-                </div>
-            {% else %}
-                <div>
-                    {{ text.summary[:127]|markdown }}
-                </div>
-            {% endif %}
+            <div{% if len(text.wiki.current.body) >= 127 %} class="card_text_cutoff"{%endif%}>
+                {{ text.wiki.current.body[:127]|markdown }}
+            </div>
 
             <a href="{{ url_for("text", text_url=text.url) }}">
                 View More

@@ -28,25 +28,18 @@ sort by:
 
             Author &times; {{ len(writer.authored) }}
             <br>
-            {% if current_user.is_authenticated and writer in
-                current_user.followed_writers %}
-                <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-                    next=request.full_path) }}">
+            <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
+                next=request.full_path) }}">
+                {%- if current_user.is_authenticated and writer in
+                    current_user.followed_writers -%}
                     unfollow
-                </a>
-            {% else %}
-                <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-                    next=request.full_path) }}">
+                {%- else -%}
                     follow
-                </a>
-            {% endif %}
+                {%- endif -%}
+            </a>
 
-            {% if len(writer.bio) >= 127 %}
-            <div class="card_text_cutoff">
-            {% else %}
-            <div>
-            {% endif %}
-                {{ writer.bio[:127]|markdown }}
+            <div{% if len(writer.wiki.current.body) >= 127 %} class="card_text_cutoff"{% endif %}>
+                {{ writer.wiki.current.body[:127]|markdown }}
             </div>
 
             <a href="{{ url_for("writer", writer_url=writer.url) }}">View More</a>

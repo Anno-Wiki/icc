@@ -25,7 +25,7 @@
 {% endif %}
 
 
-<div id="summary">{{ edition.history|markdown }}</div>
+<div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
 <a href="{{ url_for("edition_annotations", text_url=edition.text.url,
     edition_num=edition.num) }}">

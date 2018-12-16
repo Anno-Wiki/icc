@@ -39,12 +39,12 @@ sort by:
                 </a>
             {% endif %}
 
-            {% if len(tag.description) > 127 %}
+            {% if len(tag.wiki.current.body) > 127 %}
             <div class="card_text_cutoff">
             {% else %}
             <div>
             {% endif %}
-                {{ tag.description[:127]|markdown }}
+                {{ tag.wiki.current.body[:127]|markdown }}
             </div>
             <a href="{{ url_for("tag", tag=tag.tag) }}">View More</a>
         </div>
