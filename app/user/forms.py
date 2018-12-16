@@ -27,6 +27,13 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError("Please use a different email address.")
 
+    # I need to add a log for this sort of event, because it's actually pretty
+    # obvious someone is trying to be devious. Also see in EditProfileForm
+    def validate_displayname(self, displayname):
+        if displayname == "Community":
+            raise ValidationError("Community is the only forbidden displayname.")
+            raise ValidationError("Community is the only forbidden .")
+
 class EditProfileForm(FlaskForm):
     displayname = StringField("Display Name", validators=[InputRequired()],
             render_kw={"placeholder":"Enter a display name."})
@@ -34,6 +41,11 @@ class EditProfileForm(FlaskForm):
             render_kw={"placeholder":"Enter a description of yourself.",
                         "maxlength":50000})
     submit = SubmitField("Submit")
+
+    def validate_displayname(self, displayname):
+        if displayname == "Community":
+            raise ValidationError("Community is the only forbidden displayname.")
+            raise ValidationError("Community is the only forbidden .")
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField("Email", validators=[InputRequired(), Email()])
