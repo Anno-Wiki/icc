@@ -33,13 +33,10 @@
 </a>
 
 {% if current_user.is_authenticated %}
-    {% if current_user.is_authorized("edit_edition_histories") %}
-        |
-        <a href="{{ url_for("admin.edit_history", edition_id=edition.id,
-            next=request.full_path) }}">
-            edit
-        </a>
-    {% endif %}
+    |
+    <a href="{{ url_for("edit_wiki", wiki_id=edition.wiki.id, next=request.full_path) }}">
+        edit
+    </a>
 {% endif %}
 
 {# table of contents #}

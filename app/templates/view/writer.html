@@ -8,87 +8,76 @@
 <a href="{{ url_for("writer_annotations", writer_url=writer.url) }}">
     view all annotations
 </a>
-{% if current_user.is_authenticated %}
-    {% if writer in current_user.followed_writers %}
-        |
-        <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-            next=request.full_path) }}">
-            unfollow
-        </a>
+
+|
+<a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
+    {% if current_user.is_authenticated and writer in current_user.followed_writers %}
+        unfollow
     {% else %}
-        |
-        <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-            next=request.full_path) }}">
-            follow
-        </a>
+        follow
     {% endif %}
+</a>
 
-    {% if current_user.is_authorized("edit_bios") %}
-        |
-        <a href="{{ url_for("admin.edit_bio", writer_id=writer.id,
-            next=request.full_path) }}">
-            edit
-        </a>
-    {% endif %}
-{% endif%}
+|
+<a href="{{ url_for("edit_wiki", wiki_id=writer.wiki.id, next=request.full_path) }}">
+    edit
+</a>
+
 {% if writer.authored %}
-<h3>Authored</h3>
-<div class="index">
-    {% for text in writer.authored %}
-        <div class="card">
-            <a href="{{ url_for("text", text_url=text.url) }}">
-                <h2>{{ text.title }}</h2>
-            </a>
-            <div class="count">
-                &times; {{ text.primary.lines.count() }} lines
-            </div>
+    <h3>Authored</h3>
+    <div class="index">
+        {% for text in writer.authored %}
+            <div class="card">
+                <a href="{{ url_for("text", text_url=text.url) }}">
+                    <h2>{{ text.title }}</h2>
+                </a>
+                <div class="count">
+                    &times; {{ text.primary.lines.count() }} lines
+                </div>
 
-            <div{% if len(text.wiki.current.body) >= 127 %} class="card_text_cutoff"{% endif %}>
-                {{ text.wiki.current.body[:127]|markdown }}
-            </div>
+                <div{% if len(text.wiki.current.body) >= 127 %} class="card_text_cutoff"{% endif %}>
+                    {{ text.wiki.current.body[:127]|markdown }}
+                </div>
 
-            <a href="{{ url_for("text", text_url=text.url) }}">View More</a>
-        </div>
-    {% endfor %}
-</div>
+                <a href="{{ url_for("text", text_url=text.url) }}">View More</a>
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}
 
 {% if writer.translated %}
-<h3>Translated</h3>
-<div class="index">
-    {% for edition in writer.translated %}
-        <div class="card">
-                <h1>
-                    <a href="{{ url_for("text", text_url=edition.text.url) }}">
-                        {{ edition.text.title }}
-                    </a>
-                </h1>
-                <h2>
-                    by
-                    <a href="{{ url_for("writer",
-                        writer_url=edition.text.authors[0].url) }}">
-                        {{ edition.text.authors[0].name }}
-                    </a>
-                </h2>
-            <a href="{{ url_for("edition", text_url=edition.text.url,
-                edition_num=edition.num) }}">
-                <h3>Edition #{{ edition.num }}</h3>
-            </a>
-            <div class="count">
-                &times; {{ edition.lines.count() }} lines
-            </div>
+    <h3>Translated</h3>
+    <div class="index">
+        {% for edition in writer.translated %}
+            <div class="card">
+                    <h1>
+                        <a href="{{ url_for("text", text_url=edition.text.url) }}">
+                            {{ edition.text.title }}
+                        </a>
+                    </h1>
+                    <h2>
+                        by
+                        <a href="{{ url_for("writer", writer_url=edition.text.authors[0].url) }}">
+                            {{ edition.text.authors[0].name }}
+                        </a>
+                    </h2>
+                <a href="{{ url_for("edition", text_url=edition.text.url, edition_num=edition.num) }}">
+                    <h3>Edition #{{ edition.num }}</h3>
+                </a>
+                <div class="count">
+                    &times; {{ edition.lines.count() }} lines
+                </div>
 
-            <div{% if len(edition.wiki.current.body) >= 127 %} class="card_text_cutoff"{%endif%}>
-                {{ edition.wiki.current.body[:127]|markdown }}
-            </div>
+                <div{% if len(edition.wiki.current.body) >= 127 %} class="card_text_cutoff"{%endif%}>
+                    {{ edition.wiki.current.body[:127]|markdown }}
+                </div>
 
-            <a href="{{ url_for("edition", text_url=edition.text.url,
-                edition_num=edition.num) }}">
-                View More
-            </a>
-        </div>
-    {% endfor %}
-</div>
+                <a href="{{ url_for("edition", text_url=edition.text.url, edition_num=edition.num) }}">
+                    View More
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}
 
 {% endblock %}

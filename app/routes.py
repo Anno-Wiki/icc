@@ -4,17 +4,16 @@ from collections import defaultdict
 from datetime import datetime
 
 from flask import render_template, flash, redirect, url_for, request, abort, g
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_manager
 from sqlalchemy import and_
 
 from app import app, db
-from app.models import User, Text, Edition, Writer,\
-        WriterEditionConnection, ConnectionEnum,\
-        Line, LineEnum,\
-        Annotation, Comment, AnnotationFlag, AnnotationFlagEnum, Vote, Edit,\
-        EditVote,\
-        Tag, tags as tags_table, authors as authors_table
-from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm
+from app.models import User, Text, Edition, Writer, WriterEditionConnection, \
+        ConnectionEnum, Line, LineEnum, Annotation, Comment, AnnotationFlag, \
+        AnnotationFlagEnum, Vote, Edit, EditVote, Tag, tags as tags_table, \
+        authors as authors_table, Wiki
+from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm, \
+        TextForm
 from app.funky import preplines, generate_next, line_check
 
 from time import time
@@ -261,6 +260,22 @@ def tag_index():
 #######################
 ## Single Item Views ##
 #######################
+
+@app.route("/wiki/<wiki_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_wiki(wiki_id):
+    form = TextForm()
+    wiki = Wiki.query.get_or_404(wiki_id)
+    redirect_url = generate_next("/")
+    if wiki.edit_pending:
+        flash("That wiki is locked from a pending edit.")
+        return redirect(redirect_url)
+    if form.validate_on_submit():
+        wiki.edit(current_user, body=form.text.data)
+        db.session.commit()
+        return redirect(redirect_url)
+    form.text.data = wiki.current.body
+    return render_template("forms/text.html", title="Edit wiki", form=form)
 
 @app.route("/writer/<writer_url>/")
 def writer(writer_url):

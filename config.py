@@ -24,6 +24,7 @@ class Config(object):
             "edit_tag_requests": -1,
             "edit_tags": -1,
             "immediate_edits": -1,
+            "immediate_wiki_edits": -1,
             "lock_annotations": -1,
             "lock_users": -1,
             "reject_edits": -1,
@@ -49,6 +50,8 @@ class Config(object):
     # vote margins
     MIN_EDIT_APPROVAL_RATING = 2
     MIN_EDIT_REJECTION_RATING = -2
+    VOTES_FOR_WIKI_EDIT_APPROVAL = 2
+    VOTES_FOR_WIKI_EDIT_REJECTION = -2
 
     # per pages
     ANNOTATIONS_PER_SEARCH_PAGE = 5

@@ -60,3 +60,7 @@ class SearchForm(FlaskForm):
 
 class AreYouSureForm(FlaskForm):
     submit = SubmitField("Yes, I am sure.")
+
+class TextForm(FlaskForm):
+    text = TextAreaField("Text", render_kw={"placeholder":"Edit wiki here."})
+    submit = SubmitField("Submit")

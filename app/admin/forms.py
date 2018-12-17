@@ -20,8 +20,3 @@ class LineForm(FlaskForm):
     line = StringField("Line", validators=[InputRequired(), 
             Length(min=0, max=140)], render_kw={"maxlength":200})
     submit = SubmitField("Submit")
-
-class TextForm(FlaskForm):
-    text = TextAreaField("Text",
-            render_kw={"placeholder":"Edit text here."})
-    submit = SubmitField("Submit")

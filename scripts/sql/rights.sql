@@ -16,6 +16,7 @@ INSERT INTO `right` (`right`) VALUES
     ("edit_tag_requests"),
     ("edit_tags"),
     ("immediate_edits"),
+    ("immediate_wiki_edits"),
     ("lock_annotations"),
     ("lock_users"),
     ("reject_edits"),

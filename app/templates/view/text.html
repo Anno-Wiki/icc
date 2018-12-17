@@ -12,40 +12,26 @@
     view all annotations
 </a>
 
-{% if current_user.is_authenticated %}
-    {% if text in current_user.followed_texts %}
-        |
-        <a href="{{ url_for("user.follow_text", text_id=text.id,
-            next=request.full_path) }}">
-            unfollow
-        </a>
+|
+<a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
+    {% if current_user.is_authenticated and text in current_user.followed_texts %}
+        unfollow
     {% else %}
-        |
-        <a href="{{ url_for("user.follow_text", text_id=text.id,
-            next=request.full_path) }}">
-            follow
-        </a>
+        follow
     {% endif %}
+</a>
 
-    {% if current_user.is_authorized("edit_summaries") %}
-        |
-        <a href="{{ url_for("admin.edit_summary", text_id=text.id,
-            next=request.full_path) }}">
-            edit
-        </a>
-    {% endif %}
-{% endif %}
+|
+<a href="{{ url_for("edit_wiki", wiki_id=text.wiki.id, next=request.full_path) }}">
+    edit
+</a>
 
 <div class="index">
     {% for edition in text.editions %}
         <div class="card">
-            <a href="{{ url_for("edition", text_url=text.url,
-                edition_num=edition.num) }}">
+            <a href="{{ url_for("edition", text_url=text.url, edition_num=edition.num) }}">
                 <h2>
-                    Edition #{{ edition.num }}
-                    {% if edition.primary %}
-                        *
-                    {% endif %}
+                    Edition #{{ edition.num }} {% if edition.primary %}* {% endif %}
                 </h2>
             </a>
             <div class="count"> &times; {{ edition.lines.count() }} lines </div>
@@ -54,8 +40,7 @@
                 {{ edition.wiki.current.body[:127]|markdown }}
             </div>
 
-            <a href="{{ url_for("edition", text_url=text.url,
-                edition_num=edition.num) }}">
+            <a href="{{ url_for("edition", text_url=text.url, edition_num=edition.num) }}">
                 View More
             </a>
         </div>

@@ -12,7 +12,7 @@ from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
         EditVote, TextRequest, TagRequest, UserFlag, UserFlagEnum, \
         AnnotationFlagEnum, AnnotationFlag, Edition
 from app.admin import admin
-from app.admin.forms import TagForm, LineForm, TextForm
+from app.admin.forms import TagForm, LineForm
 
 #################
 ## User Routes ##
@@ -788,79 +788,6 @@ def edit_line(line_id):
             flash("Line updated.")
             return redirect(redirect_url)
     return render_template("forms/line.html", title="Edit Line", form=form)
-
-@admin.route("/edit/author_bio/<author_id>/", methods=["GET", "POST"])
-@login_required
-def edit_bio(author_id):
-    current_user.authorize("edit_bios")
-    author = Author.query.get_or_404(author_id)
-    form = TextForm()
-    redirect_url = generate_next(url_for("author", name=author.url))
-    if form.validate_on_submit():
-        if form.text.data != None:
-            author.bio = form.text.data
-            db.session.commit()
-            flash("Bio updated.")
-            return redirect(redirect_url)
-    else:
-        form.text.data = author.bio
-
-    return render_template("forms/text.html", title="Edit Bio", form=form)
-
-@admin.route("/edit/text_summary/<text_id>/", methods=["GET", "POST"])
-@login_required
-def edit_summary(text_id):
-    current_user.authorize("edit_summaries")
-    text = Text.query.get_or_404(text_id)
-    form = TextForm()
-    redirect_url = generate_next(url_for("text", text_url=text.url))
-    if form.validate_on_submit():
-        if form.text.data != None:
-            text.summary = form.text.data
-            db.session.commit()
-            flash("Summary updated.")
-            return redirect(redirect_url)
-    else:
-        form.text.data = text.summary
-    return render_template("forms/text.html", title="Edit Summary", form=form)
-
-@admin.route("/edit/edition_history/<edition_id>/", methods=["GET", "POST"])
-@login_required
-def edit_history(edition_id):
-    current_user.authorize("edit_summaries")
-    edition = Edition.query.get_or_404(edition_id)
-    form = TextForm()
-    redirect_url = generate_next(url_for("edition", text_url=edition.text.url,
-        edition_num=edition.num))
-    if form.validate_on_submit():
-        if form.text.data != None:
-            edition.history = form.text.data
-            db.session.commit()
-            flash("History updated.")
-            return redirect(redirect_url)
-    else:
-        form.text.data = edition.history
-    return render_template("forms/text.html", title="Edit History", form=form)
-
-@admin.route("/edit/tag/<tag_id>/", methods=["GET", "POST"])
-@login_required
-def edit_tag(tag_id):
-    current_user.authorize("edit_tags")
-    tag = Tag.query.get_or_404(tag_id)
-    form = TagForm()
-    if form.validate_on_submit():
-        if form.tag.data != None and form.description.data != None:
-            tag.tag = form.tag.data
-            tag.description = form.description.data
-            db.session.commit()
-            flash("Tag updated.")
-            # we have to initiate tag url here bc tag changed
-            redirect_url = generate_next(url_for("tag", tag=tag.tag))
-            return redirect(redirect_url)
-    else:
-        form.tag.data = tag.tag
-        form.description.data = tag.description
-    return render_template("forms/tag.html", title="Edit Tag", form=form)
 
 ################
 ## Tag routes ##

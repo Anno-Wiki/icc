@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d3642889e659
+Revision ID: e433872fc72a
 Revises: 
-Create Date: 2018-12-16 13:23:05.726828
+Create Date: 2018-12-16 20:08:47.448920
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd3642889e659'
+revision = 'e433872fc72a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -76,6 +76,7 @@ def upgrade():
     )
     op.create_table('wiki',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('edit_pending', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('conferred_rights',
@@ -152,8 +153,11 @@ def upgrade():
     op.create_table('wiki_edit',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('wiki_id', sa.Integer(), nullable=False),
-    sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('current', sa.Boolean(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('approved', sa.Boolean(), nullable=True),
+    sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -161,7 +165,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_wiki_edit_approved'), 'wiki_edit', ['approved'], unique=False)
     op.create_index(op.f('ix_wiki_edit_current'), 'wiki_edit', ['current'], unique=False)
+    op.create_index(op.f('ix_wiki_edit_rejected'), 'wiki_edit', ['rejected'], unique=False)
     op.create_index(op.f('ix_wiki_edit_timestamp'), 'wiki_edit', ['timestamp'], unique=False)
     op.create_table('writer',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -267,6 +273,18 @@ def upgrade():
     op.create_index(op.f('ix_text_request_timestamp'), 'text_request', ['timestamp'], unique=False)
     op.create_index(op.f('ix_text_request_title'), 'text_request', ['title'], unique=False)
     op.create_index(op.f('ix_text_request_weight'), 'text_request', ['weight'], unique=False)
+    op.create_table('wiki_edit_vote',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('delta', sa.Integer(), nullable=False),
+    sa.Column('voter_id', sa.Integer(), nullable=False),
+    sa.Column('wiki_edit_id', sa.Integer(), nullable=False),
+    sa.Column('timestamp', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['wiki_edit_id'], ['wiki_edit.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_wiki_edit_vote_voter_id'), 'wiki_edit_vote', ['voter_id'], unique=False)
+    op.create_index(op.f('ix_wiki_edit_vote_wiki_edit_id'), 'wiki_edit_vote', ['wiki_edit_id'], unique=False)
     op.create_table('writer_followers',
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -524,6 +542,9 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
     op.drop_table('writer_followers')
+    op.drop_index(op.f('ix_wiki_edit_vote_wiki_edit_id'), table_name='wiki_edit_vote')
+    op.drop_index(op.f('ix_wiki_edit_vote_voter_id'), table_name='wiki_edit_vote')
+    op.drop_table('wiki_edit_vote')
     op.drop_index(op.f('ix_text_request_weight'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_title'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_timestamp'), table_name='text_request')
@@ -553,7 +574,9 @@ def downgrade():
     op.drop_index(op.f('ix_writer_birth_date'), table_name='writer')
     op.drop_table('writer')
     op.drop_index(op.f('ix_wiki_edit_timestamp'), table_name='wiki_edit')
+    op.drop_index(op.f('ix_wiki_edit_rejected'), table_name='wiki_edit')
     op.drop_index(op.f('ix_wiki_edit_current'), table_name='wiki_edit')
+    op.drop_index(op.f('ix_wiki_edit_approved'), table_name='wiki_edit')
     op.drop_table('wiki_edit')
     op.drop_table('user_followers')
     op.drop_index(op.f('ix_user_flag_user_id'), table_name='user_flag')

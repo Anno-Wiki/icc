@@ -457,6 +457,7 @@ def load_user(id):
 
 class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    edit_pending = db.Column(db.Boolean, default=False)
 
     current = db.relationship("WikiEdit",
             primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,WikiEdit.current==True)",
@@ -471,20 +472,80 @@ class Wiki(db.Model):
     def __repr__(self):
         return f"<Wiki HEAD {self.id} at version {self.current.num}>"
 
+    def edit(self, editor, body):
+        edit = WikiEdit(wiki=self, num=self.current.num+1, editor=editor,
+                body=body)
+        db.session.add(edit)
+        if editor.authorize("immediate_wiki_edits"):
+            edit.approved = True
+            self.current.current = False
+            edit.current = True
+        else:
+            edit.upvote(editor)
+            self.edit_pending = True
+
+class WikiEditVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    delta = db.Column(db.Integer, nullable=False)
+    voter_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
+            nullable=False)
+    wiki_edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id"),
+            index=True, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
+
+    voter = db.relationship("User",
+            backref=backref("wiki_edit_ballots", lazy="dynamic"))
+    wiki_edit = db.relationship("WikiEdit")
+
+    def __repr__(self):
+        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+
+    def is_up(self):
+        return self.delta > 0
+
 class WikiEdit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
     num = db.Column(db.Integer, default=1)
-    current = db.Column(db.Boolean, index=True)
+    current = db.Column(db.Boolean, index=True, default=False)
+    weight = db.Column(db.Integer, default=0)
+    approved = db.Column(db.Boolean, index=True, default=False)
+    rejected = db.Column(db.Boolean, index=True, default=False)
+    num = db.Column(db.Integer, default=0)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False,
             default=1)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
 
     wiki = db.relationship("Wiki", backref=backref("versions", lazy="dynamic"))
+    editor = db.relationship("User",
+        backref=backref("wiki_edits", lazy="dynamic"))
 
     def __repr__(self):
         return f"<Wiki edit {self.num} of {self.wiki_id}>"
+
+    def upvote(self, voter):
+        vote = WikiEditVote(wiki_edit=self, delta=1, voter=voter)
+        self.weight += vote.delta
+        db.session.add(vote)
+        if self.weight >= app.config["VOTES_FOR_WIKI_EDIT_APPROVAL"]:
+            self.approve()
+
+    def downvote(self, voter):
+        vote = WikiEditVote(wiki_edit=self, delta=-1, voter=voter)
+        self.weight += vote.delta
+        db.session.add(vote)
+        if self.weight <= app.config["VOTES_FOR_WIKI_EDIT_REJECTION"]:
+            self.reject()
+
+    def approve(self):
+        edit.approved = True
+        self.current.current = False
+        edit.current = True
+        self.edit_pending = False
+
+    def reject(self):
+        edit.rejected = True
 
 class Writer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
