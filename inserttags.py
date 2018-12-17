@@ -3,7 +3,7 @@ from app import db
 from app.models import Tag
 import argparse, sys, yaml
 
-parser = argparse.ArgumentParser("Insert lines into icc database")
+parser = argparse.ArgumentParser("Insert tags into icc database")
 parser.add_argument("-c", "--config", action="store", type=str, required=True,
         help="The location of the yaml configuration file for the tags")
 parser.add_argument("-d", "--dryrun", action="store_true",

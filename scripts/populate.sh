@@ -16,7 +16,7 @@ sudo mysql icc < $DIR/sql/reputation_enums.sql
 sudo mysql icc < $DIR/sql/rights.sql
 
 echo "- creating default users..."
-$DIR/../createdefaultusers.py -p $1
+$DIR/../insertusers.py -p $1 -c $DIR/users.yml
 
 # The default users have to be created first because all the tags that use wikis
 # require the default (Community) to be created first.

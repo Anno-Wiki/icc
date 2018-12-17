@@ -1,0 +1,49 @@
+users:
+    - displayname: community
+      email: community@annopedia.org
+      rights: none
+      locked: false
+      about_me: |
+          Hi, 
+
+          I’m not a real person. I’m an account used to author annotations by non-members,
+          such as the authors of the books hosted on Annopedia.  An example would be the
+          annotations provided by [[Writer:Constance Garnett]] in her translations of
+          classic Russian literature like War and Peace.
+
+          The original author of the annotations will always be tagged with a special tag
+          that will be locked to users.
+
+          I hope you enjoy their annotations!
+
+          Sincerely,
+
+          The Annopedia Team
+    - displayname: malan
+      email: malan@glendalepainting.com
+      rights: all
+      locked: false
+      about_me: |
+          I created all of this.
+
+          This entire site.
+
+          I am the puppetmaster.
+
+          I also really like wine.
+    - displayname: chris
+      email: chriss@glendalepainting.com
+      rights: all
+      locked: false
+      about_me: |
+          I'm a fake user created by malan to be used like a puppet.
+
+          I also like beer.
+    - displayname: nick
+      email: nicksend15@gmail.com
+      rights: none
+      locked: true
+      about_me: |
+          I'm a fake user created by malan to be used like a puppet.
+
+          I also like cocktails.
