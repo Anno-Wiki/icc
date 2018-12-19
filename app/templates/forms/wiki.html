@@ -3,9 +3,14 @@
 {% block content %}
 <form action="" method="POST" novalidate>
     {{ form.hidden_tag() }}
-    {{ form.text(cols=75, rows=30) }}<br>
+    {{ form.wiki(cols=75, rows=30) }}<br>
     <br>
-    {% for error in form.text.errors %}
+    {% for error in form.wiki.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {{ form.reason(cols=75, rows=30) }}<br>
+    <br>
+    {% for error in form.reason.errors %}
         <span style="color: red;">[{{ error }}]</span>
     {% endfor %}
     <br> <br>

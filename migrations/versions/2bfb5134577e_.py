@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e433872fc72a
+Revision ID: 2bfb5134577e
 Revises: 
-Create Date: 2018-12-16 20:08:47.448920
+Create Date: 2018-12-18 16:44:14.635063
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e433872fc72a'
+revision = '2bfb5134577e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -77,8 +77,10 @@ def upgrade():
     op.create_table('wiki',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('edit_pending', sa.Boolean(), nullable=True),
+    sa.Column('entity_string', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_wiki_entity_string'), 'wiki', ['entity_string'], unique=False)
     op.create_table('conferred_rights',
     sa.Column('right_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -159,6 +161,7 @@ def upgrade():
     sa.Column('rejected', sa.Boolean(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=False),
+    sa.Column('reason', sa.String(length=255), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
@@ -277,14 +280,14 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=False),
     sa.Column('voter_id', sa.Integer(), nullable=False),
-    sa.Column('wiki_edit_id', sa.Integer(), nullable=False),
+    sa.Column('edit_id', sa.Integer(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['edit_id'], ['wiki_edit.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['wiki_edit_id'], ['wiki_edit.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_wiki_edit_vote_edit_id'), 'wiki_edit_vote', ['edit_id'], unique=False)
     op.create_index(op.f('ix_wiki_edit_vote_voter_id'), 'wiki_edit_vote', ['voter_id'], unique=False)
-    op.create_index(op.f('ix_wiki_edit_vote_wiki_edit_id'), 'wiki_edit_vote', ['wiki_edit_id'], unique=False)
     op.create_table('writer_followers',
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -542,8 +545,8 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
     op.drop_table('writer_followers')
-    op.drop_index(op.f('ix_wiki_edit_vote_wiki_edit_id'), table_name='wiki_edit_vote')
     op.drop_index(op.f('ix_wiki_edit_vote_voter_id'), table_name='wiki_edit_vote')
+    op.drop_index(op.f('ix_wiki_edit_vote_edit_id'), table_name='wiki_edit_vote')
     op.drop_table('wiki_edit_vote')
     op.drop_index(op.f('ix_text_request_weight'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_title'), table_name='text_request')
@@ -592,6 +595,7 @@ def downgrade():
     op.drop_table('reputation_change')
     op.drop_table('notification_object')
     op.drop_table('conferred_rights')
+    op.drop_index(op.f('ix_wiki_entity_string'), table_name='wiki')
     op.drop_table('wiki')
     op.drop_table('user_flag_enum')
     op.drop_index(op.f('ix_user_email'), table_name='user')

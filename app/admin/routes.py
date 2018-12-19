@@ -555,6 +555,150 @@ def mark_annotation_flags(annotation_id):
     db.session.commit()
     return redirect(redirect_url)
 
+######################
+## Wiki Edit Review ##
+######################
+
+@admin.route("/wiki/edits/")
+@login_required
+def wiki_edit_review_queue():
+    current_user.authorize("review_wiki_edits")
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "voted", type=str)
+
+    if sort == "voted":
+        edits = WikiEdit.query.outerjoin(WikiEditVote,
+                and_(WikiEditVote.voter_id==current_user.id,
+                    WikiEditVote.edit_id==WikiEdit.id))\
+                .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
+                .order_by(WikiEditVote.delta.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "voted_invert":
+        edits = WikiEdit.query.outerjoin(WikiEditVote,
+                and_(WikiEditVote.voter_id==current_user.id,
+                    WikiEditVote.edit_id==WikiEdit.id))\
+                .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
+                .order_by(WikiEditVote.delta.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "entity":
+        edits = WikiEdit.query.outerjoin(Wiki).filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(Wiki.entity_string.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "entity_invert":
+        edits = WikiEdit.query.outerjoin(Wiki).filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(Wiki.entity_string.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "num":
+        edits = WikiEdit.query.filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(WikiEdit.num.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "num_invert":
+        edits = WikiEdit.query.filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(WikiEdit.num.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor":
+        edits = WikiEdit.query.outerjoin(User).filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(User.displayname.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor_invert":
+        edits = WikiEdit.query.outerjoin(User).filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(User.displayname.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        edits = WikiEdit.query.filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(WikiEdit.timestamp.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        edits = WikiEdit.query\
+                .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
+                .order_by(WikiEdit.timestamp.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason":
+        edits = WikiEdit.query.filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(WikiEdit.reason.asc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason_invert":
+        edits = WikiEdit.query.filter(WikiEdit.approved==False,
+                WikiEdit.rejected==False).order_by(WikiEdit.reason.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        edits = WikiEdit.query.outerjoin(WikiEditVote,
+                and_(WikiEditVote.voter_id==current_user.id,
+                    WikiEditVote.edit_id==WikiEdit.id))\
+                .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
+                .order_by(WikiEditVote.delta.desc())\
+                .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
+        sort = "voted"
+
+    ids = [edit.id for edit in edits.items]
+
+    votes = current_user.wiki_edit_votes\
+            .filter(WikiEdit.id.in_(ids)).all()
+
+    next_page = url_for("admin.wiki_edit_review_queue", page=edits.next_num,
+            sort=sort) if edits.has_next else None
+    prev_page = url_for("admin.wiki_edit_review_queue", page=edits.prev_num,
+            sort=sort) if edits.has_prev else None
+
+    return render_template("indexes/wiki_edits.html",
+            title="Wiki Edit Review Queue", edits=edits.items, votes=votes,
+            sort=sort, next_page=next_page, prev_page=prev_page, page=page)
+
+@admin.route("/wiki/<wiki_id>/edit/<edit_id>/review")
+@login_required
+def review_wiki_edit(wiki_id, edit_id):
+    current_user.authorize("review_wiki_edits")
+    edit = WikiEdit.query.get_or_404(edit_id)
+    if edit.approved == True:
+        return redirect(url_for("view_wiki_edit", wiki_id=edit.wiki.id,
+            edit_num=edit.num))
+
+    # we have to replace single returns with spaces because markdown only
+    # recognizes paragraph separation based on two returns. We also have to be
+    # careful to do this for both unix and windows return variants (i.e. be
+    # careful of \r's).
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.body)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.body)
+
+    diff = list(difflib.Differ().compare(diff1.splitlines(),
+        diff2.splitlines()))
+
+    return render_template("view/wiki_edit.html",
+            title=f"Edit number {edit.num}", diff=diff, edit=edit)
+
+@admin.route("/wiki/edit/<edit_id>/delete")
+@login_required
+def delete_wiki_edit(wiki_id, edit_id):
+    pass
+
+@admin.route("/wiki/<wiki_id>/edit/<edit_id>/upvote")
+@login_required
+def upvote_wiki_edit(wiki_id, edit_id):
+    current_user.authorize("review_wiki_edits")
+    redirect_url = generate_next(url_for("index"))
+    edit = WikiEdit.query.get(edit_id)
+    if edit.approved:
+        flash("That wiki edit has already been approved.")
+    elif edit.rejected:
+        flash("That wiki edit has already been rejected.")
+    edit.upvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
+
+@admin.route("/wiki/<wiki_id>/edit/<edit_id>/downvote")
+@login_required
+def downvote_wiki_edit(wiki_id, edit_id):
+    current_user.authorize("review_wiki_edits")
+    redirect_url = generate_next(url_for("index"))
+    edit = WikiEdit.query.get(edit_id)
+    if edit.approved:
+        flash("That wiki edit has already been approved.")
+    elif edit.rejected:
+        flash("That wiki edit has already been rejected.")
+    edit.downvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
+
 #################
 ## Edit Review ##
 #################

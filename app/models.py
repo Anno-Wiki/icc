@@ -4,7 +4,7 @@ from hashlib import sha1, md5
 from math import log10
 from datetime import datetime
 
-from flask import url_for, abort
+from flask import url_for, abort, flash
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -354,6 +354,17 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
 
+    def softauthorize(self, right, flash_msg, redirect_url):
+        r = Right.query.filter_by(right=right).first()
+        if app.config["AUTHORIZATION"][right] == -1 and not r in self.rights:
+            flash(flash_msg)
+            redirect(redirect_url)
+        elif self.reputation >= app.config["AUTHORIZATION"][right]:
+            pass
+        elif not r in self.rights:
+            flash(flash_msg)
+            redirect(redirect_url)
+
     def authorize(self, right):
         r = Right.query.filter_by(right=right).first()
         if app.config["AUTHORIZATION"][right] == -1 and not r in self.rights:
@@ -433,8 +444,10 @@ class User(UserMixin, db.Model):
 
     # edit vote utilities
     def get_edit_vote(self, edit):
-        return self.edit_ballots.filter(EditVote.edit==edit,
-                EditVote.user==self).first()
+        return self.edit_ballots.filter(EditVote.edit==edit).first()
+
+    def get_wiki_edit_vote(self, edit):
+        return self.wiki_edit_ballots.filter(WikiEditVote.edit==edit).first()
 
 @login.user_loader
 def load_user(id):
@@ -447,30 +460,39 @@ def load_user(id):
 class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     edit_pending = db.Column(db.Boolean, default=False)
+    entity_string = db.Column(db.String(255), index=True)
 
     current = db.relationship("WikiEdit",
             primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,WikiEdit.current==True)",
             uselist=False, lazy="joined")
 
+    @orm.reconstructor
+    def init_on_load(self):
+        self.entity = list(filter(None,
+            [self.writer, self.text, self.tag, self.edition]
+            ))[0]
+
     def __init__(self, *args, **kwargs):
         body = kwargs.pop("body", None)
         body = "This wiki is currently blank." if not body else body
         super().__init__(*args, **kwargs)
-        self.versions.append(WikiEdit(current=True, body=body))
+        self.versions.append(WikiEdit(current=True, body=body, approved=True,
+            reason="Initial Version."))
 
     def __repr__(self):
         return f"<Wiki HEAD {self.id} at version {self.current.num}>"
 
-    def edit(self, editor, body):
+    def edit(self, editor, body, reason):
         edit = WikiEdit(wiki=self, num=self.current.num+1, editor=editor,
-                body=body)
+                body=body, reason=reason)
         db.session.add(edit)
-        if editor.authorize("immediate_wiki_edits"):
+        if editor.is_authorized("immediate_wiki_edits"):
             edit.approved = True
             self.current.current = False
             edit.current = True
+            flash("The edit has been applied.")
         else:
-            edit.upvote(editor)
+            flash("The edit has been submitted for peer review.")
             self.edit_pending = True
 
 class WikiEditVote(db.Model):
@@ -478,13 +500,13 @@ class WikiEditVote(db.Model):
     delta = db.Column(db.Integer, nullable=False)
     voter_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
             nullable=False)
-    wiki_edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id"),
+    edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id"),
             index=True, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
 
     voter = db.relationship("User",
             backref=backref("wiki_edit_ballots", lazy="dynamic"))
-    wiki_edit = db.relationship("WikiEdit")
+    edit = db.relationship("WikiEdit")
 
     def __repr__(self):
         return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
@@ -503,38 +525,65 @@ class WikiEdit(db.Model):
     num = db.Column(db.Integer, default=0)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False,
             default=1)
+    reason = db.Column(db.String(255))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
 
     wiki = db.relationship("Wiki", backref=backref("versions", lazy="dynamic"))
+    previous = db.relationship("WikiEdit",
+            primaryjoin="and_(remote(WikiEdit.wiki_id)==foreign(WikiEdit.wiki_id),"
+            "remote(WikiEdit.num)==foreign(WikiEdit.num-1),"
+            "remote(WikiEdit.rejected)==False)")
     editor = db.relationship("User",
         backref=backref("wiki_edits", lazy="dynamic"))
 
     def __repr__(self):
         return f"<Wiki edit {self.num} of {self.wiki_id}>"
 
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        db.session.delete(vote)
+
     def upvote(self, voter):
-        vote = WikiEditVote(wiki_edit=self, delta=1, voter=voter)
+        if self.approved or self.rejected: return
+        ov = voter.get_wiki_edit_vote(self)
+        if ov:
+            if ov.is_up():
+                self.rollback(ov)
+                return
+            else:
+                self.rollback(ov)
+        vote = WikiEditVote(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight >= app.config["VOTES_FOR_WIKI_EDIT_APPROVAL"]:
             self.approve()
 
     def downvote(self, voter):
-        vote = WikiEditVote(wiki_edit=self, delta=-1, voter=voter)
+        if self.approved or self.rejected: return
+        ov = voter.get_wiki_edit_vote(self)
+        if ov:
+            if ov.is_up():
+                self.rollback(ov)
+                return
+            else:
+                self.rollback(ov)
+        vote = WikiEditVote(edit=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight <= app.config["VOTES_FOR_WIKI_EDIT_REJECTION"]:
             self.reject()
 
     def approve(self):
-        edit.approved = True
-        self.current.current = False
-        edit.current = True
-        self.edit_pending = False
+        self.approved = True
+        self.wiki.current.current = False
+        self.current = True
+        self.wiki.edit_pending = False
+        flash("The edit was approved.")
 
     def reject(self):
         edit.rejected = True
+        flash("The edit was rejected.")
 
 class Writer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -571,7 +620,7 @@ class Writer(db.Model):
         description = "This writer does not have a biography yet."\
                 if not description else description
         super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description)
+        self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
     def init_on_load(self):
@@ -581,7 +630,7 @@ class Writer(db.Model):
 
     def __repr__(self):
         return f"<Writer: {self.name}>"
-
+    
     def __str__(self):
         return self.name
 
@@ -610,10 +659,13 @@ class Text(db.Model):
         description = kwargs.pop("description", None)
         description = "This wiki is blank." if not description else description
         super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description)
+        self.wiki = Wiki(body=description, entity_string=str(self))
 
     def __repr__(self):
         return f"<Text {self.id}: {self.title}>"
+
+    def __str__(self):
+        return self.title
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -647,6 +699,9 @@ class Edition(db.Model):
 
     def __repr__(self):
         return f"<Edition #{self.num} {self.text.title}>"
+
+    def __str__(self):
+        return self.title
 
 class WriterEditionConnection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -695,6 +750,9 @@ class Tag(db.Model):
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
+
+    def __str__(self):
+        return f"<tag>{self.tag}</tag>"
 
 ####################
 ## Content Models ##

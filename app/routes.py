@@ -260,21 +260,29 @@ def tag_index():
 ## Single Item Views ##
 #######################
 
+@app.route("/wiki/<wiki_id>/history")
+def wiki_edit_history(wiki_id):
+    pass
+
+@app.route("/wiki/<wiki_id>/edit/<edit_num>")
+def view_wiki_edit(wiki_id, edit_num):
+    pass
+
 @app.route("/wiki/<wiki_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_wiki(wiki_id):
-    form = TextForm()
+    form = WikiForm()
     wiki = Wiki.query.get_or_404(wiki_id)
-    redirect_url = generate_next("/")
+    redirect_url = generate_next(url_for("index"))
     if wiki.edit_pending:
         flash("That wiki is locked from a pending edit.")
         return redirect(redirect_url)
     if form.validate_on_submit():
-        wiki.edit(current_user, body=form.text.data)
+        wiki.edit(current_user, body=form.wiki.data, reason=form.reason.data)
         db.session.commit()
         return redirect(redirect_url)
-    form.text.data = wiki.current.body
-    return render_template("forms/text.html", title="Edit wiki", form=form)
+    form.wiki.data = wiki.current.body
+    return render_template("forms/wiki.html", title="Edit wiki", form=form)
 
 @app.route("/writer/<writer_url>/")
 def writer(writer_url):

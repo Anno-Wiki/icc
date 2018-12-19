@@ -78,6 +78,12 @@
                                 </a>
                             {% endif %}
 
+                            {% if current_user.is_authorized("review_wiki_edits") %}
+                                <a href="{{ url_for("admin.wiki_edit_review_queue") }}">
+                                    wiki edits
+                                </a>
+                            {% endif %}
+
                             {% if current_user.is_authorized(
                                 "resolve_user_flags") %}
                                 <a href="{{ url_for("admin.all_user_flags") }}">

@@ -61,6 +61,13 @@ class SearchForm(FlaskForm):
 class AreYouSureForm(FlaskForm):
     submit = SubmitField("Yes, I am sure.")
 
-class TextForm(FlaskForm):
-    text = TextAreaField("Text", render_kw={"placeholder":"Edit wiki here."})
+class WikiForm(FlaskForm):
+    wiki = TextAreaField("Text", render_kw={"placeholder":"Edit wiki here."})
+    reason = StringField("Reason",
+            render_kw={
+                "placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
+                "style": "width: 100%;",
+                "maxlength":255
+                },
+            validators=[Optional(), Length(min=0,max=255)])
     submit = SubmitField("Submit")
