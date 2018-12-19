@@ -17,7 +17,7 @@ rights = Right.query.all()
 i = 0
 for user in config["users"]:
     u = User(displayname=user["displayname"], email=user["email"],
-            locked=user["locked"])
+            locked=user["locked"], about_me=user["about_me"])
     if user["rights"] == "all": u.rights = rights
 
     if not user["locked"]: u.set_password(args.password)
