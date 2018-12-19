@@ -1,5 +1,5 @@
-import re
-import difflib
+import re, difflib
+
 from collections import defaultdict
 from datetime import datetime
 
@@ -13,10 +13,9 @@ from app.models import User, Text, Edition, Writer, WriterEditionConnection, \
         AnnotationFlagEnum, Vote, Edit, EditVote, Tag, tags as tags_table, \
         authors as authors_table, Wiki
 from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm, \
-        TextForm
+        WikiForm
 from app.funky import preplines, generate_next, line_check
 
-from time import time
 
 @app.before_request
 def before_request():

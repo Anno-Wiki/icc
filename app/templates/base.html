@@ -34,9 +34,9 @@
         %}
         <nav>
             {% for href, id, caption in navigation_bar %}
-                <a href="{{ href|e }}"{% if id == active_page 
+                <a href="{{ href }}"{% if id == active_page 
                     %} class="active"{% endif %}>
-                    {{ caption|e }}
+                    {{ caption }}
                 </a>
             {% endfor %}
         </nav>

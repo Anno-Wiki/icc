@@ -1,4 +1,4 @@
-import re
+import re, difflib
 
 from flask import render_template, flash, redirect, url_for, request, abort,\
         Blueprint
@@ -8,9 +8,11 @@ from sqlalchemy import and_
 from app import app, db
 from app.funky import generate_next
 from app.forms import AreYouSureForm
-from app.models import User, Text, Writer, Line, Annotation, Edit, Tag,\
-        EditVote, TextRequest, TagRequest, UserFlag, UserFlagEnum, \
-        AnnotationFlagEnum, AnnotationFlag, Edition
+from app.models import User, UserFlag, UserFlagEnum,\
+        Line, Text, TextRequest, Edition, Writer, Tag, TagRequest,\
+        Annotation, AnnotationFlag, AnnotationFlagEnum, Edit, EditVote,\
+        WikiEdit, Wiki, WikiEditVote
+
 from app.admin import admin
 from app.admin.forms import TagForm, LineForm
 

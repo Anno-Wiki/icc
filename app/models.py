@@ -240,39 +240,28 @@ class User(UserMixin, db.Model):
     rights = db.relationship("Right", secondary=conferred_right,
             backref="admins")
 
-    # annotation relationship
-    annotations = db.relationship("Annotation",
-            primaryjoin="and_(User.id==Annotation.annotator_id,"
-            "Annotation.active==True)", lazy="dynamic")
-    edits = db.relationship("Edit",
-            primaryjoin="and_(User.id==Edit.editor_id,"
-            "Edit.num>0)", lazy="dynamic")
+    # annotations voted on
     votes = db.relationship("Annotation", secondary="vote",
             primaryjoin="User.id==Vote.user_id",
             secondaryjoin="Annotation.id==Vote.annotation_id",
             backref="voters", lazy="dynamic")
-
-    # edit relationships
-    edit_ballots = db.relationship("EditVote",
-            primaryjoin="User.id==EditVote.user_id", lazy="dynamic")
+    # edits voted on
     edit_votes = db.relationship("Edit", secondary="edit_vote",
             primaryjoin="User.id==EditVote.user_id",
             secondaryjoin="Edit.id==EditVote.edit_id",
             backref="edit_voters", lazy="dynamic")
-
-    # text request relationships
-    text_request_ballots = db.relationship("TextRequestVote",
-            primaryjoin="User.id==TextRequestVote.user_id", lazy="dynamic",
-            passive_deletes=True)
+    # wiki edits voted on
+    wiki_edit_votes = db.relationship("WikiEdit", secondary="wiki_edit_vote",
+            primaryjoin="User.id==WikiEditVote.voter_id",
+            secondaryjoin="WikiEdit.id==WikiEditVote.edit_id",
+            backref="voters", lazy="dynamic")
+    # text requests voted on
     text_request_votes = db.relationship("TextRequest",
             secondary="text_request_vote",
             primaryjoin="TextRequestVote.user_id==User.id",
             secondaryjoin="TextRequestVote.text_request_id==TextRequest.id",
             backref="voters", lazy="dynamic", passive_deletes=True)
-
-    # tag request relationships
-    tag_request_ballots = db.relationship("TagRequestVote",
-            primaryjoin="User.id==TagRequestVote.user_id", lazy="dynamic")
+    # tag requests voted on
     tag_request_votes = db.relationship("TagRequest",
             secondary="tag_request_vote",
             primaryjoin="TagRequestVote.user_id==User.id",
@@ -556,7 +545,7 @@ class Writer(db.Model):
     wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    wiki = db.relationship("Wiki")
+    wiki = db.relationship("Wiki", backref=backref("writer", uselist=False))
     authored = db.relationship("Text", secondary=authors)
     edited = db.relationship("Edition",
             secondary="join(WriterEditionConnection, ConnectionEnum)",
@@ -593,6 +582,9 @@ class Writer(db.Model):
     def __repr__(self):
         return f"<Writer: {self.name}>"
 
+    def __str__(self):
+        return self.name
+
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
@@ -601,7 +593,7 @@ class Text(db.Model):
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    wiki = db.relationship("Wiki")
+    wiki = db.relationship("Wiki", backref=backref("text", uselist=False))
     authors = db.relationship("Writer", secondary="authors") 
     editions = db.relationship("Edition", lazy="dynamic")
     primary = db.relationship("Edition",
@@ -632,7 +624,7 @@ class Edition(db.Model):
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    wiki = db.relationship("Wiki")
+    wiki = db.relationship("Wiki", backref=backref("edition", uselist=False))
     text = db.relationship("Text")
     lines = db.relationship("Line", primaryjoin="Line.edition_id==Edition.id",
             lazy="dynamic")
@@ -641,15 +633,17 @@ class Edition(db.Model):
         description = kwargs.pop("description", None)
         description = "This wiki is blank." if not description else description
         super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description)
+        self.title = f"{self.text.title} - Primary Edition*"\
+                if self.primary else f"{self.text.title} - Edition #{self.num}"
+
+        self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.text.title\
                 .replace(" ", "_") + f"_{self.num}"
-        self.title = f"{self.text.title} Edition {self.num}*"\
-                if self.primary\
-                else f"{self.text.title} Edition #{self.num}"
+        self.title = f"{self.text.title} - Primary Edition*"\
+                if self.primary else f"{self.text.title} - Edition #{self.num}"
 
     def __repr__(self):
         return f"<Edition #{self.num} {self.text.title}>"
@@ -683,7 +677,7 @@ class Tag(db.Model):
     locked = db.Column(db.Boolean, default=False)
     wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
 
-    wiki = db.relationship("Wiki")
+    wiki = db.relationship("Wiki", backref=backref("tag", uselist=False))
     annotations = db.relationship("Annotation",
             secondary="join(tags, Edit, and_(tags.c.edit_id==Edit.id,"
             "Edit.current==True))",
@@ -697,7 +691,7 @@ class Tag(db.Model):
         description = "This tag has no description yet." if not description\
                 else description
         super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description)
+        self.wiki = Wiki(body=description, entity_string=str(self))
 
     def __repr__(self):
         return f"<Tag {self.id}: {self.tag}>"
@@ -895,7 +889,8 @@ class Annotation(db.Model):
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    annotator = db.relationship("User")
+    annotator = db.relationship("User",
+            backref=backref("annotations", lazy="dynamic"))
     first_line = db.relationship("Line", secondary="edit",
             primaryjoin="Edit.annotation_id==Annotation.id",
             secondaryjoin="and_(Line.edition_id==Annotation.edition_id,"
@@ -1011,7 +1006,8 @@ class EditVote(db.Model):
     repchange = db.relationship("ReputationChange",
             backref=backref("edit_vote", uselist=False))
 
-    user = db.relationship("User")
+    voter = db.relationship("User",
+            backref=backref("edit_ballots", lazy="dynamic"))
     edit = db.relationship("Edit",
             backref=backref("edit_ballots", lazy="dynamic", passive_deletes=True))
 
@@ -1045,9 +1041,8 @@ class Edit(db.Model):
     edit_reason = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-
     edition = db.relationship("Edition")
-    editor = db.relationship("User")
+    editor = db.relationship("User", backref=backref("edits", lazy="dynamic"))
     annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
     previous = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
@@ -1170,8 +1165,27 @@ class Edit(db.Model):
 ####################
 
 ###################
-## Book Requests ##
+## Text Requests ##
 ###################
+
+class TextRequestVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    text_request_id = db.Column(db.Integer,
+            db.ForeignKey("text_request.id", ondelete="CASCADE"), index=True)
+    delta = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+
+    user = db.relationship("User",
+            backref=backref("text_request_ballots", lazy="dynamic"))
+    text_request = db.relationship("TextRequest",
+            backref=backref("ballots", passive_deletes=True))
+
+    def __repr__(self):
+        return f"<{self.user.displayname} {self.delta} on {self.text_request}>"
+
+    def is_up(self):
+        return self.delta > 0
 
 class TextRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1220,24 +1234,6 @@ class TextRequest(db.Model):
 
     def reject(self):
         self.rejected=True
-
-class TextRequestVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    text_request_id = db.Column(db.Integer,
-            db.ForeignKey("text_request.id", ondelete="CASCADE"), index=True)
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    user = db.relationship("User")
-    text_request = db.relationship("TextRequest",
-            backref=backref("ballots", passive_deletes=True))
-
-    def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.text_request}>"
-
-    def is_up(self):
-        return self.delta > 0
 
 ##################
 ## Tag Requests ##
@@ -1292,7 +1288,7 @@ class TagRequestVote(db.Model):
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User")
+    user = db.relationship("User", backref=backref("tag_request_ballots"))
     tag_request = db.relationship("TagRequest",
             backref=backref("ballots", passive_deletes=True))
 
