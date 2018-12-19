@@ -634,6 +634,9 @@ class Writer(db.Model):
     def __str__(self):
         return self.name
 
+    def get_url(self):
+        return url_for("writer", writer_url=self.url)
+
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
@@ -666,6 +669,9 @@ class Text(db.Model):
 
     def __str__(self):
         return self.title
+
+    def get_url(self):
+        return url_for("text", text_url=self.url)
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -702,6 +708,9 @@ class Edition(db.Model):
 
     def __str__(self):
         return self.title
+
+    def get_url(self):
+        return url_for("edition", text_url=self.text.url, edition_num=self.num)
 
 class WriterEditionConnection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -753,6 +762,9 @@ class Tag(db.Model):
 
     def __str__(self):
         return f"<tag>{self.tag}</tag>"
+
+    def get_url(self):
+        return url_for("tag", tag=self.tag)
 
 ####################
 ## Content Models ##
