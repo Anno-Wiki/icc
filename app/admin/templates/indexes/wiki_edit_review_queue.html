@@ -22,9 +22,9 @@
                 else %}{{ url_for("admin.wiki_edit_review_queue", sort=altid,
                 page=page) }}{% endif %}">
                     {% if sort == altid %}
-                    {{ altcaption|safe }}
+                        {{ altcaption|safe }}
                     {% else %}
-                    {{ caption|safe }}
+                        {{ caption|safe }}
                     {% endif %}
                 </a>
             </td>
@@ -38,9 +38,13 @@
                     {% if edit in votes %}
                         {% if edit in votes and
                         current_user.get_wiki_edit_vote(edit).is_up() %}
-                            &#10003;
+                            <a href="{{ url_for("admin.upvote_wiki_edit",
+                                wiki_id=edit.wiki.id, edit_id=edit.id)
+                                }}">&#10003;</a>
                         {% else %}
-                            &#10007;
+                            <a href="{{ url_for("admin.downvote_wiki_edit",
+                                wiki_id=edit.wiki.id, edit_id=edit.id)
+                                }}">&#10007;</a>
                         {% endif %}
                     {% else %}
                         <a href="{{ url_for("admin.review_wiki_edit",

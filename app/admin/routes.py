@@ -640,7 +640,7 @@ def wiki_edit_review_queue():
     prev_page = url_for("admin.wiki_edit_review_queue", page=edits.prev_num,
             sort=sort) if edits.has_prev else None
 
-    return render_template("indexes/wiki_edits.html",
+    return render_template("indexes/wiki_edit_review_queue.html",
             title="Wiki Edit Review Queue", edits=edits.items, votes=votes,
             sort=sort, next_page=next_page, prev_page=prev_page, page=page)
 
@@ -663,13 +663,8 @@ def review_wiki_edit(wiki_id, edit_id):
     diff = list(difflib.Differ().compare(diff1.splitlines(),
         diff2.splitlines()))
 
-    return render_template("view/wiki_edit.html",
+    return render_template("view/wiki_edit_review.html",
             title=f"Edit number {edit.num}", diff=diff, edit=edit)
-
-@admin.route("/wiki/edit/<edit_id>/delete")
-@login_required
-def delete_wiki_edit(wiki_id, edit_id):
-    pass
 
 @admin.route("/wiki/<wiki_id>/edit/<edit_id>/upvote")
 @login_required
@@ -1033,9 +1028,39 @@ therefore be as though the edit never even existed.
 
 The only reason for this is if there is illegal content in the edit.
     """
-    return render_template("forms/delete_check.html", 
+    return render_template("forms/delete_check.html",
             title=f"Delete edit #{edit.edit_num} of [{edit.annotation_id}]",
             form=form, text=text)
+
+@admin.route("/wiki/edit/<edit_id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_wiki_edit(edit_id):
+    form = AreYouSureForm()
+    current_user.authorize("delete_wiki_edits")
+    edit = WikiEdit.query.get_or_404(edit_id)
+    redirect_url = url_for("wiki_edit_history", wiki_id=edit.wiki.id)
+    if form.validate_on_submit():
+        if edit.current:
+            edit.previous.current = True
+        else:
+            for e in edit.wiki.all_edits.order_by(WikiEdit.num.desc()).all():
+                if e.num > edit.num:
+                    e.num -= 1
+        flash(f"Edit #{edit.num} of {str(edit.wiki.entity)} deleted.")
+        db.session.delete(edit)
+        db.session.commit()
+        return redirect(redirect_url)
+    text = """
+If you click submit the edit, all of the votes for the edit, and all of the
+reputation changes based on the edit being approved will be deleted. The edit
+numbers of all the subsequent edits will be decremented by one. It will
+therefore be as though the edit never even existed.
+
+The only reason for this is if there is illegal content in the edit.
+    """
+    return render_template("forms/delete_check.html",
+            title=f"Delete wiki edit #{edit.num}", form=form, text=text)
+
 @admin.route("/request/text/<text_request_id>/delete/", methods=["GET", "POST"])
 @login_required
 def delete_text_request(text_request_id):

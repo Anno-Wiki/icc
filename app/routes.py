@@ -11,7 +11,7 @@ from app import app, db
 from app.models import User, Text, Edition, Writer, WriterEditionConnection, \
         ConnectionEnum, Line, LineEnum, Annotation, Comment, AnnotationFlag, \
         AnnotationFlagEnum, Vote, Edit, EditVote, Tag, tags as tags_table, \
-        authors as authors_table, Wiki
+        authors as authors_table, Wiki, WikiEdit, WikiEditVote
 from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm, \
         WikiForm
 from app.funky import preplines, generate_next, line_check
@@ -262,11 +262,76 @@ def tag_index():
 
 @app.route("/wiki/<wiki_id>/history")
 def wiki_edit_history(wiki_id):
-    pass
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "num", type=str)
+    wiki = Wiki.query.get_or_404(wiki_id)
+
+    if sort == "num":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.num.desc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "num_invert":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.num.asc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor":
+        edits = wiki.edits.outerjoin(User).filter(WikiEdit.approved==True)\
+                .order_by(User.displayname.asc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "editor_invert":
+        edits = wiki.edits.outerjoin(User).filter(WikiEdit.approved==True)\
+                .order_by(User.displayname.desc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.timestamp.asc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "time_invert":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.timestamp.desc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.reason.asc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    elif sort == "reason_invert":
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.reason.desc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+    else:
+        edits = wiki.edits.filter(WikiEdit.approved==True)\
+                .order_by(WikiEdit.num.desc()).paginate(page,
+                        app.config["NOTIFICATIONS_PER_PAGE"], False)
+        sort = "num"
+
+    next_page = url_for("admin.wiki_edit_review_queue", page=edits.next_num,
+            sort=sort) if edits.has_next else None
+    prev_page = url_for("admin.wiki_edit_review_queue", page=edits.prev_num,
+            sort=sort) if edits.has_prev else None
+
+    return render_template("indexes/wiki_edits.html",
+            title=f"{str(wiki.entity)} Edit History", wiki=wiki,
+            edits=edits.items, sort=sort, next_page=next_page,
+            prev_page=prev_page, page=page)
 
 @app.route("/wiki/<wiki_id>/edit/<edit_num>")
 def view_wiki_edit(wiki_id, edit_num):
-    pass
+    wiki = Wiki.query.get_or_404(wiki_id)
+    edit = wiki.edits.filter(WikiEdit.approved==True,
+            WikiEdit.num==edit_num).first_or_404()
+
+    # we have to replace single returns with spaces because markdown only
+    # recognizes paragraph separation based on two returns. We also have to be
+    # careful to do this for both unix and windows return variants (i.e. be
+    # careful of \r's).
+    diff1 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.previous.body)
+    diff2 = re.sub(r"(?<!\n)\r?\n(?![\r\n])", " ", edit.body)
+
+    diff = list(difflib.Differ().compare(diff1.splitlines(),
+        diff2.splitlines()))
+
+    return render_template("view/wiki_edit.html",
+            title=f"Edit number {edit.num}", diff=diff, edit=edit)
 
 @app.route("/wiki/<wiki_id>/edit", methods=["GET", "POST"])
 @login_required

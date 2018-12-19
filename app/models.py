@@ -463,8 +463,10 @@ class Wiki(db.Model):
     entity_string = db.Column(db.String(255), index=True)
 
     current = db.relationship("WikiEdit",
-            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,WikiEdit.current==True)",
-            uselist=False, lazy="joined")
+            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,"
+            "WikiEdit.current==True)", uselist=False, lazy="joined")
+    edits = db.relationship("WikiEdit",
+            primaryjoin="WikiEdit.wiki_id==Wiki.id", lazy="dynamic")
 
     @orm.reconstructor
     def init_on_load(self):
@@ -480,7 +482,7 @@ class Wiki(db.Model):
             reason="Initial Version."))
 
     def __repr__(self):
-        return f"<Wiki HEAD {self.id} at version {self.current.num}>"
+        return f"<Wiki HEAD {str(self.entity)} at version {self.current.num}>"
 
     def edit(self, editor, body, reason):
         edit = WikiEdit(wiki=self, num=self.current.num+1, editor=editor,
@@ -500,16 +502,18 @@ class WikiEditVote(db.Model):
     delta = db.Column(db.Integer, nullable=False)
     voter_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
             nullable=False)
-    edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id"),
-            index=True, nullable=False)
+    edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id",
+        ondelete="CASCADE"), index=True, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
 
     voter = db.relationship("User",
             backref=backref("wiki_edit_ballots", lazy="dynamic"))
-    edit = db.relationship("WikiEdit")
+    edit = db.relationship("WikiEdit", backref=backref("ballots",
+        passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+        return f"<{self.voter.displayname} {self.delta} on "\
+                f"edit {self.edit.num} of Wiki {str(self.edit.wiki.entity)}>"
 
     def is_up(self):
         return self.delta > 0
@@ -563,7 +567,7 @@ class WikiEdit(db.Model):
         if self.approved or self.rejected: return
         ov = voter.get_wiki_edit_vote(self)
         if ov:
-            if ov.is_up():
+            if not ov.is_up():
                 self.rollback(ov)
                 return
             else:

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% set header = [
+        ("num_invert", "num", "Edit Number &#9662;", "Edit Number &#9652;"),
+        ("editor_invert", "editor", "Editor &#9662;", "Editor &#9652;"), 
+        ("time_invert", "time", "Time &#9662;", "Time &#9652;"),
+        ("reason_invert", "reason", "Reason &#9662;", "Reason &#9652;"),
+        ]
+    %}
+
+    <h1><a href="{{ wiki.entity.get_url() }}">{{ wiki.entity|string|safe }}</h1>
+    <table class="inbox">
+        <tr class="header">
+            {% for altid, id, caption, altcaption in header %}
+                <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
+                    <a href="{% if sort == altid or sort != id %}{{
+                    url_for("admin.wiki_edit_review_queue", sort=id, page=page)
+                    }}{% else %}{{ url_for("admin.wiki_edit_review_queue",
+                    sort=altid, page=page) }}{% endif %}">
+                        {% if sort == altid %}
+                            {{ altcaption|safe }}
+                        {% else %}
+                            {{ caption|safe }}
+                        {% endif %}
+                    </a>
+                </td>
+            {% endfor %}
+        </tr>
+        {% if edits %}
+            {% for edit in edits %}
+                <tr class="unread">
+                    <td>
+                        <a href="{{ url_for("view_wiki_edit",
+                            wiki_id=edit.wiki.id, edit_num=edit.num) }}">
+                            view edit #{{ edit.num }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for("user.profile",
+                            user_id=edit.editor.id) }}">
+                            {{ edit.editor.displayname }}
+                        </a>
+                    </td>
+                    <td>{{ edit.timestamp }}</td>
+                    <td>{{ edit.reason }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="6">This queue is cleared.</td></tr>
+        {% endif %}
+    </table>
+{% endblock %}

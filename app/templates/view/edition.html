@@ -1,117 +1,103 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>
-    <a href="{{ url_for("text", text_url=edition.text.url) }}">
-        {{ edition.text.title }}
-    </a>
-    {% if edition.primary %}
-    *
-    {% endif %}
-</h1>
-<h2>
+    <h1>
+        <a href="{{ url_for("text", text_url=edition.text.url) }}">{{
+            edition.text.title }}</a> {% if edition.primary %}*{% endif %}
+    </h1>
     {% set text = edition.text %}
-    {% include "includes/_authors.html" %}
-</h2>
-<br>
-<h2>
-    Edition #{{ edition.num }}
-</h2>
-{% if edition.translators %}
-    {% include "includes/_translators.html" %}
-{% endif %}
-{% if edition.editors %}
-    {% include "includes/_editors.html" %}
-{% endif %}
+    <h2>{% include "includes/_authors.html" %}</h2>
+    <br>
+    <h2>Edition #{{ edition.num }}</h2>
+    {% if edition.translators %}
+        {% include "includes/_translators.html" %}
+    {% endif %}
+    {% if edition.editors %}
+        {% include "includes/_editors.html" %}
+    {% endif %}
 
+    <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-<div id="summary">{{ edition.wiki.current.body|markdown }}</div>
+    <a href="{{ url_for("edition_annotations", text_url=edition.text.url,
+        edition_num=edition.num) }}">annotations</a>
+    | <a href="{{ url_for("edit_wiki", wiki_id=edition.wiki.id,
+        next=request.full_path) }}">edit</a>
+    | <a href="{{ url_for("wiki_edit_history", wiki_id=edition.wiki.id) }}">edit
+        history</a>
 
-<a href="{{ url_for("edition_annotations", text_url=edition.text.url,
-    edition_num=edition.num) }}">
-    view all annotations
-</a>
-
-{% if current_user.is_authenticated %}
-    |
-    <a href="{{ url_for("edit_wiki", wiki_id=edition.wiki.id, next=request.full_path) }}">
-        edit
-    </a>
-{% endif %}
-
-{# table of contents #}
-<table class="table_of_contents">
-    <tr class="toc_header">
-        <th align="left">Section</th>
-        <th align="center">Section Title</th>
-        <th align="right">Line</th>
-    </tr>
-    {% for section in hierarchy %}
-        {% if section.label.label == "lvl1" %}
-            <tr class="lvl1_contents">
-                <td align="left">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.label.display }} {{ section.lvl1 }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ section.get_url() }}">
-                        {{ section.line }}
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                </td>
-            </tr>
-        {% elif section.label.label == "lvl2" %}
-            <tr class="lvl2_contents">
-                <td align="left">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.label.display }} {{ section.lvl2 }}
-                    </a>
-                </td>
-                <td align="center">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.line }}
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                </th>
-            </tr>
-        {% elif section.label.label == "lvl3" %}
-            <tr class="lvl3_contents">
-                <td align="left">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.label.display }} {{ section.lvl3 }}
-                    </a>
-                </td>
-                <td align="center">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.line }}
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                </th>
-            </tr>
-        {% elif section.label.label == "lvl4" %}
-            <tr class="lvl4_contents">
-                <td align="left">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.label.display }} {{ section.lvl4 }}
-                    </a>
-                </td>
-                <td align="center">
-                    <a href="{{ section.get_url() }}">
-                        {{ section.line }}
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                </th>
-            </tr>
-        {% endif %}
-    {% endfor %}
-</table>
-{% endblock %}
+    {# table of contents #}
+    <table class="table_of_contents">
+        <tr class="toc_header">
+            <th align="left">Section</th>
+            <th align="center">Section Title</th>
+            <th align="right">Line</th>
+        </tr>
+        {% for section in hierarchy %}
+            {% if section.label.label == "lvl1" %}
+                <tr class="lvl1_contents">
+                    <td align="left">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.label.display }} {{ section.lvl1 }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ section.get_url() }}">
+                            {{ section.line }}
+                        </a>
+                    </td>
+                    <td align="right">
+                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
+                    </td>
+                </tr>
+            {% elif section.label.label == "lvl2" %}
+                <tr class="lvl2_contents">
+                    <td align="left">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.label.display }} {{ section.lvl2 }}
+                        </a>
+                    </td>
+                    <td align="center">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.line }}
+                        </a>
+                    </td>
+                    <td align="right">
+                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
+                    </th>
+                </tr>
+            {% elif section.label.label == "lvl3" %}
+                <tr class="lvl3_contents">
+                    <td align="left">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.label.display }} {{ section.lvl3 }}
+                        </a>
+                    </td>
+                    <td align="center">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.line }}
+                        </a>
+                    </td>
+                    <td align="right">
+                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
+                    </th>
+                </tr>
+            {% elif section.label.label == "lvl4" %}
+                <tr class="lvl4_contents">
+                    <td align="left">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.label.display }} {{ section.lvl4 }}
+                        </a>
+                    </td>
+                    <td align="center">
+                        <a href="{{ section.get_url() }}">
+                            {{ section.line }}
+                        </a>
+                    </td>
+                    <td align="right">
+                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
+                    </th>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+    {% endblock %}

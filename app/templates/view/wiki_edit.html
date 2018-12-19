@@ -30,28 +30,13 @@
         </em>
     {% endif %}
 
-    {% set vote = current_user.get_wiki_edit_vote(edit) %}
-    <h3>
-        {{ edit.weight }} |
-        <a href="{{ url_for("admin.upvote_wiki_edit", wiki_id=edit.wiki.id,
-            edit_id=edit.id) }}"{% if vote and vote.is_up() %} class="voted"{%
-            else %} class="notvoted"{% endif %}>
-            keep
-        </a>
-        /
-        <a href="{{ url_for("admin.downvote_wiki_edit", wiki_id=edit.wiki.id,
-            edit_id=edit.id) }}"{% if vote and not vote.is_up() %}
-            class="voted"{% else %} class="notvoted"{% endif %}>
-            reject
-        </a>
-    </h3>
-    
     {% if edit.voters %}
         <h4>
             approved by:
             {% for voter in edit.voters %}
                 <a href="{{ url_for("user.profile", user_id=voter.id) }}">
-                    {{ voter.displayname }}
+                    {{ voter.displayname }}{% if not voter == edit.voters[-1]
+                    %},{% endif %}
                 </a> 
             {% endfor %}
         </h4>

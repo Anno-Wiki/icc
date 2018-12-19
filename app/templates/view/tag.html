@@ -1,34 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><tag>{{ tag.tag }}</tag></h1>
-<h4>used in {{ tag.annotations.count() }} annotations.</h4>
+    <h1><tag>{{ tag.tag }}</tag></h1>
+    <h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
-{% if current_user.is_authenticated and tag in current_user.followed_tags %}
-<a href="{{ url_for("user.follow_tag", tag_id=tag.id, next=request.full_path) }}">
-    {% if current_user.is_authenticated and tag in current_user.followed_tags %}
-        unfollow
-    {% else %}
-        follow
-    {% endif %}
-</a>
+    <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
+        next=request.full_path) }}">{% if current_user.is_authenticated and
+        tag in current_user.followed_tags %}unfollow{% else %}follow{% endif
+        %}</a>
+    | <a href="{{ url_for("edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
+    | <a href="{{ url_for("wiki_edit_history", wiki_id=tag.wiki.id) }}">edit
+        history</a>
 
-|
-<a href="{{ url_for("edit_wiki", wiki_id=wiki.id) }}">edit</a>
+    <br>
+    <br>
 
-<br>
-<br>
+    sort by:
+    {% for type, url in sorts.items() %}
+        <a href="{{ url }}"{% if type == "sort" %} class="active"{% endif %}>
+            {{ type }}
+        </a>
+    {% endfor %}
 
-sort by:
-{% for type, url in sorts.items() %}
-    <a href="{{ url }}"{% if type == "sort" %} class="active"{% endif %}>
-        {{ type }}
-    </a>
-{% endfor %}
-
-
-{% for annotation in annotations %}
-    {% include "includes/_annotation_standalone.html" %}
-{% endfor %}
+    {% for annotation in annotations %}
+        {% include "includes/_annotation_standalone.html" %}
+    {% endfor %}
 
 {% endblock %}
