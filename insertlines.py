@@ -61,9 +61,7 @@ print(f"Created edition number {edition.num} for {text.title}")
 # those connection types, and then loop through the writers in those ditionaries
 # to create those connections. Simple, really. (I'm actually kind of proud of
 # this one)
-connections = {}
 for enum in ConnectionEnum.query.all():
-    connections[enum.type] = []
     for writer in config["edition"][enum.type]:
         writer_obj = Writer.query.filter_by(name=writer["name"]).first()
         if not writer_obj:
@@ -77,15 +75,12 @@ for enum in ConnectionEnum.query.all():
                     description=writer["description"]
                     )
             db.session.add(writer_obj)
-            print(f"Writer {writer_obj.name} created for {enum.type} connection.")
-            connections[enum.type].append(writer_obj)
+            print(f"Writer {writer_obj.name} created")
 
         conn = WriterEditionConnection(writer=writer_obj, edition=edition,
                 enum=enum)
         db.session.add(conn)
-for enum, ls in connections.items():
-    for writer in ls:
-        print(f"Created {enum} connection to {writer} for new edition.")
+        print(f"    and added as a {enum.type}.")
 
 labels = LineEnum.query.all()
 label = {}
@@ -103,7 +98,7 @@ for line in fin:
 
     db.session.add(l)
 
-    if i % 100 == 0:
+    if i % 1000 == 0:
         print(i)
     i+=1
 
