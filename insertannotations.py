@@ -58,7 +58,7 @@ for line in fin:
             annotation=head, approved=True, current=True, editor=community,
             edition=edition, first_line_num=l.num, last_line_num=l.num,
             first_char_idx=0, last_char_idx=-1, body=fields[0], tags=tags,
-            num=0, edit_reason="Initial version"
+            num=0, reason="Initial version"
             )
 
     head.HEAD = commit # this is strictly for elasticsearch indexing

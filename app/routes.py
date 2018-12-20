@@ -626,12 +626,12 @@ def edit_history(annotation_id):
     elif sort == "reason":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.edit_reason.asc())\
+                .order_by(Edit.reason.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason_invert":
         edits = annotation.history\
                 .filter(Edit.approved==True)\
-                .order_by(Edit.edit_reason.desc())\
+                .order_by(Edit.reason.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     else:
         edits = annotation.history\
@@ -904,7 +904,7 @@ def annotate(text_url, edition_num, first_line, last_line):
                 first_char_idx=form.first_char_idx.data,
                 last_char_idx=form.last_char_idx.data,
                 body=form.annotation.data, tags=tags, annotation=head,
-                edit_reason="Initial version"
+                reason="Initial version"
                 )
 
         # because of the nature of the indexing system we have to create a

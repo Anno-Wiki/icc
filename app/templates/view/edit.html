@@ -218,7 +218,7 @@
         </a>
         {{ edit.timestamp }}
         <br>
-        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit }}</b>
     </annotation>
     
     <p><em>New version, edit #{{ edit.num }}:</em></p>
@@ -263,7 +263,7 @@
         </a>
         {{ edit.timestamp }}
         <br>
-        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+        <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit }}</b>
     </annotation>
     {% if edit.previous.num > 0 %}
         <p><em>Old version, edit #{{ edit.previous.num }}:</em></p>
@@ -320,7 +320,7 @@
             {{ edit.previous.timestamp }}
             <br>
             <em>previous edit reason:</em>
-            &nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+            &nbsp;&nbsp;&nbsp; <b>{{ edit.edit }}</b>
         {% else %}
             <em>
                 <a href="{{ url_for("annotation", annotation_id=edit.annotation_id) }}">
