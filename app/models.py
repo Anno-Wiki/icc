@@ -460,7 +460,7 @@ def load_user(id):
 class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     edit_pending = db.Column(db.Boolean, default=False)
-    entity_string = db.Column(db.String(255), index=True)
+    entity_string = db.Column(db.String(191), index=True)
 
     current = db.relationship("WikiEdit",
             primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,"
@@ -529,7 +529,7 @@ class WikiEdit(db.Model):
     num = db.Column(db.Integer, default=0)
     editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False,
             default=1)
-    reason = db.Column(db.String(255))
+    reason = db.Column(db.String(191))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
 
@@ -549,7 +549,12 @@ class WikiEdit(db.Model):
         db.session.delete(vote)
 
     def upvote(self, voter):
-        if self.approved or self.rejected: return
+        if self.approved or self.rejected:
+            flash("That edit is no longer pending.")
+            return
+        if self.editor == voter:
+            flash("You cannot vote on your own edits.")
+            return
         ov = voter.get_wiki_edit_vote(self)
         if ov:
             if ov.is_up():
@@ -564,7 +569,12 @@ class WikiEdit(db.Model):
             self.approve()
 
     def downvote(self, voter):
-        if self.approved or self.rejected: return
+        if self.approved or self.rejected:
+            flash("That edit is no longer pending.")
+            return
+        if self.editor == voter:
+            flash("You cannot vote on your own edits.")
+            return
         ov = voter.get_wiki_edit_vote(self)
         if ov:
             if not ov.is_up():
@@ -634,7 +644,7 @@ class Writer(db.Model):
 
     def __repr__(self):
         return f"<Writer: {self.name}>"
-    
+
     def __str__(self):
         return self.name
 

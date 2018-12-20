@@ -559,7 +559,7 @@ def mark_annotation_flags(annotation_id):
 ## Wiki Edit Review ##
 ######################
 
-@admin.route("/wiki/edits/")
+@admin.route("/wiki/edits/review")
 @login_required
 def wiki_edit_review_queue():
     current_user.authorize("review_wiki_edits")
@@ -1029,7 +1029,7 @@ def delete_wiki_edit(edit_id):
         if edit.current:
             edit.previous.current = True
         else:
-            for e in edit.wiki.all_edits.order_by(WikiEdit.num.desc()).all():
+            for e in edit.wiki.edits.order_by(WikiEdit.num.desc()).all():
                 if e.num > edit.num:
                     e.num -= 1
         flash(f"Edit #{edit.num} of {str(edit.wiki.entity)} deleted.")
