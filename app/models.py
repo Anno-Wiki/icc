@@ -1018,6 +1018,34 @@ class Annotation(db.Model):
             primaryjoin="and_(Annotation.id==AnnotationFlag.annotation_id,"
             "AnnotationFlag.resolver_id==None)", passive_deletes=True)
 
+    def edit(self, *ignore, editor, num, reason, fl, ll, fc, lc, body, tags):
+        params = [editor, num, reason, fl, ll, fc, lc, body, tags]
+        if ignore:
+            raise TypeError("Positional arguments not accepted.")
+        elif None in params:
+            raise TypeError("Keyword arguments cannot be None.")
+        elif not type(tags) == list:
+            raise TypeError("Tags must be a list of tags.")
+        edit = Edit(edition=self.edition, editor=editor, num=num,
+                reason=reason, annotation=self,
+                first_line_num=fl, last_line_num=ll,
+                first_char_idx=fc, last_char_idx=lc,
+                body=body, tags=tags)
+        if edit.hash_id == self.HEAD.hash_id:
+            flash("Your suggested edit is no different from the previous version.")
+            return False
+        elif editor == self.annotator or\
+                editor.is_authorized("immediate_edits"):
+            edit.approved=True
+            self.HEAD.current = False
+            edit.current = True
+            flash("Edit approved.")
+        else:
+            flash("Edit submitted for review.")
+        db.session.add(edit)
+        return True
+
+
     def upvote(self, voter):
         reptype = ReputationEnum.query.filter_by(code="upvote").first()
         weight = voter.up_power()
@@ -1112,12 +1140,12 @@ class Edit(db.Model):
     last_char_idx = db.Column(db.Integer)
 
     body = db.Column(db.Text)
-    edit_reason = db.Column(db.String(255))
+    reason = db.Column(db.String(191))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     edition = db.relationship("Edition")
     editor = db.relationship("User", backref=backref("edits", lazy="dynamic"))
-    annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
+    annotation = db.relationship("Annotation")
     previous = db.relationship("Edit",
             primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
             "remote(Edit.num)==foreign(Edit.num-1))")
@@ -1159,78 +1187,65 @@ class Edit(db.Model):
             lines[-1].line = lines[-1].line[:self.last_char_idx]
         return lines
 
-    def upvote(self, voter):
-        if self.weight >= app.config["MIN_EDIT_APPROVAL_RATING"]\
-                or voter.is_authorized("approve_edits"):
-            self.approve(voter)
-        else:
-            # create the repchange and the vote
-            vote = EditVote(user=voter, edit=self, delta=1, repchange=None)
-            db.session.add(vote)
-            # apply the repchanges
-            self.weight += vote.delta
-
-    def approve(self, voter):
-        # apply the approval
-        self.annotation.HEAD.current = False 
-        self.current = True
-        self.approved = True
-        # create the repchange and the vote
-        reptype = ReputationEnum.query.filter_by(code="edit_approval").first()
-        repchange = ReputationChange(user=self.editor, type=reptype,
-                delta=reptype.default_delta)
-        vote = EditVote(user=voter, edit=self, delta=1, repchange=repchange)
-        db.session.add(vote, repchange)
-        # apply the repchanges
-        self.weight += vote.delta
-        self.editor.reputation += repchange.delta
-        db.session.commit()
-        # create the notification object
-        object = NotificationObject(entity_id=vote.id, actor=voter,
-                type=NotificationEnum.query\
-                        .filter_by(code="edit_approved").first())
-        # notify the editor
-        if not self.editor.is_authorized("immediate_edits"):
-            db.session.add(Notification(object=object, notifier=self.editor))
-        # notify the annotator unless he's the editor (immediate_edits) or the
-        # voter
-        if not self.editor == self.annotation.annotator\
-                and not voter == self.annotation.annotator:
-            db.session.add(Notification(object=object,
-                notifier=self.annotation.annotator))
-        self.notify_edit(object)
-
     def notify_edit(self, object):
         for follower in self.annotation.followers:
             db.session.add(Notification(object=object, notifier=follower))
 
-    def reject(self, voter):
-        vote = EditVote(user=voter, edit=self, delta=-1)
+    def upvote(self, voter):
+        if self.approved or self.rejected:
+            flash("That edit is no longer pending.")
+            return
+        if self.editor == voter:
+            flash("You cannot vote on your own edits.")
+            return
+        ov = voter.get_edit_vote(self)
+        if ov:
+            if ov.is_up():
+                self.rollback(ov)
+                return
+            else:
+                self.rollback(ov)
+        vote = EditVote(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
-        self.rejected = True
         db.session.add(vote)
-        db.session.commit()
-        object = NotificationObject(entity_id=vote.id, actor=voter,
-                type=NotificationEnum.query\
-                        .filter_by(code="edit_rejected").first())
-        if not self.editor.is_authorized("immediate_edits"):
-            db.session.add(Notification(object=object, notifier=self.editor))
-        # notify the annotator
-        if not self.editor == self.annotation.annotator\
-                and not voter == self.annotation.annotator:
-            db.session.add(Notification(object=object,
-                notifier=self.annotation.annotator))
+        if self.weight >= app.config["VOTES_FOR_EDIT_APPROVAL"] or\
+                voter.is_authorized("immediate_edits"):
+            self.approve()
 
     def downvote(self, voter):
-        if self.weight >= app.config["MIN_EDIT_REJECTION_RATING"]\
-                or voter.is_authorized("reject_edits"):
-            self.reject(voter)
-        else:
-            # create the repchange and the vote
-            vote = EditVote(user=voter, edit=self, delta=-1, repchange=None)
-            db.session.add(vote)
-            # apply the repchanges
-            self.weight += vote.delta
+        if self.approved or self.rejected:
+            flash("That edit is no longer pending.")
+            return
+        if self.editor == voter:
+            flash("You cannot vote on your own edits.")
+            return
+        ov = voter.get_edit_vote(self)
+        if ov:
+            if not ov.is_up():
+                self.rollback(ov)
+                return
+            else:
+                self.rollback(ov)
+        vote = EditVote(edit=self, delta=-1, voter=voter)
+        self.weight += vote.delta
+        db.session.add(vote)
+        if self.weight <= app.config["VOTES_FOR_EDIT_REJECTION"] or\
+                voter.is_authorized("immediate_edits"):
+            self.reject()
+
+    def approve(self):
+        self.approved = True
+        self.annotation.HEAD.current = False
+        self.current = True
+        flash("The edit was approved.")
+
+    def reject(self):
+        edit.rejected = True
+        flash("The edit was rejected.")
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        db.session.delete(vote)
 
 ####################
 ####################

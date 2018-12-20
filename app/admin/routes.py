@@ -698,7 +698,7 @@ def downvote_wiki_edit(wiki_id, edit_id):
 ## Edit Review ##
 #################
 
-@admin.route("/edits/")
+@admin.route("/annotation/edits/review")
 @login_required
 def edit_review_queue():
     current_user.authorize("review_edits")
@@ -709,8 +709,7 @@ def edit_review_queue():
         edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==Edit.id)
-                        )\
+                            EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
@@ -719,13 +718,11 @@ def edit_review_queue():
         edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==Edit.id)
-                        )\
+                            EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "id":
         edits = Edit.query.outerjoin(Annotation)\
                 .filter(Edit.approved==False,
@@ -738,20 +735,18 @@ def edit_review_queue():
                         Edit.rejected==False)\
                 .order_by(Annotation.id.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "edit_num":
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.edit_num.asc())\
+                .order_by(Edit.num.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "edit_num_invert":
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.edit_num.desc())\
+                .order_by(Edit.num.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "editor":
         edits = Edit.query.outerjoin(User)\
                 .filter(Edit.approved==False,
@@ -764,7 +759,6 @@ def edit_review_queue():
                         Edit.rejected==False)\
                 .order_by(User.displayname.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "time":
         edits = Edit.query\
                 .filter(Edit.approved==False,
@@ -777,32 +771,28 @@ def edit_review_queue():
                         Edit.rejected==False)\
                 .order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     elif sort == "reason":
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.edit_reason.asc())\
+                .order_by(Edit.reason.asc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
     elif sort == "reason_invert":
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
-                .order_by(Edit.edit_reason.desc())\
+                .order_by(Edit.reason.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
-
     else:
         edits = Edit.query\
                 .outerjoin(EditVote,
                         and_(EditVote.user_id==current_user.id,
-                            EditVote.edit_id==Edit.id)
-                        )\
+                            EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
                 .paginate(page, app.config["NOTIFICATIONS_PER_PAGE"], False)
         sort = "voted"
-
 
     votes = current_user.edit_votes
 
@@ -811,19 +801,19 @@ def edit_review_queue():
     prev_page = url_for("admin.edit_review_queue", page=edits.prev_num, sort=sort)\
             if edits.has_prev else None
 
-    return render_template("indexes/edits.html", title="Edit Queue",
-            edits=edits.items, votes=votes, sort=sort, next_page=next_page,
-            prev_page=prev_page)
+    return render_template("indexes/edit_review_queue.html",
+            title="Edit Review Queue", edits=edits.items, votes=votes,
+            sort=sort, next_page=next_page, prev_page=prev_page)
 
-@admin.route("/edit/<edit_id>/")
+@admin.route("/annotation/<annotation_id>/edit/<edit_id>/review")
 @login_required
-def review_edit(edit_id):
+def review_edit(annotation_id, edit_id):
     current_user.authorize("review_edits")
 
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
         return redirect(url_for("view_edit", annotation_id=edit.annotation_id,
-            edit_num=edit.edit_num))
+            edit=edit.edit))
     if not edit.annotation.active:
         current_user.authorize("review_deactivated_annotation_edits")
 
@@ -851,19 +841,18 @@ def review_edit(edit_id):
             if line not in context:
                 context.append(line)
 
-    return render_template("view/edit.html", title=f"Edit number {edit.edit_num}",
+    return render_template("view/edit_review.html",
+            title=f"[{edit.annotation.id}] Edit #{edit.num}",
             diff=diff, edit=edit, tags=tags, context=context)
 
-@admin.route("/approve/edit/<edit_id>/")
+@admin.route("/annotation/<annotation_id>/edit/<edit_id>/upvote")
 @login_required
-def approve(edit_id):
+def upvote_edit(annotation_id, edit_id):
     current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
+    redirect_url = generate_next(url_for("admin.review_edit", edit_id=edit.id))
     if not edit.annotation.active:
         current_user.authorize("review_deactivated_annotation_edits")
-    if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
-        return redirect(url_for("admin.edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("admin.edit_review_queue"))
@@ -871,16 +860,14 @@ def approve(edit_id):
     db.session.commit()
     return redirect(url_for("admin.edit_review_queue"))
 
-@admin.route("/reject/edit/<edit_id>/")
+@admin.route("/annotation/<annotation_id>/edit/<edit_id>/downvote")
 @login_required
-def reject(edit_id):
+def downvote_edit(annotation_id, edit_id):
     current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
+    redirect_url = generate_next(url_for("admin.review_edit", edit_id=edit.id))
     if not edit.annotation.active:
         current_user.authorize("review_deactivated_annotation_edits")
-    if current_user.get_edit_vote(edit):
-        flash(f"You already voted on edit {edit.edit_num} of annotation {edit.annotation.id}")
-        return redirect(url_for("admin.edit_review_queue"))
     elif edit.editor == current_user:
         flash("You cannot approve or reject your own edits")
         return redirect(url_for("admin.edit_review_queue"))
@@ -1007,16 +994,15 @@ def delete_edit(edit_id):
     form = AreYouSureForm()
     current_user.authorize("delete_annotations")
     edit = Edit.query.get_or_404(edit_id)
-    redirect_url = generate_next(url_for("annotation",
-        annotation_id=edit.annotation_id))
+    redirect_url = url_for("edit_history", annotation_id=edit.annotation_id)
     if form.validate_on_submit():
         if edit.current:
             edit.previous.current = True
         else:
-            for e in edit.annotation.all_edits.order_by(Edit.edit_num.desc()).all():
-                if e.edit_num > edit.edit_num:
-                    e.edit_num -= 1
-        flash(f"Edit #{edit.edit_num} of [{edit.annotation_id}] deleted.")
+            for e in edit.annotation.all_edits.order_by(Edit.num.desc()).all():
+                if e.num > edit.num:
+                    e.num -= 1
+        flash(f"Edit #{edit.num} of [{edit.annotation_id}] deleted.")
         db.session.delete(edit)
         db.session.commit()
         return redirect(redirect_url)
@@ -1029,7 +1015,7 @@ therefore be as though the edit never even existed.
 The only reason for this is if there is illegal content in the edit.
     """
     return render_template("forms/delete_check.html",
-            title=f"Delete edit #{edit.edit_num} of [{edit.annotation_id}]",
+            title=f"Delete edit #{edit.num} of [{edit.annotation_id}]",
             form=form, text=text)
 
 @admin.route("/wiki/edit/<edit_id>/delete", methods=["GET", "POST"])

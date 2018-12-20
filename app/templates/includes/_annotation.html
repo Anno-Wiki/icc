@@ -69,13 +69,6 @@
     </div>
 
     <!--authenticated user links-->
-    {% if current_user.is_authenticated %}
-        {% if current_user.is_authorized("edit_locked_annotations") 
-            or not annotation.locked %}
-            | <a href="{{ url_for("edit", annotation_id=annotation.id,
-                next=request.full_path) }}">
-                edit
-            </a>
-        {% endif %}
-    {% endif %}
+    | <a href="{{ url_for("edit", annotation_id=annotation.id,
+        next=request.full_path) }}">edit</a>
 </annotation>

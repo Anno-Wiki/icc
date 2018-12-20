@@ -47,8 +47,8 @@ class Config(object):
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS") is not None
 
     # vote margins
-    MIN_EDIT_APPROVAL_RATING = 2
-    MIN_EDIT_REJECTION_RATING = -2
+    VOTES_FOR_EDIT_APPROVAL = 2
+    VOTES_FOR_EDIT_REJECTION = -2
     VOTES_FOR_WIKI_EDIT_APPROVAL = 2
     VOTES_FOR_WIKI_EDIT_REJECTION = -2
 

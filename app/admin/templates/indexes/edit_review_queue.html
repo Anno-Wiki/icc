@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% set header = [
+        ("voted", "voted_invert", "Vote &#9662;", "Vote &#9652;"),
+        ("id", "id_invert", "Annotation &#9662;", "Annotation &#9652;"), 
+        ("edit_num", "edit_num_invert", "Edit &#9662;", "Edit &#9652;"),
+        ("editor", "editor_invert", "Editor &#9662;", "Editor &#9652;"),
+        ("time", "time_invert", "Time &#9662;", "Time &#9652;"),
+        ("reason", "reason_invert", "Reason &#9662;", "Reason &#9652;"),
+        ]
+    %}
+    <h1>Pending Edit Review Queue</h1>
+    <table class="inbox">
+        <tr class="header">
+            {% for id, altid, caption, altcaption in header %}
+                <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
+                    <a href="{% if sort == altid or sort != id %}{{
+                    url_for("admin.edit_review_queue", sort=id, page=page)
+                    }}{% else %}{{ url_for("admin.edit_review_queue",
+                    sort=altid, page=page) }}{% endif %}">
+                        {% if sort == altid %}
+                            {{ altcaption|safe }}
+                        {% else %}
+                            {{ caption|safe }}
+                        {% endif %}
+                    </a>
+                </td>
+            {% endfor %}
+        </tr>
+
+        {% if edits %}
+            {% for edit in edits %}
+                <tr{% if edit in votes %} class="read"{% else %}
+                    class="unread"{% endif %}>
+                    <td>
+                        {% if edit in votes %}
+                            {% if edit in votes and
+                            current_user.get_edit_vote(edit).is_up() %}
+                                <a href="{{ url_for("admin.upvote_edit",
+                                annotation_id=edit.annotation.id,
+                                edit_id=edit.id) }}">&#10003;</a>
+                            {% else %}
+                                <a href="{{ url_for("admin.downvote_edit",
+                                    annotation_id=edit.annotation.id,
+                                    edit_id=edit.id)
+                                    }}">&#10007;</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for("admin.review_edit",
+                            annotation_id=edit.annotation.id, edit_id=edit.id)
+                            }}">review</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for("annotation",
+                            annotation_id=edit.annotation_id) }}">
+                            [{{ edit.annotation_id }}]
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for("admin.review_edit",
+                            annotation_id=edit.annotation.id, edit_id=edit.id)
+                            }}">#{{ edit.num }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for("user.profile",
+                            user_id=edit.editor_id) }}">{{
+                            edit.editor.displayname }}</a>
+                    </td>
+                    <td>
+                        {{ edit.timestamp }}
+                    </td>
+                    <td>
+                        {{ edit.reason }}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="read">
+                <td colspan=6>
+                    This queue has been cleared.
+                </td>
+            </tr>
+        {% endif %}
+    </table>
+{% endblock %}

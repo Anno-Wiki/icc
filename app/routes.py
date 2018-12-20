@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from flask import render_template, flash, redirect, url_for, request, abort, g
-from flask_login import current_user, login_required, login_manager
+from flask_login import current_user, login_required, login_manager, logout_user
 from sqlalchemy import and_
 
 from app import app, db
@@ -935,11 +935,14 @@ def annotate(text_url, edition_num, first_line, last_line):
 @login_required
 def edit(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(
-            url_for("annotation", annotation_id=annotation_id))
+    redirect_url = generate_next( url_for("annotation",
+        annotation_id=annotation_id))
     if annotation.locked == True\
             and not current_user.is_authorized("edit_locked_annotations"):
         flash("That annotation is locked from editing.")
+        return redirect(redirect_url)
+    elif annotation.edit_pending:
+        flash("There is an edit still pending peer review.")
         return redirect(redirect_url)
     elif not annotation.active:
         current_user.authorize("edit_deactivated_annotations")
@@ -962,57 +965,18 @@ def edit(annotation_id):
         if len(tags) > 5:
             fail = True
             flash("There is a five tag limit.")
-        lockchange = False
-        if current_user.is_authorized("lock_annotations")\
-                and annotation.locked != form.locked.data:
-            lockchange = True
-            annotation.locked = form.locked.data
-        # if a reason isn't provided and there's no lockchange, fail the
-        # submission
-        if not form.reason.data and not lockchange:
-            flash("Please provide a reason for your edit.")
-            fail = True
 
         num = int(annotation.HEAD.num+1) if annotation.HEAD.num else 1
-        edit = Edit(edition=annotation.edition,
-                editor=current_user, num=num,
-                edit_reason=form.reason.data, annotation=annotation,
-                first_line_num=fl, last_line_num=ll,
-                first_char_idx=form.first_char_idx.data,
-                last_char_idx=form.last_char_idx.data,
-                body=form.annotation.data, tags=tags,
-                weight=0
-                )
+        success = annotation.edit(editor=current_user, num=num,
+                reason=form.reason.data, fl=fl, ll=ll,
+                fc=form.first_char_idx.data, lc=form.last_char_idx.data,
+                body=form.annotation.data, tags=tags)
 
-        if edit.hash_id == annotation.HEAD.hash_id and not lockchange:
-            flash("Your suggested edit is no different from the previous version.")
-            fail = True
-        # approved is true if the user can edit immediately
-        approved = current_user.is_authorized("immediate_edits")\
-                or annotation.annotator == current_user
-        if fail: # rerender the template with the work already filled
+        if not success: # rerender the template with the work already filled
+            db.session.rollback()
             return render_template("forms/annotation.html", form=form,
                     title=annotation.text.title, lines=lines, 
                     text=annotation.text, annotation=annotation)
-        elif edit.hash_id == annotation.HEAD.hash_id and lockchange:
-            # Don't add the edit, but flash lock message
-            if annotation.locked:
-                flash("Annotation Locked")
-            else:
-                flash("Annotation Unlocked")
-        else:
-            # The edit is valid
-            if lockchange:
-                if annotation.locked:
-                    flash("Annotation Locked")
-                else:
-                    flash("Annotation Unlocked")
-            if approved:
-                edit.approve(current_user)
-                flash("Edit completed.")
-            else:
-                flash("Edit submitted for review.")
-            db.session.add(edit)
         db.session.commit()
         return redirect(redirect_url)
     elif not annotation.edit_pending:
@@ -1025,7 +989,6 @@ def edit(annotation_id):
         form.last_char_idx.data = annotation.HEAD.last_char_idx
         form.annotation.data = annotation.HEAD.body
         form.tags.data = " ".join(tag_strings)
-        form.locked.data = annotation.locked
     return render_template("forms/annotation.html", form=form,
             title=f"Edit Annotation {annotation.id}", text=annotation.text,
             lines=lines, annotation=annotation, context=context)

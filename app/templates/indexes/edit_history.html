@@ -17,7 +17,7 @@
 </h1>
 <table class="inbox">
     <tr class="header">
-        {% if sort == "edit_num" %}
+        {% if sort == "num" %}
             <td class="highlight" style="width:5%;">
                 <a href="{{ url_for("edit_history", annotation_id=annotation.id,
                     sort="edit_num_invert", page=page) }}">
@@ -27,14 +27,14 @@
         {% elif sort =="edit_num_invert" %}
             <td class="highlight" style="width:5%;">
                 <a href="{{ url_for("edit_history", annotation_id=annotation.id,
-                sort="edit_num", page=page) }}">
+                sort="num", page=page) }}">
                     # &#9652;
                 </a>
             </td>
         {% else %}
             <td style="width:5%;">
                 <a href="{{ url_for("edit_history", annotation_id=annotation.id,
-                    sort="edit_num", page=page) }}">
+                    sort="num", page=page) }}">
                     #
                 </a>
             </td>
@@ -115,7 +115,7 @@
             <tr class="unread">
                 <td>
                     <a href="{{ url_for("view_edit",
-                        annotation_id=annotation.id, edit_num=edit.num) }}">
+                        annotation_id=annotation.id, num=edit.num) }}">
                         {{ edit.num }}
                     </a>
                 </td>

@@ -40,12 +40,9 @@ class AnnotationForm(FlaskForm):
             render_kw={
                 "placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
                 "style": "width: 100%;",
-                "maxlength":255
+                "maxlength":191
                 },
-            validators=[Optional(), Length(min=0,max=255)])
-
-    locked = BooleanField("Locked")
-
+            validators=[Optional(), Length(min=0,max=191)])
     submit = SubmitField("Annotate")
 
 class SearchForm(FlaskForm):
@@ -67,7 +64,7 @@ class WikiForm(FlaskForm):
             render_kw={
                 "placeholder": 'e.g. "Edited grammar", "Expanded tags", etc.',
                 "style": "width: 100%;",
-                "maxlength":255
+                "maxlength":191
                 },
-            validators=[Optional(), Length(min=0,max=255)])
+            validators=[Optional(), Length(min=0,max=191)])
     submit = SubmitField("Submit")
