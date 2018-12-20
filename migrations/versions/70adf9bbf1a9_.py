@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b18d1cc81b81
+Revision ID: 70adf9bbf1a9
 Revises: 
-Create Date: 2018-12-19 17:42:23.487965
+Create Date: 2018-12-20 12:27:18.488997
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b18d1cc81b81'
+revision = '70adf9bbf1a9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,8 +40,8 @@ def upgrade():
     sa.Column('code', sa.String(length=64), nullable=True),
     sa.Column('public_code', sa.String(length=64), nullable=True),
     sa.Column('entity_type', sa.String(length=64), nullable=True),
-    sa.Column('notification', sa.String(length=255), nullable=True),
-    sa.Column('vars', sa.String(length=255), nullable=True),
+    sa.Column('notification', sa.String(length=191), nullable=True),
+    sa.Column('vars', sa.String(length=191), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reputation_enum',
@@ -76,8 +76,7 @@ def upgrade():
     )
     op.create_table('wiki',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('edit_pending', sa.Boolean(), nullable=True),
-    sa.Column('entity_string', sa.String(length=255), nullable=True),
+    sa.Column('entity_string', sa.String(length=191), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_wiki_entity_string'), 'wiki', ['entity_string'], unique=False)
@@ -161,7 +160,7 @@ def upgrade():
     sa.Column('rejected', sa.Boolean(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=False),
-    sa.Column('reason', sa.String(length=255), nullable=True),
+    sa.Column('reason', sa.String(length=191), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
@@ -437,7 +436,7 @@ def upgrade():
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('edit_reason', sa.String(length=255), nullable=True),
+    sa.Column('reason', sa.String(length=191), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),

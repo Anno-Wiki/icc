@@ -162,8 +162,8 @@ class NotificationEnum(db.Model):
     code = db.Column(db.String(64))
     public_code = db.Column(db.String(64))
     entity_type = db.Column(db.String(64))
-    notification = db.Column(db.String(255))
-    vars = db.Column(db.String(255))
+    notification = db.Column(db.String(191))
+    vars = db.Column(db.String(191))
 
     def __repr__(self):
         return f"<{self.code} notification enum>"
@@ -176,7 +176,7 @@ class NotificationObject(db.Model):
     entity_id = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     actor_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
+
     type = db.relationship("NotificationEnum")
     actor = db.relationship("User")
 
@@ -407,7 +407,7 @@ class User(UserMixin, db.Model):
 
     def get_vote(self, annotation):
         return self.ballots.filter(Vote.annotation==annotation).first()
-                
+
     def get_vote_dict(self):
         v = {}
         for vote in self.ballots:
@@ -459,7 +459,6 @@ def load_user(id):
 
 class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    edit_pending = db.Column(db.Boolean, default=False)
     entity_string = db.Column(db.String(191), index=True)
 
     current = db.relationship("WikiEdit",
@@ -467,6 +466,10 @@ class Wiki(db.Model):
             "WikiEdit.current==True)", uselist=False, lazy="joined")
     edits = db.relationship("WikiEdit",
             primaryjoin="WikiEdit.wiki_id==Wiki.id", lazy="dynamic")
+    edit_pending = db.relationship("WikiEdit",
+            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,"
+            "WikiEdit.approved==False, WikiEdit.rejected==False)",
+            passive_deletes=False)
 
     @orm.reconstructor
     def init_on_load(self):
@@ -495,7 +498,6 @@ class Wiki(db.Model):
             flash("The edit has been applied.")
         else:
             flash("The edit has been submitted for peer review.")
-            self.edit_pending = True
 
 class WikiEditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -565,7 +567,8 @@ class WikiEdit(db.Model):
         vote = WikiEditVote(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight >= app.config["VOTES_FOR_WIKI_EDIT_APPROVAL"]:
+        if self.weight >= app.config["VOTES_FOR_WIKI_EDIT_APPROVAL"] or\
+                voter.is_authorized("immediate_wiki_edits"):
             self.approve()
 
     def downvote(self, voter):
@@ -585,14 +588,14 @@ class WikiEdit(db.Model):
         vote = WikiEditVote(edit=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight <= app.config["VOTES_FOR_WIKI_EDIT_REJECTION"]:
+        if self.weight <= app.config["VOTES_FOR_WIKI_EDIT_REJECTION"] or\
+                voter.is_authorized("immediate_wiki_edits"):
             self.reject()
 
     def approve(self):
         self.approved = True
         self.wiki.current.current = False
         self.current = True
-        self.wiki.edit_pending = False
         flash("The edit was approved.")
 
     def reject(self):
@@ -660,7 +663,7 @@ class Text(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     wiki = db.relationship("Wiki", backref=backref("text", uselist=False))
-    authors = db.relationship("Writer", secondary="authors") 
+    authors = db.relationship("Writer", secondary="authors")
     editions = db.relationship("Edition", lazy="dynamic")
     primary = db.relationship("Edition",
             primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
@@ -920,7 +923,7 @@ class Line(SearchableMixin, db.Model):
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    annotation_id = db.Column(db.Integer, 
+    annotation_id = db.Column(db.Integer,
             db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
     reputation_change_id = db.Column(db.Integer,
             db.ForeignKey("reputation_change.id", ondelete="CASCADE"))
@@ -1428,7 +1431,7 @@ class UserFlag(db.Model):
             return f"<X UserFlag: {self.flag.flag} at {self.time_thrown}>"
         else:
             return f"<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>"
-   
+
     def resolve(self, resolver):
         self.time_resolved = datetime.utcnow()
         self.resolver = resolver
@@ -1468,7 +1471,7 @@ class AnnotationFlag(db.Model):
         else:
             return f"<AnnotationFlag thrown: {self.flag.flag} at" \
                         " {self.time_thrown}>"
-   
+
     def resolve(self, resolver):
         self.time_resolved = datetime.utcnow()
         self.resolver = resolver
