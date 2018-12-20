@@ -1,6 +1,8 @@
+from functools import wraps
 from app import app, db
 from app.models import Tag
 from flask import request
+from flask_login import current_user
 from werkzeug.urls import url_parse
 
 # This method is used to run through all the lines for a read view and convert/
@@ -47,15 +49,11 @@ def is_filled(data):
 
 def generate_next(alt_url):
     redirect_url = request.args.get("next")
-    print(request.referrer)
     if redirect_url and url_parse(redirect_url).netloc == "":
-        print("1")
         return request.args.get("next")
     elif request.referrer:
-        print("2")
         return request.referrer
     else:
-        print("3")
         return alt_url
 
 def line_check(fl, ll):
@@ -68,3 +66,12 @@ def line_check(fl, ll):
         ll = fl
         fl = tmp
     return fl, ll
+
+def authorize(string):
+    def inner(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            current_user.authorize(string)
+            return f(*args, **kwargs)
+        return wrapper
+    return inner

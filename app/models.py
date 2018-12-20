@@ -124,6 +124,7 @@ text_request_followers = db.Table("text_request_followers",
 class Right(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     right = db.Column(db.String(128), index=True)
+    min_rep = db.Column(db.Integer)
 
     def __repr__(self):
         return f"<Right to {self.right}>"
@@ -354,33 +355,18 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
 
-    def softauthorize(self, right, flash_msg, redirect_url):
-        r = Right.query.filter_by(right=right).first()
-        if app.config["AUTHORIZATION"][right] == -1 and not r in self.rights:
-            flash(flash_msg)
-            redirect(redirect_url)
-        elif self.reputation >= app.config["AUTHORIZATION"][right]:
-            pass
-        elif not r in self.rights:
-            flash(flash_msg)
-            redirect(redirect_url)
-
     def authorize(self, right):
         r = Right.query.filter_by(right=right).first()
-        if app.config["AUTHORIZATION"][right] == -1 and not r in self.rights:
-            abort(403)
-        elif self.reputation >= app.config["AUTHORIZATION"][right]:
+        if r in self.rights:
             pass
-        elif not r in self.rights:
+        elif r.min_rep and self.reputation >= r.min_rep:
+            pass
+        else:
             abort(403)
 
     def is_authorized(self, right):
         r = Right.query.filter_by(right=right).first()
-        if app.config["AUTHORIZATION"][right] == -1:
-            return r in self.rights
-        else:
-            return self.reputation >= app.config["AUTHORIZATION"][right]\
-                    or r in self.rights
+        return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def up_power(self):
         if self.reputation <= 1:

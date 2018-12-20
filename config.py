@@ -5,39 +5,6 @@ class Config(object):
     DEBUG = True
     ADMINS = ["emails@futuretld.org"]
     ANNOTATIONS_PER_PAGE = 5
-    AUTHORIZATION = { 
-            "anonymize_users": -1,
-            "approve_edits": -1,
-            "create_tags": -1,
-            "deactivate_annotations": -1,
-            "delete_annotations": -1,
-            "delete_book_requests": -1,
-            "delete_edits": -1,
-            "delete_wiki_edits": -1,
-            "delete_tag_requests": -1,
-            "edit_book_requests": -1,
-            "edit_deactivated_annotations": -1,
-            "edit_lines": -1,
-            "edit_locked_annotations": -1,
-            "edit_tag_requests": -1,
-            "edit_tags": -1,
-            "immediate_edits": -1,
-            "immediate_wiki_edits": -1,
-            "lock_annotations": -1,
-            "lock_users": -1,
-            "reject_edits": -1,
-            "request_books": 100,
-            "request_tags": 100,
-            "resolve_annotation_flags": -1,
-            "resolve_deactivated_annotation_flags": -1,
-            "resolve_user_flags": -1,
-            "review_edits": 25,
-            "review_wiki_edits": 25,
-            "review_deactivated_annotation_edits": -1,
-            "use_restricted_tags": -1,
-            "view_deactivated_annotations": -1,
-            }
-
 
     # mail system
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")

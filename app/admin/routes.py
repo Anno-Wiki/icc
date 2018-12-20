@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import and_
 
 from app import app, db
-from app.funky import generate_next
+from app.funky import generate_next, authorize
 from app.forms import AreYouSureForm
 from app.models import User, UserFlag, UserFlagEnum,\
         Line, Text, TextRequest, Edition, Writer, Tag, TagRequest,\
@@ -22,9 +22,9 @@ from app.admin.forms import TagForm, LineForm
 
 @admin.route("/user/<user_id>/delete/", methods=["GET", "POST"])
 @login_required
+@authorize("anonymize_users")
 def anonymize_user(user_id):
     form = AreYouSureForm()
-    current_user.authorize("anonymize_users")
     user = User.query.get_or_404(user_id)
     redirect_url = url_for("user", user_id=user.id)
     if form.validate_on_submit():
@@ -44,8 +44,8 @@ If you click submit you will forcibly anonymize this user ({user.displayname}).
 
 @admin.route("/lock/user/<user_id>/")
 @login_required
+@authorize("lock_users")
 def lock_user(user_id):
-    current_user.authorize("lock_users")
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for("user", user_id=user.id))
     user.locked = not user.locked
@@ -59,10 +59,11 @@ def lock_user(user_id):
 
 @admin.route("/flags/user/all/")
 @login_required
+@authorize("resolve_user_flags")
 def all_user_flags():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize("resolve_user_flags")
+
     if sort == "marked":
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.desc())\
@@ -160,10 +161,10 @@ def all_user_flags():
 # user flags
 @admin.route("/flags/user/<user_id>/")
 @login_required
+@authorize("resolve_user_flags")
 def user_flags(user_id):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize("resolve_user_flags")
     user = User.query.get_or_404(user_id)
     if sort == "marked":
         flags = user.flag_history\
@@ -250,8 +251,8 @@ def user_flags(user_id):
 
 @admin.route("/flags/mark/user_flag/<flag_id>/")
 @login_required
+@authorize("resolve_user_flags")
 def mark_user_flag(flag_id):
-    current_user.authorize("resolve_user_flags")
     flag = UserFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("admin.user_flags", user_id=flag.user_id))
     if flag.time_resolved:
@@ -263,8 +264,8 @@ def mark_user_flag(flag_id):
 
 @admin.route("/flags/mark_all/<user_id>/")
 @login_required
+@authorize("resolve_user_flags")
 def mark_user_flags(user_id):
-    current_user.authorize("resolve_user_flags")
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for("admin.user_flags", user_id=user.id))
     for flag in user.active_flags:
@@ -278,8 +279,8 @@ def mark_user_flags(user_id):
 
 @admin.route("/deactivate/annotation/<annotation_id>/")
 @login_required
+@authorize("deactivate_annotations")
 def deactivate(annotation_id):
-    current_user.authorize("deactivate_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
     annotation.active = not annotation.active
     db.session.commit()
@@ -294,8 +295,8 @@ def deactivate(annotation_id):
 
 @admin.route("/list/deactivated/annotations/")
 @login_required
+@authorize("view_deactivated_annotations")
 def view_deactivated_annotations():
-    current_user.authorize("view_deactivated_annotations")
     sort = request.args.get("sort", "added", type=str)
     page = request.args.get("page", 1, type=int)
     if sort == "added":
@@ -327,10 +328,10 @@ def view_deactivated_annotations():
 
 @admin.route("/flags/annotation/all/")
 @login_required
+@authorize("resolve_annotation_flags")
 def all_annotation_flags():
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize("resolve_annotation_flags")
 
     if sort == "marked":
         flags = AnnotationFlag.query\
@@ -436,10 +437,10 @@ def all_annotation_flags():
 
 @admin.route("/flags/annotation/<annotation_id>/")
 @login_required
+@authorize("resolve_annotation_flags")
 def annotation_flags(annotation_id):
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "marked", type=str)
-    current_user.authorize("resolve_annotation_flags")
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize("resolve_deactivated_annotation_flags")
@@ -529,8 +530,8 @@ def annotation_flags(annotation_id):
 
 @admin.route("/flags/annotation/mark/<flag_id>/")
 @login_required
+@authorize("resolve_annotation_flags")
 def mark_annotation_flag(flag_id):
-    current_user.authorize("resolve_annotation_flags")
     flag = AnnotationFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for("admin.annotation_flags",
         annotation_id=flag.annotation_id))
@@ -543,8 +544,8 @@ def mark_annotation_flag(flag_id):
 
 @admin.route("/flags/annotation/<annotation_id>/mark/all/")
 @login_required
+@authorize("resolve_annotation_flags")
 def mark_annotation_flags(annotation_id):
-    current_user.authorize("resolve_annotation_flags")
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize("resolve_deactivated_annotation_flags")
@@ -561,8 +562,8 @@ def mark_annotation_flags(annotation_id):
 
 @admin.route("/wiki/edits/review")
 @login_required
+@authorize("review_wiki_edits")
 def wiki_edit_review_queue():
-    current_user.authorize("review_wiki_edits")
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "voted", type=str)
 
@@ -646,8 +647,8 @@ def wiki_edit_review_queue():
 
 @admin.route("/wiki/<wiki_id>/edit/<edit_id>/review")
 @login_required
+@authorize("review_wiki_edits")
 def review_wiki_edit(wiki_id, edit_id):
-    current_user.authorize("review_wiki_edits")
     edit = WikiEdit.query.get_or_404(edit_id)
     if edit.approved == True:
         return redirect(url_for("view_wiki_edit", wiki_id=edit.wiki.id,
@@ -668,8 +669,8 @@ def review_wiki_edit(wiki_id, edit_id):
 
 @admin.route("/wiki/<wiki_id>/edit/<edit_id>/upvote")
 @login_required
+@authorize("review_wiki_edits")
 def upvote_wiki_edit(wiki_id, edit_id):
-    current_user.authorize("review_wiki_edits")
     redirect_url = generate_next(url_for("index"))
     edit = WikiEdit.query.get(edit_id)
     if edit.approved:
@@ -682,8 +683,8 @@ def upvote_wiki_edit(wiki_id, edit_id):
 
 @admin.route("/wiki/<wiki_id>/edit/<edit_id>/downvote")
 @login_required
+@authorize("review_wiki_edits")
 def downvote_wiki_edit(wiki_id, edit_id):
-    current_user.authorize("review_wiki_edits")
     redirect_url = generate_next(url_for("index"))
     edit = WikiEdit.query.get(edit_id)
     if edit.approved:
@@ -700,8 +701,8 @@ def downvote_wiki_edit(wiki_id, edit_id):
 
 @admin.route("/annotation/edits/review")
 @login_required
+@authorize("review_edits")
 def edit_review_queue():
-    current_user.authorize("review_edits")
     page = request.args.get("page", 1, type=int)
     sort = request.args.get("sort", "voted", type=str)
 
@@ -807,13 +808,13 @@ def edit_review_queue():
 
 @admin.route("/annotation/<annotation_id>/edit/<edit_id>/review")
 @login_required
+@authorize("review_edits")
 def review_edit(annotation_id, edit_id):
-    current_user.authorize("review_edits")
 
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
         return redirect(url_for("view_edit", annotation_id=edit.annotation_id,
-            edit=edit.edit))
+            num=edit.num))
     if not edit.annotation.active:
         current_user.authorize("review_deactivated_annotation_edits")
 
@@ -847,8 +848,8 @@ def review_edit(annotation_id, edit_id):
 
 @admin.route("/annotation/<annotation_id>/edit/<edit_id>/upvote")
 @login_required
+@authorize("review_edits")
 def upvote_edit(annotation_id, edit_id):
-    current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
     redirect_url = generate_next(url_for("admin.review_edit", edit_id=edit.id))
     if not edit.annotation.active:
@@ -862,8 +863,8 @@ def upvote_edit(annotation_id, edit_id):
 
 @admin.route("/annotation/<annotation_id>/edit/<edit_id>/downvote")
 @login_required
+@authorize("review_edits")
 def downvote_edit(annotation_id, edit_id):
-    current_user.authorize("review_edits")
     edit = Edit.query.get_or_404(edit_id)
     redirect_url = generate_next(url_for("admin.review_edit", edit_id=edit.id))
     if not edit.annotation.active:
@@ -875,36 +876,14 @@ def downvote_edit(annotation_id, edit_id):
     db.session.commit()
     return redirect(url_for("admin.edit_review_queue"))
 
-@admin.route("/rescind_vote/edit/<edit_id>/")
-@login_required
-def rescind(edit_id):
-    current_user.authorize("review_edits")
-    edit = Edit.query.get_or_404(edit_id)
-    if not edit.annotation.active:
-        current_user.authorize("review_deactivated_annotation_edits")
-    if edit.approved == True:
-        flash("This annotation is already approved; your vote cannot be rescinded.")
-        return redirect(url_for("admin.edit_review_queue"))
-    elif edit.rejected == True:
-        flash("This annotation is already rejected; your vote cannot be rescinded.")
-        return redirect(url_for("admin.edit_review_queue"))
-    vote = current_user.get_edit_vote(edit)
-    if not vote:
-        abort(404)
-    edit.weight -= vote.delta
-    db.session.delete(vote)
-    db.session.commit()
-    flash("Vote rescinded")
-    return redirect(url_for("admin.edit_review_queue"))
-
 #####################
 ## Content Editing ##
 #####################
 
 @admin.route("/edit/line/<line_id>/", methods=["GET", "POST"])
 @login_required
+@authorize("edit_lines")
 def edit_line(line_id):
-    current_user.authorize("edit_lines")
     line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
@@ -925,8 +904,8 @@ def edit_line(line_id):
         defaults={"tag_request_id":None})
 @admin.route("/tags/create/<tag_request_id>/", methods=["GET","POST"])
 @login_required
+@authorize("create_tags")
 def create_tag(tag_request_id):
-    current_user.authorize("create_tags")
     tag_request = None
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
@@ -951,8 +930,8 @@ def create_tag(tag_request_id):
 
 @admin.route("/tags/reject/<tag_request_id>/")
 @login_required
+@authorize("create_tags")
 def reject_tag(tag_request_id):
-    current_user.authorize("create_tags")
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     redirect_url = generate_next(url_for("tag_request_index"))
     tag_request.rejected = True
@@ -965,9 +944,9 @@ def reject_tag(tag_request_id):
 
 @admin.route("/annotation/<annotation_id>/delete/", methods=["GET", "POST"])
 @login_required
+@authorize("delete_annotations")
 def delete_annotation(annotation_id):
     form = AreYouSureForm()
-    current_user.authorize("delete_annotations")
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = url_for("text_annotations", text_url=annotation.text.url)
     if form.validate_on_submit():
@@ -990,9 +969,9 @@ associated with the annotation, you really ought to simply deactivate it.
 
 @admin.route("/edit/<edit_id>/delete/", methods=["GET", "POST"])
 @login_required
+@authorize("delete_annotations")
 def delete_edit(edit_id):
     form = AreYouSureForm()
-    current_user.authorize("delete_annotations")
     edit = Edit.query.get_or_404(edit_id)
     redirect_url = url_for("edit_history", annotation_id=edit.annotation_id)
     if form.validate_on_submit():
@@ -1020,9 +999,9 @@ The only reason for this is if there is illegal content in the edit.
 
 @admin.route("/wiki/edit/<edit_id>/delete", methods=["GET", "POST"])
 @login_required
+@authorize("delete_wiki_edits")
 def delete_wiki_edit(edit_id):
     form = AreYouSureForm()
-    current_user.authorize("delete_wiki_edits")
     edit = WikiEdit.query.get_or_404(edit_id)
     redirect_url = url_for("wiki_edit_history", wiki_id=edit.wiki.id)
     if form.validate_on_submit():

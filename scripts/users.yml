@@ -2,7 +2,7 @@ users:
     - displayname: community
       email: community@annopedia.org
       rights: none
-      locked: false
+      locked: true
       about_me: |
           Hi, 
 
@@ -42,7 +42,7 @@ users:
     - displayname: nick
       email: nicksend15@gmail.com
       rights: none
-      locked: true
+      locked: false
       about_me: |
           I'm a fake user created by malan to be used like a puppet.
 
