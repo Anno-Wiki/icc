@@ -1,16 +1,20 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
-from datetime import datetime, timedelta
+import os
 import unittest
+from flask import url_for, request
+
 from app import app, db
 from app.models import *
 
+
 class MyTest(unittest.TestCase):
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-    ELASTICSEARCH_URL = None
-    TESTING = True
+    app.config["ELASTICSEARCH_URL"] = None
+    app.config["TESTING"] = True
 
     def setUp(self):
         db.create_all()
+        self.app =  app.test_client()
 
     def tearDown(self):
         db.session.remove()
@@ -28,6 +32,9 @@ class MyTest(unittest.TestCase):
                 ("https://www.gravatar.com/avatar/d4c74594d841139328695756648b6"
                 "bd6?d=identicon&s=128"))
 
+    def test_index(self):
+        result = self.app.get("/index/")
+        self.assertEqual(result.status_code, 200)
 
 if __name__ == "__main__":
     unittest.main()
