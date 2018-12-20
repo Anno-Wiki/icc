@@ -34,9 +34,9 @@ if args.initial:
                         death_date=author["deathdate"],
                         description=author["description"])
                     )
-            print(f"Created author {text.authors[-1].name}")
+            print(f"Created author {text.authors[-1].name}.")
     db.session.add(text)
-    print(f"Created text {text.title} by {text.authors}")
+    print(f"Created text {text.title} by {text.authors}.")
 else:
     text = Text.query.filter_by(title=config.title).first()
     print(f"Found {text.title} in the database.")
@@ -46,7 +46,7 @@ else:
 # that previous primary.
 if not args.initial and config["edition"]["primary"]:
     print(f"Deactivated primary designation on edition #{text.primary.num} of"
-            f"{text.title}")
+            f"{text.title}.")
     text.primary.primary = False
 
 # create the edition
@@ -55,7 +55,7 @@ edition = Edition(num=config["edition"]["number"], text=text,
         description=config["edition"]["description"],
         published=config["edition"]["publication_date"])
 db.session.add(edition)
-print(f"Created edition number {edition.num} for {text.title}")
+print(f"Created edition number {edition.num} for {text.title}.")
 
 # For all the connection types we have, we go look in the edition dictionary for
 # those connection types, and then loop through the writers in those ditionaries
@@ -75,12 +75,12 @@ for enum in ConnectionEnum.query.all():
                     description=writer["description"]
                     )
             db.session.add(writer_obj)
-            print(f"Writer {writer_obj.name} created")
+            print(f"Writer {writer_obj.name} created.")
 
         conn = WriterEditionConnection(writer=writer_obj, edition=edition,
                 enum=enum)
         db.session.add(conn)
-        print(f"    and added as a {enum.type}.")
+        print(f"Writer {writer_obj.name} added as a {enum.type}.")
 
 labels = LineEnum.query.all()
 label = {}
