@@ -1,4 +1,10 @@
-#!/home/malan/projects/icc/icc/venv/bin/python
+#!/bin/sh
+if "true" : '''\'
+then
+exec "$VENV" "$0" "$@"
+exit 127
+fi
+'''
 import codecs, re, sys, argparse, json
 
 parser = argparse.ArgumentParser("Parses text files into icc csv files.")

@@ -1,6 +1,11 @@
-#!/home/malan/projects/icc/icc/venv/bin/python
-import os
-import unittest
+#!/bin/sh
+if "true" : '''\'
+then
+exec "$VENV" "$0" "$@"
+exit 127
+fi
+'''
+import os, unittest, json, yaml
 from flask import url_for, request
 
 from app import app, db

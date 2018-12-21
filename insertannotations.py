@@ -1,4 +1,10 @@
-#!/home/malan/projects/icc/icc/venv/bin/python
+#!/bin/sh
+if "true" : '''\'
+then
+exec "$VENV" "$0" "$@"
+exit 127
+fi
+'''
 from app import db
 from app.models import Line, User, Annotation, Edit, Tag, Edition, Text
 import sys, codecs, argparse

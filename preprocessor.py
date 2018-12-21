@@ -1,4 +1,10 @@
-#!/home/malan/projects/icc/icc/venv/bin/python
+#!/bin/sh
+if "true" : '''\'
+then
+exec "$VENV" "$0" "$@"
+exit 127
+fi
+'''
 import re, sys, argparse, codecs, json
 
 parser = argparse.ArgumentParser("Preprocess raw text files for lines.py.")
