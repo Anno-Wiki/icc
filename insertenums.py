@@ -17,7 +17,10 @@ args = parser.parse_args()
 enums = yaml.load(open(args.config, 'rt'))
 
 for key, value in enums.items():
+    i = 0 
     for entry in value:
         db.session.add(classes[key](**entry))
+        i += 1
+    print(f"Added {i} {key}'s")
 
 db.session.commit()

@@ -7,7 +7,7 @@ fi
 '''
 from app import db
 from app.models import Line, User, Annotation, Edit, Tag, Edition, Text
-import sys, codecs, argparse
+import sys, codecs, argparse, json
 
 parser = argparse.ArgumentParser("Process icc .ano file into the database.")
 parser.add_argument("-t", "--title", action="store", type=str, required=True,
@@ -37,6 +37,7 @@ if annotator_tag == None:
         db.session.commit()
 
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
+annotations = json.load(fin)
 
 tags = [original_tag, annotator_tag]
 
@@ -49,28 +50,18 @@ if not edition:
             f"{text.title}")
 
 cnt = 0
-for line in fin:
-    fields = line.split("@")
-    l = Line.query.filter_by(line=fields[1][:-1]).first()
+for annotation in annotations:
+    l = Line.query.filter_by(line=annotation["line"]).first()
 
     if not l:
         db.session.rollback()
-        sys.exit(f"Fail on {cnt}: {fields}")
+        sys.exit(f"Fail on {cnt}: {annotation}")
 
-    # Create the annotation pointer with HEAD pointing to anno
-    head = Annotation(edition=edition, annotator=community, locked=True)
+    annotation = Annotation(edition=edition, annotator=community, locked=True,
+            fl=l.num, ll=l.num, fc=0, lc=-1,
+            body=annotation["annotation"], tags=tags)
 
-    commit = Edit(
-            annotation=head, approved=True, current=True, editor=community,
-            edition=edition, first_line_num=l.num, last_line_num=l.num,
-            first_char_idx=0, last_char_idx=-1, body=fields[0], tags=tags,
-            num=0, reason="Initial version"
-            )
-
-    head.HEAD = commit # this is strictly for elasticsearch indexing
-
-    db.session.add(head)
-    db.session.add(commit)
+    db.session.add(annotation)
 
     cnt += 1
     if cnt % 25 == 0:

@@ -1017,15 +1017,34 @@ class Annotation(db.Model):
             primaryjoin="and_(Annotation.id==AnnotationFlag.annotation_id,"
             "AnnotationFlag.resolver_id==None)", passive_deletes=True)
 
-    def edit(self, *ignore, editor, num, reason, fl, ll, fc, lc, body, tags):
-        params = [editor, num, reason, fl, ll, fc, lc, body, tags]
+    def __init__(self, *ignore, edition, annotator, locked=False,
+            fl, ll, fc, lc, body, tags):
+        params = [edition, annotator, fl, ll, fc, lc, body, tags]
         if ignore:
             raise TypeError("Positional arguments not accepted.")
         elif None in params:
             raise TypeError("Keyword arguments cannot be None.")
         elif not type(tags) == list:
             raise TypeError("Tags must be a list of tags.")
-        edit = Edit(edition=self.edition, editor=editor, num=num,
+        super().__init__(edition=edition, annotator=annotator, locked=locked)
+        current = Edit(annotation=self, approved=True, current=True,
+                editor=annotator, edition=edition,
+                first_line_num=fl, last_line_num=ll,
+                first_char_idx=fc, last_char_idx=lc,
+                body=body, tags=tags, num=0, reason="initial version")
+        db.session.add(current)
+        self.HEAD = current
+
+
+    def edit(self, *ignore, editor, reason, fl, ll, fc, lc, body, tags):
+        params = [editor, reason, fl, ll, fc, lc, body, tags]
+        if ignore:
+            raise TypeError("Positional arguments not accepted.")
+        elif None in params:
+            raise TypeError("Keyword arguments cannot be None.")
+        elif not type(tags) == list:
+            raise TypeError("Tags must be a list of tags.")
+        edit = Edit(edition=self.edition, editor=editor, num=self.HEAD.num+1,
                 reason=reason, annotation=self,
                 first_line_num=fl, last_line_num=ll,
                 first_char_idx=fc, last_char_idx=lc,

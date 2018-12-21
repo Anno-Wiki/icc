@@ -966,7 +966,6 @@ def edit(annotation_id):
             fail = True
             flash("There is a five tag limit.")
 
-        num = int(annotation.HEAD.num+1) if annotation.HEAD.num else 1
         success = annotation.edit(editor=current_user, num=num,
                 reason=form.reason.data, fl=fl, ll=ll,
                 fc=form.first_char_idx.data, lc=form.last_char_idx.data,

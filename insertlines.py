@@ -8,7 +8,7 @@ fi
 from app import db
 from app.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
         ConnectionEnum, Writer
-import sys, codecs, argparse, yaml
+import sys, codecs, argparse, yaml, json
 
 parser = argparse.ArgumentParser("Insert lines into icc database")
 parser.add_argument("-c", "--config", action="store", type=str, required=True,
@@ -21,6 +21,7 @@ parser.add_argument("-d", "--dryrun", action="store_true",
 args = parser.parse_args()
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 config = yaml.load(open(args.config, "rt"))
+lines = json.load(fin)
 
 # if this is the first version of the text, we have to create it and add all the
 # authors. If it isn't, we don't.
@@ -66,20 +67,17 @@ print(f"Created edition number {edition.num} for {text.title}.")
 # For all the connection types we have, we go look in the edition dictionary for
 # those connection types, and then loop through the writers in those ditionaries
 # to create those connections. Simple, really. (I'm actually kind of proud of
-# this one)
+# this one; I won't have to rewrite it as I add connections; which, are there
+# any?)
 for enum in ConnectionEnum.query.all():
     for writer in config["edition"][enum.type]:
         writer_obj = Writer.query.filter_by(name=writer["name"]).first()
         if not writer_obj:
-            # I worry this might create a new writer even if we created a new
-            # writer for the same writer already in this loop. This may have to
-            # be investigated down the road for a corner case.
             writer_obj = Writer(
                     name=writer["name"], last_name=writer["last_name"],
                     birth_date=writer["birthdate"],
                     death_date=writer["deathdate"],
-                    description=writer["description"]
-                    )
+                    description=writer["description"])
             db.session.add(writer_obj)
             print(f"Writer {writer_obj.name} created.")
 
@@ -92,16 +90,13 @@ labels = LineEnum.query.all()
 label = {}
 for l in labels:
     label[f"{l.label}>{l.display}"] = l
+
 i = 1
-for line in fin:
-
-    fields = line.split("@")
-
-    l = Line(edition=edition, num=fields[0],
-            label=label[fields[1]], em_status=label[fields[2]],
-            lvl1=fields[3], lvl2=fields[4], lvl3=fields[5], lvl4=fields[6],
-            line=fields[7][:-1])
-
+for line in lines:
+    l = Line(edition=edition, num=line["num"],
+            label=label[line["label"]], em_status=label[line["em_status"]],
+            lvl1=line["l1"], lvl2=line["l2"], lvl3=line["l3"], lvl4=line["l4"],
+            line=line["line"])
     db.session.add(l)
 
     if i % 1000 == 0:
