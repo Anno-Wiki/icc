@@ -52,15 +52,10 @@ parser.add_argument("--agg2", action="store_true", help="Aggregate level 2")
 parser.add_argument("--agg3", action="store_true", help="Aggregate level 3")
 parser.add_argument("--agg4", action="store_true", help="Aggregate level 4")
 
-# flags for processing preformatted, quotation, and horizontal rule flags
-parser.add_argument("--pre", action="store_true",
-        help="Process pre flags ('```')")
-parser.add_argument("--quo", action="store_true",
-        help="Process quotation flags ('>')")
-parser.add_argument("--hr", action="store_true",
-        help="Process hr flags ('***')")
-
 args = parser.parse_args()
+args.pre = True
+args.quo = True
+args.hr = True
 
 #########################
 ## Variables and flags ##
@@ -134,7 +129,7 @@ def lout(cls, l):
     # We use @ signs because actual commas are a headache and a half
     return { "num": txtlines, "label": cls, "em_status": l[2],
             "l1": lvl1num, "l2": lvl2num, "l3": lvl3num, "l4": lvl4num,
-            "line": l[1] }
+            "line": l[1].strip() }
 
 def oc(line):
     o = line.count("<em>")
