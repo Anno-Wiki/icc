@@ -1,14 +1,13 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
-import re
-import sys
-import argparse
-import codecs
+import re, sys, argparse, codecs, json
 
 parser = argparse.ArgumentParser("Preprocess raw text files for lines.py.")
 parser.add_argument("-i", "--input", action="store", type=str, default=None,
         help="Specify input file")
 parser.add_argument("-o", "--output", action="store", type=str, default=None,
         help="Specify output file")
+parser.add_argument("--aout", action="store", type=str, default=None,
+        help="Specify annotation output file.")
 parser.add_argument("-a", "--annotated", action="store", type=str, default=None,
         help="Specify regex to recognize when a line is annotated.")
 parser.add_argument("-e", "--emdash", action="store_true",
@@ -20,21 +19,23 @@ args = parser.parse_args()
 
 # files
 fin = codecs.getreader("utf_8_sig")(sys.stdin.buffer, errors="replace") \
-        if not args.input else open(path, "rt", encoding="UTF-8-SIG")
-fout = sys.stdout if not args.output else open(path, "wt", encoding="UTF-8-SIG")
+        if not args.input else open(args.input, "rt")
+fout = sys.stdout if not args.output else open(args.output, "wt")
 
-aout = open("a.out", "wt")              # File to output annotation csv
+# File to output annotation json
+aout = open("a.out", "wt") if not args.aout else open(args.aout, "wt")
+
 wordboundary = re.compile(r'\w+|\W|_')  # Wordboundary regex
 annotated_regex = re.compile(args.annotated) if args.annotated else None
 
 astack = {}         # Dictionary stack for recording annotated lines
-
 
 # context flags
 us = False
 doubleopen = False
 skip = False
 
+annotations = []
 for line in fin:
     newline = line
     if newline == '\n':
@@ -48,7 +49,7 @@ for line in fin:
                     amatch = astack.pop(m.group())
                     amatch = amatch.strip(">")
                     amatch = amatch.strip()
-                    aout.write(f"{tmp}@{amatch}\n")
+                    annotations.append({ "annotation": tmp, "line": amatch })
                     skip = True
                     continue
                 else:
@@ -81,10 +82,12 @@ for line in fin:
 
     fout.write(newline)
 
+aout.write(json.dumps(annotations))
+
 if fin is not sys.stdin:
     fin.close()
 else:
     fout.flush()
 if fout is not sys.stdout:
     fout.close()
-
+aout.close()
