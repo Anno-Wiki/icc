@@ -1,0 +1,73 @@
+title: War and Peace
+sort_title: War and Peace
+publication_date: 1869-01-01
+description: | 
+    _War and Peace_ is a novel by the Russian author Leo Tolstoy. It is regarded
+    as a central work of world literature and one of Tolstoy’s finest literary
+    achievements.
+    
+    The novel chronicles the history of the French invasion of Russia and the
+    impact of the Napoleonic era on Tsarist society through the stories of five
+    Russian aristocratic families. Portions of an earlier version, titled _The
+    Year 1805_, were serialized in The Russian Messenger from 1865 to 1867. The
+    novel was first published in its entirety in 1869.
+
+    Tolstoy said _War and Peace_ is “not a novel, even less is it a poem, and
+    still less a historical chronicle”. Large sections, especially the later
+    chapters, are a philosophical discussion rather than narrative. Tolstoy also
+    said that the best Russian literature does not conform to standards and
+    hence hesitated to call _War and Peace_ a novel. Instead, he regarded _Anna
+    Karenina_ as his first true novel. The Encyclopædia Britannica states: “It
+    can be argued that no single English novel attains the universality of the
+    Russian writer Leo Tolstoy’s _War and Peace_.”
+authors:
+    - name: Leo Tolstoy
+      last_name: Tolstoy
+      birthdate: 1828-09-09
+      deathdate: 1910-11-20
+      description: |
+          Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28
+          August] 1828 – 20 November [O.S. 7 November] 1910), usually referred
+          to in English as Leo Tolstoy, was a Russian writer who is regarded as
+          one of the greatest authors of all time.
+
+          Born to an aristocratic Russian family in 1828, he is best known for
+          the novels _War and Peace_ (1869) and _Anna Karenina_ (1877), often
+          cited as pinnacles of realist fiction. He first achieved literary
+          acclaim in his twenties with his semi-autobiographical trilogy,
+          _Childhood_, _Boyhood_, and _Youth_ (1852–1856), and _Sevastopol
+          Sketches_ (1855), based upon his experiences in the Crimean War.
+          Tolstoy’s fiction includes dozens of short stories and several
+          novellas such as _The Death of Ivan Ilyich_ (1886), _Family Happiness_
+          (1859), and _Hadji Murad_ (1912). He also wrote plays and numerous
+          philosophical essays.
+
+          In the 1870s Tolstoy experienced a profound moral crisis, followed by
+          what he regarded as an equally profound spiritual awakening, as
+          outlined in his non-fiction work _A Confession_ (1882). His literal
+          interpretation of the ethical teachings of Jesus, centering on the
+          Sermon on the Mount, caused him to become a fervent Christian
+          anarchist and pacifist. Tolstoy’s ideas on nonviolent resistance,
+          expressed in such works as _The Kingdom of God Is Within You_ (1894),
+          were to have a profound impact on such pivotal 20th-century figures as
+          Mohandas Karamchand Gandhi, and Martin Luther King, Jr. Tolstoy also
+          became a dedicated advocate of Georgism, the economic philosophy of
+          Henry George, which he incorporated into his writing, particularly
+          _Resurrection_ (1899).
+edition:
+    primary: true
+    number: 1
+    publication_date: 1904-01-01
+    translator:
+        - name: Constance Garnett
+          last_name: Garnett
+          birthdate: 1861-12-19
+          deathdate: 1946-12-17
+          description: |
+              Constance Clara Garnett (née Black; 19 December 1861 – 17 December
+              1946) was an English translator of nineteenth-century Russian
+              literature. Garnett was one of the first English translators of
+              Leo Tolstoy, Fyodor Dostoyevsky and Anton Chekhov and introduced
+              them on a wide basis to the English-speaking public.
+    editor: []
+    description: null 

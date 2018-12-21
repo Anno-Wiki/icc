@@ -24,13 +24,13 @@ echo "- populating tags..."
 $DIR/../inserttags.py -c $DIR/tags.yml
 
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
-cat $DIR/../../data/done/hod/HeartofDarknessbyJosephConrad.icc | \
-    $DIR/../insertlines.py -i -c $DIR/../../data/done/hod/hod.yml
+cat $DIR/../texts/hod/HeartofDarknessbyJosephConrad.icc | \
+    $DIR/../insertlines.py -i -c $DIR/../texts/hod/hod.yml
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
-cat $DIR/../../data/done/wap/WarandPeacebygrafLeoTolstoy.icc | \
-    $DIR/../insertlines.py -i -c $DIR/../../data/done/wap/wap.yml
+cat $DIR/../texts/wap/WarandPeacebygrafLeoTolstoy.icc | \
+    $DIR/../insertlines.py -i -c $DIR/../texts/wap/wap.yml
 
 echo "- adding annotations for War and Peace by Constance Garnett..."
-cat $DIR/../../data/done/wap/WarandPeacebygrafLeoTolstoy.ano | \
+cat $DIR/../texts/wap/WarandPeacebygrafLeoTolstoy.ano | \
     $DIR/../insertannotations.py -t "War and Peace" -e 1 -a "constance-garnett"

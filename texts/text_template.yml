@@ -1,0 +1,34 @@
+title: Title
+sort_title: Sort title (e.g., without initial "The")
+publication_date: YYYY-MM-DD
+description: |
+    Summary of text.
+
+authors:
+    - name: Name of author
+      last_name: last name of author
+      birthdate: YYYY-MM-DD
+      deathdate: YYYY-MM-DD
+      biography: |
+          Biography of author.
+edition:
+    primary: BOOL
+    number: <number>
+    publication_date: YYYY-MM-DD
+    translators:
+        - name: Name of translator
+          last_name: last name of translator
+          birthdate: YYYY-MM-DD
+          deathdate: YYYY-MM-DD
+          description: |
+              Biography of translator.
+    editors:
+        - name: Name of editor
+          last_name: last name of editor
+          birthdate: YYYY-MM-DD
+          deathdate: YYYY-MM-DD
+          description: |
+              Biography of editor.
+    description: |
+        History of edition.
+
