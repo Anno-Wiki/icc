@@ -1,8 +1,5 @@
 #!/home/malan/projects/icc/icc/venv/bin/python
-import codecs
-import re
-import sys
-import argparse
+import codecs, re, sys, argparse, json
 
 parser = argparse.ArgumentParser("Parses text files into icc csv files.")
 
@@ -104,7 +101,7 @@ emreg = re.compile("[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+")
 # markdown like flags for horizontal rules, preformatted text, and quotations
 hrreg = re.compile(r"^\*\*\*$")         # Regex - hr
 prereg = re.compile(r"```")             # Regex - tag <pre>'s
-quoreg = re.compile(r"^>")              # Regex - tag quote 
+quoreg = re.compile(r"^>")              # Regex - tag quote
 
 wordboundary = re.compile("\w+|\W")     # Word boundary break for split
 
@@ -112,6 +109,16 @@ wordboundary = re.compile("\w+|\W")     # Word boundary break for split
 ## Functions ##
 ###############
 
+data_array = []
+
+def append(func):
+    def call(*args, **kwargs):
+        result = func(*args, **kwargs)
+        data_array.append(result)
+        return result
+    return call
+
+@append
 def lout(cls, l):
     # l is an array of the form ["line-type", "line", "emphasis-status"]
     # The form of the outpt csv is:
@@ -119,9 +126,9 @@ def lout(cls, l):
     # level-1-number through level-4-number,
     # line
     # We use @ signs because actual commas are a headache and a half
-    fout.write(f"{txtlines}@{cls}@{l[2]}"
-                f"@{lvl1num}@{lvl2num}@{lvl3num}@{lvl4num}"
-                f"@{l[1]}")
+    return { "num": txtlines, "label": cls, "em_status": l[2],
+            "l1": lvl1num, "l2": lvl2num, "l3": lvl3num, "l4": lvl4num,
+            "line": l[1] }
 
 def oc(line):
     o = line.count("<em>")
@@ -138,7 +145,7 @@ us = False # Underscore open flag
 lem = False # Line-by-line emphasis flag
 pre = False # pre flag
 
-# In order to accomplish contextual tagging (i.e., based on previous 
+# In order to accomplish contextual tagging (i.e., based on previous
 # and next lines) we have to read the whole file into memory.
 for line in fin:
 
@@ -166,7 +173,7 @@ for line in fin:
         lines.append(["hr", '<hr class="book_separator">'])
     elif args.quo and re.search(quoreg, line):
         lines.append(["quo", line[1:]])
-    
+
     # For everything else
     elif line != "":        # Possibly convert to `re.match` or `else`
         lines.append(["text", line])
@@ -286,7 +293,7 @@ for line in lines:
         # last line in a p
         elif lines[i+1][0] != "pre":
             lout("lpre>Last Preformatted Line", lines[i])
-            
+
         # first line in a p
         elif lines[i-1][0] != "pre":
             lout("fpre>First Preformatted Line", lines[i])
@@ -294,7 +301,7 @@ for line in lines:
         # regular line in middle of a p
         else:
             lout("pre>Preformatted Line", lines[i])
-    
+
     # Handling for everything else
     elif lines[i][0] == "text":
         txtlines += 1
@@ -306,7 +313,7 @@ for line in lines:
         # last line in a p
         elif lines[i+1][0] != "text":
             lout("ll>Last Line", lines[i])
-            
+
         # first line in a p
         elif lines[i-1][0] != "text":
             lout("fl>First Line", lines[i])
@@ -317,6 +324,7 @@ for line in lines:
 
     i += 1
 
+fout.write(json.dumps(data_array))
 
 # cleanup
 if fin is not sys.stdin:
