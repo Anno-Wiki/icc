@@ -1,0 +1,152 @@
+ConnectionEnum:
+    - type: translator
+    - type: editor
+AnnotationFlagEnum:
+    - flag: spam
+    - flag: innappropriate language
+    - flag: superfluous
+    - flag: unhelpful
+    - flag: offensive
+UserFlagEnum:
+    - flag: innappropriate behavior
+    - flag: bot
+    - flag: spammer
+    - flag: hate speech
+NotificationEnum:
+    - code: edit_approved
+      public_code: Edit approved
+      entity_type: EditVote
+      notification: Edit \#{} on [{}] of {} by {}
+      vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
+    - code: edit_rejected
+      public_code: Edit rejected
+      entity_type: EditVote
+      notification: Suggested edit \#{} on [{}] of _{}_ by {}
+      vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
+ReputationEnum:
+    - code: upvote
+      default_delta: 5
+    - code: downvote
+      default_delta: -2
+LineEnum:
+    - label: lvl1
+      display: Level 1 Marker
+    - label: lvl2
+      display: Level 2 Marker
+    - label: lvl3
+      display: Level 3 Marker
+    - label: lvl4
+      display: Level 4 Marker
+    - label: lvl1
+      display: Book
+    - label: lvl2
+      display: Part
+    - label: lvl3
+      display: Chapter
+    - label: lvl1
+      display: Book
+    - label: lvl2
+      display: Chapter
+    - label: lvl1
+      display: Part
+    - label: lvl2
+      display: Chapter
+    - label: lvl1
+      display: Chapter
+    - label: lvl1
+      display: Scene
+    - label: lvl1
+      display: Act
+    - label: Lvl2
+      display: Scene
+    - label: stg
+      display: Stage Direction
+    - label: quo
+      display: Block Quotation
+    - label: hr
+      display: Horizontal Rule
+    - label: pre
+      display: Preformatted Line
+    - label: lpre
+      display: Last Preformatted Line
+    - label: fpre
+      display: First Preformatted Line
+    - label: spre
+      display: Single Preformatted Line
+    - label: sl
+      display: Single Line
+    - label: ll
+      display: Last Line
+    - label: fl
+      display: First Line
+    - label: l
+      display: Line
+    - label: oem
+      display: Line with Open Emphasis
+    - label: cem
+      display: Line with Closed Emphasis
+    - label: nem
+      display: Line with No Emphasis
+    - label: em
+      display: Line with Emphasis
+Right:
+    - right: anonymize_users
+      min_rep: null
+    - right: approve_edits
+      min_rep: null
+    - right: create_tags
+      min_rep: null
+    - right: deactivate_annotations
+      min_rep: null
+    - right: delete_annotations
+      min_rep: null
+    - right: delete_book_requests
+      min_rep: null
+    - right: delete_edits
+      min_rep: null
+    - right: delete_wiki_edits
+      min_rep: null
+    - right: delete_tag_requests
+      min_rep: null
+    - right: edit_book_requests
+      min_rep: null
+    - right: edit_deactivated_annotations
+      min_rep: null
+    - right: edit_lines
+      min_rep: null
+    - right: edit_locked_annotations
+      min_rep: null
+    - right: edit_tag_requests
+      min_rep: null
+    - right: edit_tags
+      min_rep: null
+    - right: immediate_edits
+      min_rep: null
+    - right: immediate_wiki_edits
+      min_rep: null
+    - right: lock_annotations
+      min_rep: null
+    - right: lock_users
+      min_rep: null
+    - right: reject_edits
+      min_rep: null
+    - right: request_books
+      min_rep: 100
+    - right: request_tags
+      min_rep: 100
+    - right: resolve_annotation_flags
+      min_rep: null
+    - right: resolve_deactivated_annotation_flags
+      min_rep: null
+    - right: resolve_user_flags
+      min_rep: null
+    - right: review_edits
+      min_rep: 25
+    - right: review_wiki_edits
+      min_rep: 25
+    - right: review_deactivated_annotation_edits
+      min_rep: null
+    - right: use_restricted_tags
+      min_rep: null
+    - right: view_deactivated_annotations
+      min_rep: null
