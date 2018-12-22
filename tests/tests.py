@@ -1,4 +1,4 @@
-import os, unittest, yaml, argparse, copy
+import os, unittest, yaml, argparse, copy, math
 from flask import url_for, request
 from app import app, db
 from app.models import *
@@ -12,6 +12,7 @@ class MyTest(unittest.TestCase):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['ELASTICSEARCH_URL'] = None
     app.config['TESTING'] = True
+    app.config['SERVER_NAME'] = 'www.annopedia.org'
 
     def setUp(self):
         db.create_all()
@@ -59,34 +60,97 @@ class MyTest(unittest.TestCase):
 
 
     def test_index(self):
-        result = self.app.get('/')
+        sorts = ['newest', 'oldest', 'modified', 'weight', 'thisdoesntexist']
+        with app.app_context():
+            url = url_for("index")
+        entities = Annotation.query.count()
+        max_pages = int(math.ceil(entities / app.config['ANNOTATIONS_PER_PAGE']))
+
+        result = self.app.get(f'{url}')
         self.assertEqual(result.status_code, 200)
-        # sorts
-        result = self.app.get('/?sort=newest')
+        for sort in sorts:
+            result = self.app.get(f'{url}?sort={sort}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
+            self.assertEqual(result.status_code, 404)
+
+    def test_writer_index(self):
+        sorts = ['youngest', 'oldest', 'last name', 'authored', 'edited',
+                'translated', 'thisdoesntexist']
+        with app.app_context():
+            url = url_for("writer_index")
+
+        entities = Writer.query.count()
+        max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
+
+        result = self.app.get(f'{url}')
         self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=oldest')
+        for sort in sorts:
+            result = self.app.get(f'{url}?sort={sort}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
+            self.assertEqual(result.status_code, 404)
+
+    def test_text_index(self):
+        sorts = ['title', 'author', 'oldest', 'newest', 'length', 'annotations',
+                'thisdoesntexist']
+        with app.app_context():
+            url = url_for("text_index")
+
+        entities = Text.query.count()
+        max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
+
+        result = self.app.get(f'{url}')
         self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=modified')
+        for sort in sorts:
+            result = self.app.get(f'{url}?sort={sort}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
+            self.assertEqual(result.status_code, 404)
+
+    def test_tag_index(self):
+        sorts = ['tag', 'index']
+        url = '/tag/list'
+        with app.app_context():
+            url = url_for("tag_index")
+
+        entities = Tag.query.count()
+        max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
+
+        result = self.app.get(f'{url}')
         self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=weight')
+        for sort in sorts:
+            result = self.app.get(f'{url}?sort={sort}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
+            self.assertEqual(result.status_code, 404)
+
+    def test_user_index(self):
+        sorts = ['reputation', 'name', 'annotation', 'edits']
+        url = '/user/list'
+        with app.app_context():
+            url = url_for("user.index")
+
+        entities = User.query.count()
+        max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
+
+        result = self.app.get(f'{url}')
         self.assertEqual(result.status_code, 200)
-        # page 2
-        result = self.app.get('/?page=2')
-        self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=newest&page=2')
-        self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=oldest&page=2')
-        self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=modified&page=2')
-        self.assertEqual(result.status_code, 200)
-        result = self.app.get('/?sort=weight&page=2')
-        self.assertEqual(result.status_code, 200)
-        # screwball sort
-        result = self.app.get('/?sort=thissortdoesntexist')
-        self.assertEqual(result.status_code, 200)
-        # page insanity
-        result = self.app.get('/?page=1000')
-        self.assertEqual(result.status_code, 404)
+        for sort in sorts:
+            result = self.app.get(f'{url}?sort={sort}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages}')
+            self.assertEqual(result.status_code, 200)
+            result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
+            self.assertEqual(result.status_code, 404)
 
 if __name__ == '__main__':
     unittest.main()
