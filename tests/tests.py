@@ -2,6 +2,7 @@ import os, unittest, yaml, argparse, copy, math
 from flask import url_for, request
 from app import app, db
 from app.models import *
+from app.forms import *
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -20,6 +21,7 @@ class MyTest(unittest.TestCase):
         for enum, enums in data['enums'].items():
             for instance in enums:
                 db.session.add(classes[enum](**instance))
+
         texts = copy.deepcopy(data['text'])
         for text in texts:
             authors = text.pop('authors')
@@ -32,6 +34,20 @@ class MyTest(unittest.TestCase):
             e = Edition(text=t, **edition)
             db.session.add(t)
             db.session.add(e)
+
+            labels = LineEnum.query.all()
+            label = {}
+            for l in labels:
+                label[f'{l.label}>{l.display}'] = l
+
+            i = 1
+            for line in lines:
+                db.session.add(Line(edition=e, num=line['num'],
+                    label=label[line['label']],
+                    em_status=label[line['em_status']], lvl1=line['l1'],
+                    lvl2=line['l2'], lvl3=line['l3'], lvl4=line['l4'],
+                    line=line['line']))
+
             for a in annotations:
                 annotator = a.pop('annotator')
                 annotator = User.query\
@@ -120,7 +136,6 @@ class MyTest(unittest.TestCase):
 
     def test_tag_index(self):
         sorts = ['tag', 'index']
-        url = '/tag/list'
         with app.app_context():
             url = url_for("tag_index")
 
@@ -140,7 +155,6 @@ class MyTest(unittest.TestCase):
 
     def test_user_index(self):
         sorts = ['reputation', 'name', 'annotation', 'edits']
-        url = '/user/list'
         with app.app_context():
             url = url_for("user.index")
 
@@ -156,6 +170,26 @@ class MyTest(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
+
+
+    def test_read(self):
+        text = Text.query.first()
+
+        line = Line.query.first()
+        with app.app_context():
+            url = line.get_url()
+
+        result = self.app.get(f'{url}')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get(f'{url}&tag=definition')
+        self.assertEqual(result.status_code, 200)
+
+        with app.app_context():
+            url = url_for('read', text_url=text.url)
+        result = self.app.get(url)
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get(f'{url}?tag=definition')
+        self.assertEqual(result.status_code, 200)
 
 
 if __name__ == '__main__':

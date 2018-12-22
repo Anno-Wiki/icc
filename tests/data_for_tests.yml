@@ -37,7 +37,7 @@ text:
                 lc: -1
                 body: Cygnus X-1 is a real black hole, but Cygnus, for the record, is Latin for swan.
                 tags: [translation]
-              - annotator: chris
+              - annotator: malan
                 locked: false
                 fl: 6
                 ll: 6
@@ -45,7 +45,7 @@ text:
                 lc: -1
                 body: A `clavicle` is a collar bone.
                 tags: [definition]
-              - annotator: nick
+              - annotator: malan
                 locked: false
                 fl: 7
                 ll: 9
@@ -126,49 +126,7 @@ enums:
           default_delta: -2
     LineEnum:
         - label: lvl1
-          display: Level 1 Marker
-        - label: lvl2
-          display: Level 2 Marker
-        - label: lvl3
-          display: Level 3 Marker
-        - label: lvl4
-          display: Level 4 Marker
-        - label: lvl1
-          display: Book
-        - label: lvl2
-          display: Part
-        - label: lvl3
           display: Chapter
-        - label: lvl1
-          display: Book
-        - label: lvl2
-          display: Chapter
-        - label: lvl1
-          display: Part
-        - label: lvl2
-          display: Chapter
-        - label: lvl1
-          display: Chapter
-        - label: lvl1
-          display: Scene
-        - label: lvl1
-          display: Act
-        - label: Lvl2
-          display: Scene
-        - label: stg
-          display: Stage Direction
-        - label: quo
-          display: Block Quotation
-        - label: hr
-          display: Horizontal Rule
-        - label: pre
-          display: Preformatted Line
-        - label: lpre
-          display: Last Preformatted Line
-        - label: fpre
-          display: First Preformatted Line
-        - label: spre
-          display: Single Preformatted Line
         - label: sl
           display: Single Line
         - label: ll
@@ -247,38 +205,14 @@ enums:
         - right: view_deactivated_annotations
           min_rep: null
     Tag:
-        - tag: biblical
-          description: For references to the bible
-          locked: false
         - tag: definition
           description: For definitions of words not easily found (e.g., ancient words, specialized vocabulary, etc.)
           locked: false
         - tag: explanation
           description: For explanations of difficult passages
           locked: false
-        - tag: intertextuality
-          description: For making explicit instances of intertextuality
-          locked: false
-        - tag: meter
-          description: For analysis of particular deviations from standard meter
-          locked: false
-        - tag: mythology
-          description: For references to mythology
-          locked: false
-        - tag: original
-          description: For annotations from the original work
-          locked: false
         - tag: political
           description: For explanation of political subtext and context
-          locked: false
-        - tag: cultural
-          description: For explanation of cultural subtext and context
-          locked: false
-        - tag: shakespearean
-          description: For references to Shakespeare
-          locked: false
-        - tag: textual-issues
-          description: For descriptions of complications with textual history (i.e., conflicting manuscripts, etc.)
           locked: false
         - tag: translation
           description: For translation of foreign phrases
@@ -317,17 +251,3 @@ enums:
               I am the puppetmaster.
 
               I also really like wine.
-        - displayname: chris
-          email: chriss@glendalepainting.com
-          locked: false
-          about_me: |
-              I'm a fake user created by malan to be used like a puppet.
-
-              I also like beer.
-        - displayname: nick
-          email: nicksend15@gmail.com
-          locked: false
-          about_me: |
-              I'm a fake user created by malan to be used like a puppet.
-
-              I also like cocktails.
