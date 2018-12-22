@@ -9,19 +9,13 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 fin = open(f'{dir_path}/data_for_tests.yml', 'rt')
 data = yaml.load(fin)
 
-class MyTest(unittest.TestCase):
+class Test(unittest.TestCase):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['ELASTICSEARCH_URL'] = None
     app.config['TESTING'] = True
     app.config['SERVER_NAME'] = 'www.annopedia.org'
 
-    def setUp(self):
-        db.create_all()
-        self.app =  app.test_client()
-        for enum, enums in data['enums'].items():
-            for instance in enums:
-                db.session.add(classes[enum](**instance))
-
+    def setuptexts(self, setupannotations=False, setuplines=False):
         texts = copy.deepcopy(data['text'])
         for text in texts:
             authors = text.pop('authors')
@@ -35,19 +29,19 @@ class MyTest(unittest.TestCase):
             db.session.add(t)
             db.session.add(e)
 
+        if setuplines:
             labels = LineEnum.query.all()
             label = {}
             for l in labels:
                 label[f'{l.label}>{l.display}'] = l
-
-            i = 1
             for line in lines:
                 db.session.add(Line(edition=e, num=line['num'],
                     label=label[line['label']],
-                    em_status=label[line['em_status']], lvl1=line['l1'],
-                    lvl2=line['l2'], lvl3=line['l3'], lvl4=line['l4'],
-                    line=line['line']))
+                    em_status=label[line['em_status']],
+                    lvl1=line['l1'], lvl2=line['l2'], lvl3=line['l3'],
+                    lvl4=line['l4'], line=line['line']))
 
+        if setupannotations:
             for a in annotations:
                 annotator = a.pop('annotator')
                 annotator = User.query\
@@ -57,6 +51,14 @@ class MyTest(unittest.TestCase):
                         tag_strings]
                 db.session.add(Annotation(annotator=annotator, edition=e,
                     tags=tags, **a))
+        db.session.commit()
+
+    def setUp(self):
+        db.create_all()
+        self.app =  app.test_client()
+        for enum, enums in data['enums'].items():
+            for instance in enums:
+                db.session.add(classes[enum](**instance))
         db.session.commit()
 
 
@@ -77,6 +79,7 @@ class MyTest(unittest.TestCase):
 
 
     def test_index(self):
+        self.setuptexts(setupannotations=True)
         sorts = ['newest', 'oldest', 'modified', 'weight', 'thisdoesntexist']
         with app.app_context():
             url = url_for("index")
@@ -95,6 +98,7 @@ class MyTest(unittest.TestCase):
 
 
     def test_writer_index(self):
+        self.setuptexts()
         sorts = ['youngest', 'oldest', 'last name', 'authored', 'edited',
                 'translated', 'thisdoesntexist']
         with app.app_context():
@@ -115,6 +119,7 @@ class MyTest(unittest.TestCase):
 
 
     def test_text_index(self):
+        self.setuptexts()
         sorts = ['title', 'author', 'oldest', 'newest', 'length', 'annotations',
                 'thisdoesntexist']
         with app.app_context():
@@ -173,6 +178,7 @@ class MyTest(unittest.TestCase):
 
 
     def test_read(self):
+        self.setuptexts(setupannotations=True, setuplines=True)
         text = Text.query.first()
 
         line = Line.query.first()
