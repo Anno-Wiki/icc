@@ -37,4 +37,3 @@ class Config(object):
             or 'mysql+pymysql://root@localhost/icc?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = 0
-    #SERVER_NAME = 'www.annopedia.org:5000'
