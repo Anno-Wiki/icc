@@ -43,6 +43,7 @@ class MyTest(unittest.TestCase):
                     tags=tags, **a))
         db.session.commit()
 
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
@@ -76,6 +77,7 @@ class MyTest(unittest.TestCase):
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
 
+
     def test_writer_index(self):
         sorts = ['youngest', 'oldest', 'last name', 'authored', 'edited',
                 'translated', 'thisdoesntexist']
@@ -94,6 +96,7 @@ class MyTest(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
+
 
     def test_text_index(self):
         sorts = ['title', 'author', 'oldest', 'newest', 'length', 'annotations',
@@ -114,6 +117,7 @@ class MyTest(unittest.TestCase):
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
 
+
     def test_tag_index(self):
         sorts = ['tag', 'index']
         url = '/tag/list'
@@ -133,6 +137,7 @@ class MyTest(unittest.TestCase):
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
 
+
     def test_user_index(self):
         sorts = ['reputation', 'name', 'annotation', 'edits']
         url = '/user/list'
@@ -151,6 +156,7 @@ class MyTest(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             result = self.app.get(f'{url}?sort={sort}&page={max_pages+1}')
             self.assertEqual(result.status_code, 404)
+
 
 if __name__ == '__main__':
     unittest.main()
