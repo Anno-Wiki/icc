@@ -47,21 +47,46 @@ class MyTest(unittest.TestCase):
         db.drop_all()
         fin.close()
 
-    def test_password_hashing(self):
-        u = User.query.get(1)
+
+    def test_user_funcs(self):
+        u = User(displayname='john', email='john@example.com')
         u.set_password('dog')
         self.assertFalse(u.check_password('cat'))
         self.assertTrue(u.check_password('dog'))
-
-    def test_avatar(self):
-        u = User(displayname='john', email='john@example.com')
         self.assertEqual(u.avatar(128), 
                 ('https://www.gravatar.com/avatar/d4c74594d841139328695756648b6'
                 'bd6?d=identicon&s=128'))
 
+
     def test_index(self):
-        result = self.app.get('/index/')
+        result = self.app.get('/')
         self.assertEqual(result.status_code, 200)
+        # sorts
+        result = self.app.get('/?sort=newest')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=oldest')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=modified')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=weight')
+        self.assertEqual(result.status_code, 200)
+        # page 2
+        result = self.app.get('/?page=2')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=newest&page=2')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=oldest&page=2')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=modified&page=2')
+        self.assertEqual(result.status_code, 200)
+        result = self.app.get('/?sort=weight&page=2')
+        self.assertEqual(result.status_code, 200)
+        # screwball sort
+        result = self.app.get('/?sort=thissortdoesntexist')
+        self.assertEqual(result.status_code, 200)
+        # page insanity
+        result = self.app.get('/?page=1000')
+        self.assertEqual(result.status_code, 404)
 
 if __name__ == '__main__':
     unittest.main()
