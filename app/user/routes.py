@@ -192,6 +192,7 @@ def edit_profile():
 
     return render_template('forms/edit_profile.html', title="Edit Profile", form=form)
 
+
 @user.route('/profile/delete', methods=['GET', 'POST'])
 @login_required
 def delete_profile_check():
@@ -230,6 +231,8 @@ account is gone.
     """
     return render_template('forms/delete_check.html', title="Are you sure?",
             form=form, text=text)
+
+
 
 ###########
 ## Inbox ##
@@ -320,6 +323,7 @@ def mark_all_read():
     return redirect(redirect_url)
 
 
+
 ###########################
 ## Reset Password Routes ##
 ###########################
@@ -337,7 +341,7 @@ def reset_password_request():
                     "password.")
             return redirect(url_for('user.login'))
         else:
-            flash('Email not found.')
+            flash("Email not found.")
     return render_template('forms/reset_password_request.html',
             title="Reset Password", form=form)
 
@@ -358,6 +362,7 @@ def reset_password(token):
     return render_template('forms/reset_password.html', form=form)
 
 
+
 ###################
 ## follow routes ##
 ###################
@@ -371,8 +376,9 @@ def users_followed_idx():
         f.name = f.displayname
         f.unfollow_url = url_for('user.follow_user', user_id=f.id)
 
-    return render_template('indexes/followings.html', title='Followed Users',
+    return render_template('indexes/followings.html', title="Followed Users",
             followings=followings, type='users', column1='Display Name')
+
 
 @user.route('/follow/list/authors')
 @login_required
@@ -381,8 +387,9 @@ def authors_followed_idx():
     for f in followings:
         f.url = url_for('author', name=f.url)
         f.unfollow_url = url_for('user.follow_author', author_id=f.id)
-    return render_template('indexes/followings.html', title='Followed Authors',
+    return render_template('indexes/followings.html', title="Followed Authors",
             followings=followings, type='authors', column1='Name')
+
 
 # follow user
 @user.route('/follow/user/<user_id>')
@@ -399,6 +406,7 @@ def follow_user(user_id):
         current_user.followed_users.append(user)
     db.session.commit()
     return redirect(redirect_url)
+
 
 # follow writer
 @user.route('/follow/writer/<writer_id>')
@@ -444,6 +452,7 @@ def follow_book_request(book_request_id):
     db.session.commit()
     return redirect(redirect_url)
 
+
 # follow tag request
 @user.route('/follow/request/tag/<tag_request_id>')
 @login_required
@@ -458,6 +467,7 @@ def follow_tag_request(tag_request_id):
     db.session.commit()
     return redirect(redirect_url)
 
+
 # follow tag
 @user.route('/follow/tag/<tag_id>')
 @login_required
@@ -470,6 +480,7 @@ def follow_tag(tag_id):
         current_user.followed_tags.append(tag)
     db.session.commit()
     return redirect(redirect_url)
+
 
 # follow annotation
 @user.route('/follow/annotation/<annotation_id>')
