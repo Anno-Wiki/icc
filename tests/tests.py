@@ -16,20 +16,30 @@ class MyTest(unittest.TestCase):
     def setUp(self):
         db.create_all()
         self.app =  app.test_client()
-        texts = copy.deepcopy(data["text"])
+        for enum, enums in data['enums'].items():
+            for instance in enums:
+                db.session.add(classes[enum](**instance))
+        texts = copy.deepcopy(data['text'])
         for text in texts:
-            authors = text.pop("authors")
-            edition = text.pop("edition")
+            authors = text.pop('authors')
+            edition = text.pop('edition')
             t = Text(**text)
             for author in authors:
                 t.authors.append(Writer(**author))
-            lines = edition.pop("lines")
+            lines = edition.pop('lines')
+            annotations = edition.pop('annotations')
             e = Edition(text=t, **edition)
             db.session.add(t)
             db.session.add(e)
-        for enum, enums in data["enums"].items():
-            for instance in enums:
-                db.session.add(classes[enum](**instance))
+            for a in annotations:
+                annotator = a.pop('annotator')
+                annotator = User.query\
+                        .filter_by(displayname=annotator).first()
+                tag_strings = a.pop('tags')
+                tags = [Tag.query.filter_by(tag=tag).first() for tag in
+                        tag_strings]
+                db.session.add(Annotation(annotator=annotator, edition=e,
+                    tags=tags, **a))
         db.session.commit()
 
     def tearDown(self):
