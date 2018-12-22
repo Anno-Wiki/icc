@@ -74,6 +74,9 @@ def index():
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
 
+    if not annotations.items:
+        abort(404)
+
     sorts = {
             'newest': url_for('index', page=page, sort='newest'),
             'oldest': url_for('index', page=page, sort='oldest'),
