@@ -1,37 +1,37 @@
 #!/bin/sh
-if "true" : '''\'
+if 'true' : '''\'
 then
-exec "$VENV" "$0" "$@"
+exec '$VENV' '$0' '$@'
 exit 127
 fi
 '''
 import re, sys, argparse, codecs, json
 
 parser = argparse.ArgumentParser("Preprocess raw text files for lines.py.")
-parser.add_argument("-i", "--input", action="store", type=str, default=None,
+parser.add_argument('-i', '--input', action='store', type=str, default=None,
         help="Specify input file")
-parser.add_argument("-o", "--output", action="store", type=str, default=None,
+parser.add_argument('-o', '--output', action='store', type=str, default=None,
         help="Specify output file")
-parser.add_argument("--aout", action="store", type=str, default=None,
+parser.add_argument('--aout', action='store', type=str, default=None,
         help="Specify annotation output file.")
-parser.add_argument("-a", "--annotated", action="store", type=str, default=None,
+parser.add_argument('-a', '--annotated', action='store', type=str, default=None,
         help="Specify regex to recognize when a line is annotated.")
-parser.add_argument("-e", "--emdash", action="store_true",
+parser.add_argument('-e', '--emdash', action='store_true',
         help="Normalize em dashes.")
-parser.add_argument("-q", "--quotes", action="store_true",
+parser.add_argument('-q', '--quotes', action='store_true',
         help="Convert dumb quotes to smart quotes (needs manual intervention)")
 
 args = parser.parse_args()
 
 # files
-fin = codecs.getreader("utf_8_sig")(sys.stdin.buffer, errors="replace") \
-        if not args.input else open(args.input, "rt")
-fout = sys.stdout if not args.output else open(args.output, "wt")
+fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace') \
+        if not args.input else open(args.input, 'rt')
+fout = sys.stdout if not args.output else open(args.output, 'wt')
 
 # File to output annotation json
-aout = open("a.out", "wt") if not args.aout else open(args.aout, "wt")
+aout = open('a.out', 'wt') if not args.aout else open(args.aout, 'wt')
 
-wordboundary = re.compile(r'\w+|\W|_')  # Wordboundary regex
+wordboundary = re.compile(r"\w+|\W|_")  # Wordboundary regex
 annotated_regex = re.compile(args.annotated) if args.annotated else None
 
 astack = {}         # Dictionary stack for recording annotated lines
@@ -51,11 +51,11 @@ for line in fin:
         if re.search(annotated_regex, newline):
             for m in re.finditer(annotated_regex, newline):
                 if m.group() in astack:
-                    tmp = newline.replace(m.group(), "", 1)[:-1].strip()
+                    tmp = newline.replace(m.group(), '', 1)[:-1].strip()
                     amatch = astack.pop(m.group())
-                    amatch = amatch.strip(">")
+                    amatch = amatch.strip('>')
                     amatch = amatch.strip()
-                    annotations.append({ "annotation": tmp, "line": amatch })
+                    annotations.append({ 'annotation': tmp, 'line': amatch })
                     skip = True
                     continue
                 else:
@@ -67,7 +67,7 @@ for line in fin:
         continue
 
     if args.emdash:
-        newline = re.sub(r'(--)', r'—', newline) 
+        newline = re.sub(r"(--)", r"—", newline) 
 
     if args.quotes:
         newline = re.sub(r"([^a-zA-Z])'([a-zA-Z—])", r"\1‘\2", newline)
