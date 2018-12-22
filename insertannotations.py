@@ -1,7 +1,7 @@
 #!/bin/sh
-if "true" : '''\'
+if 'true' : '''\'
 then
-exec "$VENV" "$0" "$@"
+exec '$VENV' '$0' '$@'
 exit 127
 fi
 '''
@@ -10,22 +10,22 @@ from app.models import Line, User, Annotation, Edit, Tag, Edition, Text
 import sys, codecs, argparse, json
 
 parser = argparse.ArgumentParser("Process icc .ano file into the database.")
-parser.add_argument("-t", "--title", action="store", type=str, required=True,
+parser.add_argument('-t', '--title', action='store', type=str, required=True,
         help="The title of the text for the annotations")
-parser.add_argument("-e", "--edition_num", action="store", type=int,
+parser.add_argument('-e', '--edition_num', action='store', type=int,
         required=True, help="The edition number of the text for the annotations.")
-parser.add_argument("-a", "--annotator", action="store", type=str, required=True,
+parser.add_argument('-a', '--annotator', action='store', type=str, required=True,
         help="The name of the annotator in the form of a tag (i.e., no spaces)")
-parser.add_argument("-d", "--dryrun", action="store_true",
+parser.add_argument('-d', '--dryrun', action='store_true',
         help="Flag for a dry run test.")
 
 args = parser.parse_args()
 
-community = User.query.filter_by(email="community@annopedia.org").first()
+community = User.query.filter_by(email='community@annopedia.org').first()
 if not community:
     sys.exit("The Community user hasn't been created in the database yet.")
 
-original_tag = Tag.query.filter_by(tag="original").first()
+original_tag = Tag.query.filter_by(tag='original').first()
 annotator_tag = Tag.query.filter_by(tag=args.annotator).first()
 
 if annotator_tag == None:
@@ -47,11 +47,10 @@ if not text:
 edition = text.editions.filter_by(num=args.edition_num).first()
 if not edition:
     parser.error(f"The edition number {args.edition_num} was not found for"
-            f"{text.title}")
-
+            f"{text.title}") 
 cnt = 0
 for annotation in annotations:
-    l = Line.query.filter_by(line=annotation["line"]).first()
+    l = Line.query.filter_by(line=annotation['line']).first()
 
     if not l:
         db.session.rollback()
@@ -59,7 +58,7 @@ for annotation in annotations:
 
     annotation = Annotation(edition=edition, annotator=community, locked=True,
             fl=l.num, ll=l.num, fc=0, lc=-1,
-            body=annotation["annotation"], tags=tags)
+            body=annotation['annotation'], tags=tags)
 
     db.session.add(annotation)
 
@@ -74,7 +73,7 @@ if not args.dryrun:
     print("Committed.")
     # I don't want to import SearchableMixin to test this, but I don't want to
     # eliminate the method in case I change my mind.
-    if "SearchableMixin" in str(Annotation.__bases__):
+    if 'SearchableMixin' in str(Annotation.__bases__):
         Annotation.reindex(edition_id=args.edition_id)
         print("Now reindexing...")
     print("Done.")
