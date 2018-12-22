@@ -320,6 +320,11 @@ def view_wiki_edit(wiki_id, edit_num):
     edit = wiki.edits.filter(WikiEdit.approved==True,
             WikiEdit.num==edit_num).first_or_404()
 
+    if not edit.previous:
+        return render_template("view/wiki_first_version.html",
+                title=f"First Version of {str(edit.wiki.entity)} wiki",
+                edit=edit)
+
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
     # careful to do this for both unix and windows return variants (i.e. be
@@ -331,7 +336,8 @@ def view_wiki_edit(wiki_id, edit_num):
         diff2.splitlines()))
 
     return render_template("view/wiki_edit.html",
-            title=f"Edit number {edit.num}", diff=diff, edit=edit)
+            title=f"{str(edit.wiki.entity)} edit #{edit.num}", diff=diff,
+            edit=edit)
 
 @app.route("/wiki/<wiki_id>/edit", methods=["GET", "POST"])
 @login_required
@@ -663,6 +669,7 @@ def view_edit(annotation_id, num):
     if not edit.previous:
         return render_template("view/first_version.html",
                 title=f"First Version of [{edit.annotation.id}]", edit=edit)
+
     # we have to replace single returns with spaces because markdown only
     # recognizes paragraph separation based on two returns. We also have to be
     # careful to do this for both unix and windows return variants (i.e. be

@@ -2,15 +2,10 @@
 
 {% block content %}
     <div id="content">
-        {% if edit.rejected == True %}
-            <h1 class="rejected">&#10007; Edit Rejected<h1>
-        {% endif %}
         <h1>{{ edit.entity|string }}</h1>
-        <h2>Edit #{{ edit.num }}</h2>
+        <h2>Initial Version</h2>
         <em><a href="{{ url_for("wiki_edit_history", wiki_id=edit.wiki.id)
                 }}">version history</a></em>
-        | <em><a href="{{ url_for("view_wiki_edit", wiki_id=edit.wiki.id,
-                edit_num=edit.previous.num) }}">previous version</a></em>
         {% if current_user.is_authenticated
             and current_user.is_authorized("delete_wiki_edits") %}
             | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
@@ -30,28 +25,11 @@
         {% endif %}
 
         <p><em>Difference:</em></p>
-        <div class="diff">
-            {% for line in diff %}
-                {% if line.startswith("-") %}
-                    <div class="delta">{{ line[2:]|markdown }}</div>
-                {% elif line.startswith("+") %}
-                    <div class="plus">{{ line[2:]|markdown }}</div>
-                {% elif line.startswith(" ") %}
-                    <div>{{ line|markdown }}</div>
-                {% endif %}
-            {% endfor %}
+        <div class="diff ">
+            <div class="plus">{{ edit.body }}</div>
         </div>
-
         <hr> 
         <p><em>New version, edit #{{ edit.num }}:</em></p>
         {{ edit.body|markdown }}
-
-        <hr>
-        {% if edit.previous.num > 0 %}
-            <p><em>Old version, edit #{{ edit.previous.num }}:</em></p>
-        {% else %}
-            <p><em>Original version:</em></p>
-        {% endif %}
-        {{ edit.previous.body|markdown }}
     </div>
 {% endblock %}
