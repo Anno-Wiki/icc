@@ -756,7 +756,8 @@ def annotate(text_url, edition_num, first_line, last_line):
                 Edition.num==edition_num).first_or_404()
     else:
         edition = text.primary
-    lines = edition.lines.filter(Line.num>=first_line, Line.num<=last_line).all()
+    lines = edition.lines.filter(Line.num>=first_line,
+            Line.num<=last_line).all()
     context = edition.lines.filter(Line.num>=int(first_line)-5,
             Line.num<=int(last_line)+5).all()
     form = AnnotationForm()
@@ -782,40 +783,18 @@ def annotate(text_url, edition_num, first_line, last_line):
                 return render_template('forms/annotation.html',
                         title=book.title, form=form, text=text, edition=edition,
                         lines=lines, context=context)
+
         if len(tags) > 5:
             flash("There is a five tag limit.")
             return render_template('forms/annotation.html', title=book.title,
                     form=form, text=text, edition=edition, lines=lines,
                     context=context)
 
-        locked = form.locked.data\
-                and current_user.is_authorized('lock_annotations')
+        annotation = Annotation(edition=edition, annotator=current_user, fl=fl,
+                ll=ll, fc=form.first_char_idx.data, lc=form.last_char_idx.data,
+                body=form.annotation.data, tags=tags)
 
-        # Create the annotation annotation with HEAD pointing to anno
-        head = Annotation(edition=edition, annotator=current_user, locked=locked)
-
-        # I'll use the language of git
-        # Create the inital transient sqlalchemy Edit object
-        commit = Edit(
-                edition=edition, approved=True, current=True,
-                editor=current_user,
-                first_line_num=fl, last_line_num=ll,
-                first_char_idx=form.first_char_idx.data,
-                last_char_idx=form.last_char_idx.data,
-                body=form.annotation.data, tags=tags, annotation=head,
-                reason='Initial version'
-                )
-
-        # because of the nature of the indexing system we have to create a
-        # temporary attribute to the head of the body of the annotation.
-        # Otherwise, since neither are committed to the system yet, the system
-        # wants to make a query to the system for the head's HEAD attribute,
-        # which isn't in existence yet. Adding this simple attribute eliminates
-        # the issue.
-        head.body = commit.body
-
-        db.session.add(commit)
-        db.session.add(head)
+        db.session.add(annotation)
         db.session.commit()
 
         flash("Annotation Submitted")
@@ -827,8 +806,9 @@ def annotate(text_url, edition_num, first_line, last_line):
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
 
-    return render_template('forms/annotation.html', title=text.title, form=form,
-             text=text, edition=edition, lines=lines, context=context)
+    return render_template('forms/annotation.html',
+            title=f"Annotating {text.title}", form=form, text=text,
+            edition=edition, lines=lines, context=context)
 
 
 @app.route('/annotation/<annotation_id>')
