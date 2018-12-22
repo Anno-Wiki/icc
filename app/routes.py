@@ -972,7 +972,7 @@ def edit(annotation_id):
             fail = True
             flash("There is a five tag limit.")
 
-        success = annotation.edit(editor=current_user, num=num,
+        success = annotation.edit(editor=current_user,
                 reason=form.reason.data, fl=fl, ll=ll,
                 fc=form.first_char_idx.data, lc=form.last_char_idx.data,
                 body=form.annotation.data, tags=tags)
