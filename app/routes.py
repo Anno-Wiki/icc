@@ -47,7 +47,7 @@ def search():
 ###########
 
 @app.route('/')
-@app.route('/index/')
+@app.route('/index')
 def index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'newest', type=str)
@@ -107,7 +107,7 @@ def index():
 ## Indexes ##
 #############
 
-@app.route('/list/writers/')
+@app.route('/writer/list')
 def writer_index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'last name', type=str)
@@ -145,6 +145,9 @@ def writer_index():
         writers = Writer.query.order_by(Writer.last_name.asc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
+    if not writers.items:
+        abort(404)
+
     sorts = {
             'last name': url_for('writer_index', sort='last name', page=page),
             'oldest': url_for('writer_index', sort='oldest', page=page),
@@ -164,7 +167,7 @@ def writer_index():
             sorts=sorts, sort=sort)
 
 
-@app.route('/list/texts/')
+@app.route('/text/list')
 def text_index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'title', type=str)
@@ -196,6 +199,9 @@ def text_index():
         texts = Text.query.order_by(Text.sort_title.asc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
+    if not texts.items:
+        abort(404)
+
     sorts = {
             'title': url_for('text_index', sort='title', page=page),
             'author': url_for('text_index', sort='author', page=page),
@@ -216,7 +222,7 @@ def text_index():
             texts=texts.items)
 
 
-@app.route('/list/tags/')
+@app.route('/tag/list')
 def tag_index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'tag', type=str)
@@ -233,6 +239,9 @@ def tag_index():
     else:
         tags = Tag.query.order_by(Tag.tag)\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
+
+    if not tags.items:
+        abort(404)
 
     sorts = {
             'tag': url_for('tag_index', sort='tag', page=page),
@@ -358,7 +367,7 @@ def edit_wiki(wiki_id):
     return render_template('forms/wiki.html', title="Edit wiki", form=form)
 
 
-@app.route('/writer/<writer_url>/')
+@app.route('/writer/<writer_url>')
 def writer(writer_url):
     writer = Writer.query.filter_by(name=writer_url.replace('_',' '))\
             .first_or_404()
@@ -888,9 +897,9 @@ def read(text_url, edition_num):
 #######################
 
 ### THIS IS BROKEN RIGHT NOW
-@app.route('/annotate/<text_url>/<first_line>/<last_line>/',
+@app.route('/annotate/<text_url>/<first_line>/<last_line>',
         methods=['GET', 'POST'], defaults={'edition_num':None})
-@app.route('/annotate/<text_url>/edition/<edition_num>/<first_line>/<last_line>/',
+@app.route('/annotate/<text_url>/edition/<edition_num>/<first_line>/<last_line>',
         methods=['GET', 'POST'])
 @login_required
 def annotate(text_url, edition_num, first_line, last_line):
@@ -986,7 +995,7 @@ def annotate(text_url, edition_num, first_line, last_line):
 #             text=text, edition=edition, lines=lines, context=context)
 
 
-@app.route('/edit/<annotation_id>/', methods=['GET', 'POST'])
+@app.route('/edit/<annotation_id>', methods=['GET', 'POST'])
 @login_required
 def edit(annotation_id):
     form = AnnotationForm()
@@ -1054,7 +1063,7 @@ def edit(annotation_id):
             context=context)
 
 
-@app.route('/upvote/<annotation_id>/')
+@app.route('/upvote/<annotation_id>')
 @login_required
 def upvote(annotation_id):
     redirect_url = generate_next(url_for('annotation',
@@ -1088,7 +1097,7 @@ def upvote(annotation_id):
     return redirect(redirect_url)
 
 
-@app.route('/downvote/<annotation_id>/')
+@app.route('/downvote/<annotation_id>')
 @login_required
 def downvote(annotation_id):
     redirect_url = generate_next(url_for('annotation',
@@ -1121,7 +1130,7 @@ def downvote(annotation_id):
     return redirect(redirect_url)
 
 
-@app.route('/annotation/<annotation_id>/flag/<flag_id>/')
+@app.route('/annotation/<annotation_id>/flag/<flag_id>')
 @login_required
 def flag_annotation(flag_id, annotation_id):
     redirect_url = generate_next(url_for('annotation',
