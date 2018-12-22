@@ -444,7 +444,7 @@ def text_annotations(text_url):
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
         sort = "newest"
-        
+
     annotationflags = AnnotationFlagEnum.query.all()
     sorts = {
             "newest": url_for("text_annotations", text_url=text.url,
@@ -486,7 +486,53 @@ def edition(text_url, edition_num):
 
 @app.route("/text/<text_url>/edition/<edition_num>/annotations")
 def edition_annotations(text_url, edition_num):
-    pass
+    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "weight", type=str)
+    text = Text.query.filter_by(title=text_url.replace("_", " ")).first_or_404()
+    edition = text.editions.filter_by(num=edition_num).first()
+    if sort == "newest":
+        annotations = edition.annotations.order_by(Annotation.timestamp.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "oldest":
+        annotations = text.annotations.order_by(Annotation.timestamp.asc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "weight":
+        annotations = text.annotations.order_by(Annotation.weight.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+    elif sort == "line":
+        annotations = text.annotations.join(Edit,
+                Annotation.id==Edit.annotation_id).filter(Edit.current==True)\
+                .order_by(Edit.last_line_num.asc()).paginate(page,
+                        app.config["ANNOTATIONS_PER_PAGE"], False)
+    else:
+        annotations = text.annotations.order_by(Annotation.timestamp.desc())\
+                .paginate(page, app.config["ANNOTATIONS_PER_PAGE"], False)
+        sort = "newest"
+
+    annotationflags = AnnotationFlagEnum.query.all()
+    sorts = {
+            "newest": url_for("edition_annotations", text_url=text.url,
+                edition_num=edition.num, sort="newest", page=page),
+            "oldest": url_for("edition_annotations", text_url=text.url,
+                edition_num=edition.num, sort="oldest", page=page),
+            "weight": url_for("edition_annotations", text_url=text.url,
+                edition_num=edition.num, sort="weight", page=page),
+            "line": url_for("edition_annotations", text_url=text.url,
+                edition_num=edition.num, sort="line", page=page),
+            }
+    next_page = url_for("edition_annotations", text_url=text.url,
+            edition_num=edition.num, sort=sort, page=annotations.next_num)\
+                    if annotations.has_next else None
+    prev_page = url_for("edition_annotations", text_url=text_url,
+            edition_num=edition.num, sort=sort, page=annotations.prev_num)\
+                    if annotations.has_prev else None
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    return render_template("indexes/annotation_list.html",
+            title=f"{text.title} - Annotations", annotations=annotations.items,
+            sorts=sorts, sort=sort, next_page=next_page, prev_page=prev_page,
+            annotationflags=annotationflags, uservotes=uservotes)
+
 
 @app.route("/tag/<tag>")
 def tag(tag):
@@ -981,7 +1027,7 @@ def edit(annotation_id):
         if not success: # rerender the template with the work already filled
             db.session.rollback()
             return render_template("forms/annotation.html", form=form,
-                    title=annotation.text.title, lines=lines, 
+                    title=annotation.text.title, lines=lines,
                     text=annotation.text, annotation=annotation)
         db.session.commit()
         return redirect(redirect_url)
