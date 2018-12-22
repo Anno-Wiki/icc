@@ -17,11 +17,14 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
 login = LoginManager(app)
-md = Markdown(app)
 login.login_view = "user.login"
+
+md = Markdown(app)
 mail = Mail(app)
 elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None

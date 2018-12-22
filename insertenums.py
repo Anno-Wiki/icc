@@ -1,7 +1,7 @@
 #!/bin/sh
-if "true" : '''\'
+if 'true' : '''\'
 then
-exec "$VENV" "$0" "$@"
+exec '$VENV' '$0' '$@'
 exit 127
 fi
 '''
@@ -21,6 +21,6 @@ for key, value in enums.items():
     for entry in value:
         db.session.add(classes[key](**entry))
         i += 1
-    print(f"Added {i} {key}'s")
+    print(f"Added {i} {key}"s")
 
 db.session.commit()

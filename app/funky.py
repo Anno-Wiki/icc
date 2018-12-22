@@ -48,9 +48,9 @@ def is_filled(data):
     return True
 
 def generate_next(alt_url):
-    redirect_url = request.args.get("next")
-    if redirect_url and url_parse(redirect_url).netloc == "":
-        return request.args.get("next")
+    redirect_url = request.args.get('next')
+    if redirect_url and url_parse(redirect_url).netloc == '':
+        return request.args.get('next')
     elif request.referrer:
         return request.referrer
     else:

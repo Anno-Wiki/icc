@@ -17,8 +17,8 @@ from app.search import *
 # errors; please keep that as last.
 from app import app, db, login
 
-# if you encounter an error while committing to the effect that "NoneType has no
-# attribute <x>" what you have done is specify an id# instead of an object. Use
+# if you encounter an error while committing to the effect that `NoneType has no
+# attribute <x>` what you have done is specify an id# instead of an object. Use
 # the ORM. if that is not the case, it is because, for example, in the case of
 # Annotation.HEAD, you have created a new Annotation and Edit for HEAD to point
 # to, but because of the complex relationship to form HEAD, HEAD is still empty.
@@ -41,9 +41,9 @@ class SearchableMixin(object):
         if current_user and current_user.is_authenticated:
             current_user.last_seen = datetime.utcnow()
         session._changes = {
-                "add": list(session.new),
-                "update": list(session.dirty),
-                "delete": list(session.deleted)
+                'add': list(session.new),
+                'update': list(session.dirty),
+                'delete': list(session.deleted)
                 }
         # This accesses all the necessary fields in searchable so they are
         # loaded into memory from sqlalchemy before we commit
@@ -56,13 +56,13 @@ class SearchableMixin(object):
 
     @classmethod
     def after_commit(cls, session):
-        for obj in session._changes["add"]:
+        for obj in session._changes['add']:
             if isinstance(obj, SearchableMixin):
                 add_to_index(obj.__tablename__, obj)
-        for obj in session._changes["update"]:
+        for obj in session._changes['update']:
             if isinstance(obj, SearchableMixin):
                 add_to_index(obj.__tablename__, obj)
-        for obj in session._changes["delete"]:
+        for obj in session._changes['delete']:
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
         session._changes = None
@@ -73,49 +73,52 @@ class SearchableMixin(object):
         for obj in qry:
             add_to_index(cls.__tablename__, obj)
 
-db.event.listen(db.session, "before_commit", SearchableMixin.before_commit)
-db.event.listen(db.session, "after_commit", SearchableMixin.after_commit)
+
+db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
+db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 #########################
 ## Many-to-Many Tables ##
 #########################
 
-authors = db.Table("authors",
-        db.Column("writer_id", db.Integer, db.ForeignKey("writer.id")),
-        db.Column("text_id", db.Integer, db.ForeignKey("text.id")))
-tags = db.Table("tags",
-        db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
-        db.Column("edit_id", db.Integer, db.ForeignKey("edit.id",
-            ondelete="CASCADE")))
-conferred_right = db.Table("conferred_rights",
-        db.Column("right_id", db.Integer, db.ForeignKey("right.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+authors = db.Table('authors',
+        db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
+        db.Column('text_id', db.Integer, db.ForeignKey('text.id')))
+tags = db.Table('tags',
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+        db.Column('edit_id', db.Integer, db.ForeignKey('edit.id',
+            ondelete='CASCADE')))
+conferred_right = db.Table('conferred_rights',
+        db.Column('right_id', db.Integer, db.ForeignKey('right.id')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 # followers
-text_followers = db.Table("text_followers",
-        db.Column("text_id", db.Integer, db.ForeignKey("text.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-writer_followers = db.Table("writer_followers",
-        db.Column("writer_id", db.Integer, db.ForeignKey("writer.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-user_followers = db.Table("user_followers",
-        db.Column("follower_id", db.Integer, db.ForeignKey("user.id")),
-        db.Column("followed_id", db.Integer, db.ForeignKey("user.id")))
-tag_followers = db.Table("tag_followers",
-        db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-annotation_followers = db.Table("annotation_followers",
-        db.Column("annotation_id", db.Integer, db.ForeignKey("annotation.id",
-            ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-tag_request_followers = db.Table("tag_request_followers",
-        db.Column("tag_request_id", db.Integer, db.ForeignKey("tag_request.id",
-            ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
-text_request_followers = db.Table("text_request_followers",
-        db.Column("text_request_id", db.Integer,
-            db.ForeignKey("text_request.id", ondelete="CASCADE")),
-        db.Column("user_id", db.Integer, db.ForeignKey("user.id")))
+text_followers = db.Table('text_followers',
+        db.Column('text_id', db.Integer, db.ForeignKey('text.id')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+writer_followers = db.Table('writer_followers',
+        db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+user_followers = db.Table('user_followers',
+        db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
+tag_followers = db.Table('tag_followers',
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+annotation_followers = db.Table('annotation_followers',
+        db.Column('annotation_id', db.Integer, db.ForeignKey('annotation.id',
+            ondelete='CASCADE')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+tag_request_followers = db.Table('tag_request_followers',
+        db.Column('tag_request_id', db.Integer, db.ForeignKey('tag_request.id',
+            ondelete='CASCADE')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+text_request_followers = db.Table('text_request_followers',
+        db.Column('text_request_id', db.Integer,
+            db.ForeignKey('text_request.id', ondelete='CASCADE')),
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+
+
 
 #################
 ## User Models ##
@@ -127,7 +130,8 @@ class Right(db.Model):
     min_rep = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"<Right to {self.right}>"
+        return f'<Right to {self.right}>'
+
 
 class ReputationEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -135,21 +139,23 @@ class ReputationEnum(db.Model):
     default_delta = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"<{self.code}>"
+        return f'<{self.code}>'
+
 
 class ReputationChange(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     delta = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    enum_id = db.Column(db.Integer, db.ForeignKey("reputation_enum.id"),
+    enum_id = db.Column(db.Integer, db.ForeignKey('reputation_enum.id'),
             nullable=False)
 
-    user = db.relationship("User", backref="changes")
-    type = db.relationship("ReputationEnum")
+    user = db.relationship('User', backref='changes')
+    type = db.relationship('ReputationEnum')
 
     def __repr__(self):
-        return f"<rep change {self.type} on {self.user.displayname}>"
+        return f'<rep change {self.type} on {self.user.displayname}>'
+
 
 # This is an implementation of the [notification system detailed
 # here](https://stackoverflow.com/questions/9735578/building-a-notification-system)
@@ -167,19 +173,20 @@ class NotificationEnum(db.Model):
     vars = db.Column(db.String(191))
 
     def __repr__(self):
-        return f"<{self.code} notification enum>"
+        return f'<{self.code} notification enum>'
+
 
 # NotificationObject describes the actual event.
 class NotificationObject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    enum_id = db.Column(db.Integer, db.ForeignKey("notification_enum.id"),
+    enum_id = db.Column(db.Integer, db.ForeignKey('notification_enum.id'),
             nullable=False)
     entity_id = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-    actor_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    actor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    type = db.relationship("NotificationEnum")
-    actor = db.relationship("User")
+    type = db.relationship('NotificationEnum')
+    actor = db.relationship('User')
 
     @orm.reconstructor
     def init_on_load(self):
@@ -187,10 +194,10 @@ class NotificationObject(db.Model):
                 .get(self.entity_id)
 
     def __repr__(self):
-        return f"<Notification {self.type.code}>"
+        return f'<Notification {self.type.code}>'
 
     def description(self):
-        var_names = self.type.vars.split(",")
+        var_names = self.type.vars.split(',')
         vars = [operator.attrgetter(v)(self.entity) for v in var_names]
         return self.type.notification.format(*vars)
 
@@ -200,32 +207,34 @@ class NotificationObject(db.Model):
         return NotificationObject.query.filter(NotificationObject.type==enum,
                 NotificationObject.entity_id==entity.id).first()
 
+
 # The `Notification` class connects a `NotificationObject` with a user and
 # whether he's seen it or not.
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     notification_object_id = db.Column(db.Integer,
-            db.ForeignKey("notification_object.id", ondelete="CASCADE"),
+            db.ForeignKey('notification_object.id', ondelete='CASCADE'),
             nullable=False)
-    notifier_id = db.Column(db.Integer, db.ForeignKey("user.id"),
+    notifier_id = db.Column(db.Integer, db.ForeignKey('user.id'),
             nullable=False)
     seen = db.Column(db.Boolean, default=False)
 
-    notifier = db.relationship("User",
-            backref=backref("notifications", lazy="dynamic"))
-    object = db.relationship("NotificationObject",
-            backref=backref("notifications", lazy="dynamic",
+    notifier = db.relationship('User',
+            backref=backref('notifications', lazy='dynamic'))
+    object = db.relationship('NotificationObject',
+            backref=backref('notifications', lazy='dynamic',
             passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.object.type.code} notification"\
-                f" for {self.notifier.displayname}>"
+        return f'<{self.object.type.code} notification'\
+                f' for {self.notifier.displayname}>'
 
     def mark_read(self):
         self.seen = True
 
     def mark_unread(self):
         self.seen = False
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -238,89 +247,89 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     # user meta information relationships
-    rights = db.relationship("Right", secondary=conferred_right,
-            backref="admins")
+    rights = db.relationship('Right', secondary=conferred_right,
+            backref='admins')
 
     # annotations voted on
-    votes = db.relationship("Annotation", secondary="vote",
-            primaryjoin="User.id==Vote.user_id",
-            secondaryjoin="Annotation.id==Vote.annotation_id",
-            backref="voters", lazy="dynamic")
+    votes = db.relationship('Annotation', secondary='vote',
+            primaryjoin='User.id==Vote.user_id',
+            secondaryjoin='Annotation.id==Vote.annotation_id',
+            backref='voters', lazy='dynamic')
     # edits voted on
-    edit_votes = db.relationship("Edit", secondary="edit_vote",
-            primaryjoin="User.id==EditVote.user_id",
-            secondaryjoin="Edit.id==EditVote.edit_id",
-            backref="edit_voters", lazy="dynamic")
+    edit_votes = db.relationship('Edit', secondary='edit_vote',
+            primaryjoin='User.id==EditVote.user_id',
+            secondaryjoin='Edit.id==EditVote.edit_id',
+            backref='edit_voters', lazy='dynamic')
     # wiki edits voted on
-    wiki_edit_votes = db.relationship("WikiEdit", secondary="wiki_edit_vote",
-            primaryjoin="User.id==WikiEditVote.voter_id",
-            secondaryjoin="WikiEdit.id==WikiEditVote.edit_id",
-            backref="voters", lazy="dynamic")
+    wiki_edit_votes = db.relationship('WikiEdit', secondary='wiki_edit_vote',
+            primaryjoin='User.id==WikiEditVote.voter_id',
+            secondaryjoin='WikiEdit.id==WikiEditVote.edit_id',
+            backref='voters', lazy='dynamic')
     # text requests voted on
-    text_request_votes = db.relationship("TextRequest",
-            secondary="text_request_vote",
-            primaryjoin="TextRequestVote.user_id==User.id",
-            secondaryjoin="TextRequestVote.text_request_id==TextRequest.id",
-            backref="voters", lazy="dynamic", passive_deletes=True)
+    text_request_votes = db.relationship('TextRequest',
+            secondary='text_request_vote',
+            primaryjoin='TextRequestVote.user_id==User.id',
+            secondaryjoin='TextRequestVote.text_request_id==TextRequest.id',
+            backref='voters', lazy='dynamic', passive_deletes=True)
     # tag requests voted on
-    tag_request_votes = db.relationship("TagRequest",
-            secondary="tag_request_vote",
-            primaryjoin="TagRequestVote.user_id==User.id",
-            secondaryjoin="TagRequestVote.tag_request_id==TagRequest.id",
-            backref="voters", lazy="dynamic")
+    tag_request_votes = db.relationship('TagRequest',
+            secondary='tag_request_vote',
+            primaryjoin='TagRequestVote.user_id==User.id',
+            secondaryjoin='TagRequestVote.tag_request_id==TagRequest.id',
+            backref='voters', lazy='dynamic')
 
     # flag relationships
-    flags = db.relationship("UserFlagEnum",
-            secondary="user_flag",
-            primaryjoin="and_(UserFlag.user_id==User.id,"
-            "UserFlag.resolver_id==None)",
-            secondaryjoin="UserFlag.user_flag_id==UserFlagEnum.id",
-            backref="users")
-    flag_history = db.relationship("UserFlag",
-            primaryjoin="UserFlag.user_id==User.id", lazy="dynamic")
-    active_flags = db.relationship("UserFlag",
-            primaryjoin="and_(UserFlag.user_id==User.id,"
-                "UserFlag.resolver_id==None)")
+    flags = db.relationship('UserFlagEnum',
+            secondary='user_flag',
+            primaryjoin='and_(UserFlag.user_id==User.id,'
+            'UserFlag.resolver_id==None)',
+            secondaryjoin='UserFlag.user_flag_id==UserFlagEnum.id',
+            backref='users')
+    flag_history = db.relationship('UserFlag',
+            primaryjoin='UserFlag.user_id==User.id', lazy='dynamic')
+    active_flags = db.relationship('UserFlag',
+            primaryjoin='and_(UserFlag.user_id==User.id,'
+                'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
-            "User", secondary=user_followers,
+            'User', secondary=user_followers,
             primaryjoin=(user_followers.c.follower_id==id),
             secondaryjoin=(user_followers.c.followed_id==id),
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_texts = db.relationship("Text",
-            secondary="text_followers",
-            primaryjoin="text_followers.c.user_id==User.id",
-            secondaryjoin="text_followers.c.text_id==Text.id",
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_writers = db.relationship("Writer",
-            secondary="writer_followers",
-            primaryjoin="writer_followers.c.user_id==User.id",
-            secondaryjoin="writer_followers.c.writer_id==Writer.id",
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_tags = db.relationship("Tag",
-            secondary="tag_followers",
-            primaryjoin="tag_followers.c.user_id==User.id",
-            secondaryjoin="tag_followers.c.tag_id==Tag.id",
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_annotations = db.relationship("Annotation",
-            secondary="annotation_followers",
-            primaryjoin="annotation_followers.c.user_id==User.id",
-            secondaryjoin="annotation_followers.c.annotation_id==Annotation.id",
-            backref=db.backref("followers", lazy="dynamic", passive_deletes=True),
-            lazy="dynamic")
-    followed_tag_requests = db.relationship("TagRequest",
-            secondary="tag_request_followers",
-            primaryjoin="tag_request_followers.c.user_id==User.id",
-            secondaryjoin="tag_request_followers.c.tag_request_id==TagRequest.id",
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
-    followed_text_requests = db.relationship("TextRequest",
-            secondary="text_request_followers",
-            primaryjoin="text_request_followers.c.user_id==User.id",
-            secondaryjoin="text_request_followers.c.text_request_id==TextRequest.id",
-            backref=db.backref("followers", lazy="dynamic"), lazy="dynamic")
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_texts = db.relationship('Text',
+            secondary='text_followers',
+            primaryjoin='text_followers.c.user_id==User.id',
+            secondaryjoin='text_followers.c.text_id==Text.id',
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_writers = db.relationship('Writer',
+            secondary='writer_followers',
+            primaryjoin='writer_followers.c.user_id==User.id',
+            secondaryjoin='writer_followers.c.writer_id==Writer.id',
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_tags = db.relationship('Tag',
+            secondary='tag_followers',
+            primaryjoin='tag_followers.c.user_id==User.id',
+            secondaryjoin='tag_followers.c.tag_id==Tag.id',
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_annotations = db.relationship('Annotation',
+            secondary='annotation_followers',
+            primaryjoin='annotation_followers.c.user_id==User.id',
+            secondaryjoin='annotation_followers.c.annotation_id==Annotation.id',
+            backref=db.backref('followers', lazy='dynamic',
+                passive_deletes=True), lazy='dynamic')
+    followed_tag_requests = db.relationship('TagRequest',
+            secondary='tag_request_followers',
+            primaryjoin='tag_request_followers.c.user_id==User.id',
+            secondaryjoin='tag_request_followers.c.tag_request_id==TagRequest.id',
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_text_requests = db.relationship('TextRequest',
+            secondary='text_request_followers',
+            primaryjoin='text_request_followers.c.user_id==User.id',
+            secondaryjoin='text_request_followers.c.text_request_id==TextRequest.id',
+            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
-        return "<User {}>".format(self.displayname)
+        return '<User {}>'.format(self.displayname)
 
     # Utilities
 
@@ -339,21 +348,21 @@ class User(UserMixin, db.Model):
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
-                {"reset_password": self.id, "exp": time() + expires_in},
-                app.config["SECRET_KEY"], algorithm="HS256").decode("utf-8")
+                {'reset_password': self.id, 'exp': time() + expires_in},
+                app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config["SECRET_KEY"],
-                    algorithms=["HS256"])["reset_password"]
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                    algorithms=['HS256'])['reset_password']
         except:
             return
         return User.query.get(id)
 
     def avatar(self, size):
-        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
-        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def authorize(self, right):
         r = Right.query.filter_by(right=right).first()
@@ -382,11 +391,11 @@ class User(UserMixin, db.Model):
 
     def readable_reputation(self):
         if self.reputation >= 1000000:
-            return f"{round(user.reputation/1000000)}m"
+            return f'{round(user.reputation/1000000)}m'
         elif self.reputation >= 1000:
-            return f"{round(user.reputation/1000)}k"
+            return f'{round(user.reputation/1000)}k'
         else:
-            return f"{self.reputation}"
+            return f'{self.reputation}'
 
     def already_voted(self, annotation):
         return annotation in self.votes
@@ -435,9 +444,12 @@ class User(UserMixin, db.Model):
     def get_wiki_edit_vote(self, edit):
         return self.wiki_edit_ballots.filter(WikiEditVote.edit==edit).first()
 
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
 
 ##################
 ## Content Data ##
@@ -447,14 +459,14 @@ class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     entity_string = db.Column(db.String(191), index=True)
 
-    current = db.relationship("WikiEdit",
-            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,"
-            "WikiEdit.current==True)", uselist=False, lazy="joined")
-    edits = db.relationship("WikiEdit",
-            primaryjoin="WikiEdit.wiki_id==Wiki.id", lazy="dynamic")
-    edit_pending = db.relationship("WikiEdit",
-            primaryjoin="and_(WikiEdit.wiki_id==Wiki.id,"
-            "WikiEdit.approved==False, WikiEdit.rejected==False)",
+    current = db.relationship('WikiEdit',
+            primaryjoin='and_(WikiEdit.wiki_id==Wiki.id,'
+            'WikiEdit.current==True)', uselist=False, lazy='joined')
+    edits = db.relationship('WikiEdit',
+            primaryjoin='WikiEdit.wiki_id==Wiki.id', lazy='dynamic')
+    edit_pending = db.relationship('WikiEdit',
+            primaryjoin='and_(WikiEdit.wiki_id==Wiki.id,'
+            'WikiEdit.approved==False, WikiEdit.rejected==False)',
             passive_deletes=False)
 
     @orm.reconstructor
@@ -464,20 +476,20 @@ class Wiki(db.Model):
             ))[0]
 
     def __init__(self, *args, **kwargs):
-        body = kwargs.pop("body", None)
-        body = "This wiki is currently blank." if not body else body
+        body = kwargs.pop('body', None)
+        body = 'This wiki is currently blank.' if not body else body
         super().__init__(*args, **kwargs)
         self.versions.append(WikiEdit(current=True, body=body, approved=True,
-            reason="Initial Version."))
+            reason='Initial Version.'))
 
     def __repr__(self):
-        return f"<Wiki HEAD {str(self.entity)} at version {self.current.num}>"
+        return f'<Wiki HEAD {str(self.entity)} at version {self.current.num}>'
 
     def edit(self, editor, body, reason):
         edit = WikiEdit(wiki=self, num=self.current.num+1, editor=editor,
                 body=body, reason=reason)
         db.session.add(edit)
-        if editor.is_authorized("immediate_wiki_edits"):
+        if editor.is_authorized('immediate_wiki_edits'):
             edit.approved = True
             self.current.current = False
             edit.current = True
@@ -485,52 +497,54 @@ class Wiki(db.Model):
         else:
             flash("The edit has been submitted for peer review.")
 
+
 class WikiEditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     delta = db.Column(db.Integer, nullable=False)
-    voter_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
+    voter_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
             nullable=False)
-    edit_id = db.Column(db.Integer, db.ForeignKey("wiki_edit.id",
-        ondelete="CASCADE"), index=True, nullable=False)
+    edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
+        ondelete='CASCADE'), index=True, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
 
-    voter = db.relationship("User",
-            backref=backref("wiki_edit_ballots", lazy="dynamic"))
-    edit = db.relationship("WikiEdit", backref=backref("ballots",
+    voter = db.relationship('User',
+            backref=backref('wiki_edit_ballots', lazy='dynamic'))
+    edit = db.relationship('WikiEdit', backref=backref('ballots',
         passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.voter.displayname} {self.delta} on "\
-                f"edit {self.edit.num} of Wiki {str(self.edit.wiki.entity)}>"
+        return f'<{self.voter.displayname} {self.delta} on '\
+                f'edit {self.edit.num} of Wiki {str(self.edit.wiki.entity)}>'
 
     def is_up(self):
         return self.delta > 0
 
+
 class WikiEdit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     num = db.Column(db.Integer, default=1)
     current = db.Column(db.Boolean, index=True, default=False)
     weight = db.Column(db.Integer, default=0)
     approved = db.Column(db.Boolean, index=True, default=False)
     rejected = db.Column(db.Boolean, index=True, default=False)
     num = db.Column(db.Integer, default=0)
-    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False,
+    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
             default=1)
     reason = db.Column(db.String(191))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
 
-    wiki = db.relationship("Wiki", backref=backref("versions", lazy="dynamic"))
-    previous = db.relationship("WikiEdit",
-            primaryjoin="and_(remote(WikiEdit.wiki_id)==foreign(WikiEdit.wiki_id),"
-            "remote(WikiEdit.num)==foreign(WikiEdit.num-1),"
-            "remote(WikiEdit.rejected)==False)")
-    editor = db.relationship("User",
-        backref=backref("wiki_edits", lazy="dynamic"))
+    wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))
+    previous = db.relationship('WikiEdit',
+            primaryjoin='and_(remote(WikiEdit.wiki_id)==foreign(WikiEdit.wiki_id),'
+            'remote(WikiEdit.num)==foreign(WikiEdit.num-1),'
+            'remote(WikiEdit.rejected)==False)')
+    editor = db.relationship('User',
+        backref=backref('wiki_edits', lazy='dynamic'))
 
     def __repr__(self):
-        return f"<Wiki edit {self.num} of {self.wiki_id}>"
+        return f'<Wiki edit {self.num} of {self.wiki_id}>'
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -553,8 +567,8 @@ class WikiEdit(db.Model):
         vote = WikiEditVote(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight >= app.config["VOTES_FOR_WIKI_EDIT_APPROVAL"] or\
-                voter.is_authorized("immediate_wiki_edits"):
+        if self.weight >= app.config['VOTES_FOR_WIKI_EDIT_APPROVAL'] or\
+                voter.is_authorized('immediate_wiki_edits'):
             self.approve()
 
     def downvote(self, voter):
@@ -574,8 +588,8 @@ class WikiEdit(db.Model):
         vote = WikiEditVote(edit=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight <= app.config["VOTES_FOR_WIKI_EDIT_REJECTION"] or\
-                voter.is_authorized("immediate_wiki_edits"):
+        if self.weight <= app.config['VOTES_FOR_WIKI_EDIT_REJECTION'] or\
+                voter.is_authorized('immediate_wiki_edits'):
             self.reject()
 
     def approve(self):
@@ -588,39 +602,40 @@ class WikiEdit(db.Model):
         edit.rejected = True
         flash("The edit was rejected.")
 
+
 class Writer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
     last_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
-    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    wiki = db.relationship("Wiki", backref=backref("writer", uselist=False))
-    authored = db.relationship("Text", secondary=authors)
-    edited = db.relationship("Edition",
-            secondary="join(WriterEditionConnection, ConnectionEnum)",
-            primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
-            "ConnectionEnum.type=='editor')",
-            secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
-            backref="editors")
-    translated = db.relationship("Edition",
-            secondary="join(WriterEditionConnection, ConnectionEnum)",
-            primaryjoin="and_(WriterEditionConnection.writer_id==Writer.id,"
-            "ConnectionEnum.type=='translator')",
-            secondaryjoin="Edition.id==WriterEditionConnection.edition_id",
-            backref="translators")
-    annotations = db.relationship("Annotation",
-            secondary="join(text,authors).join(Edition)",
-            primaryjoin="Writer.id==authors.c.writer_id",
-            secondaryjoin="and_(Text.id==Edition.text_id,Edition.primary==True,"
-            "Annotation.edition_id==Edition.id)",
-            lazy="dynamic")
+    wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
+    authored = db.relationship('Text', secondary=authors)
+    edited = db.relationship('Edition',
+            secondary='join(WriterEditionConnection, ConnectionEnum)',
+            primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
+            'ConnectionEnum.type=="editor")',
+            secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
+            backref='editors')
+    translated = db.relationship('Edition',
+            secondary='join(WriterEditionConnection, ConnectionEnum)',
+            primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
+            'ConnectionEnum.type=="translator")',
+            secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
+            backref='translators')
+    annotations = db.relationship('Annotation',
+            secondary='join(text,authors).join(Edition)',
+            primaryjoin='Writer.id==authors.c.writer_id',
+            secondaryjoin='and_(Text.id==Edition.text_id,Edition.primary==True,'
+            'Annotation.edition_id==Edition.id)',
+            lazy='dynamic')
 
     def __init__(self, *args, **kwargs):
-        description = kwargs.pop("description", None)
-        description = "This writer does not have a biography yet."\
+        description = kwargs.pop('description', None)
+        description = 'This writer does not have a biography yet.'\
                 if not description else description
         super().__init__(*args, **kwargs)
         self.wiki = Wiki(body=description, entity_string=str(self))
@@ -628,111 +643,117 @@ class Writer(db.Model):
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.name\
-                .replace(" ", "_")
-        self.first_name = self.name.split(" ", 1)[0]
+                .replace(' ', '_')
+        self.first_name = self.name.split(' ', 1)[0]
 
     def __repr__(self):
-        return f"<Writer: {self.name}>"
+        return f'<Writer: {self.name}>'
 
     def __str__(self):
         return self.name
 
     def get_url(self):
-        return url_for("writer", writer_url=self.url)
+        return url_for('writer', writer_url=self.url)
+
 
 class Text(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
-    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    wiki = db.relationship("Wiki", backref=backref("text", uselist=False))
-    authors = db.relationship("Writer", secondary="authors")
-    editions = db.relationship("Edition", lazy="dynamic")
-    primary = db.relationship("Edition",
-            primaryjoin="and_(Edition.text_id==Text.id,Edition.primary==True)",
+    wiki = db.relationship('Wiki', backref=backref('text', uselist=False))
+    authors = db.relationship('Writer', secondary='authors')
+    editions = db.relationship('Edition', lazy='dynamic')
+    primary = db.relationship('Edition',
+            primaryjoin='and_(Edition.text_id==Text.id,Edition.primary==True)',
             uselist=False)
 
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.title\
                 .translate(str.maketrans(dict.fromkeys(string.punctuation)))\
-                .replace(" ", "_")
+                .replace(' ', '_')
 
     def __init__(self, *args, **kwargs):
-        description = kwargs.pop("description", None)
+        description = kwargs.pop('description', None)
         description = "This wiki is blank." if not description else description
         super().__init__(*args, **kwargs)
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     def __repr__(self):
-        return f"<Text {self.id}: {self.title}>"
+        return f'<Text {self.id}: {self.title}>'
 
     def __str__(self):
         return self.title
 
     def get_url(self):
-        return url_for("text", text_url=self.url)
+        return url_for('text', text_url=self.url)
+
 
 class Edition(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, default=1)
-    text_id = db.Column(db.Integer, db.ForeignKey("text.id"))
+    text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
     primary = db.Column(db.Boolean, default=False)
-    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    wiki = db.relationship("Wiki", backref=backref("edition", uselist=False))
-    text = db.relationship("Text")
-    lines = db.relationship("Line", primaryjoin="Line.edition_id==Edition.id",
-            lazy="dynamic")
+    wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
+    text = db.relationship('Text')
+    lines = db.relationship('Line', primaryjoin='Line.edition_id==Edition.id',
+            lazy='dynamic')
 
     def __init__(self, *args, **kwargs):
-        description = kwargs.pop("description", None)
-        description = "This wiki is blank." if not description else description
+        description = kwargs.pop('description', None)
+        description = 'This wiki is blank.' if not description else description
         super().__init__(*args, **kwargs)
-        self.title = f"{self.text.title} - Primary Edition*"\
-                if self.primary else f"{self.text.title} - Edition #{self.num}"
+        self.title = f'{self.text.title} - Primary Edition*'\
+                if self.primary else f'{self.text.title} - Edition #{self.num}'
 
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.text.title\
-                .replace(" ", "_") + f"_{self.num}"
-        self.title = f"{self.text.title} - Primary Edition*"\
-                if self.primary else f"{self.text.title} - Edition #{self.num}"
+                .replace(' ', '_') + f'_{self.num}'
+        self.title = f'{self.text.title} - Primary Edition*'\
+                if self.primary else f'{self.text.title} - Edition #{self.num}'
 
     def __repr__(self):
-        return f"<Edition #{self.num} {self.text.title}>"
+        return f'<Edition #{self.num} {self.text.title}>'
 
     def __str__(self):
         return self.title
 
     def get_url(self):
-        return url_for("edition", text_url=self.text.url, edition_num=self.num)
+        return url_for('edition', text_url=self.text.url, edition_num=self.num)
+
 
 class WriterEditionConnection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    writer_id = db.Column(db.Integer, db.ForeignKey("writer.id"))
-    edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"))
-    enum_id = db.Column(db.Integer, db.ForeignKey("connection_enum.id"))
+    writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
+    enum_id = db.Column(db.Integer, db.ForeignKey('connection_enum.id'))
 
-    writer = db.relationship("Writer", backref="connections")
-    edition = db.relationship("Edition")
-    enum = db.relationship("ConnectionEnum")
+    writer = db.relationship('Writer', backref='connections')
+    edition = db.relationship('Edition')
+    enum = db.relationship('ConnectionEnum')
 
     def __repr__(self):
-        return f"<{self.writer.name} was {self.type.type} on {self.edition}>"
+        return f'<{self.writer.name} was {self.type.type} on {self.edition}>'
+
 
 class ConnectionEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(128))
     def __repr__(self):
-        return f"<ConnEnum {self.type}>"
+        return f'<ConnEnum {self.type}>'
+
+
 
 ################
 ## Tag System ##
@@ -742,32 +763,34 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
-    wiki_id = db.Column(db.Integer, db.ForeignKey("wiki.id"), nullable=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
-    wiki = db.relationship("Wiki", backref=backref("tag", uselist=False))
-    annotations = db.relationship("Annotation",
-            secondary="join(tags, Edit, and_(tags.c.edit_id==Edit.id,"
-            "Edit.current==True))",
-            primaryjoin="Tag.id==tags.c.tag_id",
-            secondaryjoin="and_(Edit.annotation_id==Annotation.id,"
-            "Annotation.active==True)",
-            lazy="dynamic", passive_deletes=True)
+    wiki = db.relationship('Wiki', backref=backref('tag', uselist=False))
+    annotations = db.relationship('Annotation',
+            secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
+            'Edit.current==True))',
+            primaryjoin='Tag.id==tags.c.tag_id',
+            secondaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            'Annotation.active==True)',
+            lazy='dynamic', passive_deletes=True)
 
     def __init__(self, *args, **kwargs):
-        description = kwargs.pop("description", None)
-        description = "This tag has no description yet." if not description\
+        description = kwargs.pop('description', None)
+        description = 'This tag has no description yet.' if not description\
                 else description
         super().__init__(*args, **kwargs)
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     def __repr__(self):
-        return f"<Tag {self.id}: {self.tag}>"
+        return f'<Tag {self.id}: {self.tag}>'
 
     def __str__(self):
-        return f"<tag>{self.tag}</tag>"
+        return f'<tag>{self.tag}</tag>'
 
     def get_url(self):
-        return url_for("tag", tag=self.tag)
+        return url_for('tag', tag=self.tag)
+
+
 
 ####################
 ## Content Models ##
@@ -779,45 +802,46 @@ class LineEnum(db.Model):
     display = db.Column(db.String(64))
 
     def __repr__(self):
-        return f"<{self.label}: {self.display}>"
+        return f'<{self.label}: {self.display}>'
+
 
 class Line(SearchableMixin, db.Model):
-    __searchable__ = ["line", "text_title"]
+    __searchable__ = ['line', 'text_title']
     id = db.Column(db.Integer, primary_key=True)
-    edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
-    label_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
+    label_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'), index=True)
     lvl1 = db.Column(db.Integer, index=True)
     lvl2 = db.Column(db.Integer, index=True)
     lvl3 = db.Column(db.Integer, index=True)
     lvl4 = db.Column(db.Integer, index=True)
-    em_id = db.Column(db.Integer, db.ForeignKey("line_enum.id"), index=True)
+    em_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'), index=True)
     line = db.Column(db.String(200))
 
-    edition = db.relationship("Edition")
-    text = db.relationship("Text", secondary="edition", uselist=False)
-    label = db.relationship("LineEnum", foreign_keys=[label_id])
-    em_status = db.relationship("LineEnum", foreign_keys=[em_id])
-    context = db.relationship("Line",
-            primaryjoin="and_(remote(Line.num)<=Line.num+1,"
-            "remote(Line.num)>=Line.num-1,"
-            "remote(Line.edition_id)==Line.edition_id)",
+    edition = db.relationship('Edition')
+    text = db.relationship('Text', secondary='edition', uselist=False)
+    label = db.relationship('LineEnum', foreign_keys=[label_id])
+    em_status = db.relationship('LineEnum', foreign_keys=[em_id])
+    context = db.relationship('Line',
+            primaryjoin='and_(remote(Line.num)<=Line.num+1,'
+            'remote(Line.num)>=Line.num-1,'
+            'remote(Line.edition_id)==Line.edition_id)',
             foreign_keys=[num, edition_id], remote_side=[num, edition_id],
             uselist=True, viewonly=True)
-    annotations = db.relationship("Annotation", secondary="edit",
-            primaryjoin="and_(Edit.first_line_num<=foreign(Line.num),"
-            "Edit.last_line_num>=foreign(Line.num),"
-            "Edit.edition_id==foreign(Line.edition_id),Edit.current==True)",
-            secondaryjoin="and_(foreign(Edit.annotation_id)==Annotation.id,"
-            "Annotation.active==True)",
+    annotations = db.relationship('Annotation', secondary='edit',
+            primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
+            'Edit.last_line_num>=foreign(Line.num),'
+            'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
+            secondaryjoin='and_(foreign(Edit.annotation_id)==Annotation.id,'
+            'Annotation.active==True)',
             uselist=True, foreign_keys=[num,edition_id])
 
     def __repr__(self):
-        return f"<l{self.num} {self.edition.text.title} [{self.label.display}]>"
+        return f'<l{self.num} {self.edition.text.title} [{self.label.display}]>'
 
     def __getattr__(self, attr):
-        if attr.startswith("text_"):
-            return getattr(self.edition.text, attr.replace("text_", "", 1))
+        if attr.startswith('text_'):
+            return getattr(self.edition.text, attr.replace('text_', '', 1))
         else:
             raise AttributeError(f"No such attribute {attr}")
 
@@ -898,8 +922,9 @@ class Line(SearchableMixin, db.Model):
         lvl2 = self.lvl2 if self.lvl2 > 0 else None
         lvl3 = self.lvl3 if self.lvl3 > 0 else None
         lvl4 = self.lvl4 if self.lvl4 > 0 else None
-        return url_for("read", text_url=self.edition.text.url,
+        return url_for('read', text_url=self.edition.text.url,
                 edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
+
 
 
 #################
@@ -908,114 +933,116 @@ class Line(SearchableMixin, db.Model):
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     annotation_id = db.Column(db.Integer,
-            db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
+            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
     reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey("reputation_change.id", ondelete="CASCADE"))
+            db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User", backref=backref("ballots", lazy="dynamic"))
-    annotation = db.relationship("Annotation",
-            backref=backref("ballots", lazy="dynamic"))
-    repchange = db.relationship("ReputationChange",
-            backref=backref("vote", uselist=False))
+    user = db.relationship('User', backref=backref('ballots', lazy='dynamic'))
+    annotation = db.relationship('Annotation',
+            backref=backref('ballots', lazy='dynamic'))
+    repchange = db.relationship('ReputationChange',
+            backref=backref('vote', uselist=False))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+        return f'<{self.user.displayname} {self.delta} on {self.annotation}>'
 
     def is_up(self):
         return self.delta > 0
 
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    poster_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True,
+    poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
             nullable=False)
     annotation_id = db.Column(db.Integer,
-            db.ForeignKey("annotation.id", ondelete="CASCADE"),
+            db.ForeignKey('annotation.id', ondelete='CASCADE'),
             index=True, nullable=False)
     parent_id = db.Column(db.Integer,
-            db.ForeignKey("comment.id", ondelete="CASCADE"),
+            db.ForeignKey('comment.id', ondelete='CASCADE'),
             index=True, default=None)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     weight = db.Column(db.Integer, default=0)
     depth = db.Column(db.Integer, default=0)
     body = db.Column(db.Text)
 
-    poster = db.relationship("User",
-            backref=backref("comments", lazy="dynamic"))
-    annotation = db.relationship("Annotation",
-            backref=backref("comments", lazy="dynamic", passive_deletes=True))
-    parent = db.relationship("Comment", remote_side=[id],
-            backref=backref("children", lazy="dynamic"))
+    poster = db.relationship('User',
+            backref=backref('comments', lazy='dynamic'))
+    annotation = db.relationship('Annotation',
+            backref=backref('comments', lazy='dynamic', passive_deletes=True))
+    parent = db.relationship('Comment', remote_side=[id],
+            backref=backref('children', lazy='dynamic'))
 
     def __repr__(self):
-            return f"<Comment {self.parent_id} on [{self.annotation_id}]>"
+            return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
+
 
 class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    annotator_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
+    annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     weight = db.Column(db.Integer, default=0)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    annotator = db.relationship("User",
-            backref=backref("annotations", lazy="dynamic"))
-    first_line = db.relationship("Line", secondary="edit",
-            primaryjoin="Edit.annotation_id==Annotation.id",
-            secondaryjoin="and_(Line.edition_id==Annotation.edition_id,"
-            "Edit.first_line_num==Line.num)",
+    annotator = db.relationship('User',
+            backref=backref('annotations', lazy='dynamic'))
+    first_line = db.relationship('Line', secondary='edit',
+            primaryjoin='Edit.annotation_id==Annotation.id',
+            secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
+            'Edit.first_line_num==Line.num)',
             uselist=False)
 
-    edition = db.relationship("Edition",
-            backref=backref("annotations", lazy="dynamic"))
-    text = db.relationship("Text", secondary="edition",
-            backref=backref("annotations", lazy="dynamic"), uselist=False)
+    edition = db.relationship('Edition',
+            backref=backref('annotations', lazy='dynamic'))
+    text = db.relationship('Text', secondary='edition',
+            backref=backref('annotations', lazy='dynamic'), uselist=False)
 
     # relationships to `Edit`
-    HEAD = db.relationship("Edit",
-            primaryjoin="and_(Edit.current==True,"
-            "Edit.annotation_id==Annotation.id)", uselist=False)
+    HEAD = db.relationship('Edit',
+            primaryjoin='and_(Edit.current==True,'
+            'Edit.annotation_id==Annotation.id)', uselist=False)
 
-    edits = db.relationship("Edit",
-            primaryjoin="and_(Edit.annotation_id==Annotation.id,"
-            "Edit.approved==True)", passive_deletes=True)
-    history = db.relationship("Edit",
-            primaryjoin="and_(Edit.annotation_id==Annotation.id,"
-            "Edit.approved==True)", lazy="dynamic", passive_deletes=True)
-    all_edits = db.relationship("Edit",
-            primaryjoin="Edit.annotation_id==Annotation.id", lazy="dynamic",
+    edits = db.relationship('Edit',
+            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            'Edit.approved==True)', passive_deletes=True)
+    history = db.relationship('Edit',
+            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            'Edit.approved==True)', lazy='dynamic', passive_deletes=True)
+    all_edits = db.relationship('Edit',
+            primaryjoin='Edit.annotation_id==Annotation.id', lazy='dynamic',
             passive_deletes=True)
-    edit_pending = db.relationship("Edit",
-            primaryjoin="and_(Edit.annotation_id==Annotation.id,"
-            "Edit.approved==False, Edit.rejected==False)", passive_deletes=True)
+    edit_pending = db.relationship('Edit',
+            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            'Edit.approved==False, Edit.rejected==False)', passive_deletes=True)
 
     # relationships to `Line`
-    lines = db.relationship("Line", secondary="edit",
-            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
-            "Edit.current==True)",
-            secondaryjoin="and_(Line.num>=Edit.first_line_num,"
-            "Line.num<=Edit.last_line_num,"
-            "Line.edition_id==Annotation.edition_id)", viewonly=True,
+    lines = db.relationship('Line', secondary='edit',
+            primaryjoin='and_(Annotation.id==Edit.annotation_id,'
+            'Edit.current==True)',
+            secondaryjoin='and_(Line.num>=Edit.first_line_num,'
+            'Line.num<=Edit.last_line_num,'
+            'Line.edition_id==Annotation.edition_id)', viewonly=True,
             uselist=True)
-    context = db.relationship("Line", secondary="edit",
-            primaryjoin="and_(Annotation.id==Edit.annotation_id,"
-            "Edit.current==True)",
-            secondaryjoin="and_(Line.num>=Edit.first_line_num-5,"
-            "Line.num<=Edit.last_line_num+5,"
-            "Line.edition_id==Annotation.edition_id)", viewonly=True,
+    context = db.relationship('Line', secondary='edit',
+            primaryjoin='and_(Annotation.id==Edit.annotation_id,'
+            'Edit.current==True)',
+            secondaryjoin='and_(Line.num>=Edit.first_line_num-5,'
+            'Line.num<=Edit.last_line_num+5,'
+            'Line.edition_id==Annotation.edition_id)', viewonly=True,
             uselist=True)
 
     # Relationships to `Flag`
-    flag_history = db.relationship("AnnotationFlag",
-            primaryjoin="Annotation.id==AnnotationFlag.annotation_id",
-            lazy="dynamic")
-    active_flags = db.relationship("AnnotationFlag",
-            primaryjoin="and_(Annotation.id==AnnotationFlag.annotation_id,"
-            "AnnotationFlag.resolver_id==None)", passive_deletes=True)
+    flag_history = db.relationship('AnnotationFlag',
+            primaryjoin='Annotation.id==AnnotationFlag.annotation_id',
+            lazy='dynamic')
+    active_flags = db.relationship('AnnotationFlag',
+            primaryjoin='and_(Annotation.id==AnnotationFlag.annotation_id,'
+            'AnnotationFlag.resolver_id==None)', passive_deletes=True)
 
     def __init__(self, *ignore, edition, annotator, locked=False,
             fl, ll, fc, lc, body, tags):
@@ -1053,7 +1080,7 @@ class Annotation(db.Model):
             flash("Your suggested edit is no different from the previous version.")
             return False
         elif editor == self.annotator or\
-                editor.is_authorized("immediate_edits"):
+                editor.is_authorized('immediate_edits'):
             edit.approved=True
             self.HEAD.current = False
             edit.current = True
@@ -1065,7 +1092,7 @@ class Annotation(db.Model):
 
 
     def upvote(self, voter):
-        reptype = ReputationEnum.query.filter_by(code="upvote").first()
+        reptype = ReputationEnum.query.filter_by(code='upvote').first()
         weight = voter.up_power()
         repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=reptype.default_delta)
@@ -1076,7 +1103,7 @@ class Annotation(db.Model):
         db.session.add(vote)
 
     def downvote(self, voter):
-        reptype = ReputationEnum.query.filter_by(code="downvote").first()
+        reptype = ReputationEnum.query.filter_by(code='downvote').first()
         weight = voter.down_power()
         if self.annotator.reputation + reptype.default_delta < 0:
             repdelta = -self.annotator.reputation
@@ -1106,44 +1133,46 @@ class Annotation(db.Model):
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
-            return f"{round(self.weight/1000000,1)}m"
+            return f'{round(self.weight/1000000,1)}m'
         elif self.weight >= 1000 or self.weight <= -1000:
-            return f"{round(self.weight/1000,1)}k"
+            return f'{round(self.weight/1000,1)}k'
         else:
-            return f"{self.weight}"
+            return f'{self.weight}'
+
 
 class EditVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edit_id = db.Column(db.Integer,
-            db.ForeignKey("edit.id", ondelete="CASCADE"),
+            db.ForeignKey('edit.id', ondelete='CASCADE'),
             index=True)
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey("reputation_change.id"), default=None)
+            db.ForeignKey('reputation_change.id'), default=None)
 
-    repchange = db.relationship("ReputationChange",
-            backref=backref("edit_vote", uselist=False))
+    repchange = db.relationship('ReputationChange',
+            backref=backref('edit_vote', uselist=False))
 
-    voter = db.relationship("User",
-            backref=backref("edit_ballots", lazy="dynamic"))
-    edit = db.relationship("Edit",
-            backref=backref("edit_ballots", lazy="dynamic", passive_deletes=True))
+    voter = db.relationship('User',
+            backref=backref('edit_ballots', lazy='dynamic'))
+    edit = db.relationship('Edit', backref=backref('edit_ballots',
+        lazy='dynamic', passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.edit}>"
+        return f'<{self.user.displayname} {self.delta} on {self.edit}>'
 
     def is_up(self):
         return self.delta > 0
 
+
 class Edit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    editor_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    edition_id = db.Column(db.Integer, db.ForeignKey("edition.id"), index=True)
+    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, default=0)
-    annotation_id = db.Column(db.Integer, db.ForeignKey("annotation.id",
-        ondelete="CASCADE"), index=True)
+    annotation_id = db.Column(db.Integer, db.ForeignKey('annotation.id',
+        ondelete='CASCADE'), index=True)
 
     weight = db.Column(db.Integer, default=0)
     approved = db.Column(db.Boolean, default=False, index=True)
@@ -1152,8 +1181,8 @@ class Edit(db.Model):
 
     hash_id = db.Column(db.String(40), index=True)
 
-    first_line_num = db.Column(db.Integer, db.ForeignKey("line.num"))
-    last_line_num = db.Column(db.Integer, db.ForeignKey("line.num"), index=True)
+    first_line_num = db.Column(db.Integer, db.ForeignKey('line.num'))
+    last_line_num = db.Column(db.Integer, db.ForeignKey('line.num'), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
 
@@ -1161,40 +1190,40 @@ class Edit(db.Model):
     reason = db.Column(db.String(191))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    edition = db.relationship("Edition")
-    editor = db.relationship("User", backref=backref("edits", lazy="dynamic"))
-    annotation = db.relationship("Annotation")
-    previous = db.relationship("Edit",
-            primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
-            "remote(Edit.num)==foreign(Edit.num-1))")
-    priors = db.relationship("Edit",
-            primaryjoin="and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),"
-            "remote(Edit.num)<=foreign(Edit.num-1))",
+    edition = db.relationship('Edition')
+    editor = db.relationship('User', backref=backref('edits', lazy='dynamic'))
+    annotation = db.relationship('Annotation')
+    previous = db.relationship('Edit',
+            primaryjoin='and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),'
+            'remote(Edit.num)==foreign(Edit.num-1))')
+    priors = db.relationship('Edit',
+            primaryjoin='and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),'
+            'remote(Edit.num)<=foreign(Edit.num-1))',
             uselist=True)
-    tags = db.relationship("Tag", secondary=tags, passive_deletes=True)
-    lines = db.relationship("Line",
-            primaryjoin="and_(Line.num>=Edit.first_line_num,"
-            "Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)",
+    tags = db.relationship('Tag', secondary=tags, passive_deletes=True)
+    lines = db.relationship('Line',
+            primaryjoin='and_(Line.num>=Edit.first_line_num,'
+            'Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)',
             uselist=True, foreign_keys=[edition_id,first_line_num,last_line_num])
-    context = db.relationship("Line",
-            primaryjoin="and_(Line.num>=Edit.first_line_num-5,"
-            "Line.num<=Edit.last_line_num+5, Line.edition_id==Edit.edition_id)",
+    context = db.relationship('Line',
+            primaryjoin='and_(Line.num>=Edit.first_line_num-5,'
+            'Line.num<=Edit.last_line_num+5, Line.edition_id==Edit.edition_id)',
             uselist=True, viewonly=True,
             foreign_keys=[edition_id,first_line_num,last_line_num])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        s = f"{self.first_line_num},{self.last_line_num}," \
-                f"{self.first_char_idx},{self.last_char_idx}," \
-                f"{self.body},{self.tags}"
-        self.hash_id = sha1(s.encode("utf8")).hexdigest()
+        s = f'{self.first_line_num},{self.last_line_num},' \
+                f'{self.first_char_idx},{self.last_char_idx},' \
+                f'{self.body},{self.tags}'
+        self.hash_id = sha1(s.encode('utf8')).hexdigest()
         if self.first_line_num > self.last_line_num:
             tmp = self.last_line_num
             self.last_line_num = self.first_line_num
             self.first_line_num = tmp
 
     def __repr__(self):
-        return f"<Ann {self.id} on {self.edition.text.title}>"
+        return f'<Ann {self.id} on {self.edition.text.title}>'
 
     def get_hl(self):
         lines = self.lines
@@ -1226,8 +1255,8 @@ class Edit(db.Model):
         vote = EditVote(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight >= app.config["VOTES_FOR_EDIT_APPROVAL"] or\
-                voter.is_authorized("immediate_edits"):
+        if self.weight >= app.config['VOTES_FOR_EDIT_APPROVAL'] or\
+                voter.is_authorized('immediate_edits'):
             self.approve()
 
     def downvote(self, voter):
@@ -1247,8 +1276,8 @@ class Edit(db.Model):
         vote = EditVote(edit=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
-        if self.weight <= app.config["VOTES_FOR_EDIT_REJECTION"] or\
-                voter.is_authorized("immediate_edits"):
+        if self.weight <= app.config['VOTES_FOR_EDIT_REJECTION'] or\
+                voter.is_authorized('immediate_edits'):
             self.reject()
 
     def approve(self):
@@ -1265,11 +1294,14 @@ class Edit(db.Model):
         self.weight -= vote.delta
         db.session.delete(vote)
 
+
+
 ####################
 ####################
 ## ## Requests ## ##
 ####################
 ####################
+
 
 ###################
 ## Text Requests ##
@@ -1277,22 +1309,23 @@ class Edit(db.Model):
 
 class TextRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     text_request_id = db.Column(db.Integer,
-            db.ForeignKey("text_request.id", ondelete="CASCADE"), index=True)
+            db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User",
-            backref=backref("text_request_ballots", lazy="dynamic"))
-    text_request = db.relationship("TextRequest",
-            backref=backref("ballots", passive_deletes=True))
+    user = db.relationship('User',
+            backref=backref('text_request_ballots', lazy='dynamic'))
+    text_request = db.relationship('TextRequest',
+            backref=backref('ballots', passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.text_request}>"
+        return f'<{self.user.displayname} {self.delta} on {self.text_request}>'
 
     def is_up(self):
         return self.delta > 0
+
 
 class TextRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1305,15 +1338,15 @@ class TextRequest(db.Model):
     notes = db.Column(db.Text)
     wikipedia = db.Column(db.String(127), default=None)
     gutenberg = db.Column(db.String(127), default=None)
-    requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-    text_id = db.Column(db.Integer, db.ForeignKey("text.id"), index=True)
+    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    text_id = db.Column(db.Integer, db.ForeignKey('text.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    requester = db.relationship("User", backref="text_requests")
-    text = db.relationship("Text", backref="request")
+    requester = db.relationship('User', backref='text_requests')
+    text = db.relationship('Text', backref='request')
 
     def __repr__(self):
-        return f"<Request for {self.title}>"
+        return f'<Request for {self.title}>'
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -1333,14 +1366,16 @@ class TextRequest(db.Model):
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
-            return f"{round(self.weight/1000000,1)}m"
+            return f'{round(self.weight/1000000,1)}m'
         elif self.weight >= 1000 or self.weight <= -1000:
-            return f"{round(self.weight/1000,1)}k"
+            return f'{round(self.weight/1000,1)}k'
         else:
-            return f"{self.weight}"
+            return f'{self.weight}'
 
     def reject(self):
         self.rejected=True
+
+
 
 ##################
 ## Tag Requests ##
@@ -1352,15 +1387,15 @@ class TagRequest(db.Model):
     weight = db.Column(db.Integer, default=0, index=True)
     approved = db.Column(db.Boolean, default=False, index=True)
     rejected = db.Column(db.Boolean, default=False, index=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"), index=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), index=True)
     description = db.Column(db.Text)
     notes = db.Column(db.Text)
     wikipedia = db.Column(db.String(127), default=None)
-    requester_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    requester = db.relationship("User", backref="tag_requests")
-    created_tag = db.relationship("Tag", backref="tag_request")
+    requester = db.relationship('User', backref='tag_requests')
+    created_tag = db.relationship('Tag', backref='tag_request')
 
     def rollback(self, vote):
         self.weight -= vote.delta
@@ -1380,62 +1415,65 @@ class TagRequest(db.Model):
 
     def readable_weight(self):
         if self.weight >= 1000000 or self.weight <= -1000000:
-            return f"{round(self.weight/1000000,1)}m"
+            return f'{round(self.weight/1000000,1)}m'
         elif self.weight >= 1000 or self.weight <= -1000:
-            return f"{round(self.weight/1000,1)}k"
+            return f'{round(self.weight/1000,1)}k'
         else:
-            return f"{self.weight}"
+            return f'{self.weight}'
+
 
 class TagRequestVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     tag_request_id = db.Column(db.Integer,
-            db.ForeignKey("tag_request.id", ondelete="CASCADE"),
+            db.ForeignKey('tag_request.id', ondelete='CASCADE'),
             index=True)
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User", backref=backref("tag_request_ballots"))
-    tag_request = db.relationship("TagRequest",
-            backref=backref("ballots", passive_deletes=True))
+    user = db.relationship('User', backref=backref('tag_request_ballots'))
+    tag_request = db.relationship('TagRequest',
+            backref=backref('ballots', passive_deletes=True))
 
     def __repr__(self):
-        return f"<{self.user.displayname} {self.delta} on {self.annotation}>"
+        return f'<{self.user.displayname} {self.delta} on {self.annotation}>'
 
     def is_up(self):
         return self.delta > 0
+
 
 class UserFlagEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     flag = db.Column(db.String(127))
 
     def __repr__(self):
-        return f"<UserFlagEnum {self.flag}>"
+        return f'<UserFlagEnum {self.flag}>'
+
 
 class UserFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_flag_id = db.Column(db.Integer, db.ForeignKey("user_flag_enum.id"),
+    user_flag_id = db.Column(db.Integer, db.ForeignKey('user_flag_enum.id'),
             index=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
 
-    thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    thrower_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
 
     time_resolved = db.Column(db.DateTime)
-    resolver_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    resolver_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
 
-    user = db.relationship("User", foreign_keys=[user_id])
-    thrower = db.relationship("User", foreign_keys=[thrower_id])
-    resolver = db.relationship("User", foreign_keys=[resolver_id])
+    user = db.relationship('User', foreign_keys=[user_id])
+    thrower = db.relationship('User', foreign_keys=[thrower_id])
+    resolver = db.relationship('User', foreign_keys=[resolver_id])
 
-    flag = db.relationship("UserFlagEnum")
+    flag = db.relationship('UserFlagEnum')
 
     def __repr__(self):
         if self.resolved:
-            return f"<X UserFlag: {self.flag.flag} at {self.time_thrown}>"
+            return f'<X UserFlag: {self.flag.flag} at {self.time_thrown}>'
         else:
-            return f"<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>"
+            return f'<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>'
 
     def resolve(self, resolver):
         self.time_resolved = datetime.utcnow()
@@ -1444,38 +1482,40 @@ class UserFlag(db.Model):
     def unresolve(self):
         self.time_resolved = None
         self.resolver = None
+
 
 class AnnotationFlagEnum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     flag = db.Column(db.String(127))
 
     def __repr__(self):
-        return f"<AnnotationFlagEnum {self.flag}>"
+        return f'<AnnotationFlagEnum {self.flag}>'
+
 
 class AnnotationFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     annotation_flag_id = db.Column(db.Integer,
-            db.ForeignKey("annotation_flag_enum.id"), index=True)
+            db.ForeignKey('annotation_flag_enum.id'), index=True)
     annotation_id = db.Column(db.Integer,
-            db.ForeignKey("annotation.id", ondelete="CASCADE"), index=True)
+            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
 
-    thrower_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    thrower_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
 
     time_resolved = db.Column(db.DateTime)
-    resolver_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
+    resolver_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
 
-    annotation = db.relationship("Annotation", foreign_keys=[annotation_id])
-    thrower = db.relationship("User", foreign_keys=[thrower_id])
-    resolver = db.relationship("User", foreign_keys=[resolver_id])
-    flag = db.relationship("AnnotationFlagEnum")
+    annotation = db.relationship('Annotation', foreign_keys=[annotation_id])
+    thrower = db.relationship('User', foreign_keys=[thrower_id])
+    resolver = db.relationship('User', foreign_keys=[resolver_id])
+    flag = db.relationship('AnnotationFlagEnum')
 
     def __repr__(self):
         if self.resolver:
-            return f"<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>"
+            return f'<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>'
         else:
-            return f"<AnnotationFlag thrown: {self.flag.flag} at" \
-                        " {self.time_thrown}>"
+            return f'<AnnotationFlag thrown: {self.flag.flag} at' \
+                        f' {self.time_thrown}>'
 
     def resolve(self, resolver):
         self.time_resolved = datetime.utcnow()
@@ -1484,6 +1524,7 @@ class AnnotationFlag(db.Model):
     def unresolve(self):
         self.time_resolved = None
         self.resolver = None
+
 
 # This has to be at the end of the file.
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
