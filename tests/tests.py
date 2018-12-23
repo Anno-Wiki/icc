@@ -53,6 +53,7 @@ class Test(unittest.TestCase):
                     tags=tags, **a))
         db.session.commit()
 
+
     def setUp(self):
         db.create_all()
         self.app =  app.test_client()
@@ -67,6 +68,13 @@ class Test(unittest.TestCase):
         db.drop_all()
         fin.close()
 
+    def test_annotations(self):
+        self.setuptexts(setupannotations=True, setuplines=True)
+        annotations = Annotation.query.all()
+        for a in annotations:
+            self.assertTrue(a.HEAD.tags)
+            self.assertTrue(a.HEAD.context)
+            self.assertTrue(a.HEAD.lines)
 
     def test_user_funcs(self):
         u = User(displayname='john', email='john@example.com')
