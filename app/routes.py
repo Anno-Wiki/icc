@@ -606,7 +606,7 @@ def tag(tag):
         annotations = tag.annotations.order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
 
-    if not annotations.items:
+    if not annotations.items and tag.annotations.count() >= 1:
         abort(404)
 
     sorts = {
