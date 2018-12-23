@@ -970,7 +970,7 @@ def edit(annotation_id):
                 body=form.annotation.data, tags=tags)
 
         # rerender the template with the work already filled
-        if not success or not fail:
+        if not success or fail:
             db.session.rollback()
             return render_template('forms/annotation.html', form=form,
                     title=annotation.text.title, lines=lines,
