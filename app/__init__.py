@@ -14,6 +14,7 @@ from flaskext.markdown import Markdown
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -23,6 +24,7 @@ migrate = Migrate(app, db)
 
 login = LoginManager(app)
 login.login_view = "user.login"
+csrf = CSRFProtect(app)
 
 md = Markdown(app)
 mail = Mail(app)

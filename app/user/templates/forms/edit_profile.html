@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Edit Profile</h1>
-<form action="" method="post">
-    {{ form.hidden_tag() }}
+    <h1>Edit Profile</h1>
+    <form action="" method="post">
+        {{ form.csrf_token() }}
+        <p>
+            {{ form.displayname.label }}<br>
+            {{ form.displayname(size=32) }}<br>
+            {% for error in form.displayname.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.about_me.label }}<br>
+            {{ form.about_me(cols=50, rows=4) }}<br>
+            {% for error in form.about_me.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        {{ form.submit() }}
+    </form>
+    <br><br>
     <p>
-        {{ form.displayname.label }}<br>
-        {{ form.displayname(size=32) }}<br>
-        {% for error in form.displayname.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
+        <a href="{{ url_for("user.delete_profile_check", next=request.path) }}">
+            delete profile
+        </a>
     </p>
-    <p>
-        {{ form.about_me.label }}<br>
-        {{ form.about_me(cols=50, rows=4) }}<br>
-        {% for error in form.about_me.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    {{ form.submit() }}
-</form>
-<br><br>
-<p>
-    <a href="{{ url_for("user.delete_profile_check", next=request.path) }}">
-        delete profile
-    </a>
-</p>
 {% endblock %}

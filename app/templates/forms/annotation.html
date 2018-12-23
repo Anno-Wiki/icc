@@ -51,7 +51,7 @@
     </div>
 
     <form action="" method="POST" novalidate>
-        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
         <span style="display:none;">
             {{ form.first_char_idx(size=1) }}
             {{ form.last_char_idx(size=1) }}

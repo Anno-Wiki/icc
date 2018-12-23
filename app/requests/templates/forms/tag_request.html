@@ -2,7 +2,7 @@
 
 {% block content %}
 <form action="" method="POST" novalidate>
-    {{ form.hidden_tag() }}
+    {{ form.csrf_token() }}
     <table>
         <tr>
             <th>
