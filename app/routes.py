@@ -69,7 +69,7 @@ def index():
                 .order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
 
-    if not annotations.items:
+    if not annotations.items and page > 1:
         abort(404)
 
     sorts = {
@@ -265,7 +265,7 @@ def writer_index():
         writers = Writer.query.order_by(Writer.last_name.asc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
-    if not writers.items:
+    if not writers.items and page > 1:
         abort(404)
 
     sorts = {
@@ -318,7 +318,7 @@ def writer_annotations(writer_url):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort == 'newest'
 
-    if not annotations.items:
+    if not annotations.items and page > 1:
         abort(404)
 
     sorts = {
@@ -380,7 +380,7 @@ def text_index():
         texts = Text.query.order_by(Text.sort_title.asc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
-    if not texts.items:
+    if not texts.items and page > 1:
         abort(404)
 
     sorts = {
@@ -440,7 +440,7 @@ def text_annotations(text_url):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort = 'newest'
 
-    if not annotations.items:
+    if not annotations.items and page > 1:
         abort(404)
 
     annotationflags = AnnotationFlagEnum.query.all()
@@ -514,7 +514,7 @@ def edition_annotations(text_url, edition_num):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort = 'newest'
 
-    if not annotations.items:
+    if not annotations.items and page > 1:
         abort(404)
 
     sorts = {
@@ -565,7 +565,7 @@ def tag_index():
         tags = Tag.query.order_by(Tag.tag)\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
-    if not tags.items:
+    if not tags.items and page > 1:
         abort(404)
 
     sorts = {
@@ -606,7 +606,7 @@ def tag(tag):
         annotations = tag.annotations.order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
 
-    if not annotations.items and tag.annotations.count() >= 1:
+    if not annotations.items and page > 1:
         abort(404)
 
     sorts = {
@@ -1054,7 +1054,7 @@ def edit_history(annotation_id):
 
 @app.route('/annotation/<annotation_id>/edit/<num>')
 def view_edit(annotation_id, num):
-    edit = Edit.query.filter( Edit.annotation_id==annotation_id, Edit.num==num,
+    edit = Edit.query.filter(Edit.annotation_id==annotation_id, Edit.num==num,
             Edit.approved==True).first_or_404()
     if not edit.previous:
         return render_template('view/first_version.html',
@@ -1092,7 +1092,6 @@ def view_edit(annotation_id, num):
 
 # Comment routes
 @app.route('/annotation/<annotation_id>/comments', methods=['GET', 'POST'])
-@login_required
 def comments(annotation_id):
     page = request.args.get('page', 1, type=int)
     form = CommentForm()
@@ -1102,6 +1101,9 @@ def comments(annotation_id):
             app.config['COMMENTS_PER_PAGE'], False)
 
     if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You must be logged in to post a comment.")
+            return redirect(url_for('comments', annotation_id=annotation.id))
         comment = Comment(annotation=annotation, body=form.comment.data,
                 poster=current_user)
         db.session.add(comment)

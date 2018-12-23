@@ -9,7 +9,11 @@
             <a href="{{ url }}">{{ type }}</a>
         {% endif %}
     {% endfor %}
-    {% for annotation in annotations %}
-        {% include "/includes/_annotation_standalone.html" %}
-    {% endfor %}
+    {% if annotations %}
+        {% for annotation in annotations %}
+            {% include "/includes/_annotation_standalone.html" %}
+        {% endfor %}
+    {% else %}
+        <h3>There are no annotations here.</h3>
+    {% endif %}
 {% endblock %}

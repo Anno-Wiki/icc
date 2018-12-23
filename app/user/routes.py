@@ -42,12 +42,12 @@ def login():
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is None or not user.check_password(form.password.data):
+        if user and user.locked:
+            flash("That account is locked.")
+            return redirect(url_for('user.login'))
+        elif user is None or not user.check_password(form.password.data):
             flash("Invalid email or password")
             return redirect(url_for('user.login'))
-        elif user.locked:
-            flash("That account is locked.")
-            return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
 
         redirect_url = generate_next(url_for('index'))
@@ -73,7 +73,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
-        return redirect(url_for('login'))
+        return redirect(url_for('user.login'))
     return render_template('forms/register.html', title="Register", form=form)
 
 
@@ -106,7 +106,7 @@ def index():
                 .order_by(User.reputation.desc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
 
-    if not users.items:
+    if not users.items and page > 1:
         abort(404)
 
     sorts = {
