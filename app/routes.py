@@ -745,7 +745,6 @@ def view_wiki_edit(wiki_id, edit_num):
 #######################
 
 # Annotation routes
-### THIS IS BROKEN RIGHT NOW
 @app.route('/annotate/<text_url>/<first_line>/<last_line>',
         methods=['GET', 'POST'], defaults={'edition_num':None})
 @app.route('/annotate/<text_url>/edition/<edition_num>/<first_line>/<last_line>',
