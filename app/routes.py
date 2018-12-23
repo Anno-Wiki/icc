@@ -318,6 +318,9 @@ def writer_annotations(writer_url):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort == 'newest'
 
+    if not annotations.items:
+        abort(404)
+
     sorts = {
             'newest': url_for('writer_annotations', writer_url=writer.url,
                 sort='newest', page=page),
@@ -437,6 +440,9 @@ def text_annotations(text_url):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort = 'newest'
 
+    if not annotations.items:
+        abort(404)
+
     annotationflags = AnnotationFlagEnum.query.all()
     sorts = {
             'newest': url_for('text_annotations', text_url=text.url,
@@ -507,6 +513,9 @@ def edition_annotations(text_url, edition_num):
         annotations = text.annotations.order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
         sort = 'newest'
+
+    if not annotations.items:
+        abort(404)
 
     sorts = {
             'newest': url_for('edition_annotations', text_url=text.url,
@@ -596,6 +605,9 @@ def tag(tag):
     else:
         annotations = tag.annotations.order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+
+    if not annotations.items:
+        abort(404)
 
     sorts = {
             'newest': url_for('tag', tag=tag.tag, page=page, sort='newest'),
