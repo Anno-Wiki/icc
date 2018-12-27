@@ -111,3 +111,6 @@ else:
     print(f"Now committing...")
     db.session.commit()
     print(f"Done.")
+    print(f"Reindexing...")
+    Line.reindex(edition=edition)
+    print(f"Done.")

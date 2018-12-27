@@ -499,13 +499,13 @@ def edition_annotations(text_url, edition_num):
         annotations = edition.annotations.order_by(Annotation.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'oldest':
-        annotations = text.annotations.order_by(Annotation.timestamp.asc())\
+        annotations = edition.annotations.order_by(Annotation.timestamp.asc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'weight':
-        annotations = text.annotations.order_by(Annotation.weight.desc())\
+        annotations = edition.annotations.order_by(Annotation.weight.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'line':
-        annotations = text.annotations.join(Edit,
+        annotations = edition.annotations.join(Edit,
                 Annotation.id==Edit.annotation_id).filter(Edit.current==True)\
                 .order_by(Edit.last_line_num.asc()).paginate(page,
                         app.config['ANNOTATIONS_PER_PAGE'], False)
@@ -534,6 +534,67 @@ def edition_annotations(text_url, edition_num):
     prev_page = url_for('edition_annotations', text_url=text_url,
             edition_num=edition.num, sort=sort, page=annotations.prev_num)\
                     if annotations.has_prev else None
+
+    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
+            else None
+    annotationflags = AnnotationFlagEnum.query.all()
+
+    return render_template('indexes/annotation_list.html',
+            title=f"{text.title} - Annotations",
+            next_page=next_page, prev_page=prev_page, sorts=sorts, sort=sort,
+            annotations=annotations.items, annotationflags=annotationflags,
+            uservotes=uservotes)
+
+
+@app.route('/text/<text_url>/edition/<edition_num>/line/<line_num>/annotations')
+@app.route('/text/<text_url>/line/<line_num>/annotations',
+        methods=['GET', 'POST'], defaults={'edition_num':None})
+def line_annotations(text_url, edition_num, line_num):
+    page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'weight', type=str)
+
+    text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
+    edition = text.primary if not edition_num\
+            else Edition.query.filter(Edition.text==text,
+                    Edition.num==edition_num).first_or_404()
+    line = Line.query.filter(Line.edition==edition,
+            Line.num==line_num).first_or_404()
+
+    if sort == 'newest':
+        annotations = line.annotations.order_by(Annotation.timestamp.desc())\
+                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+    elif sort == 'oldest':
+        annotations = line.annotations.order_by(Annotation.timestamp.asc())\
+                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+    elif sort == 'weight':
+        annotations = line.annotations.order_by(Annotation.weight.desc())\
+                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+    else:
+        annotations = line.annotations.order_by(Annotation.timestamp.desc())\
+                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+        sort = 'newest'
+
+    if not annotations and page > 1:
+        abort(404)
+
+    sorts = {
+            'newest': url_for('line_annotations', text_url=text.url,
+                edition_num=edition.num, line_num=line.num, sort='newest',
+                page=page),
+            'oldest': url_for('line_annotations', text_url=text.url,
+                edition_num=edition.num, line_num=line.num, sort='oldest',
+                page=page),
+            'weight': url_for('line_annotations', text_url=text.url,
+                edition_num=edition.num, line_num=line.num, sort='weight',
+                page=page),
+            }
+
+    next_page = url_for('edition_annotations', text_url=text.url,
+            edition_num=edition.num, line_num=line.num, sort=sort,
+            page=annotations.next_num) if annotations.has_next else None
+    prev_page = url_for('edition_annotations', text_url=text_url,
+            edition_num=edition.num, line_num=line.num, sort=sort,
+            page=annotations.prev_num) if annotations.has_prev else None
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
@@ -629,6 +690,7 @@ def tag(tag):
             next_page=next_page, prev_page=prev_page, sorts=sorts, sort=sort,
             tag=tag, annotations=annotations.items,
             annotationflags=annotationflags, uservotes=uservotes)
+
 
 
 

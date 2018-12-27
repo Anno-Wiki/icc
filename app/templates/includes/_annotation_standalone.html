@@ -11,7 +11,15 @@
 
         on
         <em>
-            {% include "includes/_annotation_line_nums.html" %}
+            <a href="{{ annotation.HEAD.lines[0].get_url() }}">
+                {%- if annotation.HEAD.first_line_num ==
+                annotation.HEAD.last_line_num %}
+                    l.{{ annotation.HEAD.last_line_num }}
+                {% else %}
+                    ll. {{ annotation.HEAD.first_line_num }}-{{
+                    annotation.HEAD.last_line_num }}
+                {% endif -%}
+            </a>
         </em>
 
         of
@@ -26,6 +34,7 @@
                 Edition #{{ annotation.edition.num }}
             </a>
         {% endif %}
+
         {% include "includes/_authors.html" %}
 
         {% include "includes/_annotation_weight.html" %}

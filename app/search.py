@@ -7,8 +7,6 @@ def add_to_index(index, model):
         return
     payload = {}
     for field in model.__searchable__:
-        if app.config['DEBUG']:
-            print(field)
         payload[field] = getattr(model, field)
     elasticsearch.index(index=index, doc_type=index, id=model.id, body=payload)
 

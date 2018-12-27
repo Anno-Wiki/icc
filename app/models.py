@@ -834,7 +834,7 @@ class Line(SearchableMixin, db.Model):
             'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
             secondaryjoin='and_(foreign(Edit.annotation_id)==Annotation.id,'
             'Annotation.active==True)',
-            uselist=True, foreign_keys=[num,edition_id])
+            uselist=True, foreign_keys=[num,edition_id], lazy='dynamic')
 
     def __repr__(self):
         return f'<l{self.num} {self.edition.text.title} [{self.label.display}]>'
