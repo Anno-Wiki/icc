@@ -903,10 +903,11 @@ def annotation(annotation_id):
 @app.route('/annotation/<annotation_id>/flag/<flag_id>')
 @login_required
 def flag_annotation(flag_id, annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+
     redirect_url = generate_next(url_for('annotation',
         annotation_id=annotation.id))
 
-    annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize('view_deactivated_annotations')
     flag = AnnotationFlagEnum.query.get_or_404(flag_id)
@@ -1163,6 +1164,7 @@ def comments(annotation_id):
             app.config['COMMENTS_PER_PAGE'], False)
 
     if form.validate_on_submit():
+        print("execute")
         if not current_user.is_authenticated:
             flash("You must be logged in to post a comment.")
             return redirect(url_for('comments', annotation_id=annotation.id))

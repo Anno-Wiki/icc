@@ -20,7 +20,7 @@ class LineNumberForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     comment = TextAreaField("Comment",
-            validators=[InputRequired(), Length(min=10, max=60000)])
+            validators=[InputRequired(), Length(min=1, max=60000)])
     submit = SubmitField("Add Comment")
 
 

@@ -30,14 +30,18 @@
 
 /******************************************************************************/
 
-#comments {
+#discussion {
 }
 .comment {
-    padding: 5px;
-    border: 1px solid black;
-    margin: 5px 0 5px 15px;
+    border: 2px solid var(--base1);
+    padding: 10px;
+    margin: 15px 0 0 0;
 }
-    
+.reply {
+    padding: 5px;
+    border-left: 1px solid black;
+    margin: 20px 0 5px 15px;
+}
 
 /* general body styles */
 body {
