@@ -142,6 +142,7 @@ class Test(unittest.TestCase):
 
     def test_index(self):
         self.setup_annotations()
+        self.setup_lines()
         db.session.commit()
 
         sorts = ['newest', 'oldest', 'modified', 'weight', 'thisdoesntexist']
@@ -244,6 +245,7 @@ class Test(unittest.TestCase):
 
     def test_text_annotations(self):
         self.setup_annotations()
+        self.setup_lines()
         db.session.commit()
 
         text = Text.query.first()
@@ -287,6 +289,7 @@ class Test(unittest.TestCase):
 
     def test_tag(self):
         self.setup_annotations()
+        self.setup_lines()
         db.session.commit()
         tags = Tag.query.all()
         sorts = ['newest', 'oldest', 'weight', 'modified']
@@ -418,6 +421,7 @@ class Test(unittest.TestCase):
 
     def test_annotation_comments(self):
         self.setup_annotations()
+        self.setup_lines()
         db.session.commit()
         for annotation in Annotation.query:
             with app.app_context():
@@ -452,6 +456,11 @@ class Test(unittest.TestCase):
         self.assertEqual(Annotation.query.count(),
                 Line.query.join(LineEnum, Line.label_id==LineEnum.id).filter(
                     LineEnum.label=='lvl1').count())
+        with app.app_context():
+            url = url_for("index")
+        rv = self.app.get(url)
+        self.assertTrue(b"This is a test" in rv.data)
+        
 
 
 if __name__ == '__main__':
