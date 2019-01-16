@@ -1,10 +1,3 @@
-#!/bin/sh
-if 'true' : '''\'
-then
-exec '$VENV' '$0' '$@'
-exit 127
-fi
-'''
 from app import db
 from app.models import Tag
 import argparse, sys, yaml
