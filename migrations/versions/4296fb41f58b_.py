@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 165c138b45b3
+Revision ID: 4296fb41f58b
 Revises: 
-Create Date: 2018-12-20 13:02:50.468642
+Create Date: 2019-01-19 11:45:51.702511
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '165c138b45b3'
+revision = '4296fb41f58b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -277,17 +277,16 @@ def upgrade():
     op.create_index(op.f('ix_text_request_title'), 'text_request', ['title'], unique=False)
     op.create_index(op.f('ix_text_request_weight'), 'text_request', ['weight'], unique=False)
     op.create_table('wiki_edit_vote',
+    sa.Column('delta', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('delta', sa.Integer(), nullable=False),
-    sa.Column('voter_id', sa.Integer(), nullable=False),
     sa.Column('edit_id', sa.Integer(), nullable=False),
-    sa.Column('timestamp', sa.DateTime(), nullable=False),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edit_id'], ['wiki_edit.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_wiki_edit_vote_edit_id'), 'wiki_edit_vote', ['edit_id'], unique=False)
-    op.create_index(op.f('ix_wiki_edit_vote_voter_id'), 'wiki_edit_vote', ['voter_id'], unique=False)
     op.create_table('writer_followers',
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -341,17 +340,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
     op.create_table('tag_request_vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('tag_request_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['tag_request_id'], ['tag_request.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tag_request_vote_tag_request_id'), 'tag_request_vote', ['tag_request_id'], unique=False)
-    op.create_index(op.f('ix_tag_request_vote_user_id'), 'tag_request_vote', ['user_id'], unique=False)
     op.create_table('text_request_followers',
     sa.Column('text_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -359,17 +357,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
     op.create_table('text_request_vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('text_request_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('text_request_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['text_request_id'], ['text_request.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_text_request_vote_text_request_id'), 'text_request_vote', ['text_request_id'], unique=False)
-    op.create_index(op.f('ix_text_request_vote_user_id'), 'text_request_vote', ['user_id'], unique=False)
     op.create_table('writer_edition_connection',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('writer_id', sa.Integer(), nullable=True),
@@ -456,33 +453,31 @@ def upgrade():
     op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
     op.create_index(op.f('ix_edit_timestamp'), 'edit', ['timestamp'], unique=False)
     op.create_table('vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
-    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_vote_annotation_id'), 'vote', ['annotation_id'], unique=False)
-    op.create_index(op.f('ix_vote_user_id'), 'vote', ['user_id'], unique=False)
     op.create_table('edit_vote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('edit_id', sa.Integer(), nullable=True),
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('edit_id', sa.Integer(), nullable=True),
     sa.Column('reputation_change_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_edit_vote_edit_id'), 'edit_vote', ['edit_id'], unique=False)
-    op.create_index(op.f('ix_edit_vote_user_id'), 'edit_vote', ['user_id'], unique=False)
     op.create_table('tags',
     sa.Column('tag_id', sa.Integer(), nullable=True),
     sa.Column('edit_id', sa.Integer(), nullable=True),
@@ -495,10 +490,8 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('tags')
-    op.drop_index(op.f('ix_edit_vote_user_id'), table_name='edit_vote')
     op.drop_index(op.f('ix_edit_vote_edit_id'), table_name='edit_vote')
     op.drop_table('edit_vote')
-    op.drop_index(op.f('ix_vote_user_id'), table_name='vote')
     op.drop_index(op.f('ix_vote_annotation_id'), table_name='vote')
     op.drop_table('vote')
     op.drop_index(op.f('ix_edit_timestamp'), table_name='edit')
@@ -522,11 +515,9 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_flag_annotation_flag_id'), table_name='annotation_flag')
     op.drop_table('annotation_flag')
     op.drop_table('writer_edition_connection')
-    op.drop_index(op.f('ix_text_request_vote_user_id'), table_name='text_request_vote')
     op.drop_index(op.f('ix_text_request_vote_text_request_id'), table_name='text_request_vote')
     op.drop_table('text_request_vote')
     op.drop_table('text_request_followers')
-    op.drop_index(op.f('ix_tag_request_vote_user_id'), table_name='tag_request_vote')
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
     op.drop_table('tag_request_followers')
@@ -545,7 +536,6 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
     op.drop_table('writer_followers')
-    op.drop_index(op.f('ix_wiki_edit_vote_voter_id'), table_name='wiki_edit_vote')
     op.drop_index(op.f('ix_wiki_edit_vote_edit_id'), table_name='wiki_edit_vote')
     op.drop_table('wiki_edit_vote')
     op.drop_index(op.f('ix_text_request_weight'), table_name='text_request')

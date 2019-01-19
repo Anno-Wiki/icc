@@ -8,8 +8,9 @@ from flask import url_for, abort, flash
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy.orm import backref
 from sqlalchemy import or_, func, orm
+from sqlalchemy.orm import backref
+from sqlalchemy.ext.declarative import declared_attr
 
 from app.search import *
 
@@ -118,6 +119,103 @@ text_request_followers = db.Table('text_request_followers',
             db.ForeignKey('text_request.id', ondelete='CASCADE')),
         db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
+
+class VoteMixin:
+    delta = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+
+    @declared_attr
+    def voter_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    @declared_attr
+    def voter(cls):
+        return db.relationship('User',
+                backref=backref(f'{cls.__name__.lower()}ballots',
+                    lazy='dynamic'))
+
+    def __repr__(self):
+        return f"<{self.voter.displayname} {self.delta} on "
+
+    def is_up(self):
+        return self.delta > 0
+
+
+class TagRequestVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    tag_request_id = db.Column(db.Integer,
+        db.ForeignKey('tag_request.id', ondelete='CASCADE'), index=True)
+    tag_request = db.relationship('TagRequest',
+        backref=backref('ballots', passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        selfrep = "{self.tag_request}>"
+        return f"{prefix}{selfrep}"
+
+
+
+class TextRequestVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    text_request_id = db.Column(db.Integer,
+            db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
+    text_request = db.relationship('TextRequest',
+            backref=backref('ballots', passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        selfrep = "{self.text_request}>"
+        return f"{prefix}{selfrep}"
+
+
+class EditVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    edit_id = db.Column(db.Integer,
+            db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
+    edit = db.relationship('Edit', backref=backref('edit_ballots',
+        lazy='dynamic', passive_deletes=True))
+
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey('reputation_change.id'), default=None)
+    repchange = db.relationship('ReputationChange',
+            backref=backref('edit_vote', uselist=False))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        selfrep = "{self.edit}>"
+        return f"{prefix}{selfrep}"
+
+
+class Vote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    annotation_id = db.Column(db.Integer,
+            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
+    annotation = db.relationship('Annotation',
+            backref=backref('ballots', lazy='dynamic'))
+
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
+    repchange = db.relationship('ReputationChange',
+            backref=backref('vote', uselist=False))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        selfrep = "{self.annotation}>"
+        return f"{prefix}{selfrep}"
+
+
+class WikiEditVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+
+    edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
+        ondelete='CASCADE'), index=True, nullable=False)
+    edit = db.relationship('WikiEdit', backref=backref('ballots',
+        passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        selfrep = "{self.edit}>"
+        return f"{prefix}{selfrep}"
 
 
 #################
@@ -252,12 +350,12 @@ class User(UserMixin, db.Model):
 
     # annotations voted on
     votes = db.relationship('Annotation', secondary='vote',
-            primaryjoin='User.id==Vote.user_id',
+            primaryjoin='User.id==Vote.voter_id',
             secondaryjoin='Annotation.id==Vote.annotation_id',
             backref='voters', lazy='dynamic')
     # edits voted on
     edit_votes = db.relationship('Edit', secondary='edit_vote',
-            primaryjoin='User.id==EditVote.user_id',
+            primaryjoin='User.id==EditVote.voter_id',
             secondaryjoin='Edit.id==EditVote.edit_id',
             backref='edit_voters', lazy='dynamic')
     # wiki edits voted on
@@ -268,13 +366,13 @@ class User(UserMixin, db.Model):
     # text requests voted on
     text_request_votes = db.relationship('TextRequest',
             secondary='text_request_vote',
-            primaryjoin='TextRequestVote.user_id==User.id',
+            primaryjoin='TextRequestVote.voter_id==User.id',
             secondaryjoin='TextRequestVote.text_request_id==TextRequest.id',
             backref='voters', lazy='dynamic', passive_deletes=True)
     # tag requests voted on
     tag_request_votes = db.relationship('TagRequest',
             secondary='tag_request_vote',
-            primaryjoin='TagRequestVote.user_id==User.id',
+            primaryjoin='TagRequestVote.voter_id==User.id',
             secondaryjoin='TagRequestVote.tag_request_id==TagRequest.id',
             backref='voters', lazy='dynamic')
 
@@ -405,7 +503,7 @@ class User(UserMixin, db.Model):
 
     def get_vote_dict(self):
         v = {}
-        for vote in self.ballots:
+        for vote in self.voteballots:
             v[vote.annotation.id] = vote.is_up()
         return v
 
@@ -498,26 +596,6 @@ class Wiki(db.Model):
             flash("The edit has been submitted for peer review.")
 
 
-class WikiEditVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    delta = db.Column(db.Integer, nullable=False)
-    voter_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
-            nullable=False)
-    edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
-        ondelete='CASCADE'), index=True, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
-
-    voter = db.relationship('User',
-            backref=backref('wiki_edit_ballots', lazy='dynamic'))
-    edit = db.relationship('WikiEdit', backref=backref('ballots',
-        passive_deletes=True))
-
-    def __repr__(self):
-        return f'<{self.voter.displayname} {self.delta} on '\
-                f'edit {self.edit.num} of Wiki {str(self.edit.wiki.entity)}>'
-
-    def is_up(self):
-        return self.delta > 0
 
 
 class WikiEdit(db.Model):
@@ -931,27 +1009,6 @@ class Line(SearchableMixin, db.Model):
 ## Annotations ##
 #################
 
-class Vote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    annotation_id = db.Column(db.Integer,
-            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
-    reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    user = db.relationship('User', backref=backref('ballots', lazy='dynamic'))
-    annotation = db.relationship('Annotation',
-            backref=backref('ballots', lazy='dynamic'))
-    repchange = db.relationship('ReputationChange',
-            backref=backref('vote', uselist=False))
-
-    def __repr__(self):
-        return f'<{self.user.displayname} {self.delta} on {self.annotation}>'
-
-    def is_up(self):
-        return self.delta > 0
 
 
 class Comment(db.Model):
@@ -1096,7 +1153,7 @@ class Annotation(db.Model):
         weight = voter.up_power()
         repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=reptype.default_delta)
-        vote = Vote(user=voter, annotation=self, delta=weight,
+        vote = Vote(voter=voter, annotation=self, delta=weight,
                 repchange=repchange)
         self.annotator.reputation += repchange.delta
         self.weight += vote.delta
@@ -1111,7 +1168,7 @@ class Annotation(db.Model):
             repdelta = reptype.default_delta
         repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=repdelta)
-        vote = Vote(user=voter, annotation=self, delta=weight,
+        vote = Vote(voter=voter, annotation=self, delta=weight,
                 repchange=repchange)
         self.weight += vote.delta
         self.annotator.reputation += repchange.delta
@@ -1140,30 +1197,6 @@ class Annotation(db.Model):
             return f'{self.weight}'
 
 
-class EditVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    edit_id = db.Column(db.Integer,
-            db.ForeignKey('edit.id', ondelete='CASCADE'),
-            index=True)
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-    reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey('reputation_change.id'), default=None)
-
-    repchange = db.relationship('ReputationChange',
-            backref=backref('edit_vote', uselist=False))
-
-    voter = db.relationship('User',
-            backref=backref('edit_ballots', lazy='dynamic'))
-    edit = db.relationship('Edit', backref=backref('edit_ballots',
-        lazy='dynamic', passive_deletes=True))
-
-    def __repr__(self):
-        return f'<{self.user.displayname} {self.delta} on {self.edit}>'
-
-    def is_up(self):
-        return self.delta > 0
 
 
 class Edit(db.Model):
@@ -1307,25 +1340,6 @@ class Edit(db.Model):
 ## Text Requests ##
 ###################
 
-class TextRequestVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    text_request_id = db.Column(db.Integer,
-            db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    user = db.relationship('User',
-            backref=backref('text_request_ballots', lazy='dynamic'))
-    text_request = db.relationship('TextRequest',
-            backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        return f'<{self.user.displayname} {self.delta} on {self.text_request}>'
-
-    def is_up(self):
-        return self.delta > 0
-
 
 class TextRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1355,13 +1369,13 @@ class TextRequest(db.Model):
     def upvote(self, voter):
         weight = 1
         self.weight += weight
-        vote = TextRequestVote(user=voter, text_request=self, delta=weight)
+        vote = TextRequestVote(voter=voter, text_request=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
-        vote = TextRequestVote(user=voter, text_request=self, delta=weight)
+        vote = TextRequestVote(voter=voter, text_request=self, delta=weight)
         db.session.add(vote)
 
     def readable_weight(self):
@@ -1404,13 +1418,13 @@ class TagRequest(db.Model):
     def upvote(self, voter):
         weight = 1
         self.weight += weight
-        vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
+        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
-        vote = TagRequestVote(user=voter, tag_request=self, delta=weight)
+        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
         db.session.add(vote)
 
     def readable_weight(self):
@@ -1421,25 +1435,6 @@ class TagRequest(db.Model):
         else:
             return f'{self.weight}'
 
-
-class TagRequestVote(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    tag_request_id = db.Column(db.Integer,
-            db.ForeignKey('tag_request.id', ondelete='CASCADE'),
-            index=True)
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    user = db.relationship('User', backref=backref('tag_request_ballots'))
-    tag_request = db.relationship('TagRequest',
-            backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        return f'<{self.user.displayname} {self.delta} on {self.annotation}>'
-
-    def is_up(self):
-        return self.delta > 0
 
 
 class UserFlagEnum(db.Model):

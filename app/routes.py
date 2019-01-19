@@ -934,7 +934,7 @@ def upvote(annotation_id):
         flash("You cannot vote on your own annotations.")
         return redirect(redirect_url)
     elif current_user.already_voted(annotation):
-        vote = current_user.ballots.filter(Vote.annotation==annotation).first()
+        vote = current_user.voteballots.filter(Vote.annotation==annotation).first()
         diff = datetime.utcnow() - vote.timestamp
 
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
@@ -967,7 +967,7 @@ def downvote(annotation_id):
         flash("You cannot vote on your own annotation.")
         return redirect(redirect_url)
     elif current_user.already_voted(annotation):
-        vote = current_user.ballots.filter(Vote.annotation==annotation).first()
+        vote = current_user.voteballots.filter(Vote.annotation==annotation).first()
         diff = datetime.utcnow() - vote.timestamp
 
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
