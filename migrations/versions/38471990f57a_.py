@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4296fb41f58b
+Revision ID: 38471990f57a
 Revises: 
-Create Date: 2019-01-19 11:45:51.702511
+Create Date: 2019-01-19 15:47:09.817369
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4296fb41f58b'
+revision = '38471990f57a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -153,17 +153,17 @@ def upgrade():
     sa.ForeignKeyConstraint(['follower_id'], ['user.id'], )
     )
     op.create_table('wiki_edit',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('current', sa.Boolean(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.Column('reason', sa.String(length=191), nullable=True),
-    sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -419,23 +419,22 @@ def upgrade():
     op.create_index(op.f('ix_comment_parent_id'), 'comment', ['parent_id'], unique=False)
     op.create_index(op.f('ix_comment_poster_id'), 'comment', ['poster_id'], unique=False)
     op.create_table('edit',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('editor_id', sa.Integer(), nullable=True),
-    sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('current', sa.Boolean(), nullable=True),
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('current', sa.Boolean(), nullable=True),
-    sa.Column('hash_id', sa.String(length=40), nullable=True),
+    sa.Column('reason', sa.String(length=191), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
-    sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('reason', sa.String(length=191), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
@@ -447,8 +446,6 @@ def upgrade():
     op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
     op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
     op.create_index(op.f('ix_edit_edition_id'), 'edit', ['edition_id'], unique=False)
-    op.create_index(op.f('ix_edit_editor_id'), 'edit', ['editor_id'], unique=False)
-    op.create_index(op.f('ix_edit_hash_id'), 'edit', ['hash_id'], unique=False)
     op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
     op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
     op.create_index(op.f('ix_edit_timestamp'), 'edit', ['timestamp'], unique=False)
@@ -497,8 +494,6 @@ def downgrade():
     op.drop_index(op.f('ix_edit_timestamp'), table_name='edit')
     op.drop_index(op.f('ix_edit_rejected'), table_name='edit')
     op.drop_index(op.f('ix_edit_last_line_num'), table_name='edit')
-    op.drop_index(op.f('ix_edit_hash_id'), table_name='edit')
-    op.drop_index(op.f('ix_edit_editor_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_edition_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_current'), table_name='edit')
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')

@@ -18,6 +18,66 @@ from app.search import *
 # errors; please keep that as last.
 from app import app, db, login
 
+############
+## Mixins ##
+############
+
+class VoteMixin:
+    delta = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+
+    @declared_attr
+    def voter_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    @declared_attr
+    def voter(cls):
+        # the backref is the name of the class lowercased with the word
+        # `ballots` appended
+        return db.relationship('User',
+                backref=backref(f'{cls.__name__.lower()}ballots',
+                    lazy='dynamic'))
+
+    def __repr__(self):
+        return f"<{self.voter.displayname} {self.delta} on "
+
+    def is_up(self):
+        return self.delta > 0
+
+
+class EditMixin:
+    num = db.Column(db.Integer, default=1)
+    current = db.Column(db.Boolean, index=True, default=False)
+    weight = db.Column(db.Integer, default=0)
+    approved = db.Column(db.Boolean, index=True, default=False)
+    rejected = db.Column(db.Boolean, index=True, default=False)
+    reason = db.Column(db.String(191))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
+    body = db.Column(db.Text)
+
+    @declared_attr
+    def editor_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
+                default=1)
+
+    @declared_attr
+    def editor(cls):
+        # the backref is the class name lowercased with an `s` appended
+        return db.relationship('User',
+                backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
+
+    def __repr__(self):
+        return f"<Edit {self.num} on "
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        db.session.delete(vote)
+
+    def reject(self):
+        self.rejected = True
+        flash("The edit was rejected.")
+
+
 # if you encounter an error while committing to the effect that `NoneType has no
 # attribute <x>` what you have done is specify an id# instead of an object. Use
 # the ORM. if that is not the case, it is because, for example, in the case of
@@ -53,7 +113,6 @@ class SearchableMixin(object):
                 if isinstance(obj, SearchableMixin):
                     for field in obj.__searchable__:
                         getattr(obj, field)
-
 
     @classmethod
     def after_commit(cls, session):
@@ -118,104 +177,6 @@ text_request_followers = db.Table('text_request_followers',
         db.Column('text_request_id', db.Integer,
             db.ForeignKey('text_request.id', ondelete='CASCADE')),
         db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-
-
-class VoteMixin:
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    @declared_attr
-    def voter_id(cls):
-        return db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    @declared_attr
-    def voter(cls):
-        return db.relationship('User',
-                backref=backref(f'{cls.__name__.lower()}ballots',
-                    lazy='dynamic'))
-
-    def __repr__(self):
-        return f"<{self.voter.displayname} {self.delta} on "
-
-    def is_up(self):
-        return self.delta > 0
-
-
-class TagRequestVote(db.Model, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    tag_request_id = db.Column(db.Integer,
-        db.ForeignKey('tag_request.id', ondelete='CASCADE'), index=True)
-    tag_request = db.relationship('TagRequest',
-        backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        selfrep = "{self.tag_request}>"
-        return f"{prefix}{selfrep}"
-
-
-
-class TextRequestVote(db.Model, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    text_request_id = db.Column(db.Integer,
-            db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
-    text_request = db.relationship('TextRequest',
-            backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        selfrep = "{self.text_request}>"
-        return f"{prefix}{selfrep}"
-
-
-class EditVote(db.Model, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    edit_id = db.Column(db.Integer,
-            db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
-    edit = db.relationship('Edit', backref=backref('edit_ballots',
-        lazy='dynamic', passive_deletes=True))
-
-    reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey('reputation_change.id'), default=None)
-    repchange = db.relationship('ReputationChange',
-            backref=backref('edit_vote', uselist=False))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        selfrep = "{self.edit}>"
-        return f"{prefix}{selfrep}"
-
-
-class Vote(db.Model, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    annotation_id = db.Column(db.Integer,
-            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
-    annotation = db.relationship('Annotation',
-            backref=backref('ballots', lazy='dynamic'))
-
-    reputation_change_id = db.Column(db.Integer,
-            db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
-    repchange = db.relationship('ReputationChange',
-            backref=backref('vote', uselist=False))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        selfrep = "{self.annotation}>"
-        return f"{prefix}{selfrep}"
-
-
-class WikiEditVote(db.Model, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-
-    edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
-        ondelete='CASCADE'), index=True, nullable=False)
-    edit = db.relationship('WikiEdit', backref=backref('ballots',
-        passive_deletes=True))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        selfrep = "{self.edit}>"
-        return f"{prefix}{selfrep}"
 
 
 #################
@@ -596,37 +557,31 @@ class Wiki(db.Model):
             flash("The edit has been submitted for peer review.")
 
 
+class WikiEditVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+
+    edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
+        ondelete='CASCADE'), index=True, nullable=False)
+    edit = db.relationship('WikiEdit', backref=backref('ballots',
+        passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.edit}"
 
 
-class WikiEdit(db.Model):
+class WikiEdit(db.Model, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
-    num = db.Column(db.Integer, default=1)
-    current = db.Column(db.Boolean, index=True, default=False)
-    weight = db.Column(db.Integer, default=0)
-    approved = db.Column(db.Boolean, index=True, default=False)
-    rejected = db.Column(db.Boolean, index=True, default=False)
-    num = db.Column(db.Integer, default=0)
-    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
-            default=1)
-    reason = db.Column(db.String(191))
-    body = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
 
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))
     previous = db.relationship('WikiEdit',
             primaryjoin='and_(remote(WikiEdit.wiki_id)==foreign(WikiEdit.wiki_id),'
             'remote(WikiEdit.num)==foreign(WikiEdit.num-1),'
             'remote(WikiEdit.rejected)==False)')
-    editor = db.relationship('User',
-        backref=backref('wiki_edits', lazy='dynamic'))
 
     def __repr__(self):
-        return f'<Wiki edit {self.num} of {self.wiki_id}>'
-
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
+        return f"{self.wiki}>"
 
     def upvote(self, voter):
         if self.approved or self.rejected:
@@ -675,10 +630,6 @@ class WikiEdit(db.Model):
         self.wiki.current.current = False
         self.current = True
         flash("The edit was approved.")
-
-    def reject(self):
-        edit.rejected = True
-        flash("The edit was rejected.")
 
 
 class Writer(db.Model):
@@ -1010,7 +961,6 @@ class Line(SearchableMixin, db.Model):
 #################
 
 
-
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
@@ -1035,6 +985,23 @@ class Comment(db.Model):
 
     def __repr__(self):
             return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
+
+
+class Vote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    annotation_id = db.Column(db.Integer,
+            db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
+    annotation = db.relationship('Annotation',
+            backref=backref('ballots', lazy='dynamic'))
+
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
+    repchange = db.relationship('ReputationChange',
+            backref=backref('vote', uselist=False))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.annotation}"
 
 
 class Annotation(db.Model):
@@ -1197,34 +1164,37 @@ class Annotation(db.Model):
             return f'{self.weight}'
 
 
-
-
-class Edit(db.Model):
+class EditVote(db.Model, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
-    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    edit_id = db.Column(db.Integer,
+            db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
+    edit = db.relationship('Edit', backref=backref('edit_ballots',
+        lazy='dynamic', passive_deletes=True))
+
+    reputation_change_id = db.Column(db.Integer,
+            db.ForeignKey('reputation_change.id'), default=None)
+    repchange = db.relationship('ReputationChange',
+            backref=backref('edit_vote', uselist=False))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.edit}"
+
+
+
+class Edit(db.Model, EditMixin):
+    id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
-    num = db.Column(db.Integer, default=0)
     annotation_id = db.Column(db.Integer, db.ForeignKey('annotation.id',
         ondelete='CASCADE'), index=True)
-
-    weight = db.Column(db.Integer, default=0)
-    approved = db.Column(db.Boolean, default=False, index=True)
-    rejected = db.Column(db.Boolean, default=False, index=True)
-    current = db.Column(db.Boolean, default=False, index=True)
-
-    hash_id = db.Column(db.String(40), index=True)
 
     first_line_num = db.Column(db.Integer, db.ForeignKey('line.num'))
     last_line_num = db.Column(db.Integer, db.ForeignKey('line.num'), index=True)
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
 
-    body = db.Column(db.Text)
-    reason = db.Column(db.String(191))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
     edition = db.relationship('Edition')
-    editor = db.relationship('User', backref=backref('edits', lazy='dynamic'))
+
     annotation = db.relationship('Annotation')
     previous = db.relationship('Edit',
             primaryjoin='and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),'
@@ -1244,19 +1214,23 @@ class Edit(db.Model):
             uselist=True, viewonly=True,
             foreign_keys=[edition_id,first_line_num,last_line_num])
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @orm.reconstructor
+    def init_on_load(self):
         s = f'{self.first_line_num},{self.last_line_num},' \
                 f'{self.first_char_idx},{self.last_char_idx},' \
                 f'{self.body},{self.tags}'
         self.hash_id = sha1(s.encode('utf8')).hexdigest()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if self.first_line_num > self.last_line_num:
             tmp = self.last_line_num
             self.last_line_num = self.first_line_num
             self.first_line_num = tmp
 
     def __repr__(self):
-        return f'<Ann {self.id} on {self.edition.text.title}>'
+        prefix = super().__repr__()
+        return f"{prefix}{self.annotation}>"
 
     def get_hl(self):
         lines = self.lines
@@ -1319,14 +1293,6 @@ class Edit(db.Model):
         self.current = True
         flash("The edit was approved.")
 
-    def reject(self):
-        edit.rejected = True
-        flash("The edit was rejected.")
-
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
 
 
 ####################
@@ -1339,6 +1305,17 @@ class Edit(db.Model):
 ###################
 ## Text Requests ##
 ###################
+
+class TextRequestVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    text_request_id = db.Column(db.Integer,
+            db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
+    text_request = db.relationship('TextRequest',
+            backref=backref('ballots', passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.text_request}"
 
 
 class TextRequest(db.Model):
@@ -1394,6 +1371,18 @@ class TextRequest(db.Model):
 ##################
 ## Tag Requests ##
 ##################
+
+class TagRequestVote(db.Model, VoteMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    tag_request_id = db.Column(db.Integer,
+        db.ForeignKey('tag_request.id', ondelete='CASCADE'), index=True)
+    tag_request = db.relationship('TagRequest',
+        backref=backref('ballots', passive_deletes=True))
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.tag_request}"
+
 
 class TagRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
