@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 38471990f57a
+Revision ID: dccf6e191f8a
 Revises: 
-Create Date: 2019-01-19 15:47:09.817369
+Create Date: 2019-01-19 16:06:40.590814
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '38471990f57a'
+revision = 'dccf6e191f8a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -162,10 +162,10 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('entity_id', sa.Integer(), nullable=False),
     sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.ForeignKeyConstraint(['entity_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_wiki_edit_approved'), 'wiki_edit', ['approved'], unique=False)
@@ -429,23 +429,23 @@ def upgrade():
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('edition_id', sa.Integer(), nullable=True),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('entity_id', sa.Integer(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
     sa.Column('last_char_idx', sa.Integer(), nullable=True),
     sa.Column('editor_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['entity_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.num'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_edit_annotation_id'), 'edit', ['annotation_id'], unique=False)
     op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
     op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
     op.create_index(op.f('ix_edit_edition_id'), 'edit', ['edition_id'], unique=False)
+    op.create_index(op.f('ix_edit_entity_id'), 'edit', ['entity_id'], unique=False)
     op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
     op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
     op.create_index(op.f('ix_edit_timestamp'), 'edit', ['timestamp'], unique=False)
@@ -494,10 +494,10 @@ def downgrade():
     op.drop_index(op.f('ix_edit_timestamp'), table_name='edit')
     op.drop_index(op.f('ix_edit_rejected'), table_name='edit')
     op.drop_index(op.f('ix_edit_last_line_num'), table_name='edit')
+    op.drop_index(op.f('ix_edit_entity_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_edition_id'), table_name='edit')
     op.drop_index(op.f('ix_edit_current'), table_name='edit')
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')
-    op.drop_index(op.f('ix_edit_annotation_id'), table_name='edit')
     op.drop_table('edit')
     op.drop_index(op.f('ix_comment_poster_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')

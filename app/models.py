@@ -62,9 +62,27 @@ class EditMixin:
 
     @declared_attr
     def editor(cls):
-        # the backref is the class name lowercased with an `s` appended
+        # The backref is the class name lowercased with an `s` appended
         return db.relationship('User',
                 backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
+
+    @declared_attr
+    def previous(cls):
+        # The previous edit (i.e., single instance)
+        return db.relationship(f'{cls.__name__}',
+            primaryjoin=f'and_(remote({cls.__name__}.entity_id)'
+            f'==foreign({cls.__name__}.entity_id),'
+            f'remote({cls.__name__}.num)==foreign({cls.__name__}.num-1),'
+            f'remote({cls.__name__}.rejected)==False)')
+
+    @declared_attr
+    def priors(cls):
+        # A list of all prior edits
+        return db.relationship('Edit',
+            primaryjoin=f'and_(remote({cls.__name__}.entity_id)=='
+            f'foreign({cls.__name__}.entity_id),'
+            f'remote({cls.__name__}.num)<=foreign({cls.__name__}.num-1))',
+            uselist=True)
 
     def __repr__(self):
         return f"<Edit {self.num} on "
@@ -519,12 +537,12 @@ class Wiki(db.Model):
     entity_string = db.Column(db.String(191), index=True)
 
     current = db.relationship('WikiEdit',
-            primaryjoin='and_(WikiEdit.wiki_id==Wiki.id,'
+            primaryjoin='and_(WikiEdit.entity_id==Wiki.id,'
             'WikiEdit.current==True)', uselist=False, lazy='joined')
     edits = db.relationship('WikiEdit',
-            primaryjoin='WikiEdit.wiki_id==Wiki.id', lazy='dynamic')
+            primaryjoin='WikiEdit.entity_id==Wiki.id', lazy='dynamic')
     edit_pending = db.relationship('WikiEdit',
-            primaryjoin='and_(WikiEdit.wiki_id==Wiki.id,'
+            primaryjoin='and_(WikiEdit.entity_id==Wiki.id,'
             'WikiEdit.approved==False, WikiEdit.rejected==False)',
             passive_deletes=False)
 
@@ -572,13 +590,9 @@ class WikiEditVote(db.Model, VoteMixin):
 
 class WikiEdit(db.Model, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
-    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
+    entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))
-    previous = db.relationship('WikiEdit',
-            primaryjoin='and_(remote(WikiEdit.wiki_id)==foreign(WikiEdit.wiki_id),'
-            'remote(WikiEdit.num)==foreign(WikiEdit.num-1),'
-            'remote(WikiEdit.rejected)==False)')
 
     def __repr__(self):
         return f"{self.wiki}>"
@@ -799,7 +813,7 @@ class Tag(db.Model):
             secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
             'Edit.current==True))',
             primaryjoin='Tag.id==tags.c.tag_id',
-            secondaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            secondaryjoin='and_(Edit.entity_id==Annotation.id,'
             'Annotation.active==True)',
             lazy='dynamic', passive_deletes=True)
 
@@ -861,7 +875,7 @@ class Line(SearchableMixin, db.Model):
             primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
             'Edit.last_line_num>=foreign(Line.num),'
             'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
-            secondaryjoin='and_(foreign(Edit.annotation_id)==Annotation.id,'
+            secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
             'Annotation.active==True)',
             uselist=True, foreign_keys=[num,edition_id], lazy='dynamic')
 
@@ -1016,7 +1030,7 @@ class Annotation(db.Model):
     annotator = db.relationship('User',
             backref=backref('annotations', lazy='dynamic'))
     first_line = db.relationship('Line', secondary='edit',
-            primaryjoin='Edit.annotation_id==Annotation.id',
+            primaryjoin='Edit.entity_id==Annotation.id',
             secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
             'Edit.first_line_num==Line.num)',
             uselist=False)
@@ -1029,31 +1043,31 @@ class Annotation(db.Model):
     # relationships to `Edit`
     HEAD = db.relationship('Edit',
             primaryjoin='and_(Edit.current==True,'
-            'Edit.annotation_id==Annotation.id)', uselist=False)
+            'Edit.entity_id==Annotation.id)', uselist=False)
 
     edits = db.relationship('Edit',
-            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            primaryjoin='and_(Edit.entity_id==Annotation.id,'
             'Edit.approved==True)', passive_deletes=True)
     history = db.relationship('Edit',
-            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            primaryjoin='and_(Edit.entity_id==Annotation.id,'
             'Edit.approved==True)', lazy='dynamic', passive_deletes=True)
     all_edits = db.relationship('Edit',
-            primaryjoin='Edit.annotation_id==Annotation.id', lazy='dynamic',
+            primaryjoin='Edit.entity_id==Annotation.id', lazy='dynamic',
             passive_deletes=True)
     edit_pending = db.relationship('Edit',
-            primaryjoin='and_(Edit.annotation_id==Annotation.id,'
+            primaryjoin='and_(Edit.entity_id==Annotation.id,'
             'Edit.approved==False, Edit.rejected==False)', passive_deletes=True)
 
     # relationships to `Line`
     lines = db.relationship('Line', secondary='edit',
-            primaryjoin='and_(Annotation.id==Edit.annotation_id,'
+            primaryjoin='and_(Annotation.id==Edit.entity_id,'
             'Edit.current==True)',
             secondaryjoin='and_(Line.num>=Edit.first_line_num,'
             'Line.num<=Edit.last_line_num,'
             'Line.edition_id==Annotation.edition_id)', viewonly=True,
             uselist=True)
     context = db.relationship('Line', secondary='edit',
-            primaryjoin='and_(Annotation.id==Edit.annotation_id,'
+            primaryjoin='and_(Annotation.id==Edit.entity_id,'
             'Edit.current==True)',
             secondaryjoin='and_(Line.num>=Edit.first_line_num-5,'
             'Line.num<=Edit.last_line_num+5,'
@@ -1185,7 +1199,7 @@ class EditVote(db.Model, VoteMixin):
 class Edit(db.Model, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
-    annotation_id = db.Column(db.Integer, db.ForeignKey('annotation.id',
+    entity_id = db.Column(db.Integer, db.ForeignKey('annotation.id',
         ondelete='CASCADE'), index=True)
 
     first_line_num = db.Column(db.Integer, db.ForeignKey('line.num'))
@@ -1196,13 +1210,6 @@ class Edit(db.Model, EditMixin):
     edition = db.relationship('Edition')
 
     annotation = db.relationship('Annotation')
-    previous = db.relationship('Edit',
-            primaryjoin='and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),'
-            'remote(Edit.num)==foreign(Edit.num-1))')
-    priors = db.relationship('Edit',
-            primaryjoin='and_(remote(Edit.annotation_id)==foreign(Edit.annotation_id),'
-            'remote(Edit.num)<=foreign(Edit.num-1))',
-            uselist=True)
     tags = db.relationship('Tag', secondary=tags, passive_deletes=True)
     lines = db.relationship('Line',
             primaryjoin='and_(Line.num>=Edit.first_line_num,'

@@ -57,7 +57,7 @@ def index():
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'modified':
         annotations = Annotation.query.outerjoin(Edit,
-                and_(Annotation.id==Edit.annotation_id, Edit.current==True))\
+                and_(Annotation.id==Edit.entity_id, Edit.current==True))\
                 .group_by(Annotation.id).order_by(Edit.timestamp.desc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'weight':
@@ -179,7 +179,7 @@ def read(text_url, edition_num):
         tags = None
     else:
         annotations = edition.annotations.join(Edit,
-                and_(Edit.annotation_id==Annotation.id, Edit.current==True))\
+                and_(Edit.entity_id==Annotation.id, Edit.current==True))\
                 .filter(Edit.last_line_num<=lines[-1].num,
                         Edit.first_line_num>=lines[0].num).all()
         # this query is like 5 times faster than the old double-for loop. I am,
@@ -430,7 +430,7 @@ def text_annotations(text_url):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'line':
         annotations = text.annotations\
-                .join(Edit, Annotation.id==Edit.annotation_id)\
+                .join(Edit, Annotation.id==Edit.entity_id)\
                 .filter(Edit.current==True)\
                 .order_by(Edit.last_line_num.asc())\
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
@@ -506,7 +506,7 @@ def edition_annotations(text_url, edition_num):
                 .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'line':
         annotations = edition.annotations.join(Edit,
-                Annotation.id==Edit.annotation_id).filter(Edit.current==True)\
+                Annotation.id==Edit.entity_id).filter(Edit.current==True)\
                 .order_by(Edit.last_line_num.asc()).paginate(page,
                         app.config['ANNOTATIONS_PER_PAGE'], False)
     else:
@@ -1117,7 +1117,7 @@ def edit_history(annotation_id):
 
 @app.route('/annotation/<annotation_id>/edit/<num>')
 def view_edit(annotation_id, num):
-    edit = Edit.query.filter(Edit.annotation_id==annotation_id, Edit.num==num,
+    edit = Edit.query.filter(Edit.entity_id==annotation_id, Edit.num==num,
             Edit.approved==True).first_or_404()
     if not edit.previous:
         return render_template('view/first_version.html',
