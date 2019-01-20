@@ -1,13 +1,18 @@
 import pytest
 
-import app
-from app import db
+from icc import create_app, db
+from config import Config
+
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    TESTING = True
+    ELASTICSEARCH_URL = None
+
 
 @pytest.fixture
 def client():
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['TESTING'] = True
-    app.config['ELASTICSEARCH_URL'] = None
+
+    app = create_app(TestConfig)
 
     client = app.test_client()
 
