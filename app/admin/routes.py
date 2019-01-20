@@ -1,11 +1,11 @@
 import re, difflib
 
 from flask import render_template, flash, redirect, url_for, request, abort,\
-        Blueprint
+        current_app
 from flask_login import current_user, login_required
 from sqlalchemy import and_
 
-from app import app, db
+from app import db
 from app.funky import generate_next, authorize
 from app.forms import AreYouSureForm
 from app.models import User, UserFlag, UserFlagEnum,\
@@ -71,71 +71,71 @@ def all_user_flags():
     if sort == 'marked':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'marked_invert':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = UserFlag.query\
                 .outerjoin(UserFlagEnum)\
                 .order_by(UserFlagEnum.flag.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = UserFlag.query\
                 .outerjoin(UserFlagEnum)\
                 .order_by(UserFlagEnum.flag.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_thrown.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_thrown.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower_invert':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver_invert':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved_invert':
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'user':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.user_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'user_invert':
         flags = UserFlag.query\
                 .outerjoin(User, User.id==UserFlag.user_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         flags = UserFlag.query\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
             'marked': url_for('admin.all_user_flags', sort='marked', page=page),
@@ -174,62 +174,62 @@ def user_flags(user_id):
     if sort == 'marked':
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'marked_invert':
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = user.flag_history\
                 .outerjoin(UserFlagEnum)\
                 .order_by(UserFlagEnum.flag.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = user.flag_history\
                 .outerjoin(UserFlagEnum)\
                 .order_by(UserFlagEnum.flag.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = user.flag_history\
                 .order_by(UserFlag.time_thrown.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         flags = user.flag_history\
                 .order_by(UserFlag.time_thrown.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower':
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower_invert':
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver':
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver_invert':
         flags = user.flag_history\
                 .outerjoin(User, User.id==UserFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved':
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved_invert':
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     else:
         flags = user.flag_history\
                 .order_by(UserFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
             'marked': url_for('admin.user_flags', user_id=user.id, sort='marked', page=page),
@@ -313,11 +313,11 @@ def view_deactivated_annotations():
     if sort == 'added':
         annotations = Annotation.query.filter_by(active=False
                 ).order_by(Annotation.timestamp.desc()
-                ).paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                ).paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'weight':
         annotations = Annotation.query.filter_by(active=False
                 ).order_by(Annotation.weight.desc()
-                ).paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                ).paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     sorts = {
             'added': url_for('admin.view_deactivated_annotations', page=page, sort='added'),
             'weight': url_for('admin.view_deactivated_annotations', page=page, sort='weight')
@@ -349,65 +349,65 @@ def all_annotation_flags():
     if sort == 'marked':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'marked_invert':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = AnnotationFlag.query\
                 .outerjoin(AnnotationFlagEnum)\
                 .order_by(AnnotationFlagEnum.flag.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = AnnotationFlag.query\
                 .outerjoin(AnnotationFlagEnum)\
                 .order_by(AnnotationFlagEnum.flag.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_thrown.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_thrown.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower':
         flags = AnnotationFlag.query\
                 .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower_invert':
         flags = AnnotationFlag.query\
                 .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver':
         flags = AnnotationFlag.query\
                 .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver_invert':
         flags = AnnotationFlag.query\
                 .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved_invert':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'annotation':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.annotation_id.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'annotation_invert':
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.annotation_id.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'text':
         flags = AnnotationFlag.query\
                 .join(Annotation,
@@ -415,11 +415,11 @@ def all_annotation_flags():
                 .join(Edition, Edition.id==Annotation.edition_id)\
                 .join(Text, Text.id==Edition.text_id)\
                 .order_by(Text.sort_title)\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         flags = AnnotationFlag.query\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
             'marked': url_for('admin.all_annotation_flags', sort='marked', page=page),
@@ -463,61 +463,61 @@ def annotation_flags(annotation_id):
     if sort == 'marked':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'marked_invert':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = annotation.flag_history\
                 .outerjoin(AnnotationFlagEnum)\
                 .order_by(AnnotationFlagEnum.flag.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = annotation.flag_history\
                 .outerjoin(AnnotationFlagEnum)\
                 .order_by(AnnotationFlagEnum.flag.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_thrown.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_thrown.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower':
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'thrower_invert':
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlag.thrower_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver':
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'resolver_invert':
         flags = annotation.flag_history\
                 .outerjoin(User, User.id==AnnotationFlag.resolver_id)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_resolved_invert':
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         flags = annotation.flag_history\
                 .order_by(AnnotationFlag.time_resolved.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
             'marked': url_for('admin.annotation_flags', annotation_id=annotation.id, sort='marked', page=page),
@@ -592,62 +592,62 @@ def wiki_edit_review_queue():
                     WikiEditVote.edit_id==WikiEdit.id))\
                 .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
                 .order_by(WikiEditVote.delta.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'voted_invert':
         edits = WikiEdit.query.outerjoin(WikiEditVote,
                 and_(WikiEditVote.voter_id==current_user.id,
                     WikiEditVote.edit_id==WikiEdit.id))\
                 .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
                 .order_by(WikiEditVote.delta.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'entity':
         edits = WikiEdit.query.outerjoin(Wiki).filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(Wiki.entity_string.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'entity_invert':
         edits = WikiEdit.query.outerjoin(Wiki).filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(Wiki.entity_string.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'num':
         edits = WikiEdit.query.filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(WikiEdit.num.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'num_invert':
         edits = WikiEdit.query.filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(WikiEdit.num.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'editor':
         edits = WikiEdit.query.outerjoin(User).filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'editor_invert':
         edits = WikiEdit.query.outerjoin(User).filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         edits = WikiEdit.query.filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(WikiEdit.timestamp.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         edits = WikiEdit.query\
                 .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
                 .order_by(WikiEdit.timestamp.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'reason':
         edits = WikiEdit.query.filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(WikiEdit.reason.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'reason_invert':
         edits = WikiEdit.query.filter(WikiEdit.approved==False,
                 WikiEdit.rejected==False).order_by(WikiEdit.reason.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         edits = WikiEdit.query.outerjoin(WikiEditVote,
                 and_(WikiEditVote.voter_id==current_user.id,
                     WikiEditVote.edit_id==WikiEdit.id))\
                 .filter(WikiEdit.approved==False, WikiEdit.rejected==False)\
                 .order_by(WikiEditVote.delta.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
         sort = 'voted'
 
     ids = [edit.id for edit in edits.items]
@@ -733,90 +733,90 @@ def edit_review_queue():
     if sort == 'voted':
         edits = Edit.query\
                 .outerjoin(EditVote,
-                        and_(EditVote.user_id==current_user.id,
+                        and_(EditVote.voter_id==current_user.id,
                             EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'voted_invert':
         edits = Edit.query\
                 .outerjoin(EditVote,
-                        and_(EditVote.user_id==current_user.id,
+                        and_(EditVote.voter_id==current_user.id,
                             EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'id':
         edits = Edit.query.outerjoin(Annotation)\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Annotation.id.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'id_invert':
         edits = Edit.query.outerjoin(Annotation)\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Annotation.id.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'edit_num':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.num.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'edit_num_invert':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.num.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'editor':
         edits = Edit.query.outerjoin(User)\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(User.displayname.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'editor_invert':
         edits = Edit.query.outerjoin(User)\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(User.displayname.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.timestamp.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.timestamp.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'reason':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.reason.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'reason_invert':
         edits = Edit.query\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(Edit.reason.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         edits = Edit.query\
                 .outerjoin(EditVote,
-                        and_(EditVote.user_id==current_user.id,
+                        and_(EditVote.voter_id==current_user.id,
                             EditVote.edit_id==Edit.id))\
                 .filter(Edit.approved==False,
                         Edit.rejected==False)\
                 .order_by(EditVote.delta.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
         sort = 'voted'
 
     votes = current_user.edit_votes

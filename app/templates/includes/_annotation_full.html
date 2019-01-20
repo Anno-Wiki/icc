@@ -8,7 +8,7 @@
     <!--tags-->
     <tags>
         {% for t in annotation.HEAD.tags %}
-            <a href="{{ url_for("tag", tag=t.tag) }}">
+            <a href="{{ url_for("main.tag", tag=t.tag) }}">
                 <tag>{{ t.tag }}</tag>
             </a>
         {% endfor %}

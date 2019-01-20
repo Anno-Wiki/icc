@@ -4,7 +4,7 @@
         {% set text = annotation.edition.text %}
 
         <sup>
-            <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
                 [{{ annotation.id }}]
             </a>
         </sup>
@@ -24,13 +24,13 @@
 
         of
         <em>
-            <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+            <a href="{{ url_for("main.text", text_url=annotation.text.url) }}">
                 {{ text.title }}
             </a>
         </em>
 
         {% if not annotation.edition.primary %}
-            <a href="{{ url_for("edition", text_url=text.url, edition_num=annotation.edition.num) }}">
+            <a href="{{ url_for("main.edition", text_url=text.url, edition_num=annotation.edition.num) }}">
                 Edition #{{ annotation.edition.num }}
             </a>
         {% endif %}
@@ -51,7 +51,7 @@
             <span class="cutoff">
                 {{ annotation.HEAD.body[:255]|markdown }}
             </span>
-            <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
                 View More 
             </a>
         {%- endif -%}
@@ -59,7 +59,7 @@
 
     <tags>
         {% for t in annotation.HEAD.tags %}
-            <a href="{{ url_for("tag", tag=t.tag) }}">
+            <a href="{{ url_for("main.tag", tag=t.tag) }}">
                 <tag>{{ t.tag }}</tag>
             </a>
         {% endfor %}
@@ -82,7 +82,7 @@
         | <a class="dropbtn">flag&#x25be;</a>
         <div class="dropdown-content">
             {% for annotationflag in annotationflags %}
-                <a href="{{ url_for("flag_annotation",
+                <a href="{{ url_for("main.flag_annotation",
                     flag_id=annotationflag.id, annotation_id=annotation.id,
                     next=request.full_path) }}">
                     {{ annotationflag.flag }}
@@ -93,13 +93,13 @@
 
     {% if current_user.is_authenticated %}
     <!--authenticated user routes-->
-        | <a href="{{ url_for("edit", annotation_id=annotation.id,
+        | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
             next=request.full_path) }}">
             edit
         </a>
     {% endif %}
     |
-    <a href="{{ url_for("comments", annotation_id=annotation.id) }}">
+    <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">
         comments
     </a>
 </annotation>

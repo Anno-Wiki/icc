@@ -1,9 +1,10 @@
 from functools import wraps
-from app import app, db
-from app.models import Tag
 from flask import request
 from flask_login import current_user
 from werkzeug.urls import url_parse
+
+from app import db
+from app.models import Tag
 
 # This method is used to run through all the lines for a read view and convert/
 # prep them to be shown: (a) converts underscores to <em>/</em> tags, and (b)

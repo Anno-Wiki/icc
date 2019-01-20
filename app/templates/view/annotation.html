@@ -9,7 +9,7 @@
                 &#128274;
             {% endif %}
             of
-            <em><a href="{{ url_for("text", text_url=annotation.text.url) }}">{{
+            <em><a href="{{ url_for("main.text", text_url=annotation.text.url) }}">{{
                     annotation.text.title }}</a></em>
         </h1>
         <h2>on <em>{% include "includes/_annotation_line_nums.html" %}</em></h2>
@@ -25,9 +25,9 @@
         </h3>
         <h4>{% include "includes/_annotation_authorship.html" %}</h4>
 
-        <em><a href="{{ url_for("edit_history", annotation_id=annotation.id)
+        <em><a href="{{ url_for("main.edit_history", annotation_id=annotation.id)
                 }}">version history</a></em>
-        | <em><a href="{{ url_for("view_edit", annotation_id=annotation.id,
+        | <em><a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
                 num=annotation.HEAD.previous.num) }}">previous version</a></em>
         <br>
 
@@ -36,7 +36,7 @@
             <a class="dropbtn">flag&#x25be;</a>
             <div class="dropdown-content">
                 {% for annotationflag in annotationflags %}
-                    <a href="{{ url_for("flag_annotation",
+                    <a href="{{ url_for("main.flag_annotation",
                         flag_id=annotationflag.id, annotation_id=annotation.id,
                         next=request.full_path) }}">
                         {{ annotationflag.flag }}
@@ -51,7 +51,7 @@
                 annotation_id=annotation.id) }}">flags</a>
         {% endif %}
 
-        | <a href="{{ url_for("edit", annotation_id=annotation.id,
+        | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
             next=request.full_path) }}">edit</a>
 
         {% if current_user.is_authenticated and current_user.is_authorized("delete_annotations") %}

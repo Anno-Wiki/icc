@@ -21,14 +21,14 @@
                 {{ comment.timestamp }}
                 <a href="#">-</a>
                 <div class="comment_body">{{ comment.body|markdown }}</div>
-                <a href="{{ url_for("reply", annotation_id=annotation.id,
+                <a href="{{ url_for("main.reply", annotation_id=annotation.id,
                     comment_id=comment.id) }}">reply</a>
                 <hr>
 
                 {% for reply in comment.children recursive %}
                     <div class="reply">
 
-                        <a href="{{ url_for("user.profile",
+                        <a href="{{ url_for("main.user.profile",
                             user_id=reply.poster.id) }}">{{
                             reply.poster.displayname }}</a>
 
@@ -37,7 +37,7 @@
                         <a href="#">-</a>
                         <div class="comment_body">{{ reply.body|markdown
                             }}</div>
-                            <a href="{{ url_for("reply",
+                            <a href="{{ url_for("main.reply",
                                 annotation_id=annotation.id,
                                 comment_id=reply.id) }}">reply</a>
 

@@ -7,23 +7,23 @@
     {% endif %}
     <h1>
         Annotation
-        <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+        <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id) }}">
             [{{ edit.annotation.id }}]
         </a>
         of 
-        <a href="{{ url_for("text", text_url=edit.edition.text.url) }}">
+        <a href="{{ url_for("main.text", text_url=edit.edition.text.url) }}">
             {{ edit.edition.text.title }}
         </a>
     </h1>
     <h2>Edit #{{ edit.num }}</h2>
     <em>
-        <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id) }}">
+        <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">
             version history
         </a>
     </em>
     |
     <em>
-        <a href="{{ url_for("view_edit", annotation_id=edit.annotation.id,
+        <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation.id,
             num=edit.previous.num) }}">
             previous version
         </a>
@@ -93,7 +93,7 @@
         <div class="annotation_head">
             Annotation
             <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+                <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
                     }}">
                     [{{ edit.annotation.id }}]
                 </a>
@@ -160,19 +160,19 @@
         <tags>
             {% for tag in tags %}
                 {% if tag in edit.tags and tag in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                         <tag>
                             {{ tag.tag }}
                         </tag>
                     </a>
                 {% elif tag in edit.tags and tag not in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                         <tag class="plus">
                             + {{ tag.tag }}
                         </tag>
                     </a>
                 {% elif tag not in edit.tags and tag in edit.previous.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                         <tag class="delta">
                             - {{ tag.tag }}
                         </tag>
@@ -185,7 +185,7 @@
 
         <!--annotation authorship-->
         <em>
-            <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+            <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
                 }}">
                 annotated
             </a>
@@ -199,7 +199,7 @@
 
         {% if edit.previous.num != 0 %}
             <em>
-                <a href="{{ url_for("view_edit", annotation_id=edit.annotation.id,
+                <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation.id,
                     num=edit.previous.num) }}">
                     last edited
                 </a>
@@ -226,7 +226,7 @@
         <div class="annotation_head">
             Annotation
             <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+                <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id) }}">
                     [{{ edit.annotation.id }}]
                 </a>
             </sup>
@@ -247,7 +247,7 @@
 
         <tags>
             {% for tag in edit.tags %}
-                <a href="{{ url_for("tag", tag=tag.tag) }}">
+                <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                     <tag>
                         {{ tag.tag }}
                     </tag>
@@ -274,7 +274,7 @@
         <div class="annotation_head">
             Annotation
             <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id) }}">
+                <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id) }}">
                     [{{ edit.annotation.id }}]
                 </a>
             </sup>
@@ -298,7 +298,7 @@
 
         <tags>
             {% for tag in edit.previous.tags %}
-                <a href="{{ url_for("tag", tag=tag.tag) }}">
+                <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                     <tag>
                         {{ tag.tag }}
                     </tag>
@@ -308,7 +308,7 @@
         <br>
         {% if edit.previous.num > 0 %}
             <em>
-                <a href="{{ url_for("view_edit", annotation_id=edit.annotation_id,
+                <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation_id,
                     num=edit.previous.num) }}">
                     last edited
                 </a>
@@ -323,7 +323,7 @@
             &nbsp;&nbsp;&nbsp; <b>{{ edit.edit }}</b>
         {% else %}
             <em>
-                <a href="{{ url_for("annotation", annotation_id=edit.annotation_id) }}">
+                <a href="{{ url_for("main.annotation", annotation_id=edit.annotation_id) }}">
                     originally annotated
                 </a>
                 by

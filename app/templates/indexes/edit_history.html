@@ -4,14 +4,14 @@
 
 <h1>
     Edit history for
-    <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+    <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
         Annotation
         <sup>
              [{{ annotation.id }}]
         </sup>
     </a>
     of 
-    <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+    <a href="{{ url_for("main.text", text_url=annotation.text.url) }}">
         {{ annotation.text.title }}
     </a>
 </h1>
@@ -19,21 +19,21 @@
     <tr class="header">
         {% if sort == "num" %}
             <td class="highlight" style="width:5%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="edit_num_invert", page=page) }}">
                     # &#9662;
                 </a>
             </td>
         {% elif sort =="edit_num_invert" %}
             <td class="highlight" style="width:5%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                 sort="num", page=page) }}">
                     # &#9652;
                 </a>
             </td>
         {% else %}
             <td style="width:5%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="num", page=page) }}">
                     #
                 </a>
@@ -42,21 +42,21 @@
 
         {% if sort == "editor" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="editor_invert", page=page) }}">
                     Editor &#9662;
                 </a>
             </td>
         {% elif sort =="editor_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="editor", page=page) }}">
                     Editor &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="editor", page=page) }}">
                     Editor
                 </a>
@@ -65,21 +65,21 @@
 
         {% if sort == "time" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="time_invert", page=page) }}">
                     Time &#9662;
                 </a>
             </td>
         {% elif sort =="time_invert" %}
             <td class="highlight">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="time", page=page) }}">
                     Time &#9652;
                 </a>
             </td>
         {% else %}
             <td>
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="time", page=page) }}">
                     Time
                 </a>
@@ -88,21 +88,21 @@
 
         {% if sort == "reason" %}
             <td class="highlight" style="width:50%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="reason_invert", page=page) }}">
                     Reason &#9662;
                 </a>
             </td>
         {% elif sort =="reason_invert" %}
             <td class="highlight" style="width:50%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="reason", page=page) }}">
                     Reason &#9652;
                 </a>
             </td>
         {% else %}
             <td style="width:50%;">
-                <a href="{{ url_for("edit_history", annotation_id=annotation.id,
+                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
                     sort="reason", page=page) }}">
                     Reason
                 </a>
@@ -114,7 +114,7 @@
         {% for edit in edits %}
             <tr class="unread">
                 <td>
-                    <a href="{{ url_for("view_edit",
+                    <a href="{{ url_for("main.view_edit",
                         annotation_id=annotation.id, num=edit.num) }}">
                         {{ edit.num }}
                     </a>

@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from app import app, db
+from app import db
 from app.models import Tag
 from . import ajax
 

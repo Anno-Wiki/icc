@@ -7,9 +7,9 @@
         {% endif %}
         <h1>{{ edit.entity|string }}</h1>
         <h2>Edit #{{ edit.num }}</h2>
-        <em><a href="{{ url_for("wiki_edit_history", wiki_id=edit.wiki.id)
+        <em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
                 }}">version history</a></em>
-        | <em><a href="{{ url_for("view_wiki_edit", wiki_id=edit.wiki.id,
+        | <em><a href="{{ url_for("main.view_wiki_edit", wiki_id=edit.wiki.id,
                 edit_num=edit.previous.num) }}">previous version</a></em>
         {% if current_user.is_authenticated
             and current_user.is_authorized("delete_wiki_edits") %}

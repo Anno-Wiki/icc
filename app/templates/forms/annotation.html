@@ -4,7 +4,7 @@
     <script src="{{ url_for("static", filename="scripts/tags.js") }}"></script>
     <!--Header/Running Head-->
     <div class="running_head">
-        <a href="{{ url_for("text", text_url=text.url) }}"> {{ text.title }} </a> 
+        <a href="{{ url_for("main.text", text_url=text.url) }}"> {{ text.title }} </a> 
         {% include "includes/_authors.html" %}
     </div>
 

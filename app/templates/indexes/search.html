@@ -11,16 +11,16 @@
                     {{ line.num }}
                 </a>
                 of 
-                <a href='{{ url_for('text', text_url=line.text.url) }}'>
+                <a href='{{ url_for('main.text', text_url=line.text.url) }}'>
                     {{ line.text.title }}
                 </a>
                 by 
-                <a href='{{ url_for('writer', writer_url=line.text.authors[0].url) }}'>
+                <a href='{{ url_for('main.writer', writer_url=line.text.authors[0].url) }}'>
                     {{ line.text.authors[0].name }}
                 </a>
             </h3>
             {% for l in line.context %}
-                <a href='{{ url_for('line_annotations',
+                <a href='{{ url_for('main.line_annotations',
                     text_url=l.edition.text.url,
                     edition_num=l.edition.num, line_num=l.num) }}'>
                     <line class='{{ l.label.label }}' id='{{ l.num }}'>

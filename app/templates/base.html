@@ -9,9 +9,9 @@
     {% else %}
         <title>Welcome to Annopedia</title>
     {% endif %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for("static",
-        filename="styles/style.css") }}">
-    <link rel="shortcut icon" href="{{ url_for("static", filename="favicon.ico")
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',
+        filename='styles/style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico')
         }}?v=3">
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i">
@@ -19,18 +19,18 @@
 
 <body>
     <div class="header">
-        <div class="logo{% if active_page == "index" %} active{% endif %}">
-            <a href="{{ url_for("index") }}">
-                <img src="{{ url_for("static", filename="images/n2.png")}}">
+        <div class="logo{% if active_page == 'index' %} active{% endif %}">
+            <a href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='images/n2.png')}}">
             </a>
-            <a href="{{ url_for("index") }}">Annopedia</a>
+            <a href="{{ url_for('main.index') }}">Annopedia</a>
         </div>
 
         {% set navigation_bar = [
-            (url_for("writer_index"), "writers", "Writers"),
-            (url_for("text_index"), "texts", "Texts"),
-            (url_for("tag_index"), "tags", "Tags"),
-            (url_for("user.index"), "users", "Users")] 
+            (url_for('main.writer_index'), 'writers', 'Writers'),
+            (url_for('main.text_index'), 'texts', 'Texts'),
+            (url_for('main.tag_index'), 'tags', 'Tags'),
+            (url_for('user.index'), 'users', 'Users')] 
         %}
         <nav>
             {% for href, id, caption in navigation_bar %}
@@ -42,7 +42,7 @@
         </nav>
         
         {% if g.search_form %}
-            <form method="get" action="{{ url_for("search") }}" class="search">
+            <form method="get" action="{{ url_for('main.search') }}" class="search">
                     {{ g.search_form.q(size=20,
                         placeholder=g.search_form.q.label.text) }}
             </form>
@@ -52,48 +52,48 @@
 
         <div class="user_info">
             {%- if current_user.is_anonymous -%}
-                <a href="{{ url_for("user.register") }}">register</a>
-                <a href="{{ url_for("user.login") }}">login</a>
+                <a href="{{ url_for('user.register') }}">register</a>
+                <a href="{{ url_for('user.login') }}">login</a>
             {%- else %}
-                {% if current_user.is_authorized("view_deactivated_annotations") 
-                    or current_user.is_authorized("review_edits")
-                    or current_user.is_authorized("resolve_user_flags")
-                    or current_user.is_authorized("resolve_annotation_flags")
+                {% if current_user.is_authorized('view_deactivated_annotations') 
+                    or current_user.is_authorized('review_edits')
+                    or current_user.is_authorized('resolve_user_flags')
+                    or current_user.is_authorized('resolve_annotation_flags')
                     %}
 
                     <div class="dropdown">
                         <a class="dropbtn">admin&#x25BE;</a> |
                         <div class="dropdown-content">
                             {% if current_user.is_authorized(
-                                "view_deactivated_annotations") %}
+                                'view_deactivated_annotations') %}
                                 <a href="{{
-                                    url_for("admin.view_deactivated_annotations") }}">
+                                    url_for('admin.view_deactivated_annotations') }}">
                                     deactivated
                                 </a>
                             {% endif %}
 
-                            {% if current_user.is_authorized("review_edits") %}
-                                <a href="{{ url_for("admin.edit_review_queue") }}">
+                            {% if current_user.is_authorized('review_edits') %}
+                                <a href="{{ url_for('admin.edit_review_queue') }}">
                                     edits
                                 </a>
                             {% endif %}
 
-                            {% if current_user.is_authorized("review_wiki_edits") %}
-                                <a href="{{ url_for("admin.wiki_edit_review_queue") }}">
+                            {% if current_user.is_authorized('review_wiki_edits') %}
+                                <a href="{{ url_for('admin.wiki_edit_review_queue') }}">
                                     wiki edits
                                 </a>
                             {% endif %}
 
                             {% if current_user.is_authorized(
-                                "resolve_user_flags") %}
-                                <a href="{{ url_for("admin.all_user_flags") }}">
+                                'resolve_user_flags') %}
+                                <a href="{{ url_for('admin.all_user_flags') }}">
                                     user flags
                                 </a>
                             {% endif %}
 
                             {% if current_user.is_authorized(
-                                "resolve_annotation_flags") %}
-                                <a href="{{ url_for("admin.all_annotation_flags") }}">
+                                'resolve_annotation_flags') %}
+                                <a href="{{ url_for('admin.all_annotation_flags') }}">
                                     annotation flags
                                 </a>
                             {% endif %}
@@ -102,27 +102,27 @@
                 {% endif %}
 
                 {% if current_user.notifications.filter_by(seen=False).all() %}
-                    <a href="{{ url_for("user.inbox") }}" class="new_messages">
+                    <a href="{{ url_for('user.inbox') }}" class="new_messages">
                         (unread messages)
                     </a>
                 {% endif %}
 
                 <div class="dropdown">
-                    <a href="{{ url_for("user.profile") }}"
+                    <a href="{{ url_for('user.profile') }}"
                         class="dropbtn">
                         {{ current_user.displayname }}&#x25BE;
                     </a>
                     <div class="dropdown-content">
-                        <a href="{{ url_for("user.inbox") }}">inbox</a>
-                        <a href="{{ url_for("user.profile") }}">
+                        <a href="{{ url_for('user.inbox') }}">inbox</a>
+                        <a href="{{ url_for('user.profile') }}">
                             profile
                         </a>
-                        <a href="{{ url_for("user.edit_profile") }}">edit profile</a>
+                        <a href="{{ url_for('user.edit_profile') }}">edit profile</a>
                     </div>
                 </div>
                 {{ current_user.readable_reputation() }}
 
-                | <a href="{{ url_for("user.logout") }}">logout</a>
+                | <a href="{{ url_for('user.logout') }}">logout</a>
 
                 <!--endif user is authenticated-->
             {%- endif %}

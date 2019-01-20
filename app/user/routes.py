@@ -1,9 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request, abort
+from flask import render_template, flash, redirect, url_for, request, abort,\
+        current_app
 from flask_login import login_user, logout_user, current_user, login_required
 
 from sqlalchemy import and_
 
-from app import app, db
+from app import db
 from app.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
         TagRequest, UserFlagEnum, Notification, NotificationObject,\
         AnnotationFlagEnum
@@ -88,23 +89,23 @@ def index():
     sort = request.args.get('sort', 'reputation', type=str)
     if sort == 'reputation':
         users = User.query.order_by(User.reputation.desc())\
-                .paginate(page, app.config['CARDS_PER_PAGE'], False)
+                .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
     elif sort == 'name':
         users = User.query.order_by(User.displayname.asc())\
-                .paginate(page, app.config['CARDS_PER_PAGE'], False)
+                .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
     elif sort == 'annotations':
         users = User.query.outerjoin(Annotation).group_by(User.id)\
                 .order_by(db.func.count(Annotation.id).desc())\
-                .paginate(page, app.config['CARDS_PER_PAGE'], False)
+                .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
     elif sort == 'edits':
         users = User.query.outerjoin(Edit, and_(Edit.editor_id==User.id,
                         Edit.num>0)).group_by(User.id)\
                     .order_by(db.func.count(Edit.id).desc())\
-                    .paginate(page, app.config['CARDS_PER_PAGE'], False)
+                    .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
     else:
         users = User.query\
                 .order_by(User.reputation.desc())\
-                .paginate(page, app.config['CARDS_PER_PAGE'], False)
+                .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
 
     if not users.items and page > 1:
         abort(404)
@@ -136,16 +137,16 @@ def profile(user_id):
         redirect(url_for('user.index'))
     if sort == 'weight':
         annotations = user.annotations.order_by(Annotation.weight.desc())\
-                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'newest':
         annotations = user.annotations.order_by(Annotation.timestamp.desc())\
-                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     elif sort == 'oldest':
         annotations = user.annotations.order_by(Annotation.timestamp.asc())\
-                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     else:
         annotations = user.annotations.order_by(Annotation.timestamp.desc())\
-                .paginate(page, app.config['ANNOTATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     sorts = {
             'newest': url_for('user.profile', user_id=user_id, sort='newest',
                 page=page),
@@ -248,34 +249,34 @@ def inbox():
         notifications = current_user.notifications\
                 .outerjoin(NotificationObject)\
                 .order_by(NotificationObject.timestamp.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time_invert':
         notifications = current_user.notifications\
                 .outerjoin(NotificationObject)\
                 .order_by(NotificationObject.timestamp.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'type':
         notifications = current_user.notifications.join(NotificationObject)\
                 .join(NotificationEnum)\
                 .order_by(NotificationEnum.public_code.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'type_invert':
         notifications = current_user.notifications.join(NotificationObject)\
                 .join(NotificationEnum)\
                 .order_by(NotificationEnum.public_code.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'read':
         notifications = current_user.notifications\
                 .order_by(Notification.seen.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'read_invert':
         notifications = current_user.notifications\
                 .order_by(Notification.seen.desc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     else:
         notifications = current_user.notifications\
                 .order_by(Notification.seen.asc())\
-                .paginate(page, app.config['NOTIFICATIONS_PER_PAGE'], False)
+                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
             'read': url_for('user.inbox', sort='read', page=page),

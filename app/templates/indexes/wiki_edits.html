@@ -15,8 +15,8 @@
             {% for altid, id, caption, altcaption in header %}
                 <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
                     <a href="{% if sort == altid or sort != id %}{{
-                    url_for("wiki_edit_history", wiki_id=wiki.id, sort=id,
-                    page=page) }}{% else %}{{ url_for("wiki_edit_history",
+                    url_for("main.wiki_edit_history", wiki_id=wiki.id, sort=id,
+                    page=page) }}{% else %}{{ url_for("main.wiki_edit_history",
                     wiki_id=wiki.id, sort=altid, page=page) }}{% endif %}">
                         {% if sort == altid %}
                             {{ altcaption|safe }}
@@ -31,7 +31,7 @@
             {% for edit in edits %}
                 <tr class="unread">
                     <td>
-                        <a href="{{ url_for("view_wiki_edit",
+                        <a href="{{ url_for("main.view_wiki_edit",
                             wiki_id=edit.wiki.id, edit_num=edit.num) }}">
                             view #{{ edit.num }}
                         </a>

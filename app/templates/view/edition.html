@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>
-        <a href="{{ url_for("text", text_url=edition.text.url) }}">{{
+        <a href="{{ url_for("main.text", text_url=edition.text.url) }}">{{
             edition.text.title }}</a> {% if edition.primary %}*{% endif %}
     </h1>
     {% set text = edition.text %}
@@ -18,11 +18,11 @@
 
     <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-    <a href="{{ url_for("edition_annotations", text_url=edition.text.url,
+    <a href="{{ url_for("main.edition_annotations", text_url=edition.text.url,
         edition_num=edition.num) }}">annotations</a>
-    | <a href="{{ url_for("edit_wiki", wiki_id=edition.wiki.id,
+    | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
         next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("wiki_edit_history", wiki_id=edition.wiki.id) }}">edit
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id) }}">edit
         history</a>
 
     {# table of contents #}

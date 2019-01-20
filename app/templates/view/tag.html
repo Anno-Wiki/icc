@@ -8,8 +8,8 @@
         next=request.full_path) }}">{% if current_user.is_authenticated and
         tag in current_user.followed_tags %}unfollow{% else %}follow{% endif
         %}</a>
-    | <a href="{{ url_for("edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
-    | <a href="{{ url_for("wiki_edit_history", wiki_id=tag.wiki.id) }}">edit
+    | <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id) }}">edit
         history</a>
 
     <br>

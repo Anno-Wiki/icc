@@ -6,7 +6,7 @@
             Annotation {{ edit.annotation.id }} of {{ edit.edition.text.title }}
         </h1>
         <h2>Initial Version</h2>
-        <em><a href="{{ url_for("edit_history",
+        <em><a href="{{ url_for("main.edit_history",
                 annotation_id=edit.annotation.id) }}">version history</a></em>
         {% if current_user.is_authenticated
             and current_user.is_authorized("delete_edits") %}
@@ -33,7 +33,7 @@
             <div class="annotation_head">
                 Annotation
                 <sup>
-                    <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+                    <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
                         }}">
                         [{{ edit.annotation.id }}]
                     </a>
@@ -58,7 +58,7 @@
 
             <tags>
                 {% for tag in edit.tags %}
-                    <a href="{{ url_for("tag", tag=tag.tag) }}">
+                    <a href="{{ url_for("main.tag", tag=tag.tag) }}">
                         <tag class="plus">
                             + {{ tag.tag }}
                         </tag>
@@ -69,7 +69,7 @@
             <br> 
 
             <!--annotation authorship-->
-            <em><a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
+            <em><a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
                     }}">annotated</a> by</em>
             <a href="{{ url_for("user.profile",
                 user_id=edit.annotation.annotator.id) }}">{{

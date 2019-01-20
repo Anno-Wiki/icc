@@ -1,5 +1,5 @@
 {%- if annotation.HEAD.num == 0 %}
-    <a href="{{ url_for("view_edit", annotation_id=annotation.id,
+    <a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
         num=annotation.HEAD.num) }}">
         annotated
     </a>
@@ -10,7 +10,7 @@
     <strong>{{ annotation.annotator.readable_reputation() }}</strong>
     {{ annotation.added }}
 {%- else -%}
-    <a href="{{ url_for("view_edit", annotation_id=annotation.id,
+    <a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
         num=annotation.HEAD.num) }}">
         last edited
     </a>

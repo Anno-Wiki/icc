@@ -15,7 +15,7 @@ sort by:
     {% for writer in writers %}
         <div class="card">
             <h2>
-                <a href="{{ url_for("writer", writer_url=writer.url) }}">
+                <a href="{{ url_for("main.writer", writer_url=writer.url) }}">
                     {{ writer.name }}
                 </a>
                 {% if writer.birth_date.year %}
@@ -42,7 +42,7 @@ sort by:
                 {{ writer.wiki.current.body[:127]|markdown }}
             </div>
 
-            <a href="{{ url_for("writer", writer_url=writer.url) }}">View More</a>
+            <a href="{{ url_for("main.writer", writer_url=writer.url) }}">View More</a>
         </div>
     {% endfor %}
 </div>

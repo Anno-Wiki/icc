@@ -12,11 +12,11 @@ from sqlalchemy import or_, func, orm
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
-from app.search import *
 
 # please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
-from app import app, db, login
+from app import db, login
+from app.search import add_to_index, remove_from_index, query_index
 
 ############
 ## Mixins ##
@@ -692,7 +692,7 @@ class Writer(db.Model):
         return self.name
 
     def get_url(self):
-        return url_for('writer', writer_url=self.url)
+        return url_for('main.writer', writer_url=self.url)
 
 
 class Text(db.Model):
@@ -729,7 +729,7 @@ class Text(db.Model):
         return self.title
 
     def get_url(self):
-        return url_for('text', text_url=self.url)
+        return url_for('main.text', text_url=self.url)
 
 
 class Edition(db.Model):
@@ -769,7 +769,7 @@ class Edition(db.Model):
         return self.title
 
     def get_url(self):
-        return url_for('edition', text_url=self.text.url, edition_num=self.num)
+        return url_for('main.edition', text_url=self.text.url, edition_num=self.num)
 
 
 class WriterEditionConnection(db.Model):
@@ -826,7 +826,7 @@ class Tag(db.Model):
         return f'<tag>{self.tag}</tag>'
 
     def get_url(self):
-        return url_for('tag', tag=self.tag)
+        return url_for('main.tag', tag=self.tag)
 
 
 
@@ -956,7 +956,7 @@ class Line(SearchableMixin, db.Model):
         lvl2 = self.lvl2 if self.lvl2 > 0 else None
         lvl3 = self.lvl3 if self.lvl3 > 0 else None
         lvl4 = self.lvl4 if self.lvl4 > 0 else None
-        return url_for('read', text_url=self.edition.text.url,
+        return url_for('main.read', text_url=self.edition.text.url,
                 edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
 
 

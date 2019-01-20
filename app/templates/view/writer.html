@@ -4,14 +4,14 @@
     <h1>{{ writer.name }}</h1>
     <h2>&times; {{ len(writer.authored) }} Texts</h2>
     <div id="bio">{{ writer.wiki.current.body|markdown }}</div>
-    <a href="{{ url_for("writer_annotations", writer_url=writer.url) }}">annotations</a>
+    <a href="{{ url_for("main.writer_annotations", writer_url=writer.url) }}">annotations</a>
     | <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
         next=request.full_path) }}">{% if current_user.is_authenticated and
         writer in current_user.followed_writers %}unfollow{% else %}follow{%
         endif %}</a>
-    | <a href="{{ url_for("edit_wiki", wiki_id=writer.wiki.id,
+    | <a href="{{ url_for("main.edit_wiki", wiki_id=writer.wiki.id,
         next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("wiki_edit_history", wiki_id=writer.wiki.id) }}">edit
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=writer.wiki.id) }}">edit
         history</a>
 
     {% if writer.authored %}
@@ -19,7 +19,7 @@
         <div class="index">
             {% for text in writer.authored %}
                 <div class="card">
-                    <a href="{{ url_for("text", text_url=text.url) }}">
+                    <a href="{{ url_for("main.text", text_url=text.url) }}">
                         <h2>{{ text.title }}</h2>
                     </a>
                     <div class="count">
@@ -31,7 +31,7 @@
                         {{ text.wiki.current.body[:127]|markdown }}
                     </div>
 
-                    <a href="{{ url_for("text", text_url=text.url) }}">
+                    <a href="{{ url_for("main.text", text_url=text.url) }}">
                         View More
                     </a>
                 </div>
@@ -45,18 +45,18 @@
             {% for edition in writer.translated %}
                 <div class="card">
                         <h1>
-                            <a href="{{ url_for("text",
+                            <a href="{{ url_for("main.text",
                                 text_url=edition.text.url) }}">{{
                                 edition.text.title }}</a>
                         </h1>
                         <h2>
                             by
-                            <a href="{{ url_for("writer",
+                            <a href="{{ url_for("main.writer",
                                 writer_url=edition.text.authors[0].url) }}">
                                 {{ edition.text.authors[0].name }}
                             </a>
                         </h2>
-                    <a href="{{ url_for("edition", text_url=edition.text.url,
+                    <a href="{{ url_for("main.edition", text_url=edition.text.url,
                         edition_num=edition.num) }}">
                         <h3>Edition #{{ edition.num }}</h3>
                     </a>
@@ -69,7 +69,7 @@
                         {{ edition.wiki.current.body[:127]|markdown }}
                     </div>
 
-                    <a href="{{ url_for("edition", text_url=edition.text.url,
+                    <a href="{{ url_for("main.edition", text_url=edition.text.url,
                         edition_num=edition.num) }}">View More</a>
                 </div>
             {% endfor %}

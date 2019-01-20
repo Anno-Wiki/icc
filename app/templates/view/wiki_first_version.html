@@ -4,7 +4,7 @@
     <div id="content">
         <h1>{{ edit.entity|string }}</h1>
         <h2>Initial Version</h2>
-        <em><a href="{{ url_for("wiki_edit_history", wiki_id=edit.wiki.id)
+        <em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
                 }}">version history</a></em>
         {% if current_user.is_authenticated
             and current_user.is_authorized("delete_wiki_edits") %}

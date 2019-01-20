@@ -1,7 +1,8 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request,\
+        current_app
 from flask_login import current_user, login_required
 
-from app import app, db
+from app import db
 from app.models import TextRequest, TextRequestVote, TagRequest, TagRequestVote
 
 from app.requests import requests
@@ -18,27 +19,27 @@ def text_request_index():
     if sort == "oldest":
         text_requests = TextRequest.query\
                 .order_by(TextRequest.requested.asc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
         text_requests = TextRequest.query\
                 .order_by(TextRequest.requested.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
         text_requests = TextRequest.query\
                 .order_by(TextRequest.weight.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "title":
         requests = TextRequest.query\
                 .order_by(TextRequest.title.asc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "author":
         text_requests = TextRequest.query\
                 .order_by(TextRequest.author.asc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     else:
         text_requests = TextRequest.query\
                 .order_by(TextRequest.weight.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
             "oldest": url_for("requests.text_request_index", sort="oldest", page=page),
@@ -160,23 +161,23 @@ def tag_request_index():
     if sort == "tag":
         tag_requests = TagRequest.query\
                 .order_by(TagRequest.tag.asc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "weight":
         tag_requests = TagRequest.query\
                 .order_by(TagRequest.weight.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "oldest":
         tag_requests = TagRequest.query\
                 .order_by(TagRequest.requested.asc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     elif sort == "newest":
         tag_requests = TagRequest.query\
                 .order_by(TagRequest.requested.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
     else:
         tag_requests = TagRequest.query\
                 .order_by(TagRequest.weight.desc())\
-                .paginate(page, app.config["CARDS_PER_PAGE"], False)
+                .paginate(page, current_app.config["CARDS_PER_PAGE"], False)
 
     sorts = {
             "tag": url_for("requests.tag_request_index", sort="tag", page=page),

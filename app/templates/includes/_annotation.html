@@ -3,7 +3,7 @@
     <div class="annotation_head">
 
         <sup>
-            <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
                 [{{ annotation.id }}]
             </a>
         </sup>
@@ -27,7 +27,7 @@
             <span class="cutoff">
                 {{- annotation.HEAD.body[:255]|markdown -}}
             </span>
-            <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
                 View More
             </a>
         {%- endif -%}
@@ -36,7 +36,7 @@
     <!--The tags-->
     <tags>
         {% for t in annotation.HEAD.tags %}
-            <a href="{{ url_for("tag", tag=t.tag) }}">
+            <a href="{{ url_for("main.tag", tag=t.tag) }}">
                 <tag>{{ t.tag }}</tag>
             </a>
         {% endfor %}
@@ -59,7 +59,7 @@
         | <a class="dropbtn">flag&#x25be;</a>
         <div class="dropdown-content">
             {% for annotationflag in annotationflags %}
-                <a href="{{ url_for("flag_annotation",
+                <a href="{{ url_for("main.flag_annotation",
                     flag_id=annotationflag.id, annotation_id=annotation.id,
                     next=request.full_path) }}">
                     {{ annotationflag.flag }}
@@ -69,6 +69,6 @@
     </div>
 
     <!--authenticated user links-->
-    | <a href="{{ url_for("edit", annotation_id=annotation.id,
+    | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
         next=request.full_path) }}">edit</a>
 </annotation>
