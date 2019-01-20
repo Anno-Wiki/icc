@@ -78,7 +78,7 @@ class EditMixin:
     @declared_attr
     def priors(cls):
         # A list of all prior edits
-        return db.relationship('Edit',
+        return db.relationship(f'{cls.__name__}',
             primaryjoin=f'and_(remote({cls.__name__}.entity_id)=='
             f'foreign({cls.__name__}.entity_id),'
             f'remote({cls.__name__}.num)<=foreign({cls.__name__}.num-1))',
