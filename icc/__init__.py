@@ -37,15 +37,15 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
             if app.config["ELASTICSEARCH_URL"] else None
     
-    from .admin import admin as admin_bp
+    from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
-    from .requests import requests as requests_bp
+    from icc.requests import requests as requests_bp
     app.register_blueprint(requests_bp)
-    from .ajax import ajax as ajax_bp
+    from icc.ajax import ajax as ajax_bp
     app.register_blueprint(ajax_bp)
-    from .user import user as user_bp
+    from icc.user import user as user_bp
     app.register_blueprint(user_bp)
-    from .main import main as main_bp
+    from icc.main import main as main_bp
     app.register_blueprint(main_bp)
 
     if not app.debug and not app.testing:
@@ -86,4 +86,4 @@ def create_app(config_class=Config):
 
     return app
 
-from app import models, funky
+from icc import models, funky

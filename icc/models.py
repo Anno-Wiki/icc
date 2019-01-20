@@ -15,8 +15,8 @@ from sqlalchemy.ext.declarative import declared_attr
 
 # please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
-from app import db, login
-from app.search import add_to_index, remove_from_index, query_index
+from icc import db, login
+from icc.search import add_to_index, remove_from_index, query_index
 
 ############
 ## Mixins ##

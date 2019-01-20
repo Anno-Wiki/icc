@@ -7,7 +7,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
 from wtforms.validators import ValidationError, InputRequired, Email, EqualTo, \
     Optional, URL, Length
 
-from app.models import User, Tag
+from icc.models import User, Tag
 
 
 class LineNumberForm(FlaskForm):

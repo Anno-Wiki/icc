@@ -1,7 +1,7 @@
 from flask import request, jsonify
-from app import db
-from app.models import Tag
-from . import ajax
+from icc import db
+from icc.models import Tag
+from icc.ajax import ajax
 
 @ajax.route('/autocomplete/tags/', methods=['POST'])
 def ajax_tags():

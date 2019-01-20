@@ -2,11 +2,11 @@ from flask import render_template, flash, redirect, url_for, request,\
         current_app
 from flask_login import current_user, login_required
 
-from app import db
-from app.models import TextRequest, TextRequestVote, TagRequest, TagRequestVote
+from icc import db
+from icc.models import TextRequest, TextRequestVote, TagRequest, TagRequestVote
 
-from app.requests import requests
-from app.requests.forms import TextRequestForm, TagRequestForm
+from icc.requests import requests
+from icc.requests.forms import TextRequestForm, TagRequestForm
 
 #################
 ## List Routes ##

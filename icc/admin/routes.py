@@ -5,16 +5,16 @@ from flask import render_template, flash, redirect, url_for, request, abort,\
 from flask_login import current_user, login_required
 from sqlalchemy import and_
 
-from app import db
-from app.funky import generate_next, authorize
-from app.forms import AreYouSureForm
-from app.models import User, UserFlag, UserFlagEnum,\
+from icc import db
+from icc.funky import generate_next, authorize
+from icc.forms import AreYouSureForm
+from icc.models import User, UserFlag, UserFlagEnum,\
         Line, Text, TextRequest, Edition, Writer, Tag, TagRequest,\
         Annotation, AnnotationFlag, AnnotationFlagEnum, Edit, EditVote,\
         WikiEdit, Wiki, WikiEditVote
 
-from app.admin import admin
-from app.admin.forms import TagForm, LineForm
+from icc.admin import admin
+from icc.admin.forms import TagForm, LineForm
 
 
 #################

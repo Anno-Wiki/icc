@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
         TextAreaField
 from wtforms.validators import ValidationError, InputRequired, Email, EqualTo,\
         Length
-from app.models import User
+from icc.models import User
 
 ################
 ## User Forms ##

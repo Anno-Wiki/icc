@@ -8,15 +8,15 @@ from flask import render_template, flash, redirect, url_for, request, abort, g,\
 from flask_login import current_user, login_required, login_manager, logout_user
 from sqlalchemy import and_
 
-from app import db
-from app.main import main
-from app.models import User, Text, Edition, Writer, WriterEditionConnection, \
+from icc import db
+from icc.main import main
+from icc.models import User, Text, Edition, Writer, WriterEditionConnection, \
         ConnectionEnum, Line, LineEnum, Annotation, Comment, AnnotationFlag, \
         AnnotationFlagEnum, Vote, Edit, EditVote, Tag, tags as tags_table, \
         authors as authors_table, Wiki, WikiEdit, WikiEditVote
-from app.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm, \
+from icc.forms import AnnotationForm, LineNumberForm, SearchForm, CommentForm, \
         WikiForm
-from app.funky import preplines, generate_next, line_check
+from icc.funky import preplines, generate_next, line_check
 
 
 @main.before_request

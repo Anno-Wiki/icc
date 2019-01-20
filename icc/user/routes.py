@@ -4,16 +4,16 @@ from flask_login import login_user, logout_user, current_user, login_required
 
 from sqlalchemy import and_
 
-from app import db
-from app.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
+from icc import db
+from icc.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
         TagRequest, UserFlagEnum, Notification, NotificationObject,\
         AnnotationFlagEnum
-from app.email.email import send_password_reset_email
-from app.funky import is_filled, generate_next
-from app.forms import AreYouSureForm
+from icc.email.email import send_password_reset_email
+from icc.funky import is_filled, generate_next
+from icc.forms import AreYouSureForm
 
-from app.user import user
-from app.user.forms import LoginForm, RegistrationForm, EditProfileForm,\
+from icc.user import user
+from icc.user.forms import LoginForm, RegistrationForm, EditProfileForm,\
         ResetPasswordRequestForm, ResetPasswordForm
 
 

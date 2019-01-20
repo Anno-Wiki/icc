@@ -1,6 +1,6 @@
 from flask import render_template, url_for
-from app import app, db
-from app.funky import generate_next
+from icc import app, db
+from icc.funky import generate_next
 
 @app.errorhandler(404)
 def not_found_error(error):
