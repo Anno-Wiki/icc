@@ -63,7 +63,7 @@ print(f"Created edition number {edition.num} for {text.title}.")
 # this one; I won't have to rewrite it as I add connections; which, are there
 # any?)
 for enum in ConnectionEnum.query.all():
-    for writer in config['edition'][enum.type]:
+    for writer in config['edition'][enum.enum]:
         writer_obj = Writer.query.filter_by(name=writer['name']).first()
         if not writer_obj:
             writer_obj = Writer(
@@ -77,12 +77,12 @@ for enum in ConnectionEnum.query.all():
         conn = WriterEditionConnection(writer=writer_obj, edition=edition,
                 enum=enum)
         db.session.add(conn)
-        print(f"Writer {writer_obj.name} added as a {enum.type}.")
+        print(f"Writer {writer_obj.name} added as a {enum.enum}.")
 
 labels = LineEnum.query.all()
 label = {}
 for l in labels:
-    label[f'{l.label}>{l.display}'] = l
+    label[f'{l.enum}>{l.display}'] = l
 
 i = 1
 for line in lines:

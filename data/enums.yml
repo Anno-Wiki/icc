@@ -1,152 +1,152 @@
 ConnectionEnum:
-    - type: translator
-    - type: editor
+    - enum: translator
+    - enum: editor
 AnnotationFlagEnum:
-    - flag: spam
-    - flag: innappropriate language
-    - flag: superfluous
-    - flag: unhelpful
-    - flag: offensive
+    - enum: spam
+    - enum: innappropriate language
+    - enum: superfluous
+    - enum: unhelpful
+    - enum: offensive
 UserFlagEnum:
-    - flag: innappropriate behavior
-    - flag: bot
-    - flag: spammer
-    - flag: hate speech
+    - enum: innappropriate behavior
+    - enum: bot
+    - enum: spammer
+    - enum: hate speech
 NotificationEnum:
-    - code: edit_approved
+    - enum: edit_approved
       public_code: Edit approved
       entity_type: EditVote
       notification: Edit \#{} on [{}] of {} by {}
       vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
-    - code: edit_rejected
+    - enum: edit_rejected
       public_code: Edit rejected
       entity_type: EditVote
       notification: Suggested edit \#{} on [{}] of _{}_ by {}
       vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
 ReputationEnum:
-    - code: upvote
+    - enum: upvote
       default_delta: 5
-    - code: downvote
+    - enum: downvote
       default_delta: -2
 LineEnum:
-    - label: lvl1
+    - enum: lvl1
       display: Level 1 Marker
-    - label: lvl2
+    - enum: lvl2
       display: Level 2 Marker
-    - label: lvl3
+    - enum: lvl3
       display: Level 3 Marker
-    - label: lvl4
+    - enum: lvl4
       display: Level 4 Marker
-    - label: lvl1
+    - enum: lvl1
       display: Book
-    - label: lvl2
+    - enum: lvl2
       display: Part
-    - label: lvl3
+    - enum: lvl3
       display: Chapter
-    - label: lvl1
+    - enum: lvl1
       display: Book
-    - label: lvl2
+    - enum: lvl2
       display: Chapter
-    - label: lvl1
+    - enum: lvl1
       display: Part
-    - label: lvl2
+    - enum: lvl2
       display: Chapter
-    - label: lvl1
+    - enum: lvl1
       display: Chapter
-    - label: lvl1
+    - enum: lvl1
       display: Scene
-    - label: lvl1
+    - enum: lvl1
       display: Act
-    - label: Lvl2
+    - enum: Lvl2
       display: Scene
-    - label: stg
+    - enum: stg
       display: Stage Direction
-    - label: quo
+    - enum: quo
       display: Block Quotation
-    - label: hr
+    - enum: hr
       display: Horizontal Rule
-    - label: pre
+    - enum: pre
       display: Preformatted Line
-    - label: lpre
+    - enum: lpre
       display: Last Preformatted Line
-    - label: fpre
+    - enum: fpre
       display: First Preformatted Line
-    - label: spre
+    - enum: spre
       display: Single Preformatted Line
-    - label: sl
+    - enum: sl
       display: Single Line
-    - label: ll
+    - enum: ll
       display: Last Line
-    - label: fl
+    - enum: fl
       display: First Line
-    - label: l
+    - enum: l
       display: Line
-    - label: oem
+    - enum: oem
       display: Line with Open Emphasis
-    - label: cem
+    - enum: cem
       display: Line with Closed Emphasis
-    - label: nem
+    - enum: nem
       display: Line with No Emphasis
-    - label: em
+    - enum: em
       display: Line with Emphasis
 Right:
-    - right: anonymize_users
+    - enum: anonymize_users
       min_rep: null
-    - right: approve_edits
+    - enum: approve_edits
       min_rep: null
-    - right: create_tags
+    - enum: create_tags
       min_rep: null
-    - right: deactivate_annotations
+    - enum: deactivate_annotations
       min_rep: null
-    - right: delete_annotations
+    - enum: delete_annotations
       min_rep: null
-    - right: delete_book_requests
+    - enum: delete_book_requests
       min_rep: null
-    - right: delete_edits
+    - enum: delete_edits
       min_rep: null
-    - right: delete_wiki_edits
+    - enum: delete_wiki_edits
       min_rep: null
-    - right: delete_tag_requests
+    - enum: delete_tag_requests
       min_rep: null
-    - right: edit_book_requests
+    - enum: edit_book_requests
       min_rep: null
-    - right: edit_deactivated_annotations
+    - enum: edit_deactivated_annotations
       min_rep: null
-    - right: edit_lines
+    - enum: edit_lines
       min_rep: null
-    - right: edit_locked_annotations
+    - enum: edit_locked_annotations
       min_rep: null
-    - right: edit_tag_requests
+    - enum: edit_tag_requests
       min_rep: null
-    - right: edit_tags
+    - enum: edit_tags
       min_rep: null
-    - right: immediate_edits
+    - enum: immediate_edits
       min_rep: null
-    - right: immediate_wiki_edits
+    - enum: immediate_wiki_edits
       min_rep: null
-    - right: lock_annotations
+    - enum: lock_annotations
       min_rep: null
-    - right: lock_users
+    - enum: lock_users
       min_rep: null
-    - right: reject_edits
+    - enum: reject_edits
       min_rep: null
-    - right: request_books
+    - enum: request_books
       min_rep: 100
-    - right: request_tags
+    - enum: request_tags
       min_rep: 100
-    - right: resolve_annotation_flags
+    - enum: resolve_annotation_flags
       min_rep: null
-    - right: resolve_deactivated_annotation_flags
+    - enum: resolve_deactivated_annotation_flags
       min_rep: null
-    - right: resolve_user_flags
+    - enum: resolve_user_flags
       min_rep: null
-    - right: review_edits
+    - enum: review_edits
       min_rep: 25
-    - right: review_wiki_edits
+    - enum: review_wiki_edits
       min_rep: 25
-    - right: review_deactivated_annotation_edits
+    - enum: review_deactivated_annotation_edits
       min_rep: null
-    - right: use_restricted_tags
+    - enum: use_restricted_tags
       min_rep: null
-    - right: view_deactivated_annotations
+    - enum: view_deactivated_annotations
       min_rep: null

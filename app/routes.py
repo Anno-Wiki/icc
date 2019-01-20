@@ -250,14 +250,14 @@ def writer_index():
         writers = Writer.query.outerjoin(WriterEditionConnection)\
                 .outerjoin(ConnectionEnum,
                         and_(ConnectionEnum.id==WriterEditionConnection.enum_id,
-                            ConnectionEnum.type=='Editor')).group_by(Writer.id)\
+                            ConnectionEnum.enum=='Editor')).group_by(Writer.id)\
                 .order_by(db.func.count(ConnectionEnum.id).desc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)
     elif sort == 'translated':
         writers = Writer.query\
                 .outerjoin(WriterEditionConnection).outerjoin(ConnectionEnum,
                         and_(ConnectionEnum.id==WriterEditionConnection.enum_id,
-                            ConnectionEnum.type=='Translator'))\
+                            ConnectionEnum.enum=='Translator'))\
                 .group_by(Writer.id)\
                 .order_by(db.func.count(ConnectionEnum.id).desc())\
                 .paginate(page, app.config['CARDS_PER_PAGE'], False)

@@ -22,6 +22,12 @@ from app import app, db, login
 ## Mixins ##
 ############
 
+class EnumMixin:
+    enum = db.Column(db.String(128), index=True)
+    def __repr__(self):
+        return f"<{type(self)} {self.enum}>"
+
+
 class VoteMixin:
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
@@ -201,22 +207,16 @@ text_request_followers = db.Table('text_request_followers',
 ## User Models ##
 #################
 
-class Right(db.Model):
+class Right(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    right = db.Column(db.String(128), index=True)
     min_rep = db.Column(db.Integer)
 
     def __repr__(self):
-        return f'<Right to {self.right}>'
+        return f'<Right to {self.enum}>'
 
-
-class ReputationEnum(db.Model):
+class ReputationEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(64))
     default_delta = db.Column(db.Integer, nullable=False)
-
-    def __repr__(self):
-        return f'<{self.code}>'
 
 
 class ReputationChange(db.Model):
@@ -241,16 +241,12 @@ class ReputationChange(db.Model):
 # `NotificationEnum.entity_type` is a string that allows me to translate
 # `NotificationObject.entity_id` into an actual query based on my `classes`
 # dictionary
-class NotificationEnum(db.Model):
+class NotificationEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(64))
     public_code = db.Column(db.String(64))
     entity_type = db.Column(db.String(64))
     notification = db.Column(db.String(191))
     vars = db.Column(db.String(191))
-
-    def __repr__(self):
-        return f'<{self.code} notification enum>'
 
 
 # NotificationObject describes the actual event.
@@ -442,7 +438,7 @@ class User(UserMixin, db.Model):
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def authorize(self, right):
-        r = Right.query.filter_by(right=right).first()
+        r = Right.query.filter_by(enum=right).first()
         if r in self.rights:
             pass
         elif r.min_rep and self.reputation >= r.min_rep:
@@ -451,7 +447,7 @@ class User(UserMixin, db.Model):
             abort(403)
 
     def is_authorized(self, right):
-        r = Right.query.filter_by(right=right).first()
+        r = Right.query.filter_by(enum=right).first()
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def up_power(self):
@@ -660,13 +656,13 @@ class Writer(db.Model):
     edited = db.relationship('Edition',
             secondary='join(WriterEditionConnection, ConnectionEnum)',
             primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
-            'ConnectionEnum.type=="editor")',
+            'ConnectionEnum.enum=="editor")',
             secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
             backref='editors')
     translated = db.relationship('Edition',
             secondary='join(WriterEditionConnection, ConnectionEnum)',
             primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
-            'ConnectionEnum.type=="translator")',
+            'ConnectionEnum.enum=="translator")',
             secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
             backref='translators')
     annotations = db.relationship('Annotation',
@@ -790,11 +786,10 @@ class WriterEditionConnection(db.Model):
         return f'<{self.writer.name} was {self.type.type} on {self.edition}>'
 
 
-class ConnectionEnum(db.Model):
+
+# For connection writers to texts and editions
+class ConnectionEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(128))
-    def __repr__(self):
-        return f'<ConnEnum {self.type}>'
 
 
 
@@ -839,13 +834,9 @@ class Tag(db.Model):
 ## Content Models ##
 ####################
 
-class LineEnum(db.Model):
+class LineEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    label = db.Column(db.String(12), index=True)
-    display = db.Column(db.String(64))
-
-    def __repr__(self):
-        return f'<{self.label}: {self.display}>'
+    display = db.Column(db.String(64), index=True)
 
 
 class Line(SearchableMixin, db.Model):
@@ -1234,10 +1225,14 @@ class Edit(db.Model, EditMixin):
             tmp = self.last_line_num
             self.last_line_num = self.first_line_num
             self.first_line_num = tmp
+        s = f'{self.first_line_num},{self.last_line_num},' \
+                f'{self.first_char_idx},{self.last_char_idx},' \
+                f'{self.body},{self.tags}'
+        self.hash_id = sha1(s.encode('utf8')).hexdigest()
 
     def __repr__(self):
         prefix = super().__repr__()
-        return f"{prefix}{self.annotation}>"
+        return f"{prefix}    {self.annotation}>"
 
     def get_hl(self):
         lines = self.lines
@@ -1432,13 +1427,8 @@ class TagRequest(db.Model):
             return f'{self.weight}'
 
 
-
-class UserFlagEnum(db.Model):
+class UserFlagEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    flag = db.Column(db.String(127))
-
-    def __repr__(self):
-        return f'<UserFlagEnum {self.flag}>'
 
 
 class UserFlag(db.Model):
@@ -1462,9 +1452,9 @@ class UserFlag(db.Model):
 
     def __repr__(self):
         if self.resolved:
-            return f'<X UserFlag: {self.flag.flag} at {self.time_thrown}>'
+            return f'<X UserFlag: {self.flag.enum} at {self.time_thrown}>'
         else:
-            return f'<UserFlag thrown: {self.flag.flag} at {self.time_thrown}>'
+            return f'<UserFlag thrown: {self.flag.enum} at {self.time_thrown}>'
 
     def resolve(self, resolver):
         self.time_resolved = datetime.utcnow()
@@ -1475,13 +1465,8 @@ class UserFlag(db.Model):
         self.resolver = None
 
 
-class AnnotationFlagEnum(db.Model):
+class AnnotationFlagEnum(db.Model, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    flag = db.Column(db.String(127))
-
-    def __repr__(self):
-        return f'<AnnotationFlagEnum {self.flag}>'
-
 
 class AnnotationFlag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
