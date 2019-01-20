@@ -22,7 +22,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'user.login'
 mail = Mail()
-#csrf = CSRFProtect(app)
+csrf = CSRFProtect()
 
 
 def create_app(config_class=Config):
@@ -33,6 +33,7 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
     app.md = Markdown(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
             if app.config["ELASTICSEARCH_URL"] else None
