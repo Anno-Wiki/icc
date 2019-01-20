@@ -267,7 +267,7 @@ class NotificationObject(db.Model):
                 .get(self.entity_id)
 
     def __repr__(self):
-        return f'<Notification {self.type.code}>'
+        return f'<Notification {self.enum.enum}>'
 
     def description(self):
         var_names = self.type.vars.split(',')
@@ -276,7 +276,7 @@ class NotificationObject(db.Model):
 
     @staticmethod
     def find(entity, code):
-        enum = NotificationEnum.query.filter_by(code=code).first()
+        enum = NotificationEnum.query.filter_by(enum=code).first()
         return NotificationObject.query.filter(NotificationObject.type==enum,
                 NotificationObject.entity_id==entity.id).first()
 
@@ -299,7 +299,7 @@ class Notification(db.Model):
             passive_deletes=True))
 
     def __repr__(self):
-        return f'<{self.object.type.code} notification'\
+        return f'<{self.object.enum.enum} notification'\
                 f' for {self.notifier.displayname}>'
 
     def mark_read(self):
@@ -1121,7 +1121,7 @@ class Annotation(db.Model):
 
 
     def upvote(self, voter):
-        reptype = ReputationEnum.query.filter_by(code='upvote').first()
+        reptype = ReputationEnum.query.filter_by(enum='upvote').first()
         weight = voter.up_power()
         repchange = ReputationChange(user=self.annotator, type=reptype,
                 delta=reptype.default_delta)
@@ -1132,7 +1132,7 @@ class Annotation(db.Model):
         db.session.add(vote)
 
     def downvote(self, voter):
-        reptype = ReputationEnum.query.filter_by(code='downvote').first()
+        reptype = ReputationEnum.query.filter_by(enum='downvote').first()
         weight = voter.down_power()
         if self.annotator.reputation + reptype.default_delta < 0:
             repdelta = -self.annotator.reputation
