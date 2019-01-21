@@ -24,10 +24,9 @@ login.login_view = 'user.login'
 mail = Mail()
 csrf = CSRFProtect()
 
-
 def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -37,7 +36,7 @@ def create_app(config_class=Config):
     app.md = Markdown(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
             if app.config["ELASTICSEARCH_URL"] else None
-    
+
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
     from icc.requests import requests as requests_bp
