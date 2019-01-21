@@ -2,15 +2,19 @@ import pytest, os, yaml
 
 from icc import create_app, db
 from icc.models import classes
+
 from config import Config
 
+# a testing version of Config that overrides some vars
 class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     TESTING = True
     ELASTICSEARCH_URL = None
-    #SERVER_NAME = 'www.testing.com'
     WTF_CSRF_ENABLED = 0
 
+
+# create the app; this is the fundamental fixture from which all is created. The
+# mother fixture...
 @pytest.fixture
 def app():
     app = create_app(TestConfig)
@@ -27,10 +31,14 @@ def app():
         db.session.remove()
         db.drop_all()
 
+
+# return an unpopulated test client
 @pytest.fixture
 def client(app):
     return app.test_client()
 
+
+# populate the app, return the app for db calls
 @pytest.fixture
 def pop(app):
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -90,6 +98,8 @@ def pop(app):
         db.session.commit()
     return app 
 
+
+# A populated app client
 @pytest.fixture
 def popclient(pop):
     return pop.test_client()
