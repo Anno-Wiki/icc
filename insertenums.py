@@ -1,14 +1,6 @@
-#!/bin/sh
-if 'true' : '''\'
-then
-echo $(env)
-exec '$ICCVENV' '$0' '$@'
-exit 127
-fi
-'''
 import yaml, argparse
-from app import db
-from app.models import classes
+from icc import db, create_app
+from icc.models import classes
 
 parser = argparse.ArgumentParser("Parse yaml enum files into the database")
 parser.add_argument('-c', '--config', action='store', type=str, required=True,
@@ -17,11 +9,14 @@ args = parser.parse_args()
 
 enums = yaml.load(open(args.config, 'rt'))
 
+app = create_app()
 for key, value in enums.items():
     i = 0 
     for entry in value:
-        db.session.add(classes[key](**entry))
+        with app.app_context():
+            db.session.add(classes[key](**entry))
         i += 1
     print(f"Added {i} {key}s")
 
-db.session.commit()
+with app.app_context():
+    db.session.commit()

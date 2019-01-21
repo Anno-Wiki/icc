@@ -22,6 +22,12 @@ from icc.search import add_to_index, remove_from_index, query_index
 ## Mixins ##
 ############
 
+class Base(db.Model):
+    __abstract__ = True
+
+    id = db.Column(db.Integer, primary_key=True)
+
+
 class EnumMixin:
     enum = db.Column(db.String(128), index=True)
     def __repr__(self):
@@ -207,19 +213,19 @@ text_request_followers = db.Table('text_request_followers',
 ## User Models ##
 #################
 
-class Right(db.Model, EnumMixin):
+class Right(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     min_rep = db.Column(db.Integer)
 
     def __repr__(self):
         return f'<Right to {self.enum}>'
 
-class ReputationEnum(db.Model, EnumMixin):
+class ReputationEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     default_delta = db.Column(db.Integer, nullable=False)
 
 
-class ReputationChange(db.Model):
+class ReputationChange(Base):
     id = db.Column(db.Integer, primary_key=True)
     delta = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -241,7 +247,7 @@ class ReputationChange(db.Model):
 # `NotificationEnum.entity_type` is a string that allows me to translate
 # `NotificationObject.entity_id` into an actual query based on my `classes`
 # dictionary
-class NotificationEnum(db.Model, EnumMixin):
+class NotificationEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     public_code = db.Column(db.String(64))
     entity_type = db.Column(db.String(64))
@@ -250,7 +256,7 @@ class NotificationEnum(db.Model, EnumMixin):
 
 
 # NotificationObject describes the actual event.
-class NotificationObject(db.Model):
+class NotificationObject(Base):
     id = db.Column(db.Integer, primary_key=True)
     enum_id = db.Column(db.Integer, db.ForeignKey('notification_enum.id'),
             nullable=False)
@@ -283,7 +289,7 @@ class NotificationObject(db.Model):
 
 # The `Notification` class connects a `NotificationObject` with a user and
 # whether he's seen it or not.
-class Notification(db.Model):
+class Notification(Base):
     id = db.Column(db.Integer, primary_key=True)
     notification_object_id = db.Column(db.Integer,
             db.ForeignKey('notification_object.id', ondelete='CASCADE'),
@@ -309,7 +315,7 @@ class Notification(db.Model):
         self.seen = False
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
@@ -528,7 +534,7 @@ def load_user(id):
 ## Content Data ##
 ##################
 
-class Wiki(db.Model):
+class Wiki(Base):
     id = db.Column(db.Integer, primary_key=True)
     entity_string = db.Column(db.String(191), index=True)
 
@@ -571,7 +577,7 @@ class Wiki(db.Model):
             flash("The edit has been submitted for peer review.")
 
 
-class WikiEditVote(db.Model, VoteMixin):
+class WikiEditVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     edit_id = db.Column(db.Integer, db.ForeignKey('wiki_edit.id',
@@ -584,7 +590,7 @@ class WikiEditVote(db.Model, VoteMixin):
         return f"{prefix}{self.edit}"
 
 
-class WikiEdit(db.Model, EditMixin):
+class WikiEdit(Base, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
     entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
@@ -642,7 +648,7 @@ class WikiEdit(db.Model, EditMixin):
         flash("The edit was approved.")
 
 
-class Writer(db.Model):
+class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
     last_name = db.Column(db.String(128), index=True)
@@ -695,7 +701,7 @@ class Writer(db.Model):
         return url_for('main.writer', writer_url=self.url)
 
 
-class Text(db.Model):
+class Text(Base):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
@@ -732,7 +738,7 @@ class Text(db.Model):
         return url_for('main.text', text_url=self.url)
 
 
-class Edition(db.Model):
+class Edition(Base):
     id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
@@ -772,7 +778,7 @@ class Edition(db.Model):
         return url_for('main.edition', text_url=self.text.url, edition_num=self.num)
 
 
-class WriterEditionConnection(db.Model):
+class WriterEditionConnection(Base):
     id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
@@ -788,7 +794,7 @@ class WriterEditionConnection(db.Model):
 
 
 # For connection writers to texts and editions
-class ConnectionEnum(db.Model, EnumMixin):
+class ConnectionEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
 
 
@@ -797,7 +803,7 @@ class ConnectionEnum(db.Model, EnumMixin):
 ## Tag System ##
 ################
 
-class Tag(db.Model):
+class Tag(Base):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
@@ -834,12 +840,12 @@ class Tag(db.Model):
 ## Content Models ##
 ####################
 
-class LineEnum(db.Model, EnumMixin):
+class LineEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     display = db.Column(db.String(64), index=True)
 
 
-class Line(SearchableMixin, db.Model):
+class Line(SearchableMixin, Base):
     __searchable__ = ['line', 'text_title']
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -966,7 +972,7 @@ class Line(SearchableMixin, db.Model):
 #################
 
 
-class Comment(db.Model):
+class Comment(Base):
     id = db.Column(db.Integer, primary_key=True)
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
             nullable=False)
@@ -992,7 +998,7 @@ class Comment(db.Model):
             return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
 
 
-class Vote(db.Model, VoteMixin):
+class Vote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     annotation_id = db.Column(db.Integer,
             db.ForeignKey('annotation.id', ondelete='CASCADE'), index=True)
@@ -1009,7 +1015,7 @@ class Vote(db.Model, VoteMixin):
         return f"{prefix}{self.annotation}"
 
 
-class Annotation(db.Model):
+class Annotation(Base):
     id = db.Column(db.Integer, primary_key=True)
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -1169,7 +1175,7 @@ class Annotation(db.Model):
             return f'{self.weight}'
 
 
-class EditVote(db.Model, VoteMixin):
+class EditVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     edit_id = db.Column(db.Integer,
             db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
@@ -1187,7 +1193,7 @@ class EditVote(db.Model, VoteMixin):
 
 
 
-class Edit(db.Model, EditMixin):
+class Edit(Base, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     entity_id = db.Column(db.Integer, db.ForeignKey('annotation.id',
@@ -1308,7 +1314,7 @@ class Edit(db.Model, EditMixin):
 ## Text Requests ##
 ###################
 
-class TextRequestVote(db.Model, VoteMixin):
+class TextRequestVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     text_request_id = db.Column(db.Integer,
             db.ForeignKey('text_request.id', ondelete='CASCADE'), index=True)
@@ -1320,7 +1326,7 @@ class TextRequestVote(db.Model, VoteMixin):
         return f"{prefix}{self.text_request}"
 
 
-class TextRequest(db.Model):
+class TextRequest(Base):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
@@ -1374,7 +1380,7 @@ class TextRequest(db.Model):
 ## Tag Requests ##
 ##################
 
-class TagRequestVote(db.Model, VoteMixin):
+class TagRequestVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     tag_request_id = db.Column(db.Integer,
         db.ForeignKey('tag_request.id', ondelete='CASCADE'), index=True)
@@ -1386,7 +1392,7 @@ class TagRequestVote(db.Model, VoteMixin):
         return f"{prefix}{self.tag_request}"
 
 
-class TagRequest(db.Model):
+class TagRequest(Base):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
@@ -1427,11 +1433,11 @@ class TagRequest(db.Model):
             return f'{self.weight}'
 
 
-class UserFlagEnum(db.Model, EnumMixin):
+class UserFlagEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
 
 
-class UserFlag(db.Model):
+class UserFlag(Base):
     id = db.Column(db.Integer, primary_key=True)
     user_flag_id = db.Column(db.Integer, db.ForeignKey('user_flag_enum.id'),
             index=True)
@@ -1465,10 +1471,10 @@ class UserFlag(db.Model):
         self.resolver = None
 
 
-class AnnotationFlagEnum(db.Model, EnumMixin):
+class AnnotationFlagEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
 
-class AnnotationFlag(db.Model):
+class AnnotationFlag(Base):
     id = db.Column(db.Integer, primary_key=True)
     annotation_flag_id = db.Column(db.Integer,
             db.ForeignKey('annotation_flag_enum.id'), index=True)

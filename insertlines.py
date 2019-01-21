@@ -1,5 +1,5 @@
-from app import db
-from app.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
+from icc import db, create_app
+from icc.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
         ConnectionEnum, Writer
 import sys, codecs, argparse, yaml, json
 
@@ -15,6 +15,7 @@ args = parser.parse_args()
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 config = yaml.load(open(args.config, 'rt'))
 lines = json.load(fin)
+app = create_app()
 
 # if this is the first version of the text, we have to create it and add all the
 # authors. If it isn't, we don't.
@@ -23,7 +24,8 @@ if args.initial:
             published=config['publication_date'],
             description=config['description'])
     for author in config['authors']:
-        writer = Writer.query.filter(Writer.name==author['name']).first()
+        with app.app_context():
+            writer = Writer.query.filter(Writer.name==author['name']).first()
         if writer:
             text.authors.append(writer)
             print(f"Found {writer.name} in the database.")
@@ -35,10 +37,12 @@ if args.initial:
                         description=author['description'])
                     )
             print(f"Created author {text.authors[-1].name}.")
-    db.session.add(text)
+    with app.app_context():
+        db.session.add(text)
     print(f"Created text {text.title} by {text.authors}.")
 else:
-    text = Text.query.filter_by(title=config.title).first()
+    with app.app_context():
+        text = Text.query.filter_by(title=config.title).first()
     print(f"Found {text.title} in the database.")
 
 # if this isn't the initial text creation, we obviously have a previous
@@ -54,7 +58,8 @@ edition = Edition(num=config['edition']['number'], text=text,
         primary=config['edition']['primary'],
         description=config['edition']['description'],
         published=config['edition']['publication_date'])
-db.session.add(edition)
+with app.app_context():
+    db.session.add(edition)
 print(f"Created edition number {edition.num} for {text.title}.")
 
 # For all the connection types we have, we go look in the edition dictionary for
@@ -62,24 +67,27 @@ print(f"Created edition number {edition.num} for {text.title}.")
 # to create those connections. Simple, really. (I'm actually kind of proud of
 # this one; I won't have to rewrite it as I add connections; which, are there
 # any?)
-for enum in ConnectionEnum.query.all():
+with app.app_context(): conns = ConnectionEnum.query.all()
+for enum in conns:
     for writer in config['edition'][enum.enum]:
-        writer_obj = Writer.query.filter_by(name=writer['name']).first()
+        with app.app_context():
+            writer_obj = Writer.query.filter_by(name=writer['name']).first()
         if not writer_obj:
             writer_obj = Writer(
                     name=writer['name'], last_name=writer['last_name'],
                     birth_date=writer['birthdate'],
                     death_date=writer['deathdate'],
                     description=writer['description'])
-            db.session.add(writer_obj)
+            with app.app_context(): db.session.add(writer_obj)
             print(f"Writer {writer_obj.name} created.")
 
         conn = WriterEditionConnection(writer=writer_obj, edition=edition,
                 enum=enum)
-        db.session.add(conn)
+        with app.app_context(): db.session.add(conn)
         print(f"Writer {writer_obj.name} added as a {enum.enum}.")
 
-labels = LineEnum.query.all()
+with app.app_context(): labels = LineEnum.query.all()
+print(labels)
 label = {}
 for l in labels:
     label[f'{l.enum}>{l.display}'] = l
@@ -90,7 +98,8 @@ for line in lines:
             label=label[line['label']], em_status=label[line['em_status']],
             lvl1=line['l1'], lvl2=line['l2'], lvl3=line['l3'], lvl4=line['l4'],
             line=line['line'])
-    db.session.add(l)
+    with app.app_context():
+        db.session.add(l)
 
     if i % 1000 == 0:
         print(i)
@@ -98,12 +107,14 @@ for line in lines:
 
 print(f"After an arduous {i} lines, we are done.")
 if  args.dryrun:
-    db.session.rollback()
+    with app.app_context():
+        db.session.rollback()
     print(f"Nothing committed.")
 else:
     print(f"Now committing...")
-    db.session.commit()
-    print(f"Done.")
-    print(f"Reindexing...")
-    Line.reindex(edition=edition)
+    with app.app_context():
+        db.session.commit()
+        print(f"Done.")
+        print(f"Reindexing...")
+        Line.reindex(edition=edition)
     print(f"Done.")

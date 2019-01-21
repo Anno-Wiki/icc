@@ -1,5 +1,5 @@
-from app import db
-from app.models import Tag
+from icc import db, create_app
+from icc.models import Tag
 import argparse, sys, yaml
 
 parser = argparse.ArgumentParser("Insert tags into icc database")
@@ -10,19 +10,21 @@ parser.add_argument('-d', '--dryrun', action='store_true',
 
 args = parser.parse_args()
 config = yaml.load(open(args.config, 'rt'))
+app = create_app()
 
 i = 0
 for tag in config['tags']:
-    if not Tag.query.filter_by(tag=tag['tag']).first():
-        db.session.add(
-                Tag(tag=tag['tag'], locked=tag['locked'],
-                    description=tag['description'])
-                )
+    with app.app_context():
+        if not Tag.query.filter_by(tag=tag['tag']).first():
+            db.session.add(Tag(tag=tag['tag'], locked=tag['locked'],
+                description=tag['description']))
         i += 1
 
 if not args.dryrun:
-    db.session.commit()
+    with app.app_context():
+        db.session.commit()
     print(f"{i} tags added to the database.")
 else:
-    db.session.rollback()
+    with app.app_context():
+        db.session.rollback()
     print(f"{i} tags created but rolled back.")

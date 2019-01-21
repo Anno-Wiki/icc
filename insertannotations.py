@@ -1,5 +1,5 @@
-from app import db
-from app.models import Line, User, Annotation, Edit, Tag, Edition, Text
+from icc import db, create_app
+from icc.models import Line, User, Annotation, Edit, Tag, Edition, Text
 import sys, codecs, argparse, json
 
 parser = argparse.ArgumentParser("Process icc .ano file into the database.")
@@ -14,46 +14,52 @@ parser.add_argument('-d', '--dryrun', action='store_true',
 
 args = parser.parse_args()
 
-community = User.query.filter_by(email='community@annopedia.org').first()
+app = create_app()
+
+with app.app_context():
+    community = User.query.filter_by(email='community@annopedia.org').first()
+    original_tag = Tag.query.filter_by(tag='original').first()
+    annotator_tag = Tag.query.filter_by(tag=args.annotator).first()
+
 if not community:
     sys.exit("The Community user hasn't been created in the database yet.")
 
-original_tag = Tag.query.filter_by(tag='original').first()
-annotator_tag = Tag.query.filter_by(tag=args.annotator).first()
-
 if annotator_tag == None:
-    annotator_tag = Tag(tag=args.annotator,
-            description=f"Original annotations from [[Writer:{args.annotator}]]",
-            locked=True)
-    if not args.dryrun:
-        db.session.add(annotator_tag)
-        db.session.commit()
+    with app.app_context():
+        annotator_tag = Tag(tag=args.annotator, description=f"Original
+                annotations from [[Writer:{args.annotator}]]", locked=True)
+        if not args.dryrun:
+            db.session.add(annotator_tag)
+            db.session.commit()
 
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
 annotations = json.load(fin)
 
 tags = [original_tag, annotator_tag]
 
-text = Text.query.filter_by(title=args.title).first()
+with app.app_context():
+    text = Text.query.filter_by(title=args.title).first()
+    edition = text.editions.filter_by(num=args.edition_num).first()
+
 if not text:
     parser.error(f"The text {args.title} was not found.")
-edition = text.editions.filter_by(num=args.edition_num).first()
 if not edition:
     parser.error(f"The edition number {args.edition_num} was not found for"
             f"{text.title}") 
 cnt = 0
 for annotation in annotations:
-    l = Line.query.filter_by(line=annotation['line']).first()
+    with app.app_context():
+        l = Line.query.filter_by(line=annotation['line']).first()
 
-    if not l:
-        db.session.rollback()
-        sys.exit(f"Fail on {cnt}: {annotation}")
+        if not l:
+            db.session.rollback()
+            sys.exit(f"Fail on {cnt}: {annotation}")
 
-    annotation = Annotation(edition=edition, annotator=community, locked=True,
-            fl=l.num, ll=l.num, fc=0, lc=-1,
-            body=annotation['annotation'], tags=tags)
+        annotation = Annotation(edition=edition, annotator=community,
+                locked=True, fl=l.num, ll=l.num, fc=0, lc=-1,
+                body=annotation['annotation'], tags=tags)
 
-    db.session.add(annotation)
+        db.session.add(annotation)
 
     cnt += 1
     if cnt % 25 == 0:
@@ -62,14 +68,16 @@ for annotation in annotations:
 if not args.dryrun:
     print(f"{cnt} annotations added.")
     print("Now committing...")
-    db.session.commit()
-    print("Committed.")
+    with app.app_context():
+        db.session.commit()
+        print("Committed.")
     # I don't want to import SearchableMixin to test this, but I don't want to
     # eliminate the method in case I change my mind.
-    if 'SearchableMixin' in str(Annotation.__bases__):
-        Annotation.reindex(edition_id=args.edition_id)
-        print("Now reindexing...")
+        if 'SearchableMixin' in str(Annotation.__bases__):
+            Annotation.reindex(edition_id=args.edition_id)
+            print("Now reindexing...")
     print("Done.")
 else:
-    db.session.rollback()
+    with app.app_context():
+        db.session.rollback()
     print(f"{cnt} annotations created.")
