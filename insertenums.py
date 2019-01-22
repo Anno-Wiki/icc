@@ -10,13 +10,15 @@ args = parser.parse_args()
 enums = yaml.load(open(args.config, 'rt'))
 
 app = create_app()
+ctx = app.app_context()
+ctx.push()
+
 for key, value in enums.items():
     i = 0 
     for entry in value:
-        with app.app_context():
-            db.session.add(classes[key](**entry))
+        db.session.add(classes[key](**entry))
         i += 1
     print(f"Added {i} {key}s")
 
-with app.app_context():
-    db.session.commit()
+db.session.commit()
+ctx.pop()

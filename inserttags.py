@@ -11,20 +11,21 @@ parser.add_argument('-d', '--dryrun', action='store_true',
 args = parser.parse_args()
 config = yaml.load(open(args.config, 'rt'))
 app = create_app()
+ctx = app.app_context()
+ctx.push()
 
 i = 0
 for tag in config['tags']:
-    with app.app_context():
-        if not Tag.query.filter_by(tag=tag['tag']).first():
-            db.session.add(Tag(tag=tag['tag'], locked=tag['locked'],
-                description=tag['description']))
+    if not Tag.query.filter_by(tag=tag['tag']).first():
+        db.session.add(Tag(tag=tag['tag'], locked=tag['locked'],
+            description=tag['description']))
         i += 1
 
 if not args.dryrun:
-    with app.app_context():
-        db.session.commit()
+    db.session.commit()
     print(f"{i} tags added to the database.")
 else:
-    with app.app_context():
-        db.session.rollback()
+    db.session.rollback()
     print(f"{i} tags created but rolled back.")
+
+ctx.pop()
