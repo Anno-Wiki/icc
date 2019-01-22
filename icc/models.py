@@ -25,9 +25,6 @@ from icc.search import add_to_index, remove_from_index, query_index
 class Base(db.Model):
     __abstract__ = True
 
-    id = db.Column(db.Integer, primary_key=True)
-
-
 class EnumMixin:
     enum = db.Column(db.String(128), index=True)
     def __repr__(self):
