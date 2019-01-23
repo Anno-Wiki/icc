@@ -14,15 +14,11 @@ from flaskext.markdown import Markdown
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 
-from flask_wtf.csrf import CSRFProtect
-
-
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'user.login'
 mail = Mail()
-csrf = CSRFProtect()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -32,7 +28,6 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
-    csrf.init_app(app)
     app.md = Markdown(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
             if app.config["ELASTICSEARCH_URL"] else None
