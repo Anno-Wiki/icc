@@ -1,4 +1,4 @@
-FLASK_APP=icc.py
+FLASK_APP=app.py
 FLASK_DEBUG=1
 FLASK_ENV=development
 MAIL_SERVER=localhost
