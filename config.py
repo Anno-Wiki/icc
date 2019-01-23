@@ -6,6 +6,7 @@ class Config(object):
     DEBUG = True
     ADMINS = ['emails@futuretld.org']
     ANNOTATIONS_PER_PAGE = 5
+    WTF_CSRF_ENABLE = True
 
     # mail system
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
