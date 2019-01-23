@@ -17,6 +17,7 @@ from icc.user.forms import LoginForm, RegistrationForm, EditProfileForm,\
         ResetPasswordRequestForm, ResetPasswordForm
 
 
+
 # flag user
 @user.route('/<user_id>/flag/<flag_id>')
 @login_required
@@ -38,7 +39,7 @@ def flag_user(flag_id, user_id):
 @user.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -51,7 +52,7 @@ def login():
             return redirect(url_for('user.login'))
         login_user(user, remember=form.remember_me.data)
 
-        redirect_url = generate_next(url_for('index'))
+        redirect_url = generate_next(url_for('main.index'))
         return redirect(redirect_url)
 
     return render_template('login.html', title="Sign In", form=form)
@@ -60,13 +61,13 @@ def login():
 @user.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
 @user.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(displayname=form.displayname.data, email=form.email.data)
