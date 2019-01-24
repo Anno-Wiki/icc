@@ -1,31 +1,34 @@
-#!/bin/sh
-if 'true' : '''\'
-then
-exec '$VENV' '$0' '$@'
-exit 127
-fi
-'''
-import re, sys, argparse, codecs, json
+import sys
+import argparse
+import re
+import codecs
+import json
 
 parser = argparse.ArgumentParser("Preprocess raw text files for lines.py.")
-parser.add_argument('-i', '--input', action='store', type=str, default=None,
-        help="Specify input file")
-parser.add_argument('-o', '--output', action='store', type=str, default=None,
-        help="Specify output file")
-parser.add_argument('--aout', action='store', type=str, default=None,
-        help="Specify annotation output file.")
-parser.add_argument('-a', '--annotated', action='store', type=str, default=None,
-        help="Specify regex to recognize when a line is annotated.")
-parser.add_argument('-e', '--emdash', action='store_true',
-        help="Normalize em dashes.")
-parser.add_argument('-q', '--quotes', action='store_true',
-        help="Convert dumb quotes to smart quotes (needs manual intervention)")
+parser.add_argument(
+    '-i', '--input', action='store', type=str, default=None,
+    help="Specify input file")
+parser.add_argument(
+    '-o', '--output', action='store', type=str, default=None,
+    help="Specify output file")
+parser.add_argument(
+    '--aout', action='store', type=str, default=None,
+    help="Specify annotation output file.")
+parser.add_argument(
+    '-a', '--annotated', action='store', type=str, default=None,
+    help="Specify regex to recognize when a line is annotated.")
+parser.add_argument(
+    '-e', '--emdash', action='store_true',
+    help="Normalize em dashes.")
+parser.add_argument(
+    '-q', '--quotes', action='store_true',
+    help="Convert dumb quotes to smart quotes (needs manual intervention)")
 
 args = parser.parse_args()
 
 # files
 fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace') \
-        if not args.input else open(args.input, 'rt')
+    if not args.input else open(args.input, 'rt')
 fout = sys.stdout if not args.output else open(args.output, 'wt')
 
 # File to output annotation json
@@ -55,7 +58,7 @@ for line in fin:
                     amatch = astack.pop(m.group())
                     amatch = amatch.strip('>')
                     amatch = amatch.strip()
-                    annotations.append({ 'annotation': tmp, 'line': amatch })
+                    annotations.append({'annotation': tmp, 'line': amatch})
                     skip = True
                     continue
                 else:
@@ -67,7 +70,7 @@ for line in fin:
         continue
 
     if args.emdash:
-        newline = re.sub(r"(--)", r"—", newline) 
+        newline = re.sub(r"(--)", r"—", newline)
 
     if args.quotes:
         newline = re.sub(r"([^a-zA-Z])'([a-zA-Z—])", r"\1‘\2", newline)

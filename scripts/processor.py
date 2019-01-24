@@ -1,47 +1,56 @@
-#!/bin/sh
-if 'true' : '''\'
-then
-exec '$VENV' '$0' '$@'
-exit 127
-fi
-'''
-import codecs, re, sys, argparse, json
+import sys
+import argparse
+import codecs
+import re
+import json
 
 parser = argparse.ArgumentParser("Parses text files into icc csv files.")
 
 # input and out put files
-parser.add_argument('-i', '--input', action='store', type=str, default=None,
-        help="Specify input file")
-parser.add_argument('-o', '--output', action='store', type=str, default=None,
-        help="Specify output file")
+parser.add_argument(
+    '-i', '--input', action='store', type=str, default=None,
+    help="Specify input file")
+parser.add_argument(
+    '-o', '--output', action='store', type=str, default=None,
+    help="Specify output file")
 
 # level and stage regex
-parser.add_argument('-1', '--level1', action='store', type=str, default=None,
-        help="The 1st level of the hierarchical chapter system")
-parser.add_argument('--level1label', action='store', type=str,
-        default="Level 1 Marker", help="Optional label for level 1")
+parser.add_argument(
+    '-1', '--level1', action='store', type=str, default=None,
+    help="The 1st level of the hierarchical chapter system")
+parser.add_argument(
+    '--level1label', action='store', type=str, default="Level 1 Marker",
+    help="Optional label for level 1")
 
-parser.add_argument('-2', '--level2', action='store', type=str, default=None,
-        help="The 2nd level")
-parser.add_argument('--level2label', action='store', type=str,
-        default="Level 2 Marker", help="Optional label for level 2")
+parser.add_argument(
+    '-2', '--level2', action='store', type=str, default=None,
+    help="The 2nd level")
+parser.add_argument(
+    '--level2label', action='store', type=str, default="Level 2 Marker",
+    help="Optional label for level 2")
 
-parser.add_argument('-3', '--level3', action='store', type=str, default=None,
-        help="The 3rd level")
-parser.add_argument('--level3label', action='store', type=str,
-        default="Level 3 Marker", help="Optional label for level 3")
+parser.add_argument(
+    '-3', '--level3', action='store', type=str, default=None,
+    help="The 3rd level")
+parser.add_argument(
+    '--level3label', action='store', type=str, default="Level 3 Marker",
+    help="Optional label for level 3")
 
-parser.add_argument('-4', '--level4', action='store', type=str, default=None,
-        help="The 4th level")
-parser.add_argument('--level4label', action='store', type=str,
-        default="Level 4 Marker", help="Optional label for level 4")
+parser.add_argument(
+    '-4', '--level4', action='store', type=str, default=None,
+    help="The 4th level")
+parser.add_argument(
+    '--level4label', action='store', type=str, default="Level 4 Marker",
+    help="Optional label for level 4")
 
-parser.add_argument('-s', '--stage', action='store', type=str, default=None,
-        help="Stage directions")
+parser.add_argument(
+    '-s', '--stage', action='store', type=str, default=None,
+    help="Stage directions")
 
 # parse the bible
-parser.add_argument('-b', '--bible', action='store_true',
-        help="Option designed for parsing the Bible")
+parser.add_argument(
+    '-b', '--bible', action='store_true',
+    help="Option designed for parsing the Bible")
 
 # aggregate level numbers flags
 parser.add_argument('--agg2', action='store_true', help="Aggregate level 2")
@@ -58,9 +67,10 @@ args.hr = True
 #########################
 
 # Files
-fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace') \
-        if not args.input else open(path, 'rt', encoding='UTF-8-SIG')
-fout = sys.stdout if not args.output else open(path, 'wt', encoding='UTF-8-SIG')
+fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')\
+    if not args.input else open(args.input, 'rt', encoding='UTF-8-SIG')
+fout = sys.stdout if not args.output else open(args.output, 'wt',
+                                               encoding='UTF-8-SIG')
 
 ######################
 # Global controllers #
@@ -84,11 +94,11 @@ stgreg = re.compile(args.stage) if args.stage else None
 ## Constant regexes ##
 ######################
 
-bible_book_regex = re.compile(r"(^(The Gospel According|The Lamentations"
-        "|The Acts|The Revelation)|^(The Revelation|Ezra|The Proverbs"
-        "|Ecclesiastes|The Song of Solomon|The Acts|Hosea|Joel|Obadiah|Jonah"
-        "|Micah|Amos|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)$"
-        "|(Book|Epistle))")
+bible_book_regex = re.compile(
+    r"(^(The Gospel According|The Lamentations|The Acts|The Revelation)|"
+    r"^(The Revelation|Ezra|The Proverbs|Ecclesiastes|The Song of Solomon|"
+    r"The Acts|Hosea|Joel|Obadiah|Jonah|Micah|Amos|Nahum|Habakkuk|Zephaniah|"
+    r"Haggai|Zechariah|Malachi)$|(Book|Epistle))")
 bible_testament_regex = re.compile(r"Testament")
 
 # regex for identifying ellipses and — em dashes
@@ -100,7 +110,7 @@ hrreg = re.compile(r"^\*\*\*$")         # Regex - hr
 prereg = re.compile(r"```")             # Regex - tag <pre>"s
 quoreg = re.compile(r"^>")              # Regex - tag quote
 
-wordboundary = re.compile("\w+|\W")     # Word boundary break for split
+wordboundary = re.compile(r"\w+|\W")     # Word boundary break for split
 
 ###############
 ## Functions ##
@@ -108,39 +118,39 @@ wordboundary = re.compile("\w+|\W")     # Word boundary break for split
 
 data_array = []
 
+
 def append(func):
+    """A wrapper to append the line dictionary to an array for eventual
+    outputting."""
     def call(*args, **kwargs):
         result = func(*args, **kwargs)
         data_array.append(result)
         return result
     return call
 
+
 @append
 def lout(cls, l):
-    # l is an array of the form ['line-type', 'line', 'emphasis-status']
-    # The form of the outpt csv is:
-    # line-number, line-type, emphasis-status,
-    # level-1-number through level-4-number,
-    # line
-    # We use @ signs because actual commas are a headache and a half
-    return { 'num': txtlines, 'label': cls, 'em_status': l[2],
-            'l1': lvl1num, 'l2': lvl2num, 'l3': lvl3num, 'l4': lvl4num,
-            'line': l[1].strip() }
+    """Return a json dictionary for the line."""
+    return {'num': txtlines, 'label': cls, 'em_status': l[2], 'l1': lvl1num,
+            'l2': lvl2num, 'l3': lvl3num, 'l4': lvl4num, 'line': l[1].strip()}
+
 
 def oc(line):
     o = line.count('<em>')
     c = line.count('</em>')
     return o - c
 
+
 #######################
 ## Initial file read ##
 #######################
 
-lines = [['beginning', 'beginning']] # Prepend initial value
+lines = [['beginning', 'beginning']]    # Prepend initial value
 i = 1   # Must index from one to avoid out of bounds for checking previous
-us = False # Underscore open flag
-lem = False # Line-by-line emphasis flag
-pre = False # pre flag
+us = False                              # Underscore open flag
+lem = False                             # Line-by-line emphasis flag
+pre = False                             # pre flag
 
 # In order to accomplish contextual tagging (i.e., based on previous
 # and next lines) we have to read the whole file into memory.
@@ -167,7 +177,7 @@ for line in fin:
     elif stgreg and re.search(stgreg, line):
         lines.append(['stg', line])
     elif args.hr and re.search(hrreg, line):
-        lines.append(['hr', '<hr class='book_separator'>'])
+        lines.append(['hr', '<hr class="book_separator">'])
     elif args.quo and re.search(quoreg, line):
         lines.append(['quo', line[1:]])
 
@@ -198,20 +208,17 @@ for line in fin:
     else:
         lines[i].append('nem>Line with No Emphasis')
 
-
     i += 1
 
-lines.append(['last', 'last']) # Append a final value to avoid out of bounds
-
-
+lines.append(['last', 'last'])  # Append a final value to avoid out of bounds
 
 ###################
 ## The Main Loop ##
 ###################
 
-i = 1                           # Reset i to 1 to avoid first case of out of bounds
-wordcount = 0                   # Keep track of words
-txtlines = 0                   # Count number of lines printed in toto
+i = 1                   # Reset i to 1 to avoid first case of out of bounds
+wordcount = 0           # Keep track of words
+txtlines = 0            # Count number of lines printed in toto
 
 # Heierarchical chapter numbers
 lvl1num = 0
@@ -257,7 +264,7 @@ for line in lines:
 
     # Handling for level 3
     elif lines[i][0] == 'lvl3':
-        lvl3numnum += 1
+        lvl3num += 1
         txtlines += 1
         if not args.agg4:
             lvl4num = 0
@@ -265,7 +272,7 @@ for line in lines:
 
     # Handling for level 4
     elif lines[i][0] == 'lvl4':
-        lvl4numnum += 1
+        lvl4num += 1
         txtlines += 1
         lout(f'lvl4>{args.level4label}', lines[i])
 
