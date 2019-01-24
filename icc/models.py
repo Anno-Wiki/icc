@@ -1,4 +1,9 @@
-import jwt, inspect, sys, operator, string
+import jwt
+import inspect
+import sys
+import operator
+import string
+
 from time import time
 from hashlib import sha1, md5
 from math import log10
@@ -8,7 +13,7 @@ from flask import url_for, abort, flash
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import or_, func, orm
+from sqlalchemy import orm
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
@@ -68,13 +73,13 @@ class EditMixin:
     @declared_attr
     def editor_id(cls):
         return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
-                default=1)
+                         default=1)
 
     @declared_attr
     def editor(cls):
         # The backref is the class name lowercased with an `s` appended
-        return db.relationship('User',
-                backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
+        return db.relationship(
+            'User', backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
 
     @declared_attr
     def previous(cls):
@@ -88,7 +93,8 @@ class EditMixin:
     @declared_attr
     def priors(cls):
         # A list of all prior edits
-        return db.relationship(f'{cls.__name__}',
+        return db.relationship(
+            f'{cls.__name__}',
             primaryjoin=f'and_(remote({cls.__name__}.entity_id)=='
             f'foreign({cls.__name__}.entity_id),'
             f'remote({cls.__name__}.num)<=foreign({cls.__name__}.num-1))',
@@ -123,7 +129,7 @@ class SearchableMixin(object):
         for i in range(len(ids)):
             when.append((ids[i], i))
         return cls.query.filter(cls.id.in_(ids)).order_by(
-                db.case(when, value=cls.id)).all(), total
+            db.case(when, value=cls.id)).all(), total
 
     @classmethod
     def before_commit(cls, session):
@@ -169,42 +175,50 @@ db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 ## Many-to-Many Tables ##
 #########################
 
-authors = db.Table('authors',
-        db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
-        db.Column('text_id', db.Integer, db.ForeignKey('text.id')))
-tags = db.Table('tags',
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-        db.Column('edit_id', db.Integer, db.ForeignKey('edit.id',
-            ondelete='CASCADE')))
-conferred_right = db.Table('conferred_rights',
-        db.Column('right_id', db.Integer, db.ForeignKey('right.id')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+authors = db.Table(
+    'authors', db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
+    db.Column('text_id', db.Integer, db.ForeignKey('text.id')))
+tags = db.Table(
+    'tags', db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+    db.Column('edit_id', db.Integer, db.ForeignKey('edit.id',
+                                                   ondelete='CASCADE')))
+conferred_right = db.Table(
+    'conferred_rights', db.Column('right_id', db.Integer,
+                                  db.ForeignKey('right.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 # followers
-text_followers = db.Table('text_followers',
-        db.Column('text_id', db.Integer, db.ForeignKey('text.id')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-writer_followers = db.Table('writer_followers',
-        db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-user_followers = db.Table('user_followers',
-        db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-        db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
-tag_followers = db.Table('tag_followers',
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-annotation_followers = db.Table('annotation_followers',
-        db.Column('annotation_id', db.Integer, db.ForeignKey('annotation.id',
-            ondelete='CASCADE')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-tag_request_followers = db.Table('tag_request_followers',
-        db.Column('tag_request_id', db.Integer, db.ForeignKey('tag_request.id',
-            ondelete='CASCADE')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-text_request_followers = db.Table('text_request_followers',
-        db.Column('text_request_id', db.Integer,
-            db.ForeignKey('text_request.id', ondelete='CASCADE')),
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+text_followers = db.Table(
+    'text_followers',
+    db.Column('text_id', db.Integer, db.ForeignKey('text.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+writer_followers = db.Table(
+    'writer_followers',
+    db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+user_followers = db.Table(
+    'user_followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
+tag_followers = db.Table(
+    'tag_followers',
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+annotation_followers = db.Table(
+    'annotation_followers',
+    db.Column('annotation_id', db.Integer, db.ForeignKey('annotation.id',
+                                                         ondelete='CASCADE')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+tag_request_followers = db.Table(
+    'tag_request_followers',
+    db.Column('tag_request_id', db.Integer, db.ForeignKey('tag_request.id',
+                                                          ondelete='CASCADE')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+text_request_followers = db.Table(
+    'text_request_followers',
+    db.Column('text_request_id', db.Integer, db.ForeignKey('text_request.id',
+                                                           ondelete='CASCADE')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 
 #################
@@ -230,7 +244,7 @@ class ReputationChange(Base):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     enum_id = db.Column(db.Integer, db.ForeignKey('reputation_enum.id'),
-            nullable=False)
+                        nullable=False)
 
     user = db.relationship('User', backref='changes')
     type = db.relationship('ReputationEnum')
@@ -258,7 +272,7 @@ class NotificationEnum(Base, EnumMixin):
 class NotificationObject(Base):
     id = db.Column(db.Integer, primary_key=True)
     enum_id = db.Column(db.Integer, db.ForeignKey('notification_enum.id'),
-            nullable=False)
+                        nullable=False)
     entity_id = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     actor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -268,8 +282,8 @@ class NotificationObject(Base):
 
     @orm.reconstructor
     def init_on_load(self):
-        self.entity = db.session.query(classes[self.type.entity_type])\
-                .get(self.entity_id)
+        self.entity = db.session.query(
+            classes[self.type.entity_type]).get(self.entity_id)
 
     def __repr__(self):
         return f'<Notification {self.enum.enum}>'
@@ -282,30 +296,31 @@ class NotificationObject(Base):
     @staticmethod
     def find(entity, code):
         enum = NotificationEnum.query.filter_by(enum=code).first()
-        return NotificationObject.query.filter(NotificationObject.type==enum,
-                NotificationObject.entity_id==entity.id).first()
+        return NotificationObject.query.filter(
+            NotificationObject.type==enum,
+            NotificationObject.entity_id==entity.id).first()
 
 
 # The `Notification` class connects a `NotificationObject` with a user and
 # whether he's seen it or not.
 class Notification(Base):
     id = db.Column(db.Integer, primary_key=True)
-    notification_object_id = db.Column(db.Integer,
-            db.ForeignKey('notification_object.id', ondelete='CASCADE'),
-            nullable=False)
-    notifier_id = db.Column(db.Integer, db.ForeignKey('user.id'),
-            nullable=False)
+    notification_object_id = db.Column(
+        db.Integer, db.ForeignKey('notification_object.id', ondelete='CASCADE'),
+        nullable=False)
+    notifier_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'), nullable=False)
     seen = db.Column(db.Boolean, default=False)
 
-    notifier = db.relationship('User',
-            backref=backref('notifications', lazy='dynamic'))
-    object = db.relationship('NotificationObject',
-            backref=backref('notifications', lazy='dynamic',
-            passive_deletes=True))
+    notifier = db.relationship(
+        'User', backref=backref('notifications', lazy='dynamic'))
+    object = db.relationship(
+        'NotificationObject', backref=backref('notifications', lazy='dynamic',
+                                              passive_deletes=True))
 
     def __repr__(self):
         return f'<{self.object.enum.enum} notification'\
-                f' for {self.notifier.displayname}>'
+            f' for {self.notifier.displayname}>'
 
     def mark_read(self):
         self.seen = True
@@ -325,86 +340,86 @@ class User(UserMixin, Base):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     # user meta information relationships
-    rights = db.relationship('Right', secondary=conferred_right,
-            backref='admins')
+    rights = db.relationship(
+        'Right', secondary=conferred_right, backref='admins')
 
     # annotations voted on
-    votes = db.relationship('Annotation', secondary='vote',
-            primaryjoin='User.id==Vote.voter_id',
-            secondaryjoin='Annotation.id==Vote.annotation_id',
-            backref='voters', lazy='dynamic')
+    votes = db.relationship(
+        'Annotation', secondary='vote', primaryjoin='User.id==Vote.voter_id',
+        secondaryjoin='Annotation.id==Vote.annotation_id', backref='voters',
+        lazy='dynamic')
     # edits voted on
-    edit_votes = db.relationship('Edit', secondary='edit_vote',
-            primaryjoin='User.id==EditVote.voter_id',
-            secondaryjoin='Edit.id==EditVote.edit_id',
-            backref='edit_voters', lazy='dynamic')
+    edit_votes = db.relationship(
+        'Edit', secondary='edit_vote', primaryjoin='User.id==EditVote.voter_id',
+        secondaryjoin='Edit.id==EditVote.edit_id', backref='edit_voters',
+        lazy='dynamic')
     # wiki edits voted on
-    wiki_edit_votes = db.relationship('WikiEdit', secondary='wiki_edit_vote',
-            primaryjoin='User.id==WikiEditVote.voter_id',
-            secondaryjoin='WikiEdit.id==WikiEditVote.edit_id',
-            backref='voters', lazy='dynamic')
+    wiki_edit_votes = db.relationship(
+        'WikiEdit', secondary='wiki_edit_vote',
+        primaryjoin='User.id==WikiEditVote.voter_id',
+        secondaryjoin='WikiEdit.id==WikiEditVote.edit_id', backref='voters',
+        lazy='dynamic')
     # text requests voted on
-    text_request_votes = db.relationship('TextRequest',
-            secondary='text_request_vote',
-            primaryjoin='TextRequestVote.voter_id==User.id',
-            secondaryjoin='TextRequestVote.text_request_id==TextRequest.id',
-            backref='voters', lazy='dynamic', passive_deletes=True)
+    text_request_votes = db.relationship(
+        'TextRequest', secondary='text_request_vote',
+        primaryjoin='TextRequestVote.voter_id==User.id',
+        secondaryjoin='TextRequestVote.text_request_id==TextRequest.id',
+        backref='voters', lazy='dynamic', passive_deletes=True)
     # tag requests voted on
-    tag_request_votes = db.relationship('TagRequest',
-            secondary='tag_request_vote',
-            primaryjoin='TagRequestVote.voter_id==User.id',
-            secondaryjoin='TagRequestVote.tag_request_id==TagRequest.id',
-            backref='voters', lazy='dynamic')
+    tag_request_votes = db.relationship(
+        'TagRequest', secondary='tag_request_vote',
+        primaryjoin='TagRequestVote.voter_id==User.id',
+        secondaryjoin='TagRequestVote.tag_request_id==TagRequest.id',
+        backref='voters', lazy='dynamic')
 
     # flag relationships
-    flags = db.relationship('UserFlagEnum',
-            secondary='user_flag',
-            primaryjoin='and_(UserFlag.user_id==User.id,'
-            'UserFlag.resolver_id==None)',
-            secondaryjoin='UserFlag.user_flag_id==UserFlagEnum.id',
-            backref='users')
-    flag_history = db.relationship('UserFlag',
-            primaryjoin='UserFlag.user_id==User.id', lazy='dynamic')
-    active_flags = db.relationship('UserFlag',
-            primaryjoin='and_(UserFlag.user_id==User.id,'
-                'UserFlag.resolver_id==None)')
+    flags = db.relationship(
+        'UserFlagEnum', secondary='user_flag',
+        primaryjoin='and_(UserFlag.user_id==User.id,'
+        'UserFlag.resolver_id==None)',
+        secondaryjoin='UserFlag.user_flag_id==UserFlagEnum.id', backref='users')
+    flag_history = db.relationship(
+        'UserFlag', primaryjoin='UserFlag.user_id==User.id', lazy='dynamic')
+    active_flags = db.relationship(
+        'UserFlag', primaryjoin='and_(UserFlag.user_id==User.id,'
+        'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
-            'User', secondary=user_followers,
-            primaryjoin=(user_followers.c.follower_id==id),
-            secondaryjoin=(user_followers.c.followed_id==id),
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_texts = db.relationship('Text',
-            secondary='text_followers',
-            primaryjoin='text_followers.c.user_id==User.id',
-            secondaryjoin='text_followers.c.text_id==Text.id',
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_writers = db.relationship('Writer',
-            secondary='writer_followers',
-            primaryjoin='writer_followers.c.user_id==User.id',
-            secondaryjoin='writer_followers.c.writer_id==Writer.id',
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_tags = db.relationship('Tag',
-            secondary='tag_followers',
-            primaryjoin='tag_followers.c.user_id==User.id',
-            secondaryjoin='tag_followers.c.tag_id==Tag.id',
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_annotations = db.relationship('Annotation',
-            secondary='annotation_followers',
-            primaryjoin='annotation_followers.c.user_id==User.id',
-            secondaryjoin='annotation_followers.c.annotation_id==Annotation.id',
-            backref=db.backref('followers', lazy='dynamic',
-                passive_deletes=True), lazy='dynamic')
-    followed_tag_requests = db.relationship('TagRequest',
-            secondary='tag_request_followers',
-            primaryjoin='tag_request_followers.c.user_id==User.id',
-            secondaryjoin='tag_request_followers.c.tag_request_id==TagRequest.id',
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_text_requests = db.relationship('TextRequest',
-            secondary='text_request_followers',
-            primaryjoin='text_request_followers.c.user_id==User.id',
-            secondaryjoin='text_request_followers.c.text_request_id==TextRequest.id',
-            backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+        'User', secondary=user_followers,
+        primaryjoin=(user_followers.c.follower_id==id),
+        secondaryjoin=(user_followers.c.followed_id==id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_texts = db.relationship(
+        'Text', secondary='text_followers',
+        primaryjoin='text_followers.c.user_id==User.id',
+        secondaryjoin='text_followers.c.text_id==Text.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_writers = db.relationship(
+        'Writer', secondary='writer_followers',
+        primaryjoin='writer_followers.c.user_id==User.id',
+        secondaryjoin='writer_followers.c.writer_id==Writer.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_tags = db.relationship(
+        'Tag', secondary='tag_followers',
+        primaryjoin='tag_followers.c.user_id==User.id',
+        secondaryjoin='tag_followers.c.tag_id==Tag.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_annotations = db.relationship(
+        'Annotation', secondary='annotation_followers',
+        primaryjoin='annotation_followers.c.user_id==User.id',
+        secondaryjoin='annotation_followers.c.annotation_id==Annotation.id',
+        backref=db.backref('followers', lazy='dynamic', passive_deletes=True),
+        lazy='dynamic')
+    followed_tag_requests = db.relationship(
+        'TagRequest', secondary='tag_request_followers',
+        primaryjoin='tag_request_followers.c.user_id==User.id',
+        secondaryjoin='tag_request_followers.c.tag_request_id==TagRequest.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_text_requests = db.relationship(
+        'TextRequest', secondary='text_request_followers',
+        primaryjoin='text_request_followers.c.user_id==User.id',
+        secondaryjoin='text_request_followers.c.text_request_id==TextRequest.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.displayname)
@@ -426,14 +441,15 @@ class User(UserMixin, Base):
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
-                {'reset_password': self.id, 'exp': time() + expires_in},
-                app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
-                    algorithms=['HS256'])['reset_password']
+            id = jwt.decode(
+                token, app.config['SECRET_KEY'],
+                algorithms=['HS256'])['reset_password']
         except:
             return
         return User.query.get(id)
@@ -499,7 +515,7 @@ class User(UserMixin, Base):
 
     def get_text_request_vote(self, text_request):
         return self.text_request_ballots.filter(
-                TextRequestVote.text_request==text_request).first()
+            TextRequestVote.text_request==text_request).first()
 
     # tag request vote utilities
     def get_tag_request_vote_dict(self):
@@ -513,7 +529,7 @@ class User(UserMixin, Base):
 
     def get_tag_request_vote(self, tag_request):
         return self.tag_request_ballots.filter(
-                TagRequestVote.tag_request==tag_request).first()
+            TagRequestVote.tag_request==tag_request).first()
 
     # edit vote utilities
     def get_edit_vote(self, edit):
