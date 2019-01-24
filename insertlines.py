@@ -1,11 +1,18 @@
+import sys
+import codecs
+import argparse
+import yaml
+import json
+
 from icc import db, create_app
 from icc.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
         ConnectionEnum, Writer
-import sys, codecs, argparse, yaml, json
 
 parser = argparse.ArgumentParser("Insert lines into icc database")
-parser.add_argument('-c', '--config', action='store', type=str, required=True,
-        help="The location of the yaml configuration file for the text")
+parser.add_argument(
+    '-c', '--config', action='store', type=str, required=True,
+    help="The location of the yaml configuration file for the text"
+)
 parser.add_argument('-i', '--initial', action='store_true',
         help="This is an initial text.")
 parser.add_argument('-d', '--dryrun', action='store_true',

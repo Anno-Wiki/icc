@@ -1,16 +1,24 @@
+import sys
+import argparse
+import codecs
+import json
 from icc import db, create_app
-from icc.models import Line, User, Annotation, Edit, Tag, Edition, Text
-import sys, codecs, argparse, json
+from icc.models import Line, User, Annotation, Tag, Text
+
+"""Parse annotations from json file into the prepopulated database."""
 
 parser = argparse.ArgumentParser("Process icc .ano file into the database.")
-parser.add_argument('-t', '--title', action='store', type=str, required=True,
-        help="The title of the text for the annotations")
-parser.add_argument('-e', '--edition_num', action='store', type=int,
-        required=True, help="The edition number of the text for the annotations.")
-parser.add_argument('-a', '--annotator', action='store', type=str, required=True,
-        help="The name of the annotator in the form of a tag (i.e., no spaces)")
-parser.add_argument('-d', '--dryrun', action='store_true',
-        help="Flag for a dry run test.")
+parser.add_argument(
+    '-t', '--title', action='store', type=str, required=True,
+    help="The title of the text for the annotations")
+parser.add_argument(
+    '-e', '--edition_num', action='store', type=int,
+    required=True, help="The edition number of the text for the annotations.")
+parser.add_argument(
+    '-a', '--annotator', action='store', type=str, required=True,
+    help="The name of the annotator in the form of a tag (i.e., no spaces)")
+parser.add_argument(
+    '-d', '--dryrun', action='store_true', help="Flag for a dry run test.")
 
 args = parser.parse_args()
 
@@ -25,9 +33,11 @@ annotator_tag = Tag.query.filter_by(tag=args.annotator).first()
 if not community:
     sys.exit("The Community user hasn't been created in the database yet.")
 
-if annotator_tag == None:
-    annotator_tag = Tag(tag=args.annotator, description=f"Original "
-    f"annotations from [[Writer:{args.annotator}]]", locked=True)
+if annotator_tag is None:
+    annotator_tag = Tag(
+        tag=args.annotator,
+        description=f"Original annotations from"
+        " [[Writer:{args.annotator}]]", locked=True)
     if not args.dryrun:
         db.session.add(annotator_tag)
         db.session.commit()
@@ -44,20 +54,19 @@ if not text:
     parser.error(f"The text {args.title} was not found.")
 if not edition:
     parser.error(f"The edition number {args.edition_num} was not found for"
-            f"{text.title}") 
+                 f"{text.title}")
 
 cnt = 0
 for annotation in annotations:
-    l = Line.query.filter_by(line=annotation['line']).first()
+    line = Line.query.filter_by(line=annotation['line']).first()
 
-    if not l:
+    if not line:
         db.session.rollback()
         sys.exit(f"Fail on {cnt}: {annotation}")
 
-    annotation = Annotation(edition=edition, annotator=community,
-            locked=True, fl=l.num, ll=l.num, fc=0, lc=-1,
-            body=annotation['annotation'], tags=tags)
-
+    annotation = Annotation(edition=edition, annotator=community, locked=True,
+                            fl=line.num, ll=line.num, fc=0, lc=-1,
+                            body=annotation['annotation'], tags=tags)
     db.session.add(annotation)
 
     cnt += 1

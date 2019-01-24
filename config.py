@@ -1,8 +1,9 @@
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
 import mysqlpw
 
-class Config(object):
+
+class Config:
+    """The default config object."""
     DEBUG = True
     ADMINS = ['emails@futuretld.org']
     ANNOTATIONS_PER_PAGE = 5
@@ -35,7 +36,8 @@ class Config(object):
     # technicals
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'youllneverguess'
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')\
-            or f'mysql+pymysql://{mysqlpw.ACCT}:{mysqlpw.PW}@localhost/icc?charset=utf8mb4'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or\
+        f'mysql+pymysql://{mysqlpw.ACCT}:{mysqlpw.PW}@localhost/'\
+        'icc?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = 0
