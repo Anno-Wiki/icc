@@ -2,6 +2,7 @@ from flask import render_template, url_for
 from icc import app, db
 from icc.funky import generate_next
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     redirect_url = generate_next(url_for("index"))

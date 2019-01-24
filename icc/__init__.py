@@ -20,6 +20,7 @@ login = LoginManager()
 login.login_view = 'user.login'
 mail = Mail()
 
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -30,7 +31,7 @@ def create_app(config_class=Config):
     mail.init_app(app)
     app.md = Markdown(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
-            if app.config["ELASTICSEARCH_URL"] else None
+        if app.config["ELASTICSEARCH_URL"] else None
 
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
@@ -53,17 +54,17 @@ def create_app(config_class=Config):
             if app.config['MAIL_USE_TLS']:
                 secure = ()
             mail_handler = SMTPHandler(
-                    mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                    fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                    toaddrs=app.config['ADMINS'], subject="ICC FAILURE",
-                    credentials=auth, secure=secure)
+                mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+                fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+                toaddrs=app.config['ADMINS'], subject="ICC FAILURE",
+                credentials=auth, secure=secure)
             mail_handler.setLevel(logging.ERROR)
             app.logger.addHandler(mail_handler)
 
         if not os.path.exists('logs'):
             os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/icc.log',
-                maxBytes=10240, backupCount=10)
+        file_handler = RotatingFileHandler('logs/icc.log', maxBytes=10240,
+                                           backupCount=10)
         file_handler.setFormatter(logging.Formatter(
                 "%(asctime)s %(levelname)s: %(message)s "
                 "[in %(pathname)s:%(lineno)d]"))
@@ -80,5 +81,6 @@ def create_app(config_class=Config):
     app.jinja_env.globals['time'] = time
 
     return app
+
 
 from icc import models, funky

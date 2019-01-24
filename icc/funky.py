@@ -3,8 +3,6 @@ from flask import request
 from flask_login import current_user
 from werkzeug.urls import url_parse
 
-from icc import db
-from icc.models import Tag
 
 # This method is used to run through all the lines for a read view and convert/
 # prep them to be shown: (a) converts underscores to <em>/</em> tags, and (b)
@@ -37,16 +35,18 @@ def preplines(lines):
         elif line.em_status.enum == 'em':
             lines[i].line = '<em>' + lines[i].line + '</em>'
 
+
 def is_filled(data):
     if not data.strip():
         return False
-    if data == None:
+    if data is None:
         return False
     if data == '':
         return False
     if data == []:
         return False
     return True
+
 
 def generate_next(alt_url):
     redirect_url = request.args.get('next')
@@ -56,6 +56,7 @@ def generate_next(alt_url):
         return request.referrer
     else:
         return alt_url
+
 
 def line_check(fl, ll):
     # technically none of this can happen anyway because of my Edit.__init__(),
@@ -67,6 +68,7 @@ def line_check(fl, ll):
         ll = fl
         fl = tmp
     return fl, ll
+
 
 def authorize(string):
     def inner(f):
