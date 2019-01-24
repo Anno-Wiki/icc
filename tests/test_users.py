@@ -152,3 +152,20 @@ def test_reset_password_token(app):
         token = u.get_reset_password_token()
         assert token
         assert u == User.verify_reset_password_token(token)
+
+
+def test_profile(pop):
+    u = User(displayname='john', email='john@example.com')
+    u.set_password('test')
+    with pop.app_context():
+        db.session.add(u)
+        db.session.commit()
+    cl = pop.test_client()
+    rv = cl.get('/user/login')       # login
+    assert rv.status_code == 200
+    cl.post('/user/login',
+            data={'email': 'john@example.com',
+                  'password': 'test',
+                  'csrf_token': get_token(rv.data)}, follow_redirects=True)
+    rv = cl.get('/user/profile')
+    assert b'john' in rv.data
