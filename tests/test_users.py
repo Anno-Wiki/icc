@@ -1,3 +1,4 @@
+import time
 from icc import db
 from icc.models import Right, User
 from tests.utils import get_token
@@ -123,3 +124,31 @@ def test_avatar():
     u = User(displayname='john', email='john@example.com')
     assert u.avatar(128) == 'https://www.gravatar.com/avatar/' \
                             'd4c74594d841139328695756648b6bd6?d=identicon&s=128'
+
+
+def test_update_last_seen(app):
+    u = User(displayname='john', email='john@example.com')
+    with app.app_context():
+        db.session.add(u)
+        db.session.commit()
+        first = u.last_seen
+        time.sleep(1)
+        u.update_last_seen()
+        assert first != u.last_seen
+
+
+def test_repr():
+    u = User(displayname='john', email='john@example.com')
+    assert u != ''
+
+
+def test_reset_password_token(app):
+    u = User(displayname='john', email='john@example.com')
+    u.set_password('test')
+    with app.app_context():
+        db.session.add(u)
+        db.session.commit()
+
+        token = u.get_reset_password_token()
+        assert token
+        assert u == User.verify_reset_password_token(token)
