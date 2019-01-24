@@ -8,15 +8,13 @@ def test_register(client):
     url = '/user/register'
     rv = client.get(url)
     assert rv.status_code == 200                    # page loads
-    rv = client.post(url,
-            data={
-                'displayname': 'tester',
-                'email': 'george@test.com',
-                'password': 'test',
-                'password2': 'test',
-                'csrf_token': get_token(rv.data)
-                },
-            follow_redirects=True)
+    rv = client.post(
+        url,
+        data={'displayname': 'tester', 'email': 'george@test.com',
+              'password': 'test', 'password2': 'test',
+              'csrf_token': get_token(rv.data)},
+        follow_redirects=True
+    )
     assert rv.status_code == 200                    # page loads
     rv = client.get('user/list')
     assert b'tester' in rv.data                     # successful registration
@@ -27,9 +25,12 @@ def test_locked_login(popclient):
     url = '/user/login'
     rv = popclient.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(url, data={ 'email': 'community@example.com',
-                'password': 'testing', 'csrf_token': get_token(rv.data) },
-            follow_redirects=True)
+    rv = popclient.post(
+        url,
+        data={'email': 'community@example.com', 'password': 'testing',
+              'csrf_token': get_token(rv.data)},
+        follow_redirects=True
+    )
     assert rv.status_code == 200                    # page working
     assert b'That account is locked' in rv.data     # account locked
 
@@ -39,9 +40,12 @@ def test_invalid_credentials_login(popclient):
     url = '/user/login'
     rv = popclient.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(url, data={ 'email': 'george@example.com',
-                'password': 'nottesting', 'csrf_token': get_token(rv.data) },
-            follow_redirects=True)
+    rv = popclient.post(
+        url,
+        data={'email': 'george@example.com', 'password': 'nottesting',
+              'csrf_token': get_token(rv.data)},
+        follow_redirects=True
+    )
     assert rv.status_code == 200                    # page working
     assert b'Invalid email or password' in rv.data  # login prevented
 
@@ -51,9 +55,12 @@ def test_login_logout(popclient):
     url = '/user/login'
     rv = popclient.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(url, data={ 'email': 'george@example.com',
-                'password': 'testing', 'csrf_token': get_token(rv.data) },
-            follow_redirects=True)
+    rv = popclient.post(
+        url,
+        data={'email': 'george@example.com', 'password': 'testing',
+              'csrf_token': get_token(rv.data)},
+        follow_redirects=True
+    )
     assert rv.status_code == 200                    # page working
     assert b'logout' in rv.data                     # successful login
     assert b'login' not in rv.data                  # successful logout
@@ -100,7 +107,7 @@ def test_user_rights_not_authorized(app):
     with app.app_context():
         db.session.add(right)
         db.session.commit()
-        assert not u.is_authorized('right_to_balloons') # user is not authorized
+        assert not u.is_authorized('right_to_balloons')  # user is not authorized
 
 
 def test_password():

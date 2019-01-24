@@ -1,12 +1,16 @@
-import pytest, os, yaml
+import os
+import yaml
+import pytest
 
 from icc import create_app, db
 from icc.models import classes
 
 from config import Config
 
+
 # a testing version of Config that overrides some vars
 class TestConfig(Config):
+    """The test config object for building the app."""
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     TESTING = True
     ELASTICSEARCH_URL = None
@@ -74,22 +78,28 @@ def pop(app):
     for l in labels:
         label[f'{l.enum}>{l.display}'] = l
     for line in lines:
-        db.session.add(classes['Line'](edition=e, num=line['num'],
-            label=label[line['enum']],
-            em_status=label[line['em_status']],
-            lvl1=line['l1'], lvl2=line['l2'], lvl3=line['l3'],
-            lvl4=line['l4'], line=line['line']))
+        db.session.add(
+            classes['Line'](
+                edition=e, num=line['num'], label=label[line['enum']],
+                em_status=label[line['em_status']], lvl1=line['l1'],
+                lvl2=line['l2'], lvl3=line['l3'], lvl4=line['l4'],
+                line=line['line']
+            )
+        )
 
     # populate the annotations
     for a in annotations:
         annotator = a.pop('annotator')
-        annotator = classes['User'].query.filter_by(displayname=annotator).first()
+        annotator = classes['User'].query.filter_by(
+            displayname=annotator).first()
         tag_strings = a.pop('tags')
-        tags = [classes['Tag'].query.filter_by(tag=tag).first() for tag in tag_strings]
-        db.session.add(classes['Annotation'](annotator=annotator, edition=e, tags=tags,
-            **a))
+        tags = [classes['Tag'].query.filter_by(tag=tag).first() for tag in
+                tag_strings]
+        db.session.add(
+            classes['Annotation'](
+                annotator=annotator, edition=e, tags=tags, **a))
     db.session.commit()
-    return app 
+    return app
 
 
 @pytest.fixture
