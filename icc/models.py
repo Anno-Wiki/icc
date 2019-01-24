@@ -25,6 +25,7 @@ from icc.search import add_to_index, remove_from_index, query_index
 class Base(db.Model):
     __abstract__ = True
 
+
 class EnumMixin:
     enum = db.Column(db.String(128), index=True)
     def __repr__(self):
@@ -216,6 +217,7 @@ class Right(Base, EnumMixin):
 
     def __repr__(self):
         return f'<Right to {self.enum}>'
+
 
 class ReputationEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
