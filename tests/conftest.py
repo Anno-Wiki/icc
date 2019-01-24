@@ -12,10 +12,9 @@ class TestConfig(Config):
     ELASTICSEARCH_URL = None
 
 
-# create the app; this is the fundamental fixture from which all is created. The
-# mother fixture...
 @pytest.fixture
 def app():
+    """Create the app; this is the fundamental fixture. The mother fixture..."""
     app = create_app(TestConfig)
 
     with app.app_context():
@@ -27,15 +26,15 @@ def app():
         db.drop_all()
 
 
-# return an unpopulated test client
 @pytest.fixture
 def client(app):
+    """Return an unpopulated test client."""
     return app.test_client()
 
 
-# populate the app, return the app for db calls
 @pytest.fixture
 def pop(app):
+    """Populate the database with dummy data, return the app."""
     dir_path = os.path.dirname(os.path.realpath(__file__))
     fin = open(f'{dir_path}/data.yml', 'rt')
     data = yaml.load(fin)
@@ -93,7 +92,7 @@ def pop(app):
     return app 
 
 
-# A populated app client
 @pytest.fixture
 def popclient(pop):
+    """Return the populated client."""
     return pop.test_client()
