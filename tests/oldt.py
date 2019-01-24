@@ -6,94 +6,6 @@ from app.models import *
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-fin = open(f'{dir_path}/data_for_tests.yml', 'rt')
-data = yaml.load(fin)
-authors = data['text'].pop('authors')
-edition = data['text'].pop('edition')
-annotations = edition.pop('annotations')
-lines = edition.pop('lines')
-password = 'testing'
-
-class Test(unittest.TestCase):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['ELASTICSEARCH_URL'] = None
-    app.config['TESTING'] = True
-    app.config['SERVER_NAME'] = 'www.testing.com'
-    app.config['SQLALCHEMY_ECHO'] = 0
-    app.config['WTF_CSRF_ENABLED'] = 0
-
-    # Helper functions
-    def login(self, email, password):
-        with app.app_context():
-            url = url_for('user.login')
-        return self.app.post(url, data={'email': email, 'password': password},
-                follow_redirects=True)
-
-    def logout(self):
-        with app.app_context():
-            url = url_for('user.logout')
-        return self.app.get(url, follow_redirects=True)
-
-    # setup function for the entire set of tests
-    @classmethod
-    def setUpClass(cls):
-        db.create_all()
-
-        # populate all enums
-        for enum, enums in data['enums'].items():
-            for instance in enums:
-                obj = classes[enum](**instance)
-                if enum == 'User':
-                    obj.set_password(password)
-                db.session.add(obj)
-
-        # populate the text
-        text = copy.deepcopy(data['text'])
-        t = Text(**text)
-        db.session.add(t)
-
-        # populate the authors
-        for author in authors:
-            t.authors.append(Writer(**author))
-
-        # populate the edition
-        e = Edition(text=t, **edition)
-        db.session.add(e)
-
-        # popoulate the lines
-        labels = LineEnum.query.all()
-        label = {}
-        for l in labels:
-            label[f'{l.enum}>{l.display}'] = l
-        e = Edition.query.first()
-        for line in lines:
-            db.session.add(Line(edition=e, num=line['num'],
-                label=label[line['enum']],
-                em_status=label[line['em_status']],
-                lvl1=line['l1'], lvl2=line['l2'], lvl3=line['l3'],
-                lvl4=line['l4'], line=line['line']))
-
-        # populate the annotations
-        for a in annotations:
-            annotator = a.pop('annotator')
-            annotator = User.query.filter_by(displayname=annotator).first()
-            tag_strings = a.pop('tags')
-            tags = [Tag.query.filter_by(tag=tag).first() for tag in tag_strings]
-            db.session.add(Annotation(annotator=annotator, edition=e, tags=tags,
-                **a))
-        db.session.commit()
-
-
-    @classmethod
-    def tearDownClass(cls):
-        db.session.remove()
-        db.drop_all()
-        fin.close()
-
-    # get app context for each test
-    def setUp(self):
-        self.app =  app.test_client()
-
     def test_secondaries_context(self):
         text = Text.query.first()
         self.assertNotEqual(text.annotations.count(), 0) # before app context
@@ -108,37 +20,6 @@ class Test(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertNotEqual(text.annotations.count(), 0) # before app query
 
-    def test_rights(self):
-        rights = data['enums']['Right']
-        for r in rights:
-            self.assertIsNotNone(Right.query.filter_by(enum=r['enum']).first())
-
-    def test_user_authorization(self):
-        rights = Right.query.all()
-        u = User.query.first()
-        u.rights = rights
-        db.session.commit()
-        for r in rights:
-            self.assertTrue(u.is_authorized(r.enum))
-
-    def test_login_logout(self):
-        u = User.query.filter_by(locked=False).first()
-
-        self.assertTrue(b'Invalid email or password' in self.login(u.email,
-            'bullcrap').data)
-
-        with self.app:
-            rv = self.login(u.email, password)
-            self.assertFalse(b'That account is locked' in rv.data)
-            self.assertFalse(b'Invalid email or password' in rv.data)
-
-            rv = self.logout()
-            self.assertEqual(rv.status_code, 200)
-
-    def test_locked_login(self):
-        lu = User.query.filter_by(locked=True).first()
-        self.assertTrue(b'That account is locked' in self.login(lu.email,
-            password).data)
 
     def test_annotations(self):
         annotations = Annotation.query.all()
@@ -147,17 +28,6 @@ class Test(unittest.TestCase):
             self.assertTrue(len(a.HEAD.context) >= 1)
             self.assertTrue(len(a.HEAD.lines) >= 1)
 
-    def test_password(self):
-        u = User(displayname='john', email='john@example.com')
-        u.set_password('dog')
-        self.assertFalse(u.check_password('cat'))
-        self.assertTrue(u.check_password('dog'))
-
-    def test_avatar(self):
-        u = User(displayname='john', email='john@example.com')
-        self.assertEqual(u.avatar(128), 
-                ('https://www.gravatar.com/avatar/d4c74594d841139328695756648b6'
-                'bd6?d=identicon&s=128'))
 
     def test_index(self):
         sorts = ['newest', 'oldest', 'modified', 'weight', 'thisdoesntexist']
