@@ -3,12 +3,13 @@ from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import ValidationError, InputRequired, Length
 from icc.models import Tag
 
+
 class TagForm(FlaskForm):
     tag = StringField('Tag', render_kw={'placeholder': 'Tag'},
-            validators=[InputRequired()])
+                      validators=[InputRequired()])
     description = TextAreaField('Description',
-            render_kw={'placeholder': 'Description'},
-            validators=[InputRequired()])
+                                render_kw={'placeholder': 'Description'},
+                                validators=[InputRequired()])
     submit = SubmitField('Submit')
 
     def validate_tag(self, tag):
@@ -16,7 +17,9 @@ class TagForm(FlaskForm):
         if tag is not None and self.description == tag.description:
             raise ValidationError("This tag already exists!")
 
+
 class LineForm(FlaskForm):
-    line = StringField('Line', validators=[InputRequired(),
-            Length(min=0, max=140)], render_kw={'maxlength': 200})
+    line = StringField('Line',
+                       validators=[InputRequired(), Length(min=0, max=140)],
+                       render_kw={'maxlength': 200})
     submit = SubmitField('Submit')
