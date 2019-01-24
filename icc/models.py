@@ -9,7 +9,7 @@ from hashlib import sha1, md5
 from math import log10
 from datetime import datetime
 
-from flask import url_for, abort, flash
+from flask import url_for, abort, flash, current_app as app
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -206,18 +206,18 @@ tag_followers = db.Table(
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 annotation_followers = db.Table(
     'annotation_followers',
-    db.Column('annotation_id', db.Integer, db.ForeignKey('annotation.id',
-                                                         ondelete='CASCADE')),
+    db.Column('annotation_id', db.Integer,
+              db.ForeignKey('annotation.id', ondelete='CASCADE')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 tag_request_followers = db.Table(
     'tag_request_followers',
-    db.Column('tag_request_id', db.Integer, db.ForeignKey('tag_request.id',
-                                                          ondelete='CASCADE')),
+    db.Column('tag_request_id', db.Integer,
+              db.ForeignKey('tag_request.id', ondelete='CASCADE')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 text_request_followers = db.Table(
     'text_request_followers',
-    db.Column('text_request_id', db.Integer, db.ForeignKey('text_request.id',
-                                                           ondelete='CASCADE')),
+    db.Column('text_request_id', db.Integer,
+              db.ForeignKey('text_request.id', ondelete='CASCADE')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 
@@ -422,9 +422,11 @@ class User(UserMixin, Base):
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
-        return '<User {}>'.format(self.displayname)
+        return f"<User {self.displayname}"
 
-    # Utilities
+    ###############
+    ## Utilities ##
+    ###############
 
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
@@ -542,7 +544,6 @@ class User(UserMixin, Base):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
-
 
 
 ##################
@@ -807,11 +808,9 @@ class WriterEditionConnection(Base):
         return f'<{self.writer.name} was {self.type.type} on {self.edition}>'
 
 
-
 # For connection writers to texts and editions
 class ConnectionEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-
 
 
 ################
@@ -848,7 +847,6 @@ class Tag(Base):
 
     def get_url(self):
         return url_for('main.tag', tag=self.tag)
-
 
 
 ####################
@@ -979,7 +977,6 @@ class Line(SearchableMixin, Base):
         lvl4 = self.lvl4 if self.lvl4 > 0 else None
         return url_for('main.read', text_url=self.edition.text.url,
                 edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
-
 
 
 #################
@@ -1207,7 +1204,6 @@ class EditVote(Base, VoteMixin):
         return f"{prefix}{self.edit}"
 
 
-
 class Edit(Base, EditMixin):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -1317,7 +1313,6 @@ class Edit(Base, EditMixin):
         flash("The edit was approved.")
 
 
-
 ####################
 ####################
 ## ## Requests ## ##
@@ -1388,7 +1383,6 @@ class TextRequest(Base):
 
     def reject(self):
         self.rejected=True
-
 
 
 ##################
@@ -1488,6 +1482,7 @@ class UserFlag(Base):
 
 class AnnotationFlagEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
+
 
 class AnnotationFlag(Base):
     id = db.Column(db.Integer, primary_key=True)
