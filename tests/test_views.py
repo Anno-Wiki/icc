@@ -1,6 +1,6 @@
 from flask import url_for
 
-from icc.models import Writer, Text, Tag
+from icc.models import Writer, Text, Edition, Tag
 
 
 def test_writer_view(popclient):
@@ -27,12 +27,24 @@ def test_text_view(popclient):
             assert bytes(text.title, 'utf-8') in rv.data
 
 
+def test_edition(popclient):
+    app, client = popclient
+
+    with app.test_request_context():
+        editions = Edition.query.all()
+        for edition in editions:
+            url = url_for('main.edition', text_url=edition.text.url,
+                          edition_num=edition.num)
+            rv = client.get(url)
+            assert rv.status_code == 200
+            assert bytes(edition.text.title, 'utf-8') in rv.data
+            assert b'<tr class="lvl' in rv.data
+
 def test_tag(popclient):
     app, client = popclient
 
     with app.test_request_context():
         tags = Tag.query.all()
-        sorts = ['newest', 'oldest', 'weight', 'modified']
         for tag in tags:
             url = url_for('main.tag', tag=tag.tag)
             rv = client.get(url)
