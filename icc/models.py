@@ -17,16 +17,13 @@ from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
 
-# please note, if this last import is not the last import you can get some weird
+# Please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
 from icc import db, login
 from icc.search import add_to_index, remove_from_index, query_index
 
-############
-## Mixins ##
-############
 
-
+# Mixins
 class Base(db.Model):
     __abstract__ = True
 
@@ -114,7 +111,7 @@ class EditMixin:
         flash("The edit was rejected.")
 
 
-# if you encounter an error while committing to the effect that `NoneType has no
+# If you encounter an error while committing to the effect that `NoneType has no
 # attribute <x>` what you have done is specify an id# instead of an object. Use
 # the ORM. if that is not the case, it is because, for example, in the case of
 # Annotation.HEAD, you have created a new Annotation and Edit for HEAD to point
@@ -173,10 +170,8 @@ class SearchableMixin(object):
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
 db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
-#########################
-## Many-to-Many Tables ##
-#########################
 
+# Many-to-Many Tables
 authors = db.Table(
     'authors',
     db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
@@ -225,10 +220,7 @@ text_request_followers = db.Table(
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 
-#################
-## User Models ##
-#################
-
+# User Models
 class Right(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     min_rep = db.Column(db.Integer)
@@ -314,8 +306,8 @@ class User(UserMixin, Base):
 
     followed_users = db.relationship(
         'User', secondary=user_followers,
-        primaryjoin=(user_followers.c.follower_id==id),
-        secondaryjoin=(user_followers.c.followed_id==id),
+        primaryjoin=(user_followers.c.follower_id == id),
+        secondaryjoin=(user_followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     followed_texts = db.relationship(
         'Text', secondary='text_followers',
@@ -353,10 +345,7 @@ class User(UserMixin, Base):
     def __repr__(self):
         return f"<User {self.displayname}"
 
-    ###############
-    ## Utilities ##
-    ###############
-
+    # Utilities
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
 
@@ -425,7 +414,7 @@ class User(UserMixin, Base):
         return annotation in self.votes
 
     def get_vote(self, annotation):
-        return self.ballots.filter(Vote.annotation==annotation).first()
+        return self.ballots.filter(Vote.annotation == annotation).first()
 
     def get_vote_dict(self):
         v = {}
@@ -445,7 +434,7 @@ class User(UserMixin, Base):
 
     def get_text_request_vote(self, text_request):
         return self.text_request_ballots.filter(
-            TextRequestVote.text_request==text_request).first()
+            TextRequestVote.text_request == text_request).first()
 
     # tag request vote utilities
     def get_tag_request_vote_dict(self):
@@ -459,14 +448,14 @@ class User(UserMixin, Base):
 
     def get_tag_request_vote(self, tag_request):
         return self.tag_request_ballots.filter(
-            TagRequestVote.tag_request==tag_request).first()
+            TagRequestVote.tag_request == tag_request).first()
 
     # edit vote utilities
     def get_edit_vote(self, edit):
-        return self.edit_ballots.filter(EditVote.edit==edit).first()
+        return self.edit_ballots.filter(EditVote.edit == edit).first()
 
     def get_wiki_edit_vote(self, edit):
-        return self.wiki_edit_ballots.filter(WikiEditVote.edit==edit).first()
+        return self.wiki_edit_ballots.filter(WikiEditVote.edit == edit).first()
 
 
 @login.user_loader
@@ -474,10 +463,7 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-##################
-## Content Data ##
-##################
-
+# Content Data
 class Wiki(Base):
     id = db.Column(db.Integer, primary_key=True)
     entity_string = db.Column(db.String(191), index=True)
@@ -740,10 +726,7 @@ class ConnectionEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
 
 
-################
-## Tag System ##
-################
-
+# Tag System
 class Tag(Base):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
@@ -774,10 +757,7 @@ class Tag(Base):
         return url_for('main.tag', tag=self.tag)
 
 
-####################
-## Content Models ##
-####################
-
+# Content Models
 class LineEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     display = db.Column(db.String(64), index=True)
@@ -829,29 +809,26 @@ class Line(SearchableMixin, Base):
         line = None
         if self.lvl4 > 1:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2,
-                    Line.lvl3==self.lvl3,
-                    Line.lvl4==self.lvl4-1).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2,
+                Line.lvl3 == self.lvl3,
+                Line.lvl4 == self.lvl4-1).first()
         elif self.lvl3 > 1:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2,
-                    Line.lvl3==self.lvl3-1)\
-                        .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2,
+                Line.lvl3 == self.lvl3-1).order_by(Line.num.desc()).first()
         elif self.lvl2 > 1:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2-1)\
-                            .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2-1).order_by(Line.num.desc()).first()
         elif self.lvl1 > 1:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1-1)\
-                            .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1-1).order_by(Line.num.desc()).first()
         return line.get_url() if line else None
 
     def get_next_page(self):
@@ -862,39 +839,35 @@ class Line(SearchableMixin, Base):
         lvl4 = 0
         if self.lvl4 != 0:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2,
-                    Line.lvl3==self.lvl3,
-                    Line.lvl4==self.lvl4+1)\
-                        .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2,
+                Line.lvl3 == self.lvl3,
+                Line.lvl4 == self.lvl4+1).order_by(Line.num.desc()).first()
             lvl4 = 1
         if self.lvl3 != 0 and not line:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2,
-                    Line.lvl3==self.lvl3+1,
-                    Line.lvl4==lvl4)\
-                        .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2,
+                Line.lvl3 == self.lvl3+1,
+                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
             lvl3 = 1
         if self.lvl2 != 0 and not line:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1,
-                    Line.lvl2==self.lvl2+1,
-                    Line.lvl3==lvl3,
-                    Line.lvl4==lvl4)\
-                        .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1,
+                Line.lvl2 == self.lvl2+1,
+                Line.lvl3 == lvl3,
+                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
             lvl2 = 1
         if self.lvl1 != 0 and not line:
             line = Line.query.filter(
-                    Line.edition_id==self.edition_id,
-                    Line.lvl1==self.lvl1+1,
-                    Line.lvl2==lvl2,
-                    Line.lvl3==lvl3,
-                    Line.lvl4==lvl4)\
-                        .order_by(Line.num.desc()).first()
+                Line.edition_id == self.edition_id,
+                Line.lvl1 == self.lvl1+1,
+                Line.lvl2 == lvl2,
+                Line.lvl3 == lvl3,
+                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
         return line.get_url() if line else None
 
     def get_url(self):
@@ -907,11 +880,7 @@ class Line(SearchableMixin, Base):
             edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
 
 
-#################
-## Annotations ##
-#################
-
-
+# Annotations
 class Comment(Base):
     id = db.Column(db.Integer, primary_key=True)
     poster_id = db.Column(
@@ -1239,17 +1208,7 @@ class Edit(Base, EditMixin):
         flash("The edit was approved.")
 
 
-####################
-####################
-## ## Requests ## ##
-####################
-####################
-
-
-###################
-## Text Requests ##
-###################
-
+# Text Requests
 class TextRequestVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     text_request_id = db.Column(
@@ -1312,10 +1271,7 @@ class TextRequest(Base):
         self.rejected = True
 
 
-##################
-## Tag Requests ##
-##################
-
+# Tag Requests
 class TagRequestVote(Base, VoteMixin):
     id = db.Column(db.Integer, primary_key=True)
     tag_request_id = db.Column(
