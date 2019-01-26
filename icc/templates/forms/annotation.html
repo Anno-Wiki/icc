@@ -33,16 +33,16 @@
             {% for line in context %}
                 {% if line in lines %}
                     <div class="highlight">
-                        <line class="{{ line.label.label }}" id="{{
-                            line.line_num }}">
-                            <span class="linenum">{{ line.line_num }}</span>
+                        <line class="{{ line.label.enum }}" id="{{
+                            line.num }}">
+                            <span class="linenum">{{ line.num }}</span>
                             {{ line.line }}
                         </line>
                     </div>
                 {% else %}
-                    <line class="{{ line.label.label }}" id="{{ line.line_num
+                    <line class="{{ line.label.enum }}" id="{{ line.num
                         }}">
-                        <span class="linenum">{{ line.line_num }}</span>
+                        <span class="linenum">{{ line.num }}</span>
                         {{ line.line }}
                     </line>
                 {% endif %}
