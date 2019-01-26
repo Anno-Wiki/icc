@@ -799,19 +799,20 @@ class Line(SearchableMixin, Base):
     text = db.relationship('Text', secondary='edition', uselist=False)
     label = db.relationship('LineEnum', foreign_keys=[label_id])
     em_status = db.relationship('LineEnum', foreign_keys=[em_id])
-    context = db.relationship('Line',
-            primaryjoin='and_(remote(Line.num)<=Line.num+1,'
-            'remote(Line.num)>=Line.num-1,'
-            'remote(Line.edition_id)==Line.edition_id)',
-            foreign_keys=[num, edition_id], remote_side=[num, edition_id],
-            uselist=True, viewonly=True)
-    annotations = db.relationship('Annotation', secondary='edit',
-            primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
-            'Edit.last_line_num>=foreign(Line.num),'
-            'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
-            secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
-            'Annotation.active==True)',
-            uselist=True, foreign_keys=[num,edition_id], lazy='dynamic')
+    context = db.relationship(
+        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
+        'remote(Line.num)>=Line.num-1,'
+        'remote(Line.edition_id)==Line.edition_id)',
+        foreign_keys=[num, edition_id], remote_side=[num, edition_id],
+        uselist=True, viewonly=True)
+    annotations = db.relationship(
+        'Annotation', secondary='edit',
+        primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
+        'Edit.last_line_num>=foreign(Line.num),'
+        'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
+        secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
+        'Annotation.active==True)', foreign_keys=[num,edition_id],
+        uselist=True, lazy='dynamic')
 
     def __repr__(self):
         return f'<l{self.num} {self.edition.text.title} [{self.label.display}]>'

@@ -10,7 +10,7 @@
         <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id) }}">
             [{{ edit.annotation.id }}]
         </a>
-        of 
+        of
         <a href="{{ url_for("main.text", text_url=edit.edition.text.url) }}">
             {{ edit.edition.text.title }}
         </a>
@@ -81,7 +81,7 @@
                     {{ line.line }}
                 </line>
             {% else %}
-                <line id="{{ line.line_num }}" class="{{ line.label.label }}"> 
+                <line id="{{ line.line_num }}" class="{{ line.label.label }}">
                     {{ line.line }}
                 </line>
             {% endif %}
@@ -181,7 +181,7 @@
             {% endfor %}
         </tags>
 
-        <br> 
+        <br>
 
         <!--annotation authorship-->
         <em>
@@ -220,7 +220,7 @@
         <br>
         <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit }}</b>
     </annotation>
-    
+
     <p><em>New version, edit #{{ edit.num }}:</em></p>
     <annotation id="e{{ edit.id }}">
         <div class="annotation_head">

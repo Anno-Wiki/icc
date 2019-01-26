@@ -33,7 +33,7 @@
             <th align="right">Line</th>
         </tr>
         {% for section in hierarchy %}
-            {% if section.label.label == "lvl1" %}
+            {% if section.label.enum == "lvl1" %}
                 <tr class="lvl1_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
@@ -49,7 +49,7 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </td>
                 </tr>
-            {% elif section.label.label == "lvl2" %}
+            {% elif section.label.enum == "lvl2" %}
                 <tr class="lvl2_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
@@ -65,7 +65,7 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </th>
                 </tr>
-            {% elif section.label.label == "lvl3" %}
+            {% elif section.label.enum == "lvl3" %}
                 <tr class="lvl3_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
@@ -81,7 +81,7 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </th>
                 </tr>
-            {% elif section.label.label == "lvl4" %}
+            {% elif section.label.enum == "lvl4" %}
                 <tr class="lvl4_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
