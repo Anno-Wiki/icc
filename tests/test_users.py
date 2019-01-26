@@ -4,8 +4,9 @@ from icc.models import Right, User
 from tests.utils import get_token
 
 
-def test_register(client):
+def test_register(appclient):
     """Test user registration"""
+    client = appclient[1]
     url = '/user/register'
     rv = client.get(url)
     assert rv.status_code == 200                    # page loads
@@ -23,10 +24,11 @@ def test_register(client):
 
 def test_locked_login(popclient):
     "Test login of locked accounts."
+    client = popclient[1]
     url = '/user/login'
-    rv = popclient.get(url)
+    rv = client.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(
+    rv = client.post(
         url,
         data={'email': 'community@example.com', 'password': 'testing',
               'csrf_token': get_token(rv.data)},
@@ -38,10 +40,11 @@ def test_locked_login(popclient):
 
 def test_invalid_credentials_login(popclient):
     "Test login with invalid credentials."
+    client = popclient[1]
     url = '/user/login'
-    rv = popclient.get(url)
+    rv = client.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(
+    rv = client.post(
         url,
         data={'email': 'george@example.com', 'password': 'nottesting',
               'csrf_token': get_token(rv.data)},
@@ -53,10 +56,11 @@ def test_invalid_credentials_login(popclient):
 
 def test_login_logout(popclient):
     """Test login and logout."""
+    client = popclient[1]
     url = '/user/login'
-    rv = popclient.get(url)
+    rv = client.get(url)
     assert rv.status_code == 200                    # page working
-    rv = popclient.post(
+    rv = client.post(
         url,
         data={'email': 'george@example.com', 'password': 'testing',
               'csrf_token': get_token(rv.data)},
@@ -65,7 +69,7 @@ def test_login_logout(popclient):
     assert rv.status_code == 200                    # page working
     assert b'logout' in rv.data                     # successful login
     assert b'login' not in rv.data                  # successful logout
-    rv = popclient.get('/user/logout', follow_redirects=True)
+    rv = client.get('/user/logout', follow_redirects=True)
     assert b'login' in rv.data                      # successful logout
     assert b'logout' not in rv.data                 # successful logout
 

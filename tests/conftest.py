@@ -31,9 +31,9 @@ def app():
 
 
 @pytest.fixture
-def client(app):
+def appclient(app):
     """Return an unpopulated test client."""
-    return app.test_client()
+    return app, app.test_client()
 
 
 @pytest.fixture
@@ -105,4 +105,4 @@ def pop(app):
 @pytest.fixture
 def popclient(pop):
     """Return the populated client."""
-    return pop.test_client()
+    return pop, pop.test_client()
