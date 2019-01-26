@@ -9,7 +9,6 @@ def ajax_tags():
     tags = tagstr.split()
     results = Tag.query.filter(Tag.tag.startswith(tags[-1]),
                                Tag.locked==False).limit(6)
-    print(results)
     if not results:
         return jsonify({'success': False, 'tags': []})
     tag_list = []
