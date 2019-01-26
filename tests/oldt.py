@@ -1,11 +1,3 @@
-def test_annotations(self):
-    annotations = Annotation.query.all()
-    for a in annotations:
-        self.assertTrue(len(a.HEAD.tags) >= 1)
-        self.assertTrue(len(a.HEAD.context) >= 1)
-        self.assertTrue(len(a.HEAD.lines) >= 1)
-
-
 def test_read(self):
     text = Text.query.first()
     enum = LineEnum.query.first()

@@ -1,10 +1,11 @@
 from flask import url_for
 
-from icc.models import Annotation, Text, Line, LineEnum, User
+from icc.models import Annotation, Text, Line, User
 
 from tests.utils import get_token
 
-def test_annotations(popclient):
+
+def test_annotations_page(popclient):
     """Test annotation view."""
     app, client = popclient
 
@@ -16,7 +17,7 @@ def test_annotations(popclient):
         assert bytes(f'[{annotation.id}]', 'utf-8') in rv.data
 
 
-def test_annotate(popclient):
+def test_annotate_page(popclient):
     """Test annotating."""
     app, client = popclient
 
@@ -57,7 +58,7 @@ def test_annotate(popclient):
         assert b"This is a test!" in rv.data
 
 
-def test_edit(popclient):
+def test_edit_page(popclient):
     """Test editing annotations."""
     app, client = popclient
 
@@ -89,3 +90,14 @@ def test_edit(popclient):
         rv = client.get(url)
         assert rv.status_code == 200
         assert b"This is a test!" in rv.data
+
+
+def test_annotations_object(popclient):
+    """Test the annotations object."""
+    app, client = popclient
+
+    annotations = Annotation.query.all()
+    for a in annotations:
+        assert a.HEAD.body
+        assert a.HEAD.tags
+        assert a.HEAD.context
