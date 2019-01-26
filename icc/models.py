@@ -253,82 +253,6 @@ class ReputationChange(Base):
         return f'<rep change {self.type} on {self.user.displayname}>'
 
 
-# This is an implementation of the [notification system detailed
-# here](https://stackoverflow.com/questions/9735578/building-a-notification-system)
-
-# The type of notification is the `NotificationEnum.code`; the
-# `NotificationEnum.entity_type` is a string that allows me to translate
-# `NotificationObject.entity_id` into an actual query based on my `classes`
-# dictionary
-class NotificationEnum(Base, EnumMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    public_code = db.Column(db.String(64))
-    entity_type = db.Column(db.String(64))
-    notification = db.Column(db.String(191))
-    vars = db.Column(db.String(191))
-
-
-# NotificationObject describes the actual event.
-class NotificationObject(Base):
-    id = db.Column(db.Integer, primary_key=True)
-    enum_id = db.Column(db.Integer, db.ForeignKey('notification_enum.id'),
-                        nullable=False)
-    entity_id = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-    actor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    type = db.relationship('NotificationEnum')
-    actor = db.relationship('User')
-
-    @orm.reconstructor
-    def init_on_load(self):
-        self.entity = db.session.query(
-            classes[self.type.entity_type]).get(self.entity_id)
-
-    def __repr__(self):
-        return f'<Notification {self.enum.enum}>'
-
-    def description(self):
-        var_names = self.type.vars.split(',')
-        vars = [operator.attrgetter(v)(self.entity) for v in var_names]
-        return self.type.notification.format(*vars)
-
-    @staticmethod
-    def find(entity, code):
-        enum = NotificationEnum.query.filter_by(enum=code).first()
-        return NotificationObject.query.filter(
-            NotificationObject.type==enum,
-            NotificationObject.entity_id==entity.id).first()
-
-
-# The `Notification` class connects a `NotificationObject` with a user and
-# whether he's seen it or not.
-class Notification(Base):
-    id = db.Column(db.Integer, primary_key=True)
-    notification_object_id = db.Column(
-        db.Integer, db.ForeignKey('notification_object.id', ondelete='CASCADE'),
-        nullable=False)
-    notifier_id = db.Column(
-        db.Integer, db.ForeignKey('user.id'), nullable=False)
-    seen = db.Column(db.Boolean, default=False)
-
-    notifier = db.relationship(
-        'User', backref=backref('notifications', lazy='dynamic'))
-    object = db.relationship(
-        'NotificationObject', backref=backref('notifications', lazy='dynamic',
-                                              passive_deletes=True))
-
-    def __repr__(self):
-        return f'<{self.object.enum.enum} notification'\
-            f' for {self.notifier.displayname}>'
-
-    def mark_read(self):
-        self.seen = True
-
-    def mark_unread(self):
-        self.seen = False
-
-
 class User(UserMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
@@ -1259,10 +1183,6 @@ class Edit(Base, EditMixin):
             lines[0].line = lines[0].line[self.first_char_idx:]
             lines[-1].line = lines[-1].line[:self.last_char_idx]
         return lines
-
-    def notify_edit(self, object):
-        for follower in self.annotation.followers:
-            db.session.add(Notification(object=object, notifier=follower))
 
     def upvote(self, voter):
         if self.approved or self.rejected:

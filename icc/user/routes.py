@@ -6,15 +6,14 @@ from sqlalchemy import and_
 
 from icc import db
 from icc.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
-        TagRequest, UserFlagEnum, Notification, NotificationObject,\
-        AnnotationFlagEnum
+    TagRequest, UserFlagEnum, AnnotationFlagEnum
 from icc.email.email import send_password_reset_email
 from icc.funky import is_filled, generate_next
 from icc.forms import AreYouSureForm
 
 from icc.user import user
 from icc.user.forms import LoginForm, RegistrationForm, EditProfileForm,\
-        ResetPasswordRequestForm, ResetPasswordForm
+    ResetPasswordRequestForm, ResetPasswordForm
 
 
 
@@ -233,97 +232,6 @@ account is gone.
     """
     return render_template('forms/delete_check.html', title="Are you sure?",
             form=form, text=text)
-
-
-
-###########
-## Inbox ##
-###########
-
-@user.route('/inbox')
-@login_required
-def inbox():
-    page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'seen', type=str)
-
-    if sort == 'time':
-        notifications = current_user.notifications\
-                .outerjoin(NotificationObject)\
-                .order_by(NotificationObject.timestamp.desc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        notifications = current_user.notifications\
-                .outerjoin(NotificationObject)\
-                .order_by(NotificationObject.timestamp.asc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'type':
-        notifications = current_user.notifications.join(NotificationObject)\
-                .join(NotificationEnum)\
-                .order_by(NotificationEnum.public_code.desc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'type_invert':
-        notifications = current_user.notifications.join(NotificationObject)\
-                .join(NotificationEnum)\
-                .order_by(NotificationEnum.public_code.asc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'read':
-        notifications = current_user.notifications\
-                .order_by(Notification.seen.asc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'read_invert':
-        notifications = current_user.notifications\
-                .order_by(Notification.seen.desc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        notifications = current_user.notifications\
-                .order_by(Notification.seen.asc())\
-                .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-
-    sorts = {
-            'read': url_for('user.inbox', sort='read', page=page),
-            'read_invert': url_for('user.inbox', sort='read_invert', page=page),
-            'time': url_for('user.inbox', sort='time', page=page),
-            'time_invert': url_for('user.inbox', sort='time_invert', page=page),
-            'type': url_for('user.inbox', sort='type', page=page),
-            'type_invert': url_for('user.inbox', sort='type_invert', page=page),
-            'information': url_for('user.inbox', sort='information', page=page),
-            'information_invert': url_for('user.inbox',
-                sort='information_invert', page=page),
-            }
-
-    next_page = url_for('user.inbox', page=notifications.next_num, sort=sort) \
-            if notifications.has_next else None
-    prev_page = url_for('user.inbox', page=notifications.prev_num, sort=sort) \
-            if notifications.has_prev else None
-
-    return render_template('indexes/inbox.html', title="Inbox",
-            notifications=notifications.items, page=page, sort=sort,
-            sorts=sorts, next_page=next_page, prev_page=prev_page)
-
-
-@user.route('/inbox/mark/<notification_id>')
-@login_required
-def mark_notification(notification_id):
-    redirect_url = generate_next(url_for('user.inbox'))
-    notification = Notification.query.get_or_404(notification_id)
-    if notification.seen:
-        notification.mark_unread()
-    else:
-        notification.mark_read()
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/inbox/mark/all')
-@login_required
-def mark_all_read():
-    redirect_url = generate_next(url_for('user.inbox'))
-    notifications = current_user.notifications.filter_by(seen=False).all()
-    for notification in notifications:
-        notification.mark_read()
-    db.session.commit()
-    return redirect(redirect_url)
-
 
 
 ###########################

@@ -30,17 +30,17 @@
             (url_for('main.writer_index'), 'writers', 'Writers'),
             (url_for('main.text_index'), 'texts', 'Texts'),
             (url_for('main.tag_index'), 'tags', 'Tags'),
-            (url_for('user.index'), 'users', 'Users')] 
+            (url_for('user.index'), 'users', 'Users')]
         %}
         <nav>
             {% for href, id, caption in navigation_bar %}
-                <a href="{{ href }}"{% if id == active_page 
+                <a href="{{ href }}"{% if id == active_page
                     %} class="active"{% endif %}>
                     {{ caption }}
                 </a>
             {% endfor %}
         </nav>
-        
+
         {% if g.search_form %}
             <form method="get" action="{{ url_for('main.search') }}" class="search">
                     {{ g.search_form.q(size=20,
@@ -55,7 +55,7 @@
                 <a href="{{ url_for('user.register') }}">register</a>
                 <a href="{{ url_for('user.login') }}">login</a>
             {%- else %}
-                {% if current_user.is_authorized('view_deactivated_annotations') 
+                {% if current_user.is_authorized('view_deactivated_annotations')
                     or current_user.is_authorized('review_edits')
                     or current_user.is_authorized('resolve_user_flags')
                     or current_user.is_authorized('resolve_annotation_flags')
@@ -101,19 +101,12 @@
                     </div>
                 {% endif %}
 
-                {% if current_user.notifications.filter_by(seen=False).all() %}
-                    <a href="{{ url_for('user.inbox') }}" class="new_messages">
-                        (unread messages)
-                    </a>
-                {% endif %}
-
                 <div class="dropdown">
                     <a href="{{ url_for('user.profile') }}"
                         class="dropbtn">
                         {{ current_user.displayname }}&#x25BE;
                     </a>
                     <div class="dropdown-content">
-                        <a href="{{ url_for('user.inbox') }}">inbox</a>
                         <a href="{{ url_for('user.profile') }}">
                             profile
                         </a>

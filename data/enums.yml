@@ -12,17 +12,6 @@ UserFlagEnum:
     - enum: bot
     - enum: spammer
     - enum: hate speech
-NotificationEnum:
-    - enum: edit_approved
-      public_code: Edit approved
-      entity_type: EditVote
-      notification: Edit \#{} on [{}] of {} by {}
-      vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
-    - enum: edit_rejected
-      public_code: Edit rejected
-      entity_type: EditVote
-      notification: Suggested edit \#{} on [{}] of _{}_ by {}
-      vars: edit.edit_num,edit.annotation_id,edit.book.title,edit.book.author.name
 ReputationEnum:
     - enum: upvote
       default_delta: 5

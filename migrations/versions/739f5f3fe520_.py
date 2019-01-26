@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c19ff164ba9d
+Revision ID: 739f5f3fe520
 Revises: 
-Create Date: 2019-01-21 20:12:47.925834
+Create Date: 2019-01-26 12:14:48.622620
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c19ff164ba9d'
+revision = '739f5f3fe520'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,16 +38,6 @@ def upgrade():
     )
     op.create_index(op.f('ix_line_enum_display'), 'line_enum', ['display'], unique=False)
     op.create_index(op.f('ix_line_enum_enum'), 'line_enum', ['enum'], unique=False)
-    op.create_table('notification_enum',
-    sa.Column('enum', sa.String(length=128), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('public_code', sa.String(length=64), nullable=True),
-    sa.Column('entity_type', sa.String(length=64), nullable=True),
-    sa.Column('notification', sa.String(length=191), nullable=True),
-    sa.Column('vars', sa.String(length=191), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_notification_enum_enum'), 'notification_enum', ['enum'], unique=False)
     op.create_table('reputation_enum',
     sa.Column('enum', sa.String(length=128), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -92,16 +82,6 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('notification_object',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('enum_id', sa.Integer(), nullable=False),
-    sa.Column('entity_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('actor_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['actor_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['enum_id'], ['notification_enum.id'], ),
-    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reputation_change',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -210,15 +190,6 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('notification',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('notification_object_id', sa.Integer(), nullable=False),
-    sa.Column('notifier_id', sa.Integer(), nullable=False),
-    sa.Column('seen', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['notification_object_id'], ['notification_object.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['notifier_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('tag_followers',
@@ -558,7 +529,6 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_approved'), table_name='tag_request')
     op.drop_table('tag_request')
     op.drop_table('tag_followers')
-    op.drop_table('notification')
     op.drop_table('edition')
     op.drop_table('authors')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
@@ -584,7 +554,6 @@ def downgrade():
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
     op.drop_table('reputation_change')
-    op.drop_table('notification_object')
     op.drop_table('conferred_rights')
     op.drop_index(op.f('ix_wiki_entity_string'), table_name='wiki')
     op.drop_table('wiki')
@@ -597,8 +566,6 @@ def downgrade():
     op.drop_table('right')
     op.drop_index(op.f('ix_reputation_enum_enum'), table_name='reputation_enum')
     op.drop_table('reputation_enum')
-    op.drop_index(op.f('ix_notification_enum_enum'), table_name='notification_enum')
-    op.drop_table('notification_enum')
     op.drop_index(op.f('ix_line_enum_enum'), table_name='line_enum')
     op.drop_index(op.f('ix_line_enum_display'), table_name='line_enum')
     op.drop_table('line_enum')
