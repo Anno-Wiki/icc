@@ -46,12 +46,6 @@ def test_wiki_edit_view(self):
                         edit_num=edit.num)
             self.assertEqual(self.app.get(url).status_code, 200)
 
-def test_annotation_view(self):
-    for annotation in Annotation.query:
-        with app.app_context():
-            url = url_for('annotation', annotation_id=annotation.id)
-        self.assertEqual(self.app.get(url).status_code, 200)
-
 def test_edit_history(self):
     sorts = ['num', 'editor', 'time', 'reason']
 
@@ -77,35 +71,3 @@ def test_annotation_comments(self):
         with app.app_context():
             url = url_for('comments', annotation_id=annotation.id)
         self.assertEqual(self.app.get(url).status_code, 200)
-
-def test_annotate(self):
-    db.session.commit()
-    number_of_anotations = len(Annotation.query.all())
-    with self.app:
-        u = User.query.filter_by(displayname='malan').first()
-        self.login(u.email, password)
-        text = Text.query.first()
-        edition = text.primary
-        self.assertTrue(edition)
-        chapters = Line.query.join(LineEnum,
-                Line.label_id==LineEnum.id).filter(LineEnum.label=='lvl1').all()
-        for chapter in chapters:
-                data = { 'first_line': chapter.num+1,
-                        'last_line': chapter.num+2,
-                        'first_char_idx': 0, 'last_char_idx': -1,
-                        'annotation': "This is a test!",
-                        'reason': "Testing..."}
-                with app.app_context():
-                    url = url_for('annotate', text_url=text.url,
-                            edition_num=edition.num,
-                            first_line=chapter.num+1,
-                            last_line=chapter.num+2)
-                rv = self.app.post(url, data=data, follow_redirects=True)
-                self.assertEqual(rv.status_code, 200)
-    self.assertEqual(Annotation.query.count(),
-            Line.query.join(LineEnum, Line.label_id==LineEnum.id).filter(
-                LineEnum.label=='lvl1').count())
-    with app.app_context():
-        url = url_for("index")
-    rv = self.app.get(url)
-    self.assertTrue(b"This is a test" in rv.data)
