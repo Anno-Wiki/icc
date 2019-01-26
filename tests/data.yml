@@ -99,15 +99,8 @@ enums:
         - enum: editor
     AnnotationFlagEnum:
         - enum: spam
-        - enum: innappropriate language
-        - enum: superfluous
-        - enum: unhelpful
-        - enum: offensive
     UserFlagEnum:
         - enum: innappropriate behavior
-        - enum: bot
-        - enum: spammer
-        - enum: hate speech
     ReputationEnum:
         - enum: upvote
           default_delta: 5
@@ -233,10 +226,7 @@ enums:
           email: george@example.com
           locked: false
           about_me: |
-              I created all of this.
-
-              This entire site.
-
+              I created all of this.  This entire site.  
               I am the puppetmaster.
 
               I also really like wine.
