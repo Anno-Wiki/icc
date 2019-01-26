@@ -2,7 +2,7 @@ import math
 
 from flask import url_for
 
-from icc.models import Writer, Text
+from icc.models import Writer, Text, Annotation
 
 
 def test_empty_db(appclient):
