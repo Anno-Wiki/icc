@@ -1,4 +1,6 @@
 import time
+
+from flask import url_for
 from icc import db
 from icc.models import Right, User
 from tests.utils import get_token
@@ -6,72 +8,68 @@ from tests.utils import get_token
 
 def test_register(appclient):
     """Test user registration"""
-    client = appclient[1]
-    url = '/user/register'
+    app, client = appclient
+    with app.test_request_context():
+        url = url_for('user.register')
     rv = client.get(url)
-    assert rv.status_code == 200                    # page loads
-    rv = client.post(
-        url,
-        data={'displayname': 'tester', 'email': 'george@test.com',
-              'password': 'test', 'password2': 'test',
-              'csrf_token': get_token(rv.data)},
-        follow_redirects=True
-    )
-    assert rv.status_code == 200                    # page loads
-    rv = client.get('user/list')
-    assert b'tester' in rv.data                     # successful registration
+    assert rv.status_code == 200
+    data={'displayname': 'tester', 'email': 'george@test.com',
+          'password': 'test', 'password2': 'test',
+          'csrf_token': get_token(rv.data)}
+    rv = client.post(url, data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    with app.test_request_context():
+        url = url_for('user.index')
+    rv = client.get(url)
+    assert b'tester' in rv.data
 
 
 def test_locked_login(popclient):
-    "Test login of locked accounts."
-    client = popclient[1]
-    url = '/user/login'
+    """Test login of locked accounts."""
+    app, client = popclient
+    with app.test_request_context():
+        url = url_for('user.login')
     rv = client.get(url)
-    assert rv.status_code == 200                    # page working
-    rv = client.post(
-        url,
-        data={'email': 'community@example.com', 'password': 'testing',
-              'csrf_token': get_token(rv.data)},
-        follow_redirects=True
-    )
-    assert rv.status_code == 200                    # page working
-    assert b'That account is locked' in rv.data     # account locked
+    assert rv.status_code == 200
+    data = {'email': 'community@example.com', 'password': 'testing',
+            'csrf_token': get_token(rv.data)}
+    rv = client.post(url, data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    assert b'That account is locked' in rv.data
 
 
 def test_invalid_credentials_login(popclient):
-    "Test login with invalid credentials."
-    client = popclient[1]
-    url = '/user/login'
+    """Test login with invalid credentials."""
+    app, client = popclient
+    with app.test_request_context():
+        url = url_for('user.login')
     rv = client.get(url)
-    assert rv.status_code == 200                    # page working
-    rv = client.post(
-        url,
-        data={'email': 'george@example.com', 'password': 'nottesting',
-              'csrf_token': get_token(rv.data)},
-        follow_redirects=True
-    )
-    assert rv.status_code == 200                    # page working
-    assert b'Invalid email or password' in rv.data  # login prevented
+    assert rv.status_code == 200
+    data = {'email': 'george@example.com', 'password': 'nottesting',
+            'csrf_token': get_token(rv.data)}
+    rv = client.post(url, data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    assert b'Invalid email or password' in rv.data
 
 
 def test_login_logout(popclient):
     """Test login and logout."""
-    client = popclient[1]
-    url = '/user/login'
+    app, client = popclient
+    with app.test_request_context():
+        url = url_for('user.login')
     rv = client.get(url)
-    assert rv.status_code == 200                    # page working
-    rv = client.post(
-        url,
-        data={'email': 'george@example.com', 'password': 'testing',
-              'csrf_token': get_token(rv.data)},
-        follow_redirects=True
-    )
-    assert rv.status_code == 200                    # page working
-    assert b'logout' in rv.data                     # successful login
-    assert b'login' not in rv.data                  # successful logout
-    rv = client.get('/user/logout', follow_redirects=True)
-    assert b'login' in rv.data                      # successful logout
-    assert b'logout' not in rv.data                 # successful logout
+    assert rv.status_code == 200
+    data = {'email': 'george@example.com', 'password': 'testing',
+            'csrf_token': get_token(rv.data)}
+    rv = client.post(url, data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    assert b'logout' in rv.data
+    assert b'login' not in rv.data
+    with app.test_request_context():
+        url = url_for('user.logout')
+    rv = client.get(url, follow_redirects=True)
+    assert b'login' in rv.data
+    assert b'logout' not in rv.data
 
 
 def test_user_rep_authorized(app):
@@ -81,7 +79,7 @@ def test_user_rep_authorized(app):
     with app.app_context():
         db.session.add(right)
         db.session.commit()
-        assert u.is_authorized('right_to_balloons')     # user is authorized
+        assert u.is_authorized('right_to_balloons')
 
 
 def test_user_rep_not_authorized(app):
@@ -91,7 +89,7 @@ def test_user_rep_not_authorized(app):
     with app.app_context():
         db.session.add(right)
         db.session.commit()
-        assert not u.is_authorized('right_to_balloons')     # user is authorized
+        assert not u.is_authorized('right_to_balloons')
 
 
 def test_user_rights_authorized(app):
@@ -102,7 +100,7 @@ def test_user_rights_authorized(app):
     with app.app_context():
         db.session.add(right)
         db.session.commit()
-        assert u.is_authorized('right_to_balloons')     # user is authorized
+        assert u.is_authorized('right_to_balloons')
 
 
 def test_user_rights_not_authorized(app):
@@ -112,15 +110,15 @@ def test_user_rights_not_authorized(app):
     with app.app_context():
         db.session.add(right)
         db.session.commit()
-        assert not u.is_authorized('right_to_balloons')  # user is not authorized
+        assert not u.is_authorized('right_to_balloons')
 
 
 def test_password():
     """Test user password authentication."""
     u = User(displayname='john', email='john@example.com')
     u.set_password('dog')
-    assert not u.check_password('cat')              # password is incorrect
-    assert u.check_password('dog')                  # password is correct
+    assert not u.check_password('cat')
+    assert u.check_password('dog')
 
 
 def test_avatar():
@@ -131,6 +129,7 @@ def test_avatar():
 
 
 def test_update_last_seen(app):
+    """Test the update last time seen user function."""
     u = User(displayname='john', email='john@example.com')
     with app.app_context():
         db.session.add(u)
@@ -138,15 +137,17 @@ def test_update_last_seen(app):
         first = u.last_seen
         time.sleep(1)
         u.update_last_seen()
-        assert first != u.last_seen
+        assert first <= u.last_seen
 
 
 def test_repr():
+    """Test the user __repr__ function."""
     u = User(displayname='john', email='john@example.com')
     assert u != ''
 
 
 def test_reset_password_token(app):
+    """Test the reset password token validation system."""
     u = User(displayname='john', email='john@example.com')
     u.set_password('test')
     with app.app_context():
@@ -156,20 +157,21 @@ def test_reset_password_token(app):
         token = u.get_reset_password_token()
         assert token
         assert u == User.verify_reset_password_token(token)
+        assert u != User.verify_reset_password_token('boogaloo')
 
 
-def test_profile(pop):
-    u = User(displayname='john', email='john@example.com')
-    u.set_password('test')
-    with pop.app_context():
-        db.session.add(u)
-        db.session.commit()
-    cl = pop.test_client()
-    rv = cl.get('/user/login')       # login
+def test_profile(popclient):
+    """Test that the profile page url works."""
+    app, client = popclient
+    with app.test_request_context():
+        u = User.query.get(2)
+        url = url_for('user.login')
+    rv = client.get(url)
     assert rv.status_code == 200
-    cl.post('/user/login',
-            data={'email': 'john@example.com',
-                  'password': 'test',
-                  'csrf_token': get_token(rv.data)}, follow_redirects=True)
-    rv = cl.get('/user/profile')
-    assert b'john' in rv.data
+    data = {'email': u.email, 'password': 'testing',
+            'csrf_token': get_token(rv.data)}
+    client.post(url, data=data, follow_redirects=True)
+    with app.test_request_context():
+        url = url_for('user.profile')
+    rv = client.get(url)
+    assert bytes(u.displayname, 'utf-8') in rv.data
