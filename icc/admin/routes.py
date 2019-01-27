@@ -9,10 +9,13 @@ from sqlalchemy import and_
 from icc import db
 from icc.funky import generate_next, authorize
 from icc.forms import AreYouSureForm
-from icc.models.models import User, UserFlag, UserFlagEnum,\
-        Line, Text, TextRequest, Edition, Writer, Tag, TagRequest,\
-        Annotation, AnnotationFlag, AnnotationFlagEnum, Edit, EditVote,\
-        WikiEdit, Wiki, WikiEditVote
+from icc.models.models import Line, Text, Edition, Writer
+from icc.models.models import TextRequest, TagRequest
+from icc.models.models import Annotation, Edit, Tag, EditVote,\
+    AnnotationFlagEnum
+from icc.models.models import Wiki, WikiEdit, WikiEditVote
+
+from icc.models.user import User, UserFlag, UserFlagEnum
 
 from icc.admin import admin
 from icc.admin.forms import TagForm, LineForm

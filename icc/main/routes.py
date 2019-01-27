@@ -11,13 +11,20 @@ from sqlalchemy import and_
 
 from icc import db
 from icc.main import main
-from icc.models.models import (User, Text, Edition, Writer, WriterEditionConnection,
-                        ConnectionEnum, Line, LineEnum, Annotation, Comment,
-                        AnnotationFlagEnum, Vote, Edit, EditVote, Tag,
-                        tags as tags_table, authors as authors_table, Wiki,
-                        WikiEdit)
+
+from icc.models.models import Annotation, Comment, Vote, AnnotationFlagEnum,\
+    Edit, EditVote, Tag, tags as tags_table, authors as authors_table
+
+from icc.models.models import Wiki, WikiEdit
+
+from icc.models.models import Text, Edition, Writer, WriterEditionConnection,\
+    ConnectionEnum, Line, LineEnum
+
+from icc.models.user import User
+
 from icc.forms import (AnnotationForm, LineNumberForm, SearchForm, CommentForm,
                        WikiForm)
+
 from icc.funky import preplines, generate_next, line_check
 
 
