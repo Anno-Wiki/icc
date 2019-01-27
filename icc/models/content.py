@@ -8,16 +8,12 @@ from flask import url_for
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
+from sqlalchemy.ext.associationproxy import association_proxy
 
-from icc.models.wiki import Wiki
-
-from icc.models.mixins import Base, EnumMixin, VoteMixin, SearchableMixin
-
-from icc.models.tables import authors
-
-# Please note, if this last import is not the last import you can get some weird
-# errors; please keep that as last.
 from icc import db
+from icc.models.mixins import Base, EnumMixin, SearchableMixin
+from icc.models.tables import authors
+from icc.models.wiki import Wiki
 
 
 class Writer(Base):
@@ -169,7 +165,30 @@ class WriterEditionConnection(Base):
 
 class LineEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
-    display = db.Column(db.String(64), index=True)
+    display = db.Column(db.String(64))
+
+
+class LineAttribute(Base):
+    """An association class between LineEnum and Line."""
+    line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
+                        index=True)
+    enum_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'),
+                        nullable=False, index=True)
+    num = db.Column(db.Integer, default=1)
+    precedence = db.Column(db.Integer, default=1, index=True)
+    primary = db.Column(db.Boolean, nullable=False, default=False, index=True)
+
+    enum_obj = db.relationship('LineEnum')
+    line = db.relationship('Line', backref='attrs')
+
+    enum = association_proxy('enum_obj', 'enum')
+    display = association_proxy('enum_obj', 'display')
+
+    def __repr__(self):
+        if self.num:
+            return f'<Attr {self.display} {self.num}>'
+        else:
+            return f'<Attr {self.display}>'
 
 
 class Line(SearchableMixin, Base):
@@ -178,17 +197,11 @@ class Line(SearchableMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
-    label_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'), index=True)
-    lvl1 = db.Column(db.Integer, index=True)
-    lvl2 = db.Column(db.Integer, index=True)
-    lvl3 = db.Column(db.Integer, index=True)
-    lvl4 = db.Column(db.Integer, index=True)
     em_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'), index=True)
     line = db.Column(db.String(200))
 
     edition = db.relationship('Edition')
-    text = db.relationship('Text', secondary='edition', uselist=False)
-    label = db.relationship('LineEnum', foreign_keys=[label_id])
+    text = association_proxy('edition', 'text')
     em_status = db.relationship('LineEnum', foreign_keys=[em_id])
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
