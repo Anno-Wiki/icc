@@ -16,7 +16,6 @@ from icc.models.wiki import Wiki, WikiEdit, WikiEditVote
 from icc.models.user import User
 
 
-
 @admin.route('/wiki/edits/review')
 @login_required
 @authorize('review_wiki_edits')

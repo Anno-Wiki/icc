@@ -45,11 +45,11 @@ def view_deactivated_annotations():
             .order_by(Annotation.weight.desc())\
             .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     sorts = {
-            'added': url_for('admin.view_deactivated_annotations', page=page,
-                             sort='added'),
-            'weight': url_for('admin.view_deactivated_annotations', page=page,
-                              sort='weight')
-            }
+        'added': url_for('admin.view_deactivated_annotations', page=page,
+                         sort='added'),
+        'weight': url_for('admin.view_deactivated_annotations', page=page,
+                          sort='weight')
+    }
     next_page = url_for(
         'admin.view_deactivated_annotations', page=annotations.next_num,
         sort=sort) if annotations.has_next else None
@@ -147,42 +147,36 @@ def all_annotation_flags():
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
-            'marked': url_for(
-                'admin.all_annotation_flags', sort='marked', page=page),
-            'marked_invert': url_for(
-                'admin.all_annotation_flags', sort='marked_invert', page=page),
-            'flag': url_for(
-                'admin.all_annotation_flags', sort='flag', page=page),
-            'flag_invert': url_for(
-                'admin.all_annotation_flags', sort='flag_invert', page=page),
-            'time': url_for(
-                'admin.all_annotation_flags', sort='time', page=page),
-            'time_invert': url_for(
-                'admin.all_annotation_flags', sort='time_invert', page=page),
-            'thrower': url_for(
-                'admin.all_annotation_flags', sort='thrower', page=page),
-            'thrower_invert': url_for(
-                'admin.all_annotation_flags', sort='thrower_invert', page=page),
-            'resolver': url_for(
-                'admin.all_annotation_flags', sort='resolver', page=page),
-            'resolver_invert': url_for(
-                'admin.all_annotation_flags', sort='resolver_invert',
-                page=page),
-            'time_resolved': url_for(
-                'admin.all_annotation_flags', sort='time_resolved', page=page),
-            'time_resolved_invert': url_for(
-                'admin.all_annotation_flags', sort='time_resolved_invert',
-                page=page),
-            'annotation': url_for(
-                'admin.all_annotation_flags', sort='annotation', page=page),
-            'annotation_invert': url_for(
-                'admin.all_annotation_flags', sort='annotation_invert',
-                page=page),
-            'text': url_for(
-                'admin.all_annotation_flags', sort='text', page=page),
-            'text_invert': url_for(
-                'admin.all_annotation_flags', sort='text_invert', page=page),
-            }
+        'marked': url_for('admin.all_annotation_flags', sort='marked',
+                          page=page),
+        'marked_invert': url_for('admin.all_annotation_flags',
+                                 sort='marked_invert', page=page),
+        'flag': url_for('admin.all_annotation_flags', sort='flag', page=page),
+        'flag_invert': url_for('admin.all_annotation_flags', sort='flag_invert',
+                               page=page),
+        'time': url_for('admin.all_annotation_flags', sort='time', page=page),
+        'time_invert': url_for('admin.all_annotation_flags', sort='time_invert',
+                               page=page),
+        'thrower': url_for('admin.all_annotation_flags', sort='thrower',
+                           page=page),
+        'thrower_invert': url_for('admin.all_annotation_flags',
+                                  sort='thrower_invert', page=page),
+        'resolver': url_for('admin.all_annotation_flags', sort='resolver',
+                            page=page),
+        'resolver_invert': url_for('admin.all_annotation_flags',
+                                   sort='resolver_invert', page=page),
+        'time_resolved': url_for('admin.all_annotation_flags',
+                                 sort='time_resolved', page=page),
+        'time_resolved_invert': url_for( 'admin.all_annotation_flags',
+                                        sort='time_resolved_invert', page=page),
+        'annotation': url_for( 'admin.all_annotation_flags', sort='annotation',
+                              page=page),
+        'annotation_invert': url_for('admin.all_annotation_flags',
+                                     sort='annotation_invert', page=page),
+        'text': url_for('admin.all_annotation_flags', sort='text', page=page),
+        'text_invert': url_for('admin.all_annotation_flags', sort='text_invert',
+                               page=page),
+    }
 
     next_page = url_for(
         'admin.all_annotation_flags', page=flags.next_num, sort=sort
@@ -268,43 +262,40 @@ def annotation_flags(annotation_id):
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
-            'marked': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='marked', page=page),
-            'marked_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='marked_invert', page=page),
-            'flag': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='flag', page=page),
-            'flag_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='flag_invert', page=page),
-            'time': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='time', page=page),
-            'time_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='time_invert', page=page),
-            'thrower': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='thrower', page=page),
-            'thrower_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='thrower_invert', page=page),
-            'resolver': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='resolver', page=page),
-            'resolver_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='resolver_invert', page=page),
-            'time_resolved': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='time_resolved', page=page),
-            'time_resolved_invert': url_for(
-                'admin.annotation_flags', annotation_id=annotation.id,
-                sort='time_resolved_invert', page=page),
-            }
+        'marked': url_for('admin.annotation_flags', annotation_id=annotation.id,
+                          sort='marked', page=page),
+        'marked_invert': url_for('admin.annotation_flags',
+                                 annotation_id=annotation.id,
+                                 sort='marked_invert', page=page),
+        'flag': url_for('admin.annotation_flags', annotation_id=annotation.id,
+                        sort='flag', page=page),
+        'flag_invert': url_for('admin.annotation_flags',
+                               annotation_id=annotation.id, sort='flag_invert',
+                               page=page),
+        'time': url_for('admin.annotation_flags', annotation_id=annotation.id,
+                        sort='time', page=page),
+        'time_invert': url_for('admin.annotation_flags',
+                               annotation_id=annotation.id, sort='time_invert',
+                               page=page),
+        'thrower': url_for('admin.annotation_flags',
+                           annotation_id=annotation.id, sort='thrower',
+                           page=page),
+        'thrower_invert': url_for('admin.annotation_flags',
+                                  annotation_id=annotation.id,
+                                  sort='thrower_invert', page=page),
+        'resolver': url_for('admin.annotation_flags',
+                            annotation_id=annotation.id, sort='resolver',
+                            page=page),
+        'resolver_invert': url_for('admin.annotation_flags',
+                                   annotation_id=annotation.id,
+                                   sort='resolver_invert', page=page),
+        'time_resolved': url_for('admin.annotation_flags',
+                                 annotation_id=annotation.id,
+                                 sort='time_resolved', page=page),
+        'time_resolved_invert': url_for('admin.annotation_flags',
+                                        annotation_id=annotation.id,
+                                        sort='time_resolved_invert', page=page),
+    }
 
     next_page = url_for(
         'admin.annotation_flags', annotation_id=annotation.id,

@@ -121,35 +121,29 @@ def all_user_flags():
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
-            'marked': url_for(
-                'admin.all_user_flags', sort='marked', page=page),
-            'marked_invert': url_for(
-                'admin.all_user_flags', sort='marked_invert', page=page),
-            'flag': url_for(
-                'admin.all_user_flags', sort='flag', page=page),
-            'flag_invert': url_for(
-                'admin.all_user_flags', sort='flag_invert', page=page),
-            'time': url_for(
-                'admin.all_user_flags', sort='time', page=page),
-            'time_invert': url_for(
-                'admin.all_user_flags', sort='time_invert', page=page),
-            'thrower': url_for(
-                'admin.all_user_flags', sort='thrower', page=page),
-            'thrower_invert': url_for(
-                'admin.all_user_flags', sort='thrower_invert', page=page),
-            'resolver': url_for(
-                'admin.all_user_flags', sort='resolver', page=page),
-            'resolver_invert': url_for(
-                'admin.all_user_flags', sort='resolver_invert', page=page),
-            'time_resolved': url_for(
-                'admin.all_user_flags', sort='time_resolved', page=page),
-            'time_resolved_invert': url_for(
-                'admin.all_user_flags', sort='time_resolved_invert', page=page),
-            'user': url_for(
-                'admin.all_user_flags', sort='user', page=page),
-            'user_invert': url_for(
-                'admin.all_user_flags', sort='user_invert', page=page),
-            }
+        'marked': url_for('admin.all_user_flags', sort='marked', page=page),
+        'marked_invert': url_for('admin.all_user_flags', sort='marked_invert',
+                                 page=page),
+        'flag': url_for('admin.all_user_flags', sort='flag', page=page),
+        'flag_invert': url_for('admin.all_user_flags', sort='flag_invert',
+                               page=page),
+        'time': url_for('admin.all_user_flags', sort='time', page=page),
+        'time_invert': url_for('admin.all_user_flags', sort='time_invert',
+                               page=page),
+        'thrower': url_for('admin.all_user_flags', sort='thrower', page=page),
+        'thrower_invert': url_for('admin.all_user_flags', sort='thrower_invert',
+                                  page=page),
+        'resolver': url_for('admin.all_user_flags', sort='resolver', page=page),
+        'resolver_invert': url_for('admin.all_user_flags',
+                                   sort='resolver_invert', page=page),
+        'time_resolved': url_for('admin.all_user_flags', sort='time_resolved',
+                                 page=page),
+        'time_resolved_invert': url_for('admin.all_user_flags',
+                                        sort='time_resolved_invert', page=page),
+        'user': url_for('admin.all_user_flags', sort='user', page=page),
+        'user_invert': url_for('admin.all_user_flags', sort='user_invert',
+                               page=page),
+    }
 
     next_page = url_for('admin.all_user_flags', page=flags.next_num, sort=sort)\
         if flags.has_next else None
@@ -228,39 +222,31 @@ def user_flags(user_id):
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
-            'marked': url_for(
-                'admin.user_flags', user_id=user.id, sort='marked', page=page),
-            'marked_invert': url_for(
-                'admin.user_flags', user_id=user.id, sort='marked_invert',
-                page=page),
-            'flag': url_for(
-                'admin.user_flags', user_id=user.id, sort='flag', page=page),
-            'flag_invert': url_for(
-                'admin.user_flags', user_id=user.id, sort='flag_invert',
-                page=page),
-            'time': url_for(
-                'admin.user_flags', user_id=user.id, sort='time', page=page),
-            'time_invert': url_for(
-                'admin.user_flags', user_id=user.id, sort='time_invert',
-                page=page),
-            'thrower': url_for(
-                'admin.user_flags', user_id=user.id, sort='thrower', page=page),
-            'thrower_invert': url_for(
-                'admin.user_flags', user_id=user.id, sort='thrower_invert',
-                page=page),
-            'resolver': url_for(
-                'admin.user_flags', user_id=user.id, sort='resolver',
-                page=page),
-            'resolver_invert': url_for(
-                'admin.user_flags', user_id=user.id, sort='resolver_invert',
-                page=page),
-            'time_resolved': url_for(
-                'admin.user_flags', user_id=user.id, sort='time_resolved',
-                page=page),
-            'time_resolved_invert': url_for(
-                'admin.user_flags', user_id=user.id,
-                sort='time_resolved_invert', page=page),
-            }
+        'marked': url_for('admin.user_flags', user_id=user.id, sort='marked',
+                          page=page),
+        'marked_invert': url_for('admin.user_flags', user_id=user.id,
+                                 sort='marked_invert', page=page),
+        'flag': url_for('admin.user_flags', user_id=user.id, sort='flag',
+                        page=page),
+        'flag_invert': url_for('admin.user_flags', user_id=user.id,
+                               sort='flag_invert', page=page),
+        'time': url_for('admin.user_flags', user_id=user.id, sort='time',
+                        page=page),
+        'time_invert': url_for('admin.user_flags', user_id=user.id,
+                               sort='time_invert', page=page),
+        'thrower': url_for('admin.user_flags', user_id=user.id, sort='thrower',
+                           page=page),
+        'thrower_invert': url_for('admin.user_flags', user_id=user.id,
+                                  sort='thrower_invert', page=page),
+        'resolver': url_for('admin.user_flags', user_id=user.id,
+                            sort='resolver', page=page),
+        'resolver_invert': url_for('admin.user_flags', user_id=user.id,
+                                   sort='resolver_invert', page=page),
+        'time_resolved': url_for('admin.user_flags', user_id=user.id,
+                                 sort='time_resolved', page=page),
+        'time_resolved_invert': url_for('admin.user_flags', user_id=user.id,
+                                        sort='time_resolved_invert', page=page),
+    }
 
     next_page = url_for(
         'admin.user_flags', user_id=user.id, page=flags.next_num, sort=sort)\
