@@ -1,30 +1,20 @@
-import jwt
 import inspect
 import sys
 import string
 
-from time import time
-from hashlib import sha1, md5
-from math import log10
 from datetime import datetime
 
-from flask import url_for, abort, flash, current_app as app
-from flask_login import UserMixin, current_user
+from flask import url_for
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
-from sqlalchemy.ext.declarative import declared_attr
 
 from icc.models.wiki import Wiki
 
 
+from icc.models.mixins import Base, EnumMixin, VoteMixin, SearchableMixin
 
-from icc.models.mixins import Base, EnumMixin, VoteMixin, SearchableMixin, \
-    EditMixin
-
-from icc.models.tables import authors, tags, rights
-from icc.models.tables import text_flrs, writer_flrs, user_flrs, tag_flrs, \
-    annotation_flrs, text_request_flrs, tag_request_flrs
+from icc.models.tables import authors
 
 # Please note, if this last import is not the last import you can get some weird
 # errors; please keep that as last.
@@ -254,7 +244,6 @@ class Line(SearchableMixin, Base):
 
     def get_next_page(self):
         line = None
-        lvl1 = 0
         lvl2 = 0
         lvl3 = 0
         lvl4 = 0
@@ -299,124 +288,6 @@ class Line(SearchableMixin, Base):
         return url_for(
             'main.read', text_url=self.edition.text.url,
             edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
-
-
-# Text Requests
-class TextRequestVote(Base, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    text_request_id = db.Column(
-        db.Integer, db.ForeignKey('text_request.id', ondelete='CASCADE'),
-        index=True)
-    text_request = db.relationship(
-        'TextRequest', backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        return f"{prefix}{self.text_request}"
-
-
-class TextRequest(Base):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(127), index=True)
-    authors = db.Column(db.String(127), index=True)
-    weight = db.Column(db.Integer, default=0, index=True)
-    approved = db.Column(db.Boolean, default=False, index=True)
-    rejected = db.Column(db.Boolean, default=False, index=True)
-    description = db.Column(db.Text)
-    notes = db.Column(db.Text)
-    wikipedia = db.Column(db.String(127), default=None)
-    gutenberg = db.Column(db.String(127), default=None)
-    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    text_id = db.Column(db.Integer, db.ForeignKey('text.id'), index=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    requester = db.relationship('User', backref='text_requests')
-    text = db.relationship('Text', backref='request')
-
-    def __repr__(self):
-        return f'<Request for {self.title}>'
-
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
-    def upvote(self, voter):
-        weight = 1
-        self.weight += weight
-        vote = TextRequestVote(voter=voter, text_request=self, delta=weight)
-        db.session.add(vote)
-
-    def downvote(self, voter):
-        weight = -1
-        self.weight += weight
-        vote = TextRequestVote(voter=voter, text_request=self, delta=weight)
-        db.session.add(vote)
-
-    def readable_weight(self):
-        if self.weight >= 1000000 or self.weight <= -1000000:
-            return f'{round(self.weight/1000000,1)}m'
-        elif self.weight >= 1000 or self.weight <= -1000:
-            return f'{round(self.weight/1000,1)}k'
-        else:
-            return f'{self.weight}'
-
-    def reject(self):
-        self.rejected = True
-
-
-# Tag Requests
-class TagRequestVote(Base, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    tag_request_id = db.Column(
-        db.Integer, db.ForeignKey('tag_request.id', ondelete='CASCADE'),
-        index=True)
-    tag_request = db.relationship(
-        'TagRequest', backref=backref('ballots', passive_deletes=True))
-
-    def __repr__(self):
-        prefix = super().__repr__()
-        return f"{prefix}{self.tag_request}"
-
-
-class TagRequest(Base):
-    id = db.Column(db.Integer, primary_key=True)
-    tag = db.Column(db.String(127), index=True)
-    weight = db.Column(db.Integer, default=0, index=True)
-    approved = db.Column(db.Boolean, default=False, index=True)
-    rejected = db.Column(db.Boolean, default=False, index=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), index=True)
-    description = db.Column(db.Text)
-    notes = db.Column(db.Text)
-    wikipedia = db.Column(db.String(127), default=None)
-    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    requester = db.relationship('User', backref='tag_requests')
-    created_tag = db.relationship('Tag', backref='tag_request')
-
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
-    def upvote(self, voter):
-        weight = 1
-        self.weight += weight
-        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
-        db.session.add(vote)
-
-    def downvote(self, voter):
-        weight = -1
-        self.weight += weight
-        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
-        db.session.add(vote)
-
-    def readable_weight(self):
-        if self.weight >= 1000000 or self.weight <= -1000000:
-            return f'{round(self.weight/1000000,1)}m'
-        elif self.weight >= 1000 or self.weight <= -1000:
-            return f'{round(self.weight/1000,1)}k'
-        else:
-            return f'{self.weight}'
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

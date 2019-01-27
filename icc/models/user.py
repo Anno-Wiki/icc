@@ -15,7 +15,7 @@ from icc import db, login
 from icc.models.mixins import Base, EnumMixin
 from icc.models.tables import user_flrs
 from icc.models.wiki import WikiEditVote
-from icc.models.models import TextRequestVote, TagRequestVote
+from icc.models.request import TextRequestVote, TagRequestVote
 
 # We have to import the whole module in this file to avoid the circular import.
 # I would love to find a simpler fix for this, but in this case we do this for

@@ -6,7 +6,8 @@ from sqlalchemy import and_
 
 from icc import db
 
-from icc.models.models import Text, Writer, TextRequest, TagRequest
+from icc.models.models import Text, Writer
+from icc.models.request import TextRequest, TagRequest
 from icc.models.annotation import Annotation, Edit, Tag, AnnotationFlagEnum
 from icc.models.user import User, UserFlagEnum
 

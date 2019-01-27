@@ -1,9 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request,\
-        current_app
+from flask import (render_template, flash, redirect, url_for, request,
+                   current_app)
 from flask_login import current_user, login_required
 
 from icc import db
-from icc.models.models import TextRequest, TextRequestVote, TagRequest, TagRequestVote
+from icc.models.request import (TextRequest, TextRequestVote, TagRequest,
+                                TagRequestVote)
 
 from icc.requests import requests
 from icc.requests.forms import TextRequestForm, TagRequestForm
