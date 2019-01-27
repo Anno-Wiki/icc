@@ -9,7 +9,7 @@ from sqlalchemy import and_
 from icc import db
 from icc.funky import generate_next, authorize
 from icc.forms import AreYouSureForm
-from icc.models import User, UserFlag, UserFlagEnum,\
+from icc.models.models import User, UserFlag, UserFlagEnum,\
         Line, Text, TextRequest, Edition, Writer, Tag, TagRequest,\
         Annotation, AnnotationFlag, AnnotationFlagEnum, Edit, EditVote,\
         WikiEdit, Wiki, WikiEditVote

@@ -1,5 +1,5 @@
 from icc import create_app, db
-from icc.models import classes
+from icc.models.models import classes
 
 
 app = create_app()

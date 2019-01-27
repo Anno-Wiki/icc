@@ -11,7 +11,7 @@ from sqlalchemy import and_
 
 from icc import db
 from icc.main import main
-from icc.models import (User, Text, Edition, Writer, WriterEditionConnection,
+from icc.models.models import (User, Text, Edition, Writer, WriterEditionConnection,
                         ConnectionEnum, Line, LineEnum, Annotation, Comment,
                         AnnotationFlagEnum, Vote, Edit, EditVote, Tag,
                         tags as tags_table, authors as authors_table, Wiki,

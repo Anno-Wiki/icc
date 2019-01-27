@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from icc.models import Tag
+from icc.models.models import Tag
 from icc.ajax import ajax
 
 

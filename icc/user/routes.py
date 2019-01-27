@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from sqlalchemy import and_
 
 from icc import db
-from icc.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
+from icc.models.models import User, Text, Writer, Annotation, Edit, Tag, TextRequest,\
     TagRequest, UserFlagEnum, AnnotationFlagEnum
 from icc.email.email import send_password_reset_email
 from icc.funky import is_filled, generate_next

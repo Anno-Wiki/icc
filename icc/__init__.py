@@ -83,4 +83,5 @@ def create_app(config_class=Config):
     return app
 
 
-from icc import models, funky
+from icc import funky
+from icc.models import models
