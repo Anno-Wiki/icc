@@ -96,6 +96,7 @@ def test_text_annotations(popclient):
                 rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')
                 assert rv.status_code == 404
 
+
 def test_edition_annotations(popclient):
     """Test the annotations by edition page."""
     app, client = popclient

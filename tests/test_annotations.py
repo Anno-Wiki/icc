@@ -26,6 +26,7 @@ def test_annotate_page(popclient):
     with app.test_request_context():
         u = User.query.filter_by(displayname='george').first()
 
+        # logging in
         url = url_for('user.login')
         rv = client.get(url)
         data = {'email': u.email, 'password': 'testing',
@@ -34,27 +35,29 @@ def test_annotate_page(popclient):
         assert rv.status_code == 200
         assert b'logout' in rv.data
 
+        # getting the context
         text = Text.query.first()
         edition = text.primary
         line = Line.query.first()
 
+        # annotating
         count = Annotation.query.count()
         url = url_for('main.annotate',
                       text_url=text.url, edition_num=edition.num,
                       first_line=line.num+1, last_line=line.num+2)
-
         rv = client.get(url)
         data = {'first_line': line.num+1, 'last_line': line.num+2,
                 'first_char_idx': 0, 'last_char_idx': -1,
                 'annotation': "This is a test!", 'reason': "Testing...",
                 'csrf_token': get_token(rv.data)}
-
         rv = client.post(url, data=data, follow_redirects=True)
         assert rv.status_code == 200
 
+        # checking the count
         newcount = Annotation.query.count()
         assert newcount == count + 1
 
+        # testing that it posted
         url = url_for('main.index')
         rv = client.get(url)
         assert b"This is a test!" in rv.data
@@ -67,6 +70,7 @@ def test_edit_page(popclient):
     with app.test_request_context():
         u = User.query.filter_by(displayname='george').first()
 
+        # logging in
         url = url_for('user.login')
         rv = client.get(url)
         data = {'email': u.email, 'password': 'testing',
@@ -75,12 +79,11 @@ def test_edit_page(popclient):
         assert rv.status_code == 200
         assert b'logout' in rv.data
 
+        # annotating
         annotation = Annotation.query.first()
         url = url_for('main.edit', annotation_id=annotation.id)
         rv = client.get(url, follow_redirects=True)
         assert rv.status_code == 200
-        for l in rv.data.split(b'\n'):
-            print(l)
         data = {'first_line': annotation.HEAD.first_line_num+1,
                 'last_line': annotation.HEAD.first_line_num+1,
                 'first_char_idx': 0, 'last_char_idx': -1,
@@ -88,6 +91,8 @@ def test_edit_page(popclient):
                 'csrf_token': get_token(rv.data)}
         rv = client.post(url, data=data, follow_redirects=True)
         assert rv.status_code == 200
+
+        # testing that it went through
         url = url_for('main.annotation', annotation_id=annotation.id)
         rv = client.get(url)
         assert rv.status_code == 200
@@ -98,8 +103,9 @@ def test_annotations_object(popclient):
     """Test the annotations object."""
     app, client = popclient
 
-    annotations = Annotation.query.all()
-    for a in annotations:
-        assert a.HEAD.body
-        assert a.HEAD.tags
-        assert a.HEAD.context
+    with app.app_context():
+        annotations = Annotation.query.all()
+        for a in annotations:
+            assert a.HEAD.body
+            assert a.HEAD.tags
+            assert a.HEAD.context

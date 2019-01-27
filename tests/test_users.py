@@ -24,9 +24,9 @@ def test_register(appclient):
     assert b'tester' in rv.data
 
 
-def test_locked_login(popclient):
+def test_locked_login(minclient):
     """Test login of locked accounts."""
-    app, client = popclient
+    app, client = minclient
     with app.test_request_context():
         url = url_for('user.login')
     rv = client.get(url)
@@ -38,9 +38,9 @@ def test_locked_login(popclient):
     assert b'That account is locked' in rv.data
 
 
-def test_invalid_credentials_login(popclient):
+def test_invalid_credentials_login(minclient):
     """Test login with invalid credentials."""
-    app, client = popclient
+    app, client = minclient
     with app.test_request_context():
         url = url_for('user.login')
     rv = client.get(url)
@@ -52,9 +52,9 @@ def test_invalid_credentials_login(popclient):
     assert b'Invalid email or password' in rv.data
 
 
-def test_login_logout(popclient):
+def test_login_logout(minclient):
     """Test login and logout."""
-    app, client = popclient
+    app, client = minclient
     with app.test_request_context():
         url = url_for('user.login')
     rv = client.get(url)
@@ -160,9 +160,9 @@ def test_reset_password_token(app):
         assert u != User.verify_reset_password_token('boogaloo')
 
 
-def test_profile(popclient):
+def test_profile(minclient):
     """Test that the profile page url works."""
-    app, client = popclient
+    app, client = minclient
     with app.test_request_context():
         u = User.query.get(2)
         url = url_for('user.login')

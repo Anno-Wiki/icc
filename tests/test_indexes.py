@@ -81,9 +81,9 @@ def test_tag_index(popclient):
         assert rv.status_code == 404
 
 
-def test_user_index(popclient):
+def test_user_index(minclient):
     """Test the user index page."""
-    app, client = popclient
+    app, client = minclient
 
     sorts = ['reputation', 'name', 'annotation', 'edits']
     with app.test_request_context():
