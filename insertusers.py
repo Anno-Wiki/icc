@@ -1,7 +1,8 @@
 import argparse
 import yaml
+
 from icc import db, create_app
-from icc.models import User, Right
+from icc.models.models import User, Right
 
 parser = argparse.ArgumentParser("Insert users into icc database for testing.")
 parser.add_argument(

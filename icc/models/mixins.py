@@ -3,6 +3,8 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
+from flask_login import current_user
+
 from icc import db
 from icc.search import add_to_index, remove_from_index, query_index
 

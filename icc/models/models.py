@@ -22,57 +22,9 @@ from sqlalchemy.ext.declarative import declared_attr
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin, VoteMixin, SearchableMixin, \
     EditMixin
-
-
-
-
-# Many-to-Many Tables
-authors = db.Table(
-    'authors',
-    db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
-    db.Column('text_id', db.Integer, db.ForeignKey('text.id')))
-tags = db.Table(
-    'tags',
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-    db.Column('edit_id', db.Integer, db.ForeignKey('edit.id',
-                                                   ondelete='CASCADE')))
-conferred_right = db.Table(
-    'conferred_rights',
-    db.Column('right_id', db.Integer, db.ForeignKey('right.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-
-# followers
-text_followers = db.Table(
-    'text_followers',
-    db.Column('text_id', db.Integer, db.ForeignKey('text.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-writer_followers = db.Table(
-    'writer_followers',
-    db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-user_followers = db.Table(
-    'user_followers',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
-tag_followers = db.Table(
-    'tag_followers',
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-annotation_followers = db.Table(
-    'annotation_followers',
-    db.Column('annotation_id', db.Integer, db.ForeignKey('annotation.id',
-                                                         ondelete='CASCADE')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-tag_request_followers = db.Table(
-    'tag_request_followers',
-    db.Column('tag_request_id', db.Integer, db.ForeignKey('tag_request.id',
-                                                          ondelete='CASCADE')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-text_request_followers = db.Table(
-    'text_request_followers',
-    db.Column('text_request_id', db.Integer, db.ForeignKey('text_request.id',
-                                                           ondelete='CASCADE')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+from icc.models.tables import authors, tags, rights
+from icc.models.tables import text_flrs, writer_flrs, user_flrs, tag_flrs, \
+    annotation_flrs, text_request_flrs, tag_request_flrs
 
 
 # User Models
@@ -116,7 +68,7 @@ class User(UserMixin, Base):
 
     # user meta information relationships
     rights = db.relationship(
-        'Right', secondary=conferred_right, backref='admins')
+        'Right', secondary=rights, backref='admins')
 
     # annotations voted on
     votes = db.relationship(
@@ -160,41 +112,41 @@ class User(UserMixin, Base):
         'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
-        'User', secondary=user_followers,
-        primaryjoin=(user_followers.c.follower_id == id),
-        secondaryjoin=(user_followers.c.followed_id == id),
+        'User', secondary=user_flrs,
+        primaryjoin=(user_flrs.c.follower_id == id),
+        secondaryjoin=(user_flrs.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     followed_texts = db.relationship(
-        'Text', secondary='text_followers',
-        primaryjoin='text_followers.c.user_id==User.id',
-        secondaryjoin='text_followers.c.text_id==Text.id',
+        'Text', secondary='text_flrs',
+        primaryjoin='text_flrs.c.user_id==User.id',
+        secondaryjoin='text_flrs.c.text_id==Text.id',
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     followed_writers = db.relationship(
-        'Writer', secondary='writer_followers',
-        primaryjoin='writer_followers.c.user_id==User.id',
-        secondaryjoin='writer_followers.c.writer_id==Writer.id',
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+        'Writer', secondary='writer_flrs',
+        primaryjoin='writer_flrs.c.user_id==User.id',
+        secondaryjoin='writer_flrs.c.writer_id==Writer.id',
+        backref=db.backref('writer_flrs', lazy='dynamic'), lazy='dynamic')
     followed_tags = db.relationship(
-        'Tag', secondary='tag_followers',
-        primaryjoin='tag_followers.c.user_id==User.id',
-        secondaryjoin='tag_followers.c.tag_id==Tag.id',
+        'Tag', secondary='tag_flrs',
+        primaryjoin='tag_flrs.c.user_id==User.id',
+        secondaryjoin='tag_flrs.c.tag_id==Tag.id',
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     followed_annotations = db.relationship(
-        'Annotation', secondary='annotation_followers',
-        primaryjoin='annotation_followers.c.user_id==User.id',
-        secondaryjoin='annotation_followers.c.annotation_id==Annotation.id',
+        'Annotation', secondary='annotation_flrs',
+        primaryjoin='annotation_flrs.c.user_id==User.id',
+        secondaryjoin='annotation_flrs.c.annotation_id==Annotation.id',
         backref=db.backref('followers', lazy='dynamic', passive_deletes=True),
         lazy='dynamic')
     followed_tag_requests = db.relationship(
-        'TagRequest', secondary='tag_request_followers',
-        primaryjoin='tag_request_followers.c.user_id==User.id',
-        secondaryjoin='tag_request_followers.c.tag_request_id==TagRequest.id',
+        'TagRequest', secondary='tag_request_flrs',
+        primaryjoin='tag_request_flrs.c.user_id==User.id',
+        secondaryjoin='tag_request_flrs.c.tag_request_id==TagRequest.id',
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
     followed_text_requests = db.relationship(
-        'TextRequest', secondary='text_request_followers',
-        primaryjoin='text_request_followers.c.user_id==User.id',
-        secondaryjoin='text_request_followers.c.text_request_id=='
-        'TextRequest.id', backref=db.backref('followers', lazy='dynamic'),
+        'TextRequest', secondary='text_request_flrs',
+        primaryjoin='text_request_flrs.c.user_id==User.id',
+        secondaryjoin='text_request_flrs.c.text_request_id==TextRequest.id',
+        backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic')
 
     def __repr__(self):

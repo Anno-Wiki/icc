@@ -5,7 +5,7 @@ import yaml
 import json
 
 from icc import db, create_app
-from icc.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
+from icc.models.models import Text, Edition, Line, LineEnum, WriterEditionConnection,\
         ConnectionEnum, Writer
 
 parser = argparse.ArgumentParser("Insert lines into icc database")

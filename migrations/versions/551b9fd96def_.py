@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 739f5f3fe520
+Revision ID: 551b9fd96def
 Revises: 
-Create Date: 2019-01-26 12:14:48.622620
+Create Date: 2019-01-27 09:13:04.554367
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '739f5f3fe520'
+revision = '551b9fd96def'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -77,12 +77,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_wiki_entity_string'), 'wiki', ['entity_string'], unique=False)
-    op.create_table('conferred_rights',
-    sa.Column('right_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
     op.create_table('reputation_change',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=False),
@@ -92,6 +86,12 @@ def upgrade():
     sa.ForeignKeyConstraint(['enum_id'], ['reputation_enum.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('rights',
+    sa.Column('right_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -132,7 +132,7 @@ def upgrade():
     op.create_index(op.f('ix_user_flag_thrower_id'), 'user_flag', ['thrower_id'], unique=False)
     op.create_index(op.f('ix_user_flag_user_flag_id'), 'user_flag', ['user_flag_id'], unique=False)
     op.create_index(op.f('ix_user_flag_user_id'), 'user_flag', ['user_id'], unique=False)
-    op.create_table('user_followers',
+    op.create_table('user_flrs',
     sa.Column('follower_id', sa.Integer(), nullable=True),
     sa.Column('followed_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['followed_id'], ['user.id'], ),
@@ -192,7 +192,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('tag_followers',
+    op.create_table('tag_flrs',
     sa.Column('tag_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
@@ -221,7 +221,7 @@ def upgrade():
     op.create_index(op.f('ix_tag_request_tag_id'), 'tag_request', ['tag_id'], unique=False)
     op.create_index(op.f('ix_tag_request_timestamp'), 'tag_request', ['timestamp'], unique=False)
     op.create_index(op.f('ix_tag_request_weight'), 'tag_request', ['weight'], unique=False)
-    op.create_table('text_followers',
+    op.create_table('text_flrs',
     sa.Column('text_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
@@ -264,7 +264,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_wiki_edit_vote_edit_id'), 'wiki_edit_vote', ['edit_id'], unique=False)
-    op.create_table('writer_followers',
+    op.create_table('writer_flrs',
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
@@ -310,7 +310,7 @@ def upgrade():
     op.create_index(op.f('ix_line_lvl3'), 'line', ['lvl3'], unique=False)
     op.create_index(op.f('ix_line_lvl4'), 'line', ['lvl4'], unique=False)
     op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
-    op.create_table('tag_request_followers',
+    op.create_table('tag_request_flrs',
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['tag_request_id'], ['tag_request.id'], ondelete='CASCADE'),
@@ -327,7 +327,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tag_request_vote_tag_request_id'), 'tag_request_vote', ['tag_request_id'], unique=False)
-    op.create_table('text_request_followers',
+    op.create_table('text_request_flrs',
     sa.Column('text_request_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['text_request_id'], ['text_request.id'], ondelete='CASCADE'),
@@ -372,7 +372,7 @@ def upgrade():
     op.create_index(op.f('ix_annotation_flag_annotation_id'), 'annotation_flag', ['annotation_id'], unique=False)
     op.create_index(op.f('ix_annotation_flag_resolver_id'), 'annotation_flag', ['resolver_id'], unique=False)
     op.create_index(op.f('ix_annotation_flag_thrower_id'), 'annotation_flag', ['thrower_id'], unique=False)
-    op.create_table('annotation_followers',
+    op.create_table('annotation_flrs',
     sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
@@ -480,7 +480,7 @@ def downgrade():
     op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_annotation_id'), table_name='comment')
     op.drop_table('comment')
-    op.drop_table('annotation_followers')
+    op.drop_table('annotation_flrs')
     op.drop_index(op.f('ix_annotation_flag_thrower_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_resolver_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_annotation_id'), table_name='annotation_flag')
@@ -489,10 +489,10 @@ def downgrade():
     op.drop_table('writer_edition_connection')
     op.drop_index(op.f('ix_text_request_vote_text_request_id'), table_name='text_request_vote')
     op.drop_table('text_request_vote')
-    op.drop_table('text_request_followers')
+    op.drop_table('text_request_flrs')
     op.drop_index(op.f('ix_tag_request_vote_tag_request_id'), table_name='tag_request_vote')
     op.drop_table('tag_request_vote')
-    op.drop_table('tag_request_followers')
+    op.drop_table('tag_request_flrs')
     op.drop_index(op.f('ix_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_lvl4'), table_name='line')
     op.drop_index(op.f('ix_line_lvl3'), table_name='line')
@@ -507,7 +507,7 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_edition_id'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_annotator_id'), table_name='annotation')
     op.drop_table('annotation')
-    op.drop_table('writer_followers')
+    op.drop_table('writer_flrs')
     op.drop_index(op.f('ix_wiki_edit_vote_edit_id'), table_name='wiki_edit_vote')
     op.drop_table('wiki_edit_vote')
     op.drop_index(op.f('ix_text_request_weight'), table_name='text_request')
@@ -519,7 +519,7 @@ def downgrade():
     op.drop_index(op.f('ix_text_request_authors'), table_name='text_request')
     op.drop_index(op.f('ix_text_request_approved'), table_name='text_request')
     op.drop_table('text_request')
-    op.drop_table('text_followers')
+    op.drop_table('text_flrs')
     op.drop_index(op.f('ix_tag_request_weight'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_timestamp'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_tag_id'), table_name='tag_request')
@@ -528,7 +528,7 @@ def downgrade():
     op.drop_index(op.f('ix_tag_request_rejected'), table_name='tag_request')
     op.drop_index(op.f('ix_tag_request_approved'), table_name='tag_request')
     op.drop_table('tag_request')
-    op.drop_table('tag_followers')
+    op.drop_table('tag_flrs')
     op.drop_table('edition')
     op.drop_table('authors')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
@@ -542,7 +542,7 @@ def downgrade():
     op.drop_index(op.f('ix_wiki_edit_current'), table_name='wiki_edit')
     op.drop_index(op.f('ix_wiki_edit_approved'), table_name='wiki_edit')
     op.drop_table('wiki_edit')
-    op.drop_table('user_followers')
+    op.drop_table('user_flrs')
     op.drop_index(op.f('ix_user_flag_user_id'), table_name='user_flag')
     op.drop_index(op.f('ix_user_flag_user_flag_id'), table_name='user_flag')
     op.drop_index(op.f('ix_user_flag_thrower_id'), table_name='user_flag')
@@ -553,8 +553,8 @@ def downgrade():
     op.drop_table('text')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
+    op.drop_table('rights')
     op.drop_table('reputation_change')
-    op.drop_table('conferred_rights')
     op.drop_index(op.f('ix_wiki_entity_string'), table_name='wiki')
     op.drop_table('wiki')
     op.drop_index(op.f('ix_user_flag_enum_enum'), table_name='user_flag_enum')

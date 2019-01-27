@@ -3,7 +3,7 @@ import argparse
 import codecs
 import json
 from icc import db, create_app
-from icc.models import Line, User, Annotation, Tag, Text
+from icc.models.models import Line, User, Annotation, Tag, Text
 
 """Parse annotations from json file into the prepopulated database."""
 

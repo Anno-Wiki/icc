@@ -1,7 +1,8 @@
 import argparse
 import yaml
+
 from icc import db, create_app
-from icc.models import Tag
+from icc.models.models import Tag
 
 parser = argparse.ArgumentParser("Insert tags into icc database")
 parser.add_argument(
