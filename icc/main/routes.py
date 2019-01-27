@@ -14,18 +14,14 @@ from icc.main import main
 
 from icc.models.annotation import (Annotation, Comment, Vote, Edit, EditVote,
                                    Tag, AnnotationFlagEnum)
-from icc.models.tables import tags as tags_table, authors as authors_table
-
-from icc.models.wiki import Wiki, WikiEdit
-
-from icc.models.models import (Text, Edition, Writer, WriterEditionConnection,
+from icc.models.content import (Text, Edition, Writer, WriterEditionConnection,
                                ConnectionEnum, Line, LineEnum)
-
+from icc.models.tables import tags as tags_table, authors as authors_table
+from icc.models.wiki import Wiki, WikiEdit
 from icc.models.user import User
 
 from icc.forms import (AnnotationForm, LineNumberForm, SearchForm, CommentForm,
                        WikiForm)
-
 from icc.funky import preplines, generate_next, line_check
 
 

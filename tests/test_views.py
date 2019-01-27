@@ -1,10 +1,11 @@
 from flask import url_for
 
-from icc.models.models import Writer, Text, Edition
+from icc.models.content import Writer, Text, Edition
 from icc.models.annotation import Tag
 
 
 def test_writer_view(popclient):
+    """Test the writer view page."""
     app, client = popclient
 
     with app.test_request_context():
@@ -17,6 +18,7 @@ def test_writer_view(popclient):
 
 
 def test_text_view(popclient):
+    """Test the text view page."""
     app, client = popclient
 
     with app.test_request_context():
@@ -29,6 +31,7 @@ def test_text_view(popclient):
 
 
 def test_edition(popclient):
+    """Test the edition view page."""
     app, client = popclient
 
     with app.test_request_context():
@@ -41,7 +44,9 @@ def test_edition(popclient):
             assert bytes(edition.text.title, 'utf-8') in rv.data
             assert b'<tr class="lvl' in rv.data
 
+
 def test_tag(popclient):
+    """Test the tag view page."""
     app, client = popclient
 
     with app.test_request_context():

@@ -6,9 +6,9 @@ from sqlalchemy import and_
 
 from icc import db
 
-from icc.models.models import Text, Writer
-from icc.models.request import TextRequest, TagRequest
 from icc.models.annotation import Annotation, Edit, Tag, AnnotationFlagEnum
+from icc.models.content import Text, Writer
+from icc.models.request import TextRequest, TagRequest
 from icc.models.user import User, UserFlagEnum
 
 from icc.email.email import send_password_reset_email

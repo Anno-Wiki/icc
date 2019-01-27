@@ -2,7 +2,7 @@ import math
 
 from flask import url_for
 
-from icc.models.models import  Writer, Text
+from icc.models.content import  Writer, Text
 from icc.models.annotation import Annotation, Tag
 from icc.models.user import User
 

@@ -1,6 +1,6 @@
 from flask import url_for
 
-from icc.models.models import Text, Line
+from icc.models.content import Text, Line
 from icc.models.annotation import Annotation
 from icc.models.user import User
 

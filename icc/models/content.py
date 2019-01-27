@@ -11,7 +11,6 @@ from sqlalchemy.orm import backref
 
 from icc.models.wiki import Wiki
 
-
 from icc.models.mixins import Base, EnumMixin, VoteMixin, SearchableMixin
 
 from icc.models.tables import authors
@@ -149,6 +148,11 @@ class Edition(Base):
                        edition_num=self.num)
 
 
+class ConnectionEnum(Base, EnumMixin):
+    """For connection writers to texts and editions."""
+    id = db.Column(db.Integer, primary_key=True)
+
+
 class WriterEditionConnection(Base):
     id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
@@ -163,12 +167,6 @@ class WriterEditionConnection(Base):
         return f'<{self.writer.name} was {self.type.type} on {self.edition}>'
 
 
-class ConnectionEnum(Base, EnumMixin):
-    """For connection writers to texts and editions."""
-    id = db.Column(db.Integer, primary_key=True)
-
-
-# Content Models
 class LineEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     display = db.Column(db.String(64), index=True)

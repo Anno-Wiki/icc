@@ -86,8 +86,8 @@ def create_app(config_class=Config):
 from icc import models, funky
 
 from icc.models.annotation import classes as aclasses
-from icc.models.models import classes as mclasses
+from icc.models.content import classes as cclasses
 from icc.models.request import classes as rclasses
 from icc.models.user import classes as uclasses
 from icc.models.wiki import classes as wclasses
-classes = {**mclasses, **aclasses, **rclasses, **wclasses, **uclasses}
+classes = {**aclasses, **cclasses, **rclasses, **wclasses, **uclasses}
