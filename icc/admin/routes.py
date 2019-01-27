@@ -11,9 +11,9 @@ from icc.funky import generate_next, authorize
 from icc.forms import AreYouSureForm
 from icc.models.models import Line, Text, Edition, Writer
 from icc.models.models import TextRequest, TagRequest
-from icc.models.models import Annotation, Edit, Tag, EditVote,\
-    AnnotationFlagEnum
-from icc.models.models import Wiki, WikiEdit, WikiEditVote
+from icc.models.annotation import (Annotation, Edit, Tag, EditVote,
+                                   AnnotationFlagEnum)
+from icc.models.wiki import Wiki, WikiEdit, WikiEditVote
 
 from icc.models.user import User, UserFlag, UserFlagEnum
 

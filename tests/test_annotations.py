@@ -1,6 +1,8 @@
 from flask import url_for
 
-from icc.models import Annotation, Text, Line, User
+from icc.models.models import Text, Line
+from icc.models.annotation import Annotation
+from icc.models.user import User
 
 from tests.utils import get_token
 

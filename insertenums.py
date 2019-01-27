@@ -1,7 +1,7 @@
 import argparse
 import yaml
 from icc import db, create_app
-from icc.models.models import classes
+from icc import classes
 
 """Parse enum yaml files into the database."""
 

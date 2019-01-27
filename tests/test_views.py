@@ -1,6 +1,7 @@
 from flask import url_for
 
-from icc.models import Writer, Text, Edition, Tag
+from icc.models.models import Writer, Text, Edition
+from icc.models.annotation import Tag
 
 
 def test_writer_view(popclient):

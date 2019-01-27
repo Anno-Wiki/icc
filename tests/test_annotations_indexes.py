@@ -2,7 +2,8 @@ import math
 
 from flask import url_for
 
-from icc.models import Writer, Text, Edition, Annotation
+from icc.models.models import Writer, Text, Edition
+from icc.models.annotation import Annotation
 
 
 def test_empty_db(appclient):

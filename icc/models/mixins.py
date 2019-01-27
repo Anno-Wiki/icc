@@ -3,12 +3,13 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
+from flask import flash
 from flask_login import current_user
 
 from icc import db
 from icc.search import add_to_index, remove_from_index, query_index
 
-# Mixins
+
 class Base(db.Model):
     __abstract__ = True
 
@@ -94,6 +95,7 @@ class EditMixin:
     def reject(self):
         self.rejected = True
         flash("The edit was rejected.")
+
 
 # If you encounter an error while committing to the effect that `NoneType has no
 # attribute <x>` what you have done is specify an id# instead of an object. Use

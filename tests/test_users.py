@@ -2,7 +2,7 @@ import time
 
 from flask import url_for
 from icc import db
-from icc.models import Right, User
+from icc.models.user import Right, User
 from tests.utils import get_token
 
 

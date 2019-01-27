@@ -3,7 +3,7 @@ import yaml
 import pytest
 
 from icc import create_app, db
-from icc.models import classes
+from icc import classes
 
 from config import Config
 

@@ -1,11 +1,29 @@
-from datetime import datetime
+import jwt
+import sys
+import inspect
 
-from flask_login import UserMixin, current_user
+from datetime import datetime
+from time import time
+from hashlib import md5
+from math import log10
+
+from flask import abort, current_app as app
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin
 from icc.models.tables import user_flrs
+from icc.models.wiki import WikiEditVote
+from icc.models.models import TextRequestVote, TagRequestVote
 
+# We have to import the whole module in this file to avoid the circular import.
+# I would love to find a simpler fix for this, but in this case we do this for
+# access to only two classes, Vote, and EditVote. I tried to do it in the other
+# file, instead, but for some reason I was getting the same error with the call
+# to `from icc.models.annotation import Vote, EditVote` here: namely, that the
+# system couldn't find icc.models.annotation. Rather strange, imo.
+import icc.models.annotation
 
 
 @login.user_loader
@@ -178,7 +196,7 @@ class User(UserMixin, Base):
         return annotation in self.votes
 
     def get_vote(self, annotation):
-        return self.ballots.filter(Vote.annotation == annotation).first()
+        return self.ballots.filter(annotation.Vote.annotation == annotation).first()
 
     def get_vote_dict(self):
         v = {}
@@ -216,7 +234,7 @@ class User(UserMixin, Base):
 
     # edit vote utilities
     def get_edit_vote(self, edit):
-        return self.edit_ballots.filter(EditVote.edit == edit).first()
+        return self.edit_ballots.filter(annotation.EditVote.edit == edit).first()
 
     def get_wiki_edit_vote(self, edit):
         return self.wiki_edit_ballots.filter(WikiEditVote.edit == edit).first()
@@ -287,3 +305,5 @@ class UserFlag(Base):
         self.time_resolved = None
         self.resolver = None
 
+
+classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

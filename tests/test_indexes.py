@@ -2,7 +2,9 @@ import math
 
 from flask import url_for
 
-from icc.models import Annotation, Writer, Text, Tag, User
+from icc.models.models import  Writer, Text
+from icc.models.annotation import Annotation, Tag
+from icc.models.user import User
 
 
 def test_writer_index(popclient):
