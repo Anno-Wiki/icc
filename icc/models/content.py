@@ -15,6 +15,12 @@ from icc.models.mixins import Base, EnumMixin, SearchableMixin
 from icc.models.tables import authors
 from icc.models.wiki import Wiki
 
+EMPHASIS = {
+    0: 'nem',
+    1: 'oem',
+    2: 'em',
+    3: 'cem',
+}
 
 class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
@@ -197,7 +203,7 @@ class Line(SearchableMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
-    em_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'), index=True)
+    em_id = db.Column(db.Integer)
     line = db.Column(db.String(200))
 
     edition = db.relationship('Edition')
@@ -220,6 +226,10 @@ class Line(SearchableMixin, Base):
 
     def __repr__(self):
         return f'<l{self.num} {self.edition.text.title} [{self.label.display}]>'
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.emphasis = emphasis[self.em_id]
 
     def __getattr__(self, attr):
         if attr.startswith('text_'):
