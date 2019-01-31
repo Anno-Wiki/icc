@@ -104,25 +104,6 @@ enums:
           default_delta: 5
         - enum: downvote
           default_delta: -2
-    LineEnum:
-        - enum: lvl1
-          display: Chapter
-        - enum: sl
-          display: Single Line
-        - enum: ll
-          display: Last Line
-        - enum: fl
-          display: First Line
-        - enum: l
-          display: Line
-        - enum: oem
-          display: Line with Open Emphasis
-        - enum: cem
-          display: Line with Closed Emphasis
-        - enum: nem
-          display: Line with No Emphasis
-        - enum: em
-          display: Line with Emphasis
     Tag:
         - tag: definition
           description: For definitions of words not easily found (e.g., ancient words, specialized vocabulary, etc.)

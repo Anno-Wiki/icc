@@ -161,13 +161,21 @@ def readout(lines, matches):
       pairs:
         - `enum`: the actual enum-like code that will be used to generate css
           classes for displaying the lines
+        - `display`: the human-readable (or, prettier) version of `enum`, i.e.,
+          if the enum is `hr`, the display is 'Horizontal Rule'. This is
+          essential for hierarchy attrs, because they are all simply `lvl<n>` in
+          the enum.
+        - `num`: the number corresponding to the attribute, i.e., chapter 1,
+          book 1, etc. This number is 0 for all non-hierarchy attributes.
         - `precedence`: the precedence value of table-of-contents hierarchies
           (see Table of Contents Hierarchies in the documentation for more
           information). A 0 will be used for attributes which do not have
           precedence.
         - `primary`: The status of the particular attribute being primary or
           not; that is to say: if the particular line is the 'Chapter' heading,
-          the `primary` value will be `True`. All else will be `False`.
+          the `primary` value will be `True`. All else will be `False`. Every
+          line has one, and only one, primary. It is the classification of the
+          line.
     """
 
     class Switch:
@@ -256,12 +264,14 @@ def readout(lines, matches):
             attrs = []
             for i in range(1, self.maxtoc+1):
                 primary = line[1] == i
-                attrs.append(
-                    {'enum': f'lvl{i}',
-                     'display': self.tocnums[i]['display'],
-                     'num': self.tocnums[i]['num'],
-                     'precedence': i,
-                     'primary': primary})
+                num = self.tocnums[i]['num']
+                if num > 0:
+                    attrs.append(
+                        {'enum': f'lvl{i}',
+                        'display': self.tocnums[i]['display'],
+                        'num': self.tocnums[i]['num'],
+                        'precedence': i,
+                        'primary': primary})
             return attrs
 
         def process_line(self, line):
@@ -292,6 +302,7 @@ def readout(lines, matches):
                     {'line': line[2],
                      'attributes': self.hierarchy(line) + [classification],
                      'emphasis': line[0], 'num': self.num})
+                self.prevline = classification['enum']
 
     switcher = Switch(matches)
     for line in lines:

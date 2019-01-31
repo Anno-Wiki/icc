@@ -3,7 +3,7 @@ import argparse
 import codecs
 import json
 from icc import db, create_app
-from icc.models.models import Line, Text
+from icc.models.content import Line, Text
 from icc.models.user import User
 from icc.models.annotation import Annotation, Tag
 

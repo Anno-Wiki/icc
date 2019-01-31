@@ -15,12 +15,9 @@ from icc.models.mixins import Base, EnumMixin, SearchableMixin
 from icc.models.tables import authors
 from icc.models.wiki import Wiki
 
-EMPHASIS = {
-    0: 'nem',
-    1: 'oem',
-    2: 'em',
-    3: 'cem',
-}
+
+EMPHASIS = ('nem', 'oem', 'em', 'cem')
+EMPHASIS_REVERSE = {val:ind for ind,val in enumerate(EMPHASIS)}
 
 class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
@@ -173,6 +170,9 @@ class LineEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
     display = db.Column(db.String(64))
 
+    def __repr__(self):
+        return f'<LineEnum {self.display}>'
+
 
 class LineAttribute(Base):
     """An association class between LineEnum and Line."""
@@ -184,7 +184,8 @@ class LineAttribute(Base):
     precedence = db.Column(db.Integer, default=1, index=True)
     primary = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
-    enum_obj = db.relationship('LineEnum')
+    enum_obj = db.relationship('LineEnum', backref=backref('attrs',
+                                                           lazy='dynamic'))
     line = db.relationship('Line', backref='attrs')
 
     enum = association_proxy('enum_obj', 'enum')
@@ -203,12 +204,12 @@ class Line(SearchableMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
-    em_id = db.Column(db.Integer)
+    em_id = db.Column(db.Integer)           # the emphasis id number
     line = db.Column(db.String(200))
 
     edition = db.relationship('Edition')
     text = association_proxy('edition', 'text')
-    em_status = db.relationship('LineEnum', foreign_keys=[em_id])
+
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
         'remote(Line.num)>=Line.num-1,'
@@ -225,11 +226,15 @@ class Line(SearchableMixin, Base):
         uselist=True, lazy='dynamic')
 
     def __repr__(self):
-        return f'<l{self.num} {self.edition.text.title} [{self.label.display}]>'
+        return f'<l{self.num} {self.edition.text.title} [{self.primary.display}]>'
 
     @orm.reconstructor
     def init_on_load(self):
         self.emphasis = EMPHASIS[self.em_id]
+
+        for attr in self.attrs:
+            if attr.primary:
+                self.primary = attr
 
     def __getattr__(self, attr):
         if attr.startswith('text_'):

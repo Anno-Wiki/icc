@@ -1,0 +1,6 @@
+toc:
+    '^I+$':
+        display: Chapter
+        precedence: 1
+        aggregate: False
+specials: {}
