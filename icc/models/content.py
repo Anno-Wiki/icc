@@ -118,8 +118,6 @@ class Edition(Base):
 
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
-    lines = db.relationship(
-        'Line', primaryjoin='Line.edition_id==Edition.id', lazy='dynamic')
 
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
@@ -130,17 +128,51 @@ class Edition(Base):
 
         self.wiki = Wiki(body=description, entity_string=str(self))
 
+    def __repr__(self):
+        return f'<Edition #{self.num} {self.text.title}>'
+
+    def __str__(self):
+        return self.title
+
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.text.title.replace(' ', '_') + f'_{self.num}'
         self.title = f'{self.text.title} - Primary Edition*'\
             if self.primary else f'{self.text.title} - Edition #{self.num}'
 
-    def __repr__(self):
-        return f'<Edition #{self.num} {self.text.title}>'
+    def section(self, *args):
+        """Returns a base query of all the edition's lines in the particular
+        hierarchical toc section.
 
-    def __str__(self):
-        return self.title
+        Arguments are specified in ascending precedence (that is, the highest
+        hierarchical precedence is the earliest argument).
+
+        See the section on Table of Contents Hierarchies in the documentation
+        for more information.
+        """
+        if not args:
+            raise ValueError("At least one section number must be supplied as "
+                             "an argument.")
+        if not all(isinstance(n, int) for n in args):
+            raise TypeError("All arguments after the edition must be integers.")
+
+        queries = []
+        for precedence, num in enumerate(args):
+            queries.append(
+                self.lines\
+                    .join(LineAttribute)\
+                    .filter(LineAttribute.precedence==precedence+1,
+                            LineAttribute.num==num))
+        query = queries[0].intersect(*queries[1:])
+
+        return query
+
+    def toc(self):
+        """Returns a base query for all of the toc headings of the edition."""
+        return self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.precedence>0,
+                    LineAttribute.primary==True)
 
     def get_url(self):
         return url_for('main.edition', text_url=self.text.url,
@@ -207,7 +239,8 @@ class Line(SearchableMixin, Base):
     em_id = db.Column(db.Integer)           # the emphasis id number
     line = db.Column(db.String(200))
 
-    edition = db.relationship('Edition')
+    edition = db.relationship('Edition', backref=backref('lines',
+                                                         lazy='dynamic'))
     text = association_proxy('edition', 'text')
 
     context = db.relationship(
