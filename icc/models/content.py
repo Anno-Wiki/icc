@@ -177,9 +177,9 @@ class LineEnum(Base, EnumMixin):
 class LineAttribute(Base):
     """An association class between LineEnum and Line."""
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
-                        index=True)
+                        index=True, primary_key=True)
     enum_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'),
-                        nullable=False, index=True)
+                        nullable=False, index=True, primary_key=True)
     num = db.Column(db.Integer, default=1)
     precedence = db.Column(db.Integer, default=1, index=True)
     primary = db.Column(db.Boolean, nullable=False, default=False, index=True)
@@ -229,7 +229,7 @@ class Line(SearchableMixin, Base):
 
     @orm.reconstructor
     def init_on_load(self):
-        self.emphasis = emphasis[self.em_id]
+        self.emphasis = EMPHASIS[self.em_id]
 
     def __getattr__(self, attr):
         if attr.startswith('text_'):
