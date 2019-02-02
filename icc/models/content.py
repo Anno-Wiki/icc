@@ -106,6 +106,10 @@ class Text(Base):
     def get_url(self):
         return url_for('main.text', text_url=self.url)
 
+    @classmethod
+    def get_by_url(cls, url):
+        return cls.query.filter_by(title=url.replace('_', ' '))
+
 
 class Edition(Base):
     id = db.Column(db.Integer, primary_key=True)
@@ -173,6 +177,17 @@ class Edition(Base):
             .join(LineAttribute)\
             .filter(LineAttribute.precedence>0,
                     LineAttribute.primary==True)
+
+    def max_toc(self):
+        stdline = self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.primary==True,
+                    LineAttribute.precedence==0).first()
+        i = 0
+        for attr in stdline.attrs:
+            if attr.precedence > 0:
+                i += 1
+        return i
 
     def get_url(self):
         return url_for('main.edition', text_url=self.text.url,
