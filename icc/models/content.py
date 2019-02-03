@@ -8,6 +8,7 @@ from flask import url_for
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
@@ -18,6 +19,7 @@ from icc.models.wiki import Wiki
 
 EMPHASIS = ('nem', 'oem', 'em', 'cem')
 EMPHASIS_REVERSE = {val:ind for ind,val in enumerate(EMPHASIS)}
+
 
 class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
@@ -122,6 +124,14 @@ class Edition(Base):
 
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
+    title = association_proxy('text', 'title')
+
+    @staticmethod
+    def check_section_argument(section):
+        if not isinstance(section, tuple):
+            raise TypeError("The argument must a tuple of integers.")
+        if not all(isinstance(n, int) for n in section):
+            raise TypeError("The section tuple must consist of only integers.")
 
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
@@ -141,35 +151,42 @@ class Edition(Base):
     @orm.reconstructor
     def init_on_load(self):
         self.url = self.text.title.replace(' ', '_') + f'_{self.num}'
-        self.title = f'{self.text.title} - Primary Edition*'\
-            if self.primary else f'{self.text.title} - Edition #{self.num}'
+        self.title = f'{self.title}*'\
+            if self.primary else f'{self.title} - Edition #{self.num}'
 
-    def section(self, *args):
+    def section(self, section):
         """Returns a base query of all the edition's lines in the particular
         hierarchical toc section.
-
-        Arguments are specified in ascending precedence (that is, the highest
-        hierarchical precedence is the earliest argument).
-
-        See the section on Table of Contents Hierarchies in the documentation
-        for more information.
         """
-        if not args:
-            raise ValueError("At least one section number must be supplied as "
-                             "an argument.")
-        if not all(isinstance(n, int) for n in args):
-            raise TypeError("All arguments after the edition must be integers.")
+        Edition.check_section_argument(section)
 
         queries = []
-        for precedence, num in enumerate(args):
-            queries.append(
-                self.lines\
-                    .join(LineAttribute)\
-                    .filter(LineAttribute.precedence==precedence+1,
-                            LineAttribute.num==num))
+        for precedence, num in enumerate(section):
+            queries.append(self.lines\
+                           .join(LineAttribute)\
+                           .filter(LineAttribute.precedence==precedence+1,
+                                   LineAttribute.num==num))
         query = queries[0].intersect(*queries[1:])
 
         return query
+
+    def prev_section(self, section):
+        """Returns the header for the previous section else None."""
+        Edition.check_section_argument(section)
+        header = self.section(section).first()
+        num = header.attrs[len(section)].num
+        prev_section = self.toc_by_precedence(len(section))\
+            .filter(Line.num<header.num)\
+            .order_by(Line.id.desc()).first()
+        return prev_section
+
+    def next_section(self, section):
+        """Returns the header line for the next section else None."""
+        Edition.check_section_argument(section)
+        header = self.section(section).first()
+        next_section = self.toc_by_precedence(len(section))\
+            .filter(Line.num>header.num).first()
+        return next_section
 
     def toc(self):
         """Returns a base query for all of the toc headings of the edition."""
@@ -178,18 +195,25 @@ class Edition(Base):
             .filter(LineAttribute.precedence>0,
                     LineAttribute.primary==True)
 
-    def max_toc(self):
-        stdline = self.lines\
+    def toc_by_precedence(self, precedence):
+        """Returns a base query for all of the toc headings of the edition of a
+        particular precedence (e.g., if the precedence is 2, only return
+        headings of second level precedence).
+        """
+        return self.lines\
             .join(LineAttribute)\
-            .filter(LineAttribute.primary==True,
-                    LineAttribute.precedence==0).first()
-        i = 0
-        for attr in stdline.attrs:
-            if attr.precedence > 0:
-                i += 1
-        return i
+            .filter(LineAttribute.precedence==precedence,
+                    LineAttribute.primary==True)
+
+    def deepest_precedence(self):
+        line = self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.precedence==0,
+                    LineAttribute.primary==True).first()
+        return len(line.section())
 
     def get_url(self):
+        """Returns the url for the object's main view page."""
         return url_for('main.edition', text_url=self.text.url,
                        edition_num=self.num)
 
@@ -233,7 +257,10 @@ class LineAttribute(Base):
 
     enum_obj = db.relationship('LineEnum', backref=backref('attrs',
                                                            lazy='dynamic'))
-    line = db.relationship('Line', backref='attrs')
+    line = db.relationship(
+        'Line', backref=backref('attrs',
+                                collection_class=attribute_mapped_collection(
+                                    'precedence')))
 
     enum = association_proxy('enum_obj', 'enum')
     display = association_proxy('enum_obj', 'display')
@@ -246,17 +273,19 @@ class LineAttribute(Base):
 
 
 class Line(SearchableMixin, Base):
-    __searchable__ = ['line', 'text_title']
+    __searchable__ = ['line', 'title']
 
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
-    em_id = db.Column(db.Integer)           # the emphasis id number
+    em_id = db.Column(db.Integer)  # the emphasis id number
     line = db.Column(db.String(200))
 
     edition = db.relationship('Edition', backref=backref('lines',
                                                          lazy='dynamic'))
     text = association_proxy('edition', 'text')
+    title = association_proxy('edition', 'title')
+
 
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
@@ -280,88 +309,16 @@ class Line(SearchableMixin, Base):
     def init_on_load(self):
         self.emphasis = EMPHASIS[self.em_id]
 
-        for attr in self.attrs:
+        for attr in self.attrs.values():
             if attr.primary:
                 self.primary = attr
 
-    def __getattr__(self, attr):
-        if attr.startswith('text_'):
-            return getattr(self.edition.text, attr.replace('text_', '', 1))
-        else:
-            raise AttributeError(f"No such attribute {attr}")
-
-    def get_prev_page(self):
-        line = None
-        if self.lvl4 > 1:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2,
-                Line.lvl3 == self.lvl3,
-                Line.lvl4 == self.lvl4-1).first()
-        elif self.lvl3 > 1:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2,
-                Line.lvl3 == self.lvl3-1).order_by(Line.num.desc()).first()
-        elif self.lvl2 > 1:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2-1).order_by(Line.num.desc()).first()
-        elif self.lvl1 > 1:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1-1).order_by(Line.num.desc()).first()
-        return line.get_url() if line else None
-
-    def get_next_page(self):
-        line = None
-        lvl2 = 0
-        lvl3 = 0
-        lvl4 = 0
-        if self.lvl4 != 0:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2,
-                Line.lvl3 == self.lvl3,
-                Line.lvl4 == self.lvl4+1).order_by(Line.num.desc()).first()
-            lvl4 = 1
-        if self.lvl3 != 0 and not line:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2,
-                Line.lvl3 == self.lvl3+1,
-                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
-            lvl3 = 1
-        if self.lvl2 != 0 and not line:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1,
-                Line.lvl2 == self.lvl2+1,
-                Line.lvl3 == lvl3,
-                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
-            lvl2 = 1
-        if self.lvl1 != 0 and not line:
-            line = Line.query.filter(
-                Line.edition_id == self.edition_id,
-                Line.lvl1 == self.lvl1+1,
-                Line.lvl2 == lvl2,
-                Line.lvl3 == lvl3,
-                Line.lvl4 == lvl4).order_by(Line.num.desc()).first()
-        return line.get_url() if line else None
+    def section(self):
+        return tuple(i.num for i in self.attrs.values() if i.precedence > 0)
 
     def get_url(self):
-        lvl1 = self.lvl1 if self.lvl1 > 0 else None
-        lvl2 = self.lvl2 if self.lvl2 > 0 else None
-        lvl3 = self.lvl3 if self.lvl3 > 0 else None
-        lvl4 = self.lvl4 if self.lvl4 > 0 else None
-        return url_for(
-            'main.read', text_url=self.edition.text.url,
-            edition_num=self.edition.num, l1=lvl1, l2=lvl2, l3=lvl3, l4=lvl4)
+        return url_for('main.read', text_url=self.text.url,
+                       edition_num=self.edition.num, section=self.section())
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
