@@ -22,7 +22,7 @@ from icc.models.user import User
 
 from icc.forms import (AnnotationForm, LineNumberForm, SearchForm, CommentForm,
                        WikiForm)
-from icc.funky import preplines, generate_next, line_check
+from icc.funky import generate_next
 
 
 @main.before_request
@@ -112,8 +112,8 @@ def index():
         active_page='index')
 
 
-@main.route(
-    '/text/<text_url>/edition/<edition_num>/line/<line_num>/annotations')
+@main.route('/text/<text_url>/edition/<edition_num>/'
+            'line/<line_num>/annotations')
 @main.route('/text/<text_url>/line/<line_num>/annotations',
             methods=['GET', 'POST'], defaults={'edition_num': None})
 def line_annotations(text_url, edition_num, line_num):
@@ -178,125 +178,111 @@ def line_annotations(text_url, edition_num, line_num):
 @main.route('/read/<text_url>', methods=['GET', 'POST'],
             defaults={'edition_num': None})
 def read(text_url, edition_num):
-    if edition_num:
-        text = Text.query.filter_by(title=text_url.replace('_', ' '))\
-            .first_or_404()
-        edition = Edition.query.filter(Edition.text_id==text.id,
-                                       Edition.num==edition_num).first_or_404()
-    else:
-        text = Text.query.filter_by(title=text_url.replace('_', ' '))\
-            .first_or_404()
-        edition = text.primary
-    tag = request.args.get('tag', None, type=str)
-    lvl = [request.args.get('l1', 0, type=int)]
-    lvl.append(request.args.get('l2', 0, type=int))
-    lvl.append(request.args.get('l3', 0, type=int))
-    lvl.append(request.args.get('l4', 0, type=int))
+    """The main read route for viewing the text of any edition."""
+    def preplines(lines):
+        """Convert all of the underscores to em tags and prepend and
+        append em tags based on line.emphasis values.
+        """
+        us = False
+        for i, line in enumerate(lines):
+            if '_' in lines[i].line:
+                newline = []
+                for c in lines[i].line:
+                    if c == '_':
+                        if us:
+                            newline.append('</em>')
+                            us = False
+                        else:
+                            newline.append('<em>')
+                            us = True
+                    else:
+                        newline.append(c)
+                lines[i].line = ''.join(newline)
 
-    annotationflags = AnnotationFlagEnum.query.all()
+            if line.emphasis == 'oem':
+                lines[i].line = lines[i].line + '</em>'
+            elif line.emphasis == 'cem':
+                lines[i].line = '<em>' + lines[i].line
+            elif line.emphasis == 'em':
+                lines[i].line = '<em>' + lines[i].line + '</em>'
 
-    if lvl[3]:
-        lines = edition.lines.filter(
-            Line.lvl4==lvl[3], Line.lvl3==lvl[2], Line.lvl2==lvl[1],
-            Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
-    elif lvl[2]:
-        lines = edition.lines.filter(
-            Line.lvl3==lvl[2], Line.lvl2==lvl[1],
-            Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
-    elif lvl[1]:
-        lines = edition.lines.filter(
-            Line.lvl2==lvl[1], Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
-    elif lvl[0]:
-        lines = edition.lines.filter(
-            Line.lvl1==lvl[0]).order_by(Line.num.asc()).all()
-    else:
-        lines = edition.lines.order_by(Line.num.asc()).all()
-
-    if len(lines) <= 0:
-        abort(404)
-
+    text = Text.get_by_url(text_url).first_or_404()
+    edition = text.primary if not edition_num else \
+        text.editions.filter_by(num=edition_num).first_or_404()
     form = LineNumberForm()
 
-    next_page = lines[0].get_next_page()
-    prev_page = lines[0].get_prev_page()
-
     if form.validate_on_submit():
-        # line number boiler plate
-        if not form.first_line.data and not form.last_line.data:
-            flash("Please enter a first and last line number to annotate a"
-                  " selection.")
-            return redirect(request.full_path)
-        elif not form.first_line.data:
-            ll = int(form.last_line.data)
-            fl = ll
-        elif not form.last_line.data:
-            fl = int(form.first_line.data)
-            ll = fl
-        else:
-            fl = int(form.first_line.data)
-            ll = int(form.last_line.data)
-
-        if fl < 1:
-            fl = 1
-        if ll < 1:
-            fl = 1
-            ll = 1
-
-        # redirect to annotate page, with next query param being the current
-        # page. Multi-layered nested return statement. Read carefully.
+        first_line, last_line = line_number_boiler_plate(form.first_line.data,
+                                                         form.last_line.data)
         return redirect(url_for('main.annotate', text_url=text_url,
-                                edition_num=edition.num, first_line=fl,
-                                last_line=ll, next=request.full_path)
-                        )
+                                edition_num=edition.num, first_line=first_line,
+                                last_line=last_line, next=request.full_path))
 
-    # get all the annotations
+    section_strings = tuple(request.args.getlist('section'))
+    # Get the section tuple or else all 1's for the deepest possible precedence.
+    section = tuple(int(i) for i in section_strings) if section_strings\
+        else tuple(1 for i in range(edition.deepest_precedence()))
+
+    lines = edition.section(section).all()
+    if not lines:
+        abort(404)
+
+    next_section = edition.next_section(section)
+    next_page = url_for(
+        'main.read', text_url=text_url, edition_num=edition.num,
+        section=next_section.section()) if next_section else None
+
+    prev_section = edition.prev_section(section)
+    prev_page = url_for(
+        'main.read', text_url=text_url, edition_num=edition.num,
+        section=prev_section.section()) if prev_section else None
+
+    tag = request.args.get('tag', None, type=str)
     if tag:
         tag = Tag.query.filter_by(tag=tag).first_or_404()
         annotations = tag.annotations.filter(
-            Annotation.edition_id==text.id, Edit.first_line_num>=lines[0].num,
+            Annotation.edition_id==text.id,
+            Edit.first_line_num>=lines[0].num,
             Edit.last_line_num<=lines[-1].num).all()
         tags = None
     else:
-        annotations = edition.annotations.join(
-            Edit, and_(
-                Edit.entity_id==Annotation.id, Edit.current==True)
-        ).filter(
-            Edit.last_line_num<=lines[-1].num,
-            Edit.first_line_num>=lines[0].num
-        ).all()
+        annotations = edition.annotations\
+            .join(Edit, and_(Edit.entity_id==Annotation.id,
+                             Edit.current==True))\
+            .filter(Edit.last_line_num<=lines[-1].num,
+                    Edit.first_line_num>=lines[0].num).all()
         # this query is like 5 times faster than the old double-for loop. I am,
         # however, wondering if some of the join conditions should be offloaded
         # into a filter
-        tags = Tag.query.outerjoin(tags_table).join(
-            Edit, and_(Edit.id==tags_table.c.edit_id, Edit.current==True,
-                       Edit.first_line_num>=lines[0].num,
-                       Edit.last_line_num<=lines[-1].num)
-        ).join(Annotation).filter(Annotation.edition_id==edition.id).all()
+        tags = Tag.query\
+            .outerjoin(tags_table)\
+            .join(Edit, and_(Edit.id==tags_table.c.edit_id, Edit.current==True,
+                             Edit.first_line_num>=lines[0].num,
+                             Edit.last_line_num<=lines[-1].num))\
+            .join(Annotation)\
+            .filter(Annotation.edition_id==edition.id).all()
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
-    for a in annotations:
-        annotations_idx[a.HEAD.last_line_num].append(a)
+    if annotations:
+        for a in annotations:
+            annotations_idx[a.HEAD.last_line_num].append(a)
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated\
         else None
 
     # I have to query this so I only make a db call once instead of each time
     # for every line to find out if the user has edit_rights
-    if current_user.is_authenticated:
-        can_edit_lines = current_user.is_authorized('edit_lines')
-    else:
-        can_edit_lines = False
+    can_edit_lines = current_user.is_authorized('edit_lines')\
+        if current_user.is_authenticated else False
 
-    # This custom method for replacing underscores with <em> tags is still way
-    # faster than the markdown converter. Since I'm not using anything other
-    # than underscores for italics in the body of the actual text (e.g., I'm
-    # using other methods to indicate blockquotes), I'll just keep using this.
+    # This is faster than the markdown plugin
     preplines(lines)
+    annotationflags = AnnotationFlagEnum.query.all()
 
     return render_template(
         'read.html', title=text.title, form=form, text=text, edition=edition,
-        lines=lines, annotations_idx=annotations_idx, uservotes=uservotes,
-        tags=tags, tag=tag, next_page=next_page, prev_page=prev_page,
-        can_edit_lines=can_edit_lines, annotationflags=annotationflags
-    )
+        section='.'.join(map(str,section)), lines=lines,
+        annotations_idx=annotations_idx, uservotes=uservotes, tags=tags,
+        tag=tag, next_page=next_page, prev_page=prev_page,
+        can_edit_lines=can_edit_lines, annotationflags=annotationflags)

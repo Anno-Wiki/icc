@@ -4,20 +4,8 @@
 
 {# Header/Running Head #}
 <div class="running_head">
-
-    <a href="{{ url_for("main.text", text_url=text.url) }}">{{ text.title }}</a> 
-    {% include "includes/_authors.html" %}
-
-    &#167;
-    {% if lines[0].lvl4 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
-    {% elif lines[0].lvl3 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
-    {% elif lines[0].lvl2 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
-    {% elif lines[0].lvl1 != 0 %}
-        {{ lines[0].lvl1 }}
-    {% endif %}
+    <a href="{{ url_for("main.text", text_url=text.url) }}">{{ text.title }}</a>
+    {% include "includes/_authors.html" %} &#167; {{ section }}
 
     {% if not edition.primary %}
         <br>
@@ -28,16 +16,15 @@
         <br>
         {% include "includes/_translators.html" %}
     {% endif %}
-
 </div>
 
 {# Pagination #}
 {% if prev_page %}
     <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
 {% endif %}
-{% if prev_page and next_page %}
-    |
-{% endif %}
+
+{% if prev_page and next_page %}|{% endif %}
+
 {% if next_page %}
     <a href="{{ next_page }}">Next Page &gt;&gt;</a>
 {% endif %}
@@ -77,7 +64,7 @@
 {# Text of the page #}
 <div id="content">
     {%- for line in lines %}
-        <line class="{{ line.label.label }}" id="{{ line.num }}">
+        <line class="{{ line.primary.enum }}" id="{{ line.num }}">
             {% if line.num % 5 == 0 %}
                 {# Line number #}
                 <span class="linenum">{{ line.num }}</span>
@@ -86,87 +73,48 @@
             {% endif %}
 
             {# Actual line (not modularizing because speed) #}
-            {%- if line.label.label == 'hr' -%}
+            {%- if line.primary.enum == 'hr' -%}
                 <hr class="text_separator">
             {%- else -%}
                 {{ line.line|safe }}
             {%- endif -%}
 
 
-            {% if annotations_idx[line.num] %}
+            {% if line.num in annotations_idx %}
                 {# Footnote marker #}
                 <span class="body_annotation">
                     {% for a in annotations_idx[line.num] %}
-                        <a href="#a{{ a.id }}"> [{{ a.id }}] </a>
+                        <a href="#a{{ a.id }}">[{{ a.id }}]</a>
                     {% endfor %}
                 </span>
             {% endif %}
+
             {% if can_edit_lines %}
                 <span class="edit_line">
                     <a href="{{ url_for("admin.edit_line", line_id=line.id,
-                        next=request.path) }}">
-                        edit
-                    </a>
+                        next=request.path) }}">edit</a>
                 </span>
             {% endif %}
         </line>
-    {% endfor -%}
+    {% endfor %}
 </div>
 
-{# Annotations #}
-{% for i in range(lines[0].num, lines[-1].num) %}
-    {% if i in annotations_idx %}
-        {% for annotation in annotations_idx[i] %}
-            {% include "includes/_annotation.html" %}
-        {% endfor %}
-    {% endif %}
-{% endfor %}
+{% if annotations_idx %}
+    {% for i in range(lines[0].num, lines[-1].num) %}
+            {% for annotation in annotations_idx[i] %}
+                {% include "includes/_annotation.html" %}
+            {% endfor %}
+    {% endfor %}
+{% else %}
+    <h4>There are no annotations for this section.</h4>
+{% endif %}
 
 <hr>
 
 {# Contrary to class name, running foot #}
 <div class="running_head">
-    <a href="{{ url_for("main.text", text_url=text.url) }}"> {{ text.title }} </a> 
-    by
-    {% if len(edition.text.authors) == 2 %}
-        <a href="{{ url_for("main.writer", writer_url=edition.text.authors[0].url) }}">
-            {{ edition.text.authors[0].name }}
-        </a>
-        and
-        <a href="{{ url_for("main.writer", writer_url=edition.text.authors[1].url) }}">
-            {{ edition.text.authors[1].name }}
-        </a>
-    {% elif len(edition.text.authors) == 1 %}
-        <a href="{{ url_for("main.writer", writer_url=edition.text.authors[0].url) }}">
-            {{ edition.text.authors[0].name }}
-        </a>
-    {% elif len(edition.text.authors) == 0 %}
-        Unattributed
-    {% else %}
-        {% for author in edition.text.authors %}
-            {% if author == edition.text.authors[-1]
-                and author != edition.text.authors[0] %}
-                and
-            {% endif %}
-            <a href="{{ url_for("main.writer", writer_url=author.url) }}">
-                {{ author.name }}
-            </a>
-            {% if author != edition.text.authors[-1] %}
-                , 
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-
-    &#167;
-    {% if lines[0].lvl4 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}.{{ lines[0].lvl4 }}
-    {% elif lines[0].lvl3 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}.{{ lines[0].lvl3 }}
-    {% elif lines[0].lvl2 != 0 %}
-        {{ lines[0].lvl1 }}.{{ lines[0].lvl2 }}
-    {% elif lines[0].lvl1 != 0 %}
-        {{ lines[0].lvl1 }}
-    {% endif %}
+    <a href="{{ url_for("main.text", text_url=text.url) }}">{{ text.title }}</a>
+    {% include "includes/_authors.html" %} &#167; {{ section }}
 </div>
 
 {% endblock %}
