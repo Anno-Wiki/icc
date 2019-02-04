@@ -39,6 +39,38 @@ class Tag(Base):
     def __str__(self):
         return f'<tag>{self.tag}</tag>'
 
+    @classmethod
+    def intersect(cls, tags):
+        """Return a base query that is the intersection of all annotations for a
+        tuple of tags.
+        """
+        if not isinstance(tags, tuple):
+            raise TypeError('Tags argument must be a tuple of strings.')
+        if not all(isinstance(tag, str) for tag in tags):
+            raise TypeError("The tags tuple must consist of only strings.")
+
+        queries = []
+        for tag in tags:
+            queries.append(cls.query.filter_by(tag=tag).first().annotations)
+        query = queries[0].intersect(*queries[1:])
+        return query
+
+    @classmethod
+    def union(cls, tags):
+        """Return a base query that is the intersection of all annotations for a
+        tuple of tags.
+        """
+        if not isinstance(tags, tuple):
+            raise TypeError('Tags argument must be a tuple of strings.')
+        if not all(isinstance(tag, str) for tag in tags):
+            raise TypeError("The tags tuple must consist of only strings.")
+
+        queries = []
+        for tag in tags:
+            queries.append(cls.query.filter_by(tag=tag).first().annotations)
+        query = queries[0].union(*queries[1:])
+        return query
+
     def get_url(self):
         return url_for('main.tag', tag=self.tag)
 
