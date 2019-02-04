@@ -1,3 +1,7 @@
+"""This module contains all of the annotation models for the ICC.
+
+Essentially, anything that is required to render an annotation.
+"""
 import sys
 import inspect
 from datetime import datetime
@@ -14,6 +18,27 @@ from icc.models.wiki import Wiki
 
 
 class Tag(Base):
+    """A class representing tags.
+
+    Attributes
+    ----------
+    url
+    id : int
+        The id of the object
+    tag : str
+        The name of the tag
+    locked : bool
+        The locked status of the tag (i.e., whether it is available for ordinary
+        users to apply to their annotations).
+    wiki_id : int
+        The id of the tag's wiki.
+    wiki : :class:`Wiki`
+        The tag's :class:`Wiki` object.
+    annotations : :class:`BaseQuery`
+        A :class:`BaseQuery` object of all of the annotations which currently
+        have this tag applied to them.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
@@ -27,6 +52,7 @@ class Tag(Base):
         'Annotation.active==True)', lazy='dynamic', passive_deletes=True)
 
     def __init__(self, *args, **kwargs):
+        """Creation of a tag also creates a :class:`Wiki`."""
         description = kwargs.pop('description', None)
         description = 'This tag has no description yet.' if not description\
             else description
@@ -41,8 +67,26 @@ class Tag(Base):
 
     @classmethod
     def intersect(cls, tags):
-        """Return a base query that is the intersection of all annotations for a
-        tuple of tags.
+        """Get the annotations at the intersection of multiple tags.
+
+        Parameters
+        ----------
+        tags : tuple
+            A tuple of strings corresponding to the names of the tags to be
+            intersected.
+
+        Returns
+        -------
+        :class:`BaseQuery`
+            A :class:`BaseQuery` object that can be used to get all of the
+            annotations.
+
+        Raises
+        ------
+        TypeError
+            If the first argument is not a tuple.
+        TypeError
+            If the elements of the tuple are not all strings.
         """
         if not isinstance(tags, tuple):
             raise TypeError('Tags argument must be a tuple of strings.')
@@ -57,8 +101,26 @@ class Tag(Base):
 
     @classmethod
     def union(cls, tags):
-        """Return a base query that is the intersection of all annotations for a
-        tuple of tags.
+        """Get the annotations at the union of multiple tags.
+
+        Parameters
+        ----------
+        tags : tuple
+            A tuple of strings corresponding to the names of the tags to be
+            unioned.
+
+        Returns
+        -------
+        BaseQuery
+            A :class:`BaseQuery` object that can be used to get all of the
+            annotations.
+
+        Raises
+        ------
+        TypeError
+            If the first argument is not a tuple.
+        TypeError
+            If the elements of the tuple are not all strings.
         """
         if not isinstance(tags, tuple):
             raise TypeError('Tags argument must be a tuple of strings.')
@@ -71,30 +133,63 @@ class Tag(Base):
         query = queries[0].union(*queries[1:])
         return query
 
-    def get_url(self):
+    @property
+    def url(self):
+        """The url for the main view page for the tag."""
         return url_for('main.tag', tag=self.tag)
 
 
 class Comment(Base):
+    """A class representing comments on annotations.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object.
+    poster_id : int
+        The id of the user who posted the comment.
+    annotation_id : int
+        The id of the annotation the comment is applied to.
+    parent_id : int
+        The id of the parent comment (None if it is a top level comment, i.e., a
+        thread).
+    depth : int
+        The depth level of the comment in a thread.
+    weight : int
+        The weight of the comment.
+    body : str
+        The body of the comment.
+    timestamp : datetime
+        When the comment was posted, in the utc timezone.
+    poster : User
+        The user who posted the comment.
+    annotation : Annotation
+        The annotation the comment is on.
+    parent : Comment
+        The parent of the comment.
+    children : BaseQuery
+        The immediate children of the comment.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
-    poster_id = db.Column(
-        db.Integer, db.ForeignKey('user.id'), index=True, nullable=False)
+    poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
+                          nullable=False)
     annotation_id = db.Column(
         db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
         index=True, nullable=False)
     parent_id = db.Column(
         db.Integer, db.ForeignKey('comment.id', ondelete='CASCADE'), index=True,
         default=None)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-    weight = db.Column(db.Integer, default=0)
     depth = db.Column(db.Integer, default=0)
+    weight = db.Column(db.Integer, default=0)
     body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     poster = db.relationship('User', backref=backref('comments',
                                                      lazy='dynamic'))
-    annotation = db.relationship(
-        'Annotation', backref=backref('comments', lazy='dynamic',
-                                      passive_deletes=True))
+    annotation = db.relationship('Annotation',
+                                 backref=backref('comments', lazy='dynamic',
+                                                 passive_deletes=True))
     parent = db.relationship('Comment', remote_side=[id],
                              backref=backref('children', lazy='dynamic'))
 
@@ -103,16 +198,31 @@ class Comment(Base):
 
 
 class Vote(Base, VoteMixin):
+    """A class that represents a user's vote on an annotation.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object
+    annotation_id : int
+        The id of the annotation voted on.
+    reputation_change_id : int
+        The id of the :class:`ReputationChange` object that accompanies the
+        :class:`Vote`.
+    annotation : int
+        The :class:`Annotation` the vote has been applied to.
+    repchange : :class:`ReputationChange`
+        The :class:`ReputationChange`
+    """
     id = db.Column(db.Integer, primary_key=True)
-    annotation_id = db.Column(db.Integer,
-                              db.ForeignKey('annotation.id',
-                                            ondelete='CASCADE'), index=True)
+    annotation_id = db.Column(
+        db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
+        index=True)
+    reputation_change_id = db.Column(
+        db.Integer, db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
+
     annotation = db.relationship('Annotation',
                                  backref=backref('ballots', lazy='dynamic'))
-
-    reputation_change_id = db.Column(db.Integer,
-                                     db.ForeignKey('reputation_change.id',
-                                                   ondelete='CASCADE'))
     repchange = db.relationship('ReputationChange',
                                 backref=backref('vote', uselist=False))
 
@@ -122,6 +232,13 @@ class Vote(Base, VoteMixin):
 
 
 class AnnotationFlagEnum(Base, EnumMixin):
+    """An :class:`EnumMixin` class that represents annotation flags.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object
+    """
     id = db.Column(db.Integer, primary_key=True)
 
 

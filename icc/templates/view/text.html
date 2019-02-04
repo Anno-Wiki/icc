@@ -20,8 +20,7 @@
     <div class="index">
         {% for edition in text.editions %}
             <div class="card">
-                <a href="{{ url_for("main.edition", text_url=text.url,
-                    edition_num=edition.num) }}">
+                <a href="{{ edition.url }}">
                     <h2>Edition #{{ edition.num }}{% if edition.primary %} *{%
                         endif %}</h2>
                 </a>
@@ -32,8 +31,7 @@
                     class="card_text_cutoff"{% endif %}>{{
                     edition.wiki.current.body[:127]|markdown }}</div>
 
-                <a href="{{ url_for("main.edition", text_url=text.url,
-                    edition_num=edition.num) }}">View More</a>
+                <a href="{{ edition.url }}">View More</a>
             </div>
         {% endfor %}
     </div>

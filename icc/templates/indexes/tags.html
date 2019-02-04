@@ -22,7 +22,7 @@ sort by:
 <div class="index">
     {% for tag in tags %}
         <div class="card">
-            <a href="{{ url_for("main.tag", tag=tag.tag) }}"><tag>{{ tag.tag }}</tag></a>
+            <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
             <br>
             &times; {{ tag.annotations.count() }}
             <br>
@@ -46,7 +46,7 @@ sort by:
             {% endif %}
                 {{ tag.wiki.current.body[:127]|markdown }}
             </div>
-            <a href="{{ url_for("main.tag", tag=tag.tag) }}">View More</a>
+            <a href="{{ tag.url }}">View More</a>
         </div>
     {% endfor %}
 </div>
