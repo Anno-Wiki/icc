@@ -31,21 +31,12 @@
         <div class="selection">
             <h3>Context:</h3>
             {% for line in context %}
-                {% if line in lines %}
-                    <div class="highlight">
-                        <line class="{{ line.label.enum }}" id="{{
-                            line.num }}">
-                            <span class="linenum">{{ line.num }}</span>
-                            {{ line.line }}
-                        </line>
-                    </div>
-                {% else %}
-                    <line class="{{ line.label.enum }}" id="{{ line.num
-                        }}">
-                        <span class="linenum">{{ line.num }}</span>
-                        {{ line.line }}
-                    </line>
-                {% endif %}
+                {% if line in lines %}<div class="highlight">{% endif %}
+                <line class="{{ line.primary.enum }}" id="{{ line.num }}">
+                    <span class="linenum">{{ line.num }}</span>
+                    {{ line.line }}
+                </line>
+                {% if line in lines %}</div>{% endif %}
             {% endfor %}
         </div>
     </div>
