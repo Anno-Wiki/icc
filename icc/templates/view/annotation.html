@@ -64,10 +64,10 @@
             {% for line in annotation.HEAD.context %}
                 {% if line in annotation.HEAD.lines %}
                     <div class="highlight">
-                        <line class="{{ line.label.label }}" id="{{
+                        <line class="{{ line.primary.enum }}" id="{{
                         line.line_num }}">
                             <span class="linenum">{{ line.line_num }}</span>
-                            {%- if line.label.label == 'hr' -%}
+                            {%- if line.primary.enum == 'hr' -%}
                                 <hr class="text_separator">
                             {%- else -%}
                                 {{ line.line|safe }}
@@ -75,9 +75,9 @@
                         </line>
                     </div>
                 {% else %}
-                    <line class="{{ line.label.label }}" id="{{ line.line_num
+                    <line class="{{ line.primary.enum }}" id="{{ line.line_num
                     }}">
-                        {%- if line.label.label == 'hr' -%}
+                        {%- if line.primary.enum == 'hr' -%}
                             <hr class="text_separator">
                         {%- else -%}
                             {{ line.line|safe }}

@@ -25,11 +25,11 @@
         {% for line in edit.context %}
             {% if line in edit.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="{{ line.label.label }} plus">
+                <line id="{{ line.line_num }}" class="{{ line.primary.enum }} plus">
                     {{ line.line }}
                 </line>
             {% else %}
-                <line id="{{ line.line_num }}" class="{{ line.label.label }}"> 
+                <line id="{{ line.line_num }}" class="{{ line.primary.enum }}"> 
                     {{ line.line }}
                 </line>
             {% endif %}

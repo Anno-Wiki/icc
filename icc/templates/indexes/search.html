@@ -6,15 +6,15 @@
     <div id='content'>
         {% for line in lines %}
             <h3>
-                Line 
+                Line
                 <a href='{{ line.get_url() }}#{{ line.line_num }}'>
                     {{ line.num }}
                 </a>
-                of 
+                of
                 <a href='{{ url_for('main.text', text_url=line.text.url) }}'>
                     {{ line.text.title }}
                 </a>
-                by 
+                by
                 <a href='{{ url_for('main.writer', writer_url=line.text.authors[0].url) }}'>
                     {{ line.text.authors[0].name }}
                 </a>
@@ -23,7 +23,7 @@
                 <a href='{{ url_for('main.line_annotations',
                     text_url=l.edition.text.url,
                     edition_num=l.edition.num, line_num=l.num) }}'>
-                    <line class='{{ l.label.label }}' id='{{ l.num }}'>
+                    <line class='{{ l.primary.enum }}' id='{{ l.num }}'>
                         <div{% if l == line %} class='highlight'{% endif %}>
                             <span{% if l == line %} class='linenum'{% else %}
                                 class='hidden_linenum'{% endif %}>{{ l.num
