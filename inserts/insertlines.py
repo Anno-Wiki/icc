@@ -13,11 +13,11 @@ text. Requires a `config.yml` file.
 """
 
 
-def get_text(config):
+def get_text(config, initial=False):
     """Create the text, add the authors, and return the text object added the
     database.
     """
-    if args.initial:
+    if initial:
         text = Text(title=config['title'], sort_title=config['sort_title'],
                     published=config['publication_date'],
                     description=config['description'])
@@ -25,7 +25,8 @@ def get_text(config):
             writer = Writer.query.filter(Writer.name == author['name']).first()
             if writer:
                 text.authors.append(writer)
-                print(f"Found {writer.name} in the database.")
+                if __name__ == '__main__':
+                    print(f"Found {writer.name} in the database.")
             else:
                 text.authors.append(
                         Writer(name=author['name'],
@@ -33,12 +34,18 @@ def get_text(config):
                                birth_date=author['birthdate'],
                                death_date=author['deathdate'],
                                description=author['description']))
-                print(f"Created author {text.authors[-1].name}.")
+                if __name__ == '__main__':
+                    print(f"Created author {text.authors[-1].name}.")
         db.session.add(text)
-        print(f"Created text {text.title} by {text.authors}.")
+        if __name__ == '__main__':
+            print(f"Created text {text.title} by {text.authors}.")
+
     else:
-        text = Text.query.filter_by(title=config.title).first()
-        print(f"Found {text.title} in the database.")
+        text = Text.query.filter_by(title=config['title']).first()
+        if __name__ == '__main__':
+            print(f"Found {text.title} in the database.")
+        if config['edition']['primary']:
+            deactivate_previous_primary(text)
     return text
 
 
@@ -46,8 +53,9 @@ def deactivate_previous_primary(text):
     """If this isn't the initial text creation and we're changing the primary
     edition, call this method to deactivate the previous primary.
     """
-    print(f"Deactivated primary designation on edition #{text.primary.num} of "
-          f"{text.title}.")
+    if __name__ == '__main__':
+        print(f"Deactivated primary designation on edition #{text.primary.num} "
+              f"of {text.title}.")
     text.primary.primary = False
 
 
@@ -58,7 +66,8 @@ def get_edition(config, text):
                       description=config['edition']['description'],
                       published=config['edition']['publication_date'])
     db.session.add(edition)
-    print(f"Created edition number {edition.num} for {text.title}.")
+    if __name__ == '__main__':
+        print(f"Created edition number {edition.num} for {text.title}.")
     return edition
 
 
@@ -78,12 +87,14 @@ def add_writer_connections(config, edition):
                                     death_date=writer['deathdate'],
                                     description=writer['description'])
                 db.session.add(writer_obj)
-                print(f"Writer {writer_obj.name} created.")
+                if __name__ == '__main__':
+                    print(f"Writer {writer_obj.name} created.")
 
             conn = WriterEditionConnection(writer=writer_obj, edition=edition,
                                            enum=enum)
             db.session.add(conn)
-            print(f"Writer {writer_obj.name} added as a {enum.enum}.")
+            if __name__ == '__main__':
+                print(f"Writer {writer_obj.name} added as a {enum.enum}.")
 
 
 def get_enums_dict():
@@ -97,7 +108,7 @@ def process_attributes(attrs_dict, enums_dict):
     we need them, and return both a list of attrs to be applied to the line and
     the updated enums dictionary with the newly created enums.
     """
-    attrs = []
+    attrs = {}
     for attr in attrs_dict:
         enum = enums_dict.get(f"{attr['enum']}>{attr['display']}")
         if not enum:
@@ -106,7 +117,7 @@ def process_attributes(attrs_dict, enums_dict):
         a = LineAttribute(enum_obj=enum, num=attr['num'],
                           precedence=attr['precedence'],
                           primary=attr['primary'])
-        attrs.append(a)
+        attrs[a.precedence] = a
     return attrs, enums_dict
 
 
@@ -124,7 +135,7 @@ def populate_lines(lines, edition):
                         line=line['line'], attrs=attrs)
         db.session.add(line_obj)
 
-        if i % 1000 == 0:
+        if i % 1000 == 0 and __name__ == '__main__':
             print(i)
         i+=1
 
@@ -143,17 +154,14 @@ if __name__ == '__main__':
                         help="Flag for a dry run test.")
 
     args = parser.parse_args()
-    fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
     config = yaml.load(open(args.config, 'rt'))
+    fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
     lines = json.load(fin)
 
     app = create_app()
 
     with app.app_context():
-        text = get_text(config)
-
-        if not args.initial and config['edition']['primary']:
-            deactivate_previous_primary(text)
+        text = get_text(config, args.initial)
 
         edition = get_edition(config, text)
 

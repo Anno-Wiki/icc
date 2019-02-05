@@ -1,4 +1,6 @@
 import os
+import io
+import json
 import yaml
 import pytest
 
@@ -6,6 +8,8 @@ from icc import create_app, db
 from icc import classes
 
 from config import Config
+
+from inserts.insertlines import (get_text, get_edition, populate_lines)
 
 
 DIR = os.path.dirname(os.path.realpath(__file__))
@@ -17,6 +21,20 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     TESTING = True
     ELASTICSEARCH_URL = None
+
+
+def open_json(filename):
+    """Helper function to return a json loaded file with the BOM eliminated from
+    the data directory (just in case, because it seems to happen a lot that the
+    BOM is in there and I fail to open the file).
+
+    Parameters
+    ----------
+    filename : string
+        The filename of the json file to be opened in the `tests/data`
+        directory.
+    """
+    return json.load(open(f'{DIR}/data/{filename}', 'rt'))
 
 
 @pytest.fixture
@@ -43,8 +61,7 @@ def appclient(app):
 @pytest.fixture
 def minpop(app):
     """Populate the database with minimal dummy data, return the app."""
-    fin = open(f'{DIR}/enums.yml', 'rt')
-    data = yaml.load(fin)
+    data = open_json(f'enums.json')
 
     with app.app_context():
         # populate remaining enums
@@ -69,63 +86,35 @@ def minclient(minpop):
 @pytest.fixture
 def pop(minpop):
     """Populate the database with the rest of the dummy data, return the app."""
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    fin = open(f'{DIR}/data.yml', 'rt')
-    data = yaml.load(fin)
+
+    enumdata = open_json('enums.text.json')
+    lines = open_json('gravity.json')
+    annotations = open_json('annotations.json')
+    textconfig = yaml.load(open(f'{DIR}/data/gravity.config.yml', 'rt'))
 
     with minpop.app_context():
         # populate remaining enums
-        for enum, enums in data['enums'].items():
+        for enum, enums in enumdata.items():
             for instance in enums:
                 obj = classes[enum](**instance)
                 db.session.add(obj)
 
-        # pop authors and edition from text
-        authors = data['text'].pop('authors')
-        edition = data['text'].pop('edition')
-
-        # populate the text
-        t = classes['Text'](**data['text'])
-        db.session.add(t)
-
-        # populate the authors
-        for author in authors:
-            t.authors.append(classes['Writer'](**author))
-
-        # pop annotations and lines from edition
-        annotations = edition.pop('annotations')
-        lines = edition.pop('lines')
-
-        # populate the edition
-        e = classes['Edition'](text=t, **edition)
-        db.session.add(e)
-
-        # popoulate the lines
-        labels = classes['LineEnum'].query.all()
-        label = {}
-        for l in labels:
-            label[f'{l.enum}>{l.display}'] = l
-        for line in lines:
-            db.session.add(
-                classes['Line'](
-                    edition=e, num=line['num'], label=label[line['enum']],
-                    em_status=label[line['em_status']], lvl1=line['l1'],
-                    lvl2=line['l2'], lvl3=line['l3'], lvl4=line['l4'],
-                    line=line['line']
-                )
-            )
+        # populate the text, edition, author, and lines
+        text = get_text(textconfig, True)
+        edition = get_edition(textconfig, text)
+        populate_lines(lines, edition)
 
         # populate the annotations
         for a in annotations:
             annotator = a.pop('annotator')
-            annotator = classes['User'].query.filter_by(
-                displayname=annotator).first()
+            annotator = classes['User'].query\
+                .filter_by(displayname=annotator).first()
             tag_strings = a.pop('tags')
             tags = [classes['Tag'].query.filter_by(tag=tag).first() for tag in
                     tag_strings]
-            db.session.add(
-                classes['Annotation'](
-                    annotator=annotator, edition=e, tags=tags, **a))
+            db.session.add(classes['Annotation'](annotator=annotator,
+                                                 edition=edition, tags=tags,
+                                                 **a))
         db.session.commit()
     return minpop
 
