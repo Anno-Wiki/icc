@@ -124,7 +124,7 @@ class Edition(Base):
 
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
-    title = association_proxy('text', 'title')
+    text_title = association_proxy('text', 'title')
 
     @staticmethod
     def check_section_argument(section):
@@ -137,22 +137,21 @@ class Edition(Base):
         description = kwargs.pop('description', None)
         description = 'This wiki is blank.' if not description else description
         super().__init__(*args, **kwargs)
-        self.title = f'{self.text.title} - Primary Edition*'\
-            if self.primary else f'{self.text.title} - Edition #{self.num}'
-
+        self.title = f'{self.text_title} - Primary Edition*'\
+            if self.primary else f'{self.text_title} - Edition #{self.num}'
         self.wiki = Wiki(body=description, entity_string=str(self))
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.url = self.text.title.replace(' ', '_') + f'_{self.num}'
+        self.title = f'{self.text_title}*'\
+            if self.primary else f'{self.text_title} - Edition #{self.num}'
 
     def __repr__(self):
         return f'<Edition #{self.num} {self.text.title}>'
 
     def __str__(self):
         return self.title
-
-    @orm.reconstructor
-    def init_on_load(self):
-        self.url = self.text.title.replace(' ', '_') + f'_{self.num}'
-        self.title = f'{self.title}*'\
-            if self.primary else f'{self.title} - Edition #{self.num}'
 
     def section(self, section):
         """Returns a base query of all the edition's lines in the particular
@@ -273,7 +272,7 @@ class LineAttribute(Base):
 
 
 class Line(SearchableMixin, Base):
-    __searchable__ = ['line', 'title']
+    __searchable__ = ['line', 'text_title']
 
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -284,7 +283,7 @@ class Line(SearchableMixin, Base):
     edition = db.relationship('Edition', backref=backref('lines',
                                                          lazy='dynamic'))
     text = association_proxy('edition', 'text')
-    title = association_proxy('edition', 'title')
+    text_title = association_proxy('edition', 'text_title')
 
 
     context = db.relationship(

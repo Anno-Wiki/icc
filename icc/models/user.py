@@ -125,7 +125,7 @@ class User(UserMixin, Base):
         lazy='dynamic')
 
     def __repr__(self):
-        return f"<User {self.displayname}"
+        return f"<User {self.displayname}>"
 
     # Utilities
     def update_last_seen(self):
