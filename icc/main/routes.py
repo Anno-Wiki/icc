@@ -58,42 +58,26 @@ def index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'newest', type=str)
 
-    if sort == 'newest':
-        annotations = Annotation.query.filter_by(active=True)\
-            .order_by(Annotation.timestamp.desc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    elif sort == 'oldest':
-        annotations = Annotation.query.filter_by(active=True)\
-            .order_by(Annotation.timestamp.asc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    elif sort == 'modified':
-        annotations = Annotation.query.outerjoin(
-            Edit, and_(Annotation.id==Edit.entity_id, Edit.current==True)
-        ).group_by(
-            Annotation.id
-        ).order_by(
-            Edit.timestamp.desc()
-        ).paginate(
-            page, current_app.config['ANNOTATIONS_PER_PAGE'], False
-        )
-    elif sort == 'weight':
-        annotations = Annotation.query.filter_by(active=True)\
-            .order_by(Annotation.weight.desc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    else:
-        annotations = Annotation.query.filter_by(active=True)\
-            .order_by(Annotation.timestamp.desc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+    a = Annotation
+    e = Edit
+    sorts = {
+        'newest': a.query.filter_by(active=True).order_by(a.timestamp.desc()),
+        'oldest': a.query.filter_by(active=True).order_by(a.timestamp.asc()),
+        'modified': a.query.join(e).order_by(e.timestamp.desc())\
+            .filter(a.active==True, e.current==True),
+        'weight': a.query.filter_by(active=True).order_by(a.weight.desc()),
+    }
+
+    sort = 'newest' if sort not in sorts else sort
+
+    annotations = sorts[sort]\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
     if not annotations.items and page > 1:
         abort(404)
 
-    sorts = {
-        'newest': url_for('main.index', page=page, sort='newest'),
-        'oldest': url_for('main.index', page=page, sort='oldest'),
-        'modified': url_for('main.index', page=page, sort='modified'),
-        'weight': url_for('main.index', page=page, sort='weight'),
-    }
+    sorturls = {key: url_for('main.index', page=page, sort=key) for key in
+                sorts.keys()}
 
     annotationflags = AnnotationFlagEnum.query.all()
 
@@ -105,11 +89,13 @@ def index():
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
         else None
 
-    return render_template(
-        'indexes/annotation_list.html', title="Home", sort=sort, sorts=sorts,
-        uservotes=uservotes, next_page=next_page, prev_page=prev_page,
-        annotations=annotations.items, annotationflags=annotationflags,
-        active_page='index')
+    return render_template('indexes/annotation_list.html', title="Home",
+                           active_page='index',
+                           sort=sort, sorts=sorturls,
+                           uservotes=uservotes,
+                           next_page=next_page, prev_page=prev_page,
+                           annotations=annotations.items,
+                           annotationflags=annotationflags)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/'
