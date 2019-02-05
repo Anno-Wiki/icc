@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f8ae9a0bc0c6
+Revision ID: 57d43de9df8f
 Revises: 
-Create Date: 2019-02-01 18:16:46.524993
+Create Date: 2019-02-04 20:25:39.058866
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f8ae9a0bc0c6'
+revision = '57d43de9df8f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -369,10 +369,10 @@ def upgrade():
     sa.Column('poster_id', sa.Integer(), nullable=False),
     sa.Column('annotation_id', sa.Integer(), nullable=False),
     sa.Column('parent_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('depth', sa.Integer(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['parent_id'], ['comment.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['poster_id'], ['user.id'], ),

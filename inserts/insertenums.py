@@ -1,5 +1,12 @@
 import argparse
 import yaml
+import sys
+import os
+
+iccvenv = os.environ['ICCVENV']
+idx = iccvenv.rfind('/')
+sys.path.append(os.environ['ICCVENV'][:idx])
+
 from icc import db, create_app
 from icc import classes
 

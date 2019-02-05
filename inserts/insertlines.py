@@ -1,8 +1,13 @@
 import sys
+import os
 import codecs
 import argparse
 import yaml
 import json
+
+iccvenv = os.environ['ICCVENV']
+idx = iccvenv.rfind('/')
+sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
 from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
