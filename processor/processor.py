@@ -85,8 +85,8 @@ def readin(fin, matches):
                 PRE: lambda line: self.switch_pre()
             }
 
-            toc = matches.get('toc', [])
-            specials = matches.get('specials', [])
+            toc = matches.get('toc', {})
+            specials = matches.get('specials', {})
 
             tocspace = {
                 re.compile(key):
@@ -219,7 +219,7 @@ def readout(lines, matches):
                      'attributes': self.hierarchy(line) + [PRE]})
             }
 
-            toc = matches.get('toc', [])
+            toc = matches.get('toc', {})
             tocspace = {value['precedence']:
                         lambda line, value=value: self.lines.append(
                             {'line': line[2], 'emphasis': line[0],
@@ -227,7 +227,7 @@ def readout(lines, matches):
                              'attributes': self.hierarchy(line)})
                         for value in toc.values()}
 
-            specials = matches.get('specials', [])
+            specials = matches.get('specials', {})
             specialsspace = {value['enum']:
                              lambda line, value=value: self.lines.append(
                                  {'line': line[2], 'emphasis': line[0],
