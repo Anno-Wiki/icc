@@ -33,11 +33,11 @@
             <th align="right">Line</th>
         </tr>
         {% for section in hierarchy %}
-            {% if section.label.enum == "lvl1" %}
+            {% if section.primary.enum == "lvl1" %}
                 <tr class="lvl1_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
-                            {{ section.label.display }} {{ section.lvl1 }}
+                            {{ section.primary.display }} {{ section.lvl1 }}
                         </a>
                     </td>
                     <td>
@@ -49,11 +49,11 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </td>
                 </tr>
-            {% elif section.label.enum == "lvl2" %}
+            {% elif section.primary.enum == "lvl2" %}
                 <tr class="lvl2_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
-                            {{ section.label.display }} {{ section.lvl2 }}
+                            {{ section.primary.display }} {{ section.lvl2 }}
                         </a>
                     </td>
                     <td align="center">
@@ -65,11 +65,11 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </th>
                 </tr>
-            {% elif section.label.enum == "lvl3" %}
+            {% elif section.primary.enum == "lvl3" %}
                 <tr class="lvl3_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
-                            {{ section.label.display }} {{ section.lvl3 }}
+                            {{ section.primary.display }} {{ section.lvl3 }}
                         </a>
                     </td>
                     <td align="center">
@@ -81,11 +81,11 @@
                         <a href="{{ section.get_url() }}"> {{ section.num }} </a>
                     </th>
                 </tr>
-            {% elif section.label.enum == "lvl4" %}
+            {% elif section.primary.enum == "lvl4" %}
                 <tr class="lvl4_contents">
                     <td align="left">
                         <a href="{{ section.get_url() }}">
-                            {{ section.label.display }} {{ section.lvl4 }}
+                            {{ section.primary.display }} {{ section.lvl4 }}
                         </a>
                     </td>
                     <td align="center">
@@ -100,4 +100,4 @@
             {% endif %}
         {% endfor %}
     </table>
-    {% endblock %}
+{% endblock %}

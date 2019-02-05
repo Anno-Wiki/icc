@@ -143,7 +143,6 @@ class Edition(Base):
 
     @orm.reconstructor
     def init_on_load(self):
-        self.url = self.text.title.replace(' ', '_') + f'_{self.num}'
         self.title = f'{self.text_title}*'\
             if self.primary else f'{self.text_title} - Edition #{self.num}'
 
@@ -211,7 +210,8 @@ class Edition(Base):
                     LineAttribute.primary==True).first()
         return len(line.section())
 
-    def get_url(self):
+    @property
+    def url(self):
         """Returns the url for the object's main view page."""
         return url_for('main.edition', text_url=self.text.url,
                        edition_num=self.num)

@@ -19,8 +19,7 @@ def edition(text_url, edition_num):
     enum_ids = [e.id for e in enums]
 
     # get all the heierarchical chapter lines
-    hierarchy = edition.lines.filter(
-        Line.label_id.in_(enum_ids)).order_by(Line.num.asc()).all()
+    hierarchy = edition.toc()
 
     return render_template('view/edition.html', title=f"{text.title} "
                            f"#{edition.num}", hierarchy=hierarchy,
