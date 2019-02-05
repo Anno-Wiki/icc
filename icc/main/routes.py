@@ -37,14 +37,11 @@ def search():
     if not g.search_form.validate():
         return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
-    lines, line_total = Line.search(
-        g.search_form.q.data, page,
-        current_app.config['LINES_PER_SEARCH_PAGE'])
-    next_page = (
-        url_for('main.search', q=g.search_form.q.data, page=page + 1) if
-        line_total > page * current_app.config['LINES_PER_SEARCH_PAGE'] else
-        None
-    )
+    lines, line_total = Line.search(g.search_form.q.data, page,
+                                    current_app.config['LINES_PER_SEARCH_PAGE'])
+    next_page = (url_for('main.search', q=g.search_form.q.data, page=page + 1)
+                 if line_total > page *
+                 current_app.config['LINES_PER_SEARCH_PAGE'] else None)
     prev_page = url_for('main.search', q=g.search_form.q.data, page=page - 1)\
         if page > 1 else None
     return render_template('indexes/search.html', title="Search",
@@ -55,20 +52,27 @@ def search():
 @main.route('/')
 @main.route('/index')
 def index():
+    """The main index page for the web site. It defaults to displaying the
+    newest annotations because I want the newest ones reviewed.
+    """
+    default = 'newest'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'newest', type=str)
+    sort = request.args.get('sort', default, type=str)
 
+    # one letter representations of the classes to reduce code length.
     a = Annotation
     e = Edit
     sorts = {
         'newest': a.query.filter_by(active=True).order_by(a.timestamp.desc()),
         'oldest': a.query.filter_by(active=True).order_by(a.timestamp.asc()),
-        'modified': a.query.join(e).order_by(e.timestamp.desc())\
-            .filter(a.active==True, e.current==True),
+        'modified': (a.query.join(e).order_by(e.timestamp.desc())
+                     .filter(a.active==True, e.current==True)),
         'weight': a.query.filter_by(active=True).order_by(a.weight.desc()),
     }
 
-    sort = 'newest' if sort not in sorts else sort
+    # default to newest in case there's some funky sort that ends up in this
+    # variable.
+    sort = sort if sort in sorts else default
 
     annotations = sorts[sort]\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
@@ -81,13 +85,15 @@ def index():
 
     annotationflags = AnnotationFlagEnum.query.all()
 
-    next_page = url_for('main.index', page=annotations.next_num, sort=sort) \
-        if annotations.has_next else None
-    prev_page = url_for('main.index', page=annotations.prev_num, sort=sort) \
-        if annotations.has_prev else None
+    next_page = (url_for('main.index', page=annotations.next_num, sort=sort) if
+                 annotations.has_next else None)
+    prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
+                 annotations.has_prev else None)
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
+    uservotes = (current_user.get_vote_dict() if current_user.is_authenticated
+                 else None)
+
+    aflags = AnnotationFlagEnum.query.all()
 
     return render_template('indexes/annotation_list.html', title="Home",
                            active_page='index',
@@ -95,7 +101,7 @@ def index():
                            uservotes=uservotes,
                            next_page=next_page, prev_page=prev_page,
                            annotations=annotations.items,
-                           annotationflags=annotationflags)
+                           aflags=aflags)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/'
@@ -107,40 +113,32 @@ def line_annotations(text_url, edition_num, line_num):
     sort = request.args.get('sort', 'weight', type=str)
 
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
-    edition = text.primary if not edition_num\
-            else Edition.query.filter(Edition.text==text,
-                    Edition.num==edition_num).first_or_404()
+    edition = (text.primary if not edition_num else
+               Edition.query.filter(Edition.text==text,
+                                    Edition.num==edition_num).first_or_404())
     line = Line.query.filter(Line.edition==edition,
-            Line.num==line_num).first_or_404()
+                             Line.num==line_num).first_or_404()
 
-    if sort == 'newest':
-        annotations = line.annotations.order_by(Annotation.timestamp.desc())\
-                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    elif sort == 'oldest':
-        annotations = line.annotations.order_by(Annotation.timestamp.asc())\
-                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    elif sort == 'weight':
-        annotations = line.annotations.order_by(Annotation.weight.desc())\
-                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    else:
-        annotations = line.annotations.order_by(Annotation.timestamp.desc())\
-                .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-        sort = 'newest'
+    a = Annotation
+    sorts = {
+        'newest': line.annotations.order_by(a.timestamp.desc()),
+        'oldest': line.annotations.order_by(a.timestamp.asc()),
+        'weight': line.annotations.order_by(a.weight.desc()),
+        'modified': (line.annotations.join(e).order_by(e.timestamp.desc())
+                     .filter(a.active==True, e.current==True))
+    }
+
+    sort = sort if sort in sorts else 'newest'
+
+    sorturls = {key: url_for('main.index', text_url=text_url,
+                             edition_num=edition_num, line_num=line_num,
+                             sort=key) for key in sorts.keys()}
+
+    annotations = sorts[sort]\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
     if not annotations and page > 1:
         abort(404)
-
-    sorts = {
-            'newest': url_for('main.line_annotations', text_url=text.url,
-                edition_num=edition.num, line_num=line.num, sort='newest',
-                page=page),
-            'oldest': url_for('main.line_annotations', text_url=text.url,
-                edition_num=edition.num, line_num=line.num, sort='oldest',
-                page=page),
-            'weight': url_for('main.line_annotations', text_url=text.url,
-                edition_num=edition.num, line_num=line.num, sort='weight',
-                page=page),
-            }
 
     next_page = url_for('main.edition_annotations', text_url=text.url,
             edition_num=edition.num, line_num=line.num, sort=sort,
@@ -151,13 +149,16 @@ def line_annotations(text_url, edition_num, line_num):
 
     uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
             else None
-    annotationflags = AnnotationFlagEnum.query.all()
+
+    aflags = AnnotationFlagEnum.query.all()
 
     return render_template('indexes/annotation_list.html',
-            title=f"{text.title} - Annotations",
-            next_page=next_page, prev_page=prev_page, sorts=sorts, sort=sort,
-            annotations=annotations.items, annotationflags=annotationflags,
-            uservotes=uservotes)
+                           title=f"{text.title} - Annotations",
+                           next_page=next_page, prev_page=prev_page,
+                           sorts=urlsorts, sort=sort,
+                           annotations=annotations.items,
+                           uservotes=uservotes,
+                           aflags=aflags)
 
 
 @main.route('/read/<text_url>/edition/<edition_num>', methods=['GET', 'POST'])
@@ -165,7 +166,7 @@ def line_annotations(text_url, edition_num, line_num):
             defaults={'edition_num': None})
 def read(text_url, edition_num):
     """The main read route for viewing the text of any edition."""
-    def preplines(lines):
+    def underscores_to_ems(lines):
         """Convert all of the underscores to em tags and prepend and
         append em tags based on line.emphasis values.
         """
@@ -263,12 +264,14 @@ def read(text_url, edition_num):
         if current_user.is_authenticated else False
 
     # This is faster than the markdown plugin
-    preplines(lines)
-    annotationflags = AnnotationFlagEnum.query.all()
+    underscores_to_ems(lines)
+    aflags = AnnotationFlagEnum.query.all()
 
     return render_template(
-        'read.html', title=text.title, form=form, text=text, edition=edition,
+        'read.html', title=text.title, form=form,
+        text=text, edition=edition,
         section='.'.join(map(str,section)), lines=lines,
-        annotations_idx=annotations_idx, uservotes=uservotes, tags=tags,
-        tag=tag, next_page=next_page, prev_page=prev_page,
-        can_edit_lines=can_edit_lines, annotationflags=annotationflags)
+        annotations_idx=annotations_idx, uservotes=uservotes,
+        tags=tags, tag=tag,
+        next_page=next_page, prev_page=prev_page,
+        can_edit_lines=can_edit_lines, aflags=aflags)
