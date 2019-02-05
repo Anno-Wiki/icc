@@ -2,6 +2,8 @@
 
 Essentially, anything that is required to render an annotation.
 """
+
+
 import sys
 import inspect
 from datetime import datetime
@@ -213,6 +215,8 @@ class Vote(Base, VoteMixin):
         The :class:`Annotation` the vote has been applied to.
     repchange : :class:`ReputationChange`
         The :class:`ReputationChange`
+
+    The Vote class also possesses all of the attributes of :class:`VoteMixin`.
     """
     id = db.Column(db.Integer, primary_key=True)
     annotation_id = db.Column(
@@ -243,13 +247,43 @@ class AnnotationFlagEnum(Base, EnumMixin):
 
 
 class AnnotationFlag(Base):
+    """A flagging event for annotations. Uses the AnnotationFlagEnum for
+    templating. Will need an update soon to overhaul the flagging system to be
+    more public.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object.
+    annotation_flag_id : int
+        The int of the :class:`AnnotationFlagEnum` template.
+    annotation_id : int
+        The int of the :class:`Annotation` object the flag is applied to.
+    thrower_id : int
+        The id of the :class:`User` who initially threw the flag.
+    time_thrown : datetime
+        The date and time in UTC that the flag was thrown.
+    time_resolved : datetime
+        The date and time in UTC that the flag was resolved.
+    annotation : :class:`Annotation`
+        The :class:`Annotation` object the flag was applied to.
+    thrower : :class:`User`
+        The :class:`User` that threw the flag.
+    resolver : :class:`User`
+        The :class:`User` that resolved the flag.
+    flag : :class:`AnnotationFlagEnum`
+        The :class:`AnnotationFlagEnum` template that the flag is based on.
+
+
+
+    """
     id = db.Column(db.Integer, primary_key=True)
     annotation_flag_id = db.Column(db.Integer,
                                    db.ForeignKey('annotation_flag_enum.id'),
                                    index=True)
-    annotation_id = db.Column(
-        db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
-        index=True)
+    annotation_id = db.Column(db.Integer,
+                              db.ForeignKey('annotation.id',
+                                            ondelete='CASCADE'), index=True)
 
     thrower_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
@@ -263,6 +297,7 @@ class AnnotationFlag(Base):
     flag = db.relationship('AnnotationFlagEnum')
 
     def __repr__(self):
+        """Different representations depending on the status of the flag."""
         if self.resolver:
             return f'<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>'
         else:
@@ -270,15 +305,99 @@ class AnnotationFlag(Base):
                     f' {self.time_thrown}>')
 
     def resolve(self, resolver):
+        """Marks the time resolved and the resolver of the flag."""
         self.time_resolved = datetime.utcnow()
         self.resolver = resolver
 
     def unresolve(self):
+        """Unmarks the time resolved and the resolver of the flag."""
         self.time_resolved = None
         self.resolver = None
 
 
 class Annotation(Base):
+    """And now, the moment you've been waiting for, the star of the show: the
+    main Annotation data class.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object.
+    annotator_id : int
+        The id of the user who wrote the initial version of this annotation.
+    edition_id : int
+        The id of the edition upon which this annotation is annotated.
+    weight : int
+        The weight of the annotation in upvotes/downvotes.
+    timestamp : datetime
+        The UTC date time when the annotation was first created.
+    locked : bool
+        The flag that indicates whether the annotation is locked from editing.
+    active : bool
+        The flag that indicates the annotation has been deactivated from
+        viewing.
+    annotator : :class`User`
+        The user object of the user who annotated the annotation to begin with.
+    first_line : :class:`Line`
+        The first line of the target of the annotation. I don't know why this is
+        here. I don't know what I use it for. TBD.
+    edition : :class:`Edition`
+        The edition object the annotation is applied to.
+    text : :class:`Text`
+        The text object the edition belongs to upon which the annotation is
+        annotated.
+    HEAD : :class:`Edit`
+        The edit object that is the current version of the annotation object. I
+        want to eventually change this to current, and it seems like it would
+        not be hard. But I am hesitant to do it because then it would not be
+        unique, and it would no longer be easy to change. All it requires to
+        change is a `find . -type f | xargs sed -i 's/HEAD/current/g'` command
+        in the root directory of the project and the change would be complete.
+        But since there are other objects which use the current designation
+        (namely, :class:`Wiki`), once this command is applied and committed,
+        there's really no going back without manually finding it. So for now,
+        this is where it's staying.
+    edits : list
+        All of the edits which have been approved.
+    history : list
+        All of the edits which have been approved, dynamically.
+    all_edits : list
+        All of the edits. All of them. Like, every one of them, period.
+    edit_pending : list
+        A list of edits which are neither approved, nor rejected. Essentially,
+        this just serves to indicate as a bool-like list object that there is an
+        edit pending, because the system is designed never to allow more than
+        one edit pending at a time. This is, in fact, false, and I need to go
+        through the system and fix the bug whereby a user could surreptitiously
+        cause a race condition and have two edits submitted at the same time.
+    lines : list
+        A list of all of the lines that are the target of the annotation.
+    context : list
+        A list of all the lines that are the target of the annotation *plus*
+        five lines on either side of the first and last lines of the target
+        lines.
+    flag_history : list
+        A list of all of the :class:`AnnotationFlag`s which have been applied to
+        the annotation.
+    active_flags : list
+        A list of all of the flags that are currently active on the annotation.
+
+    Notes
+    -----
+    The four edit lists are redundant and will need to be eliminated and
+    whittled down. There should only be three: the approved edit history, the
+    rejected edits, and the pending edits. There's no reason for anything else.
+    Even the rejected edits are actually useless. I think I'll leave that out.
+    Never is better than right now.
+
+    The flags will also have to be refined. I want to make the flag system more
+    public-facing, like Wikipedia's warning templates.
+
+    And finally, the lines could possibly be changed. The context, for instance,
+    might be prior-context and posterior-context, or something of that nature,
+    instead of packing the same lines into the same list. Perhaps not. TBD.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -343,6 +462,9 @@ class Annotation(Base):
 
     def __init__(self, *ignore, edition, annotator, locked=False, fl, ll, fc,
                  lc, body, tags):
+        """This init method creates the initial :class:`Edit` object. This
+        reduces friction in creating annotations.
+        """
         params = [edition, annotator, fl, ll, fc, lc, body, tags]
         if ignore:
             raise TypeError("Positional arguments not accepted.")
@@ -360,6 +482,9 @@ class Annotation(Base):
         self.HEAD = current
 
     def edit(self, *ignore, editor, reason, fl, ll, fc, lc, body, tags):
+        """This method creates an edit for the annotation. It is much more
+        transparent than creating the edit independently.
+        """
         params = [editor, reason, fl, ll, fc, lc, body, tags]
         if ignore:
             raise TypeError("Positional arguments not accepted.")
@@ -387,6 +512,9 @@ class Annotation(Base):
         return True
 
     def upvote(self, voter):
+        """Upvote the annotation. Applies a :class:`ReputationChange` object to
+        the user who wrote the annotation.
+        """
         reptype = user.ReputationEnum.query.filter_by(enum='upvote').first()
         weight = voter.up_power()
         repchange = user.ReputationChange(user=self.annotator, type=reptype,
@@ -398,6 +526,9 @@ class Annotation(Base):
         db.session.add(vote)
 
     def downvote(self, voter):
+        """Downvote the annotation. Applies a :class:`ReputationChange` object
+        to the user who wrote the annotation.
+        """
         reptype = user.ReputationEnum.query.filter_by(enum='downvote').first()
         weight = voter.down_power()
         if self.annotator.reputation + reptype.default_delta < 0:
@@ -413,6 +544,10 @@ class Annotation(Base):
         db.session.add(vote)
 
     def rollback(self, vote):
+        """Roll back an upvote or downvote. Eliminates the
+        :class:`ReputationChange` object applied to the annotator by the initial
+        vote. Deletes the vote.
+        """
         self.weight -= vote.delta
         if self.annotator.reputation - vote.repchange.delta < 0:
             delta = -self.annotator.reputation
@@ -423,10 +558,17 @@ class Annotation(Base):
         db.session.delete(vote.repchange)
 
     def flag(self, flag, thrower):
+        """Flag the annotation with a particular enum. To be heavily overhauled.
+        """
         event = AnnotationFlag(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
 
     def readable_weight(self):
+        """This method produces a readable weight, rather than a computer-like
+        int. The readable weight modulates based on the thousand and million. I
+        would like to convert it to a class property, since it's silly as a
+        meethod.
+        """
         if self.weight >= 1000000 or self.weight <= -1000000:
             return f'{round(self.weight/1000000,1)}m'
         elif self.weight >= 1000 or self.weight <= -1000:
@@ -436,6 +578,33 @@ class Annotation(Base):
 
 
 class EditVote(Base, VoteMixin):
+    """A vote on an :class:`Edit`. They are used to determine whether the edit
+    should be approved. Only user's with a reputation above a certain threshold
+    (or with a certain right) are supposed to be able to apply these (or review
+    annotation edits at all). This might, or might not, be the case.
+    I will have to add assurances.
+
+
+    Attributes
+    ----------
+    id : int
+        The id of the object.
+    edit_id : int
+        The id of the :class:`Edit` the vote is applied to.
+    edit : :class:`Edit`
+        The edit object the vote was applied to.
+    reputation_change_id : int
+        The id of the :class:`ReputationChange` object associated with the edit
+        (if the edit is approved).
+    repchange : :class:`ReputationChange`
+        The reputation change object associated with the edit vote if it is an
+        approval vote (i.e., above a certain threshold of votes or applied by
+        someone with immediate edit approval rights.
+
+    The EditVote class also possesses all of the attributes of
+    :class:`VoteMixin`.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
@@ -453,6 +622,71 @@ class EditVote(Base, VoteMixin):
 
 
 class Edit(Base, EditMixin):
+    """The Edit class, which represents the current state of an
+    :class:`Annotation`. An annotation object is just a HEAD, like in git. Or,
+    rather, a tag? I can't remember how git's model works, but essentially, the
+    annotation object just serves as a pointer to it's current edit.
+
+    Note: I am 99.99% sure this object is currently broken. At least, the
+    downvote method is, because it calls a reject method that I don't see
+    anywhere. I will have to reimplement it.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object
+    edition_id : int
+        The id of the edition to which the annotation is applied. This column is
+        *technically* redundant, but it simplifies some operations. I may
+        eventually (probably sooner than later, actually, now that I know about
+        SQLA's association_proxy), eliminate this column.
+    entity_id : int
+        This points back at the edit's annotation. I do not have a clue why I
+        titled it entity_id. This seems like it could, and should, change. It
+        used to be called the pointer_id. I guess entity_id is a step up from
+        that? I'll make it annotation_id after I finish documenting this and
+        working through other problems.
+    first_line_num : int
+        This corresponds to the :class:`Line` `num` that corresponds to the
+        first line of the target of the annotation's current version, *not* it's
+        id. This is because I do not want the annotation to point to an abstract
+        id, but to a line in a book. Because I absolutely do not want to make
+        this fragile.  I want a robust ability to export the annotations. This
+        may be silly, and eventually someone can convince me it is, especially
+        given association_proxies, etc. But for now it's staying like this.
+    last_line_num : int
+        The same as the first_line_num, but the last of the target.
+    first_char_idx : int
+        The string-index of the first character of the first line which
+        corresponds to the character-by-character target of the annotation. I am
+        not currently storing anything but 0 here. Once we write the JavaScript
+        corresponding to char-by-char annotation target selection, this will
+        change.
+
+        Note: this method seems fragile to me, and I am nervous about it. If I
+        ever begin to edit lines, these could become de-indexed improperly. Then
+        we could get out-of-bounds exceptions all over the place and fail to
+        render pages. I am interested in a more robust solution to this.
+    last_char_idx : int
+        The *last* character of the last line of the target of the annotation.
+        Read first_char_idx for an explanation.
+
+        Note: I would like for this to always be a negative number. This could
+        *also* result in problems. But I feel like it would be better to reverse
+        index the last character than to forward index the last character. It
+        *feels* more robust.
+    edition : :class:`Edition`
+        The edition object the annotation is applied to. This will become an
+        association_proxy when I get off my fat behind and take care of that.
+        Probably pretty soon.
+    annotation : :class:`Annotation`
+        The annotation the edit is applied to.
+    lines : list
+        A list of all of the lines that are the target of the edit.
+    context : list
+        A list of all the lines that are the target of the edit *plus* five
+        lines on either side of the first and last lines of the target lines.
+    """
     id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     entity_id = db.Column(db.Integer,
@@ -480,12 +714,21 @@ class Edit(Base, EditMixin):
 
     @orm.reconstructor
     def init_on_load(self):
+        """Create the hash_id that recognizes when an edit differs from it's
+        previous version to prevent dupe edits.
+        """
         s = (f'{self.first_line_num},{self.last_line_num},'
              f'{self.first_char_idx},{self.last_char_idx},'
              f'{self.body},{self.tags}')
         self.hash_id = sha1(s.encode('utf8')).hexdigest()
 
     def __init__(self, *args, **kwargs):
+        """This init checks to see if the first line and last line aren't
+        reversed, because that can be a problem. I should probably make it do
+        the same for the characters.
+
+        It also generates the hash_id to check against the previous edit.
+        """
         super().__init__(*args, **kwargs)
         if self.first_line_num > self.last_line_num:
             tmp = self.last_line_num
@@ -501,6 +744,11 @@ class Edit(Base, EditMixin):
         return f"{prefix}    {self.annotation}>"
 
     def get_hl(self):
+        """This method is supposed to return the specific lines of the target
+        *and* truncate the first and last line based on the actual
+        character-by-character targetting which is not in effect yet. It is,
+        therefore, currently useless.
+        """
         lines = self.lines
         if self.first_line_num == self.last_line_num:
             lines[0].line = lines[0].line[
@@ -511,6 +759,7 @@ class Edit(Base, EditMixin):
         return lines
 
     def upvote(self, voter):
+        """Upvote, and possibly approve, the edit."""
         if self.approved or self.rejected:
             flash("That edit is no longer pending.")
             return
@@ -532,6 +781,7 @@ class Edit(Base, EditMixin):
             self.approve()
 
     def downvote(self, voter):
+        """Downvote, and possibly reject, the edit."""
         if self.approved or self.rejected:
             flash("That edit is no longer pending.")
             return
@@ -553,6 +803,7 @@ class Edit(Base, EditMixin):
             self.reject()
 
     def approve(self):
+        """Approve the edit."""
         self.approved = True
         self.annotation.HEAD.current = False
         self.current = True
