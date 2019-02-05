@@ -12,7 +12,7 @@ tags = db.Table(
                                                    ondelete='CASCADE')))
 rights = db.Table(
     'rights',
-    db.Column('right_id', db.Integer, db.ForeignKey('right.id')),
+    db.Column('right_id', db.Integer, db.ForeignKey('user_right.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 

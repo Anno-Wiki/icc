@@ -241,6 +241,7 @@ class User(UserMixin, Base):
 
 
 class Right(Base, EnumMixin):
+    __tablename__ = 'user_right'
     id = db.Column(db.Integer, primary_key=True)
     min_rep = db.Column(db.Integer)
 

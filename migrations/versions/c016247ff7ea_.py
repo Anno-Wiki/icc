@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 57d43de9df8f
+Revision ID: c016247ff7ea
 Revises: 
-Create Date: 2019-02-04 20:25:39.058866
+Create Date: 2019-02-05 15:49:47.194503
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '57d43de9df8f'
+revision = 'c016247ff7ea'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -44,13 +44,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_reputation_enum_enum'), 'reputation_enum', ['enum'], unique=False)
-    op.create_table('right',
-    sa.Column('enum', sa.String(length=128), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('min_rep', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_right_enum'), 'right', ['enum'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('displayname', sa.String(length=64), nullable=True),
@@ -70,6 +63,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_flag_enum_enum'), 'user_flag_enum', ['enum'], unique=False)
+    op.create_table('user_right',
+    sa.Column('enum', sa.String(length=128), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('min_rep', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_right_enum'), 'user_right', ['enum'], unique=False)
     op.create_table('wiki',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('entity_string', sa.String(length=191), nullable=True),
@@ -89,7 +89,7 @@ def upgrade():
     op.create_table('rights',
     sa.Column('right_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['right_id'], ['right.id'], ),
+    sa.ForeignKeyConstraint(['right_id'], ['user_right.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
     op.create_table('tag',
@@ -556,13 +556,13 @@ def downgrade():
     op.drop_table('reputation_change')
     op.drop_index(op.f('ix_wiki_entity_string'), table_name='wiki')
     op.drop_table('wiki')
+    op.drop_index(op.f('ix_user_right_enum'), table_name='user_right')
+    op.drop_table('user_right')
     op.drop_index(op.f('ix_user_flag_enum_enum'), table_name='user_flag_enum')
     op.drop_table('user_flag_enum')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_index(op.f('ix_user_displayname'), table_name='user')
     op.drop_table('user')
-    op.drop_index(op.f('ix_right_enum'), table_name='right')
-    op.drop_table('right')
     op.drop_index(op.f('ix_reputation_enum_enum'), table_name='reputation_enum')
     op.drop_table('reputation_enum')
     op.drop_index(op.f('ix_line_enum_enum'), table_name='line_enum')
