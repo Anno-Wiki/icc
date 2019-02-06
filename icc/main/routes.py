@@ -72,8 +72,6 @@ def index():
     sorturls = {key: url_for('main.index', page=page, sort=key) for key in
                 sorts.keys()}
 
-    annotationflags = AnnotationFlagEnum.query.all()
-
     next_page = (url_for('main.index', page=annotations.next_num, sort=sort) if
                  annotations.has_next else None)
     prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
@@ -109,6 +107,7 @@ def line_annotations(text_url, edition_num, line_num):
                              Line.num==line_num).first_or_404()
 
     a = Annotation
+    e = Edit
     sorts = {
         'newest': line.annotations.order_by(a.timestamp.desc()),
         'oldest': line.annotations.order_by(a.timestamp.asc()),
@@ -129,22 +128,24 @@ def line_annotations(text_url, edition_num, line_num):
     if not annotations and page > 1:
         abort(404)
 
-    next_page = url_for('main.edition_annotations', text_url=text.url,
-            edition_num=edition.num, line_num=line.num, sort=sort,
-            page=annotations.next_num) if annotations.has_next else None
-    prev_page = url_for('main.edition_annotations', text_url=text_url,
-            edition_num=edition.num, line_num=line.num, sort=sort,
-            page=annotations.prev_num) if annotations.has_prev else None
+    next_page = (url_for('main.edition_annotations', text_url=text.url,
+                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         page=annotations.next_num) if annotations.has_next else
+                 None)
+    prev_page = (url_for('main.edition_annotations', text_url=text_url,
+                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         page=annotations.prev_num) if annotations.has_prev else
+                 None)
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-            else None
+    uservotes = (current_user.get_vote_dict() if current_user.is_authenticated
+                 else None)
 
     aflags = AnnotationFlagEnum.query.all()
 
     return render_template('indexes/annotation_list.html',
                            title=f"{text.title} - Annotations",
                            next_page=next_page, prev_page=prev_page,
-                           sorts=urlsorts, sort=sort,
+                           sorts=sorturls, sort=sort,
                            annotations=annotations.items,
                            uservotes=uservotes,
                            aflags=aflags)
@@ -259,7 +260,7 @@ def read(text_url, edition_num):
     return render_template(
         'read.html', title=text.title, form=form,
         text=text, edition=edition,
-        section='.'.join(map(str,section)), lines=lines,
+        section='.'.join(map(str, section)), lines=lines,
         annotations_idx=annotations_idx, uservotes=uservotes,
         tags=tags, tag=tag,
         next_page=next_page, prev_page=prev_page,
