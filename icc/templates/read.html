@@ -38,27 +38,6 @@
     {{ form.submit() }}
 </form>
 
-{# Tag limitation controls #}
-{% if tags %}
-    <div class="tag_limit">
-        Limit visible annotations to tag:
-        {% for tag in tags %}
-            <a href="{{ url_for("main.read", text_url=text.url,
-                l1=lines[0].lvl1, l2=lines[0].lvl2, 
-                l3=lines[0].lvl3, l4=lines[0].lvl4, tag=tag.tag) }}">
-                <tag> {{ tag.tag }} </tag>
-            </a>
-        {% endfor %}
-    </div>
-{% elif annotations_idx %}
-    <a href="{{ url_for("main.read", text_url=text.url,
-        l1=lines[0].lvl1, l2=lines[0].lvl2, 
-        l3=lines[0].lvl3, l4=lines[0].lvl4) }}">
-        Show all tags
-    </a>
-    <br>
-{% endif %}
-
 <hr>
 
 {# Text of the page #}

@@ -5,6 +5,7 @@ from flask import (render_template, redirect, url_for, request, abort, g,
 from flask_login import current_user, logout_user
 from sqlalchemy import and_
 
+from icc.funky import line_check
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, Tag, AnnotationFlagEnum
@@ -175,16 +176,16 @@ def read(text_url, edition_num):
     form = LineNumberForm()
 
     if form.validate_on_submit():
-        first_line, last_line = line_number_boiler_plate(form.first_line.data,
-                                                         form.last_line.data)
+        first_line, last_line = line_check(form.first_line.data,
+                                           form.last_line.data)
         return redirect(url_for('main.annotate', text_url=text_url,
                                 edition_num=edition.num, first_line=first_line,
                                 last_line=last_line, next=request.full_path))
 
     section_strings = tuple(request.args.getlist('section'))
     # Get the section tuple or else all 1's for the deepest possible precedence.
-    section = tuple(int(i) for i in section_strings) if section_strings\
-        else tuple(1 for i in range(edition.deepest_precedence()))
+    section = (tuple(int(i) for i in section_strings) if section_strings else
+               tuple(1 for i in range(edition.deepest_precedence())))
 
     lines = edition.section(section).all()
     if not lines:
@@ -200,30 +201,11 @@ def read(text_url, edition_num):
         'main.read', text_url=text_url, edition_num=edition.num,
         section=prev_section.section()) if prev_section else None
 
-    tag = request.args.get('tag', None, type=str)
-    if tag:
-        tag = Tag.query.filter_by(tag=tag).first_or_404()
-        annotations = tag.annotations.filter(
-            Annotation.edition_id==text.id,
-            Edit.first_line_num>=lines[0].num,
-            Edit.last_line_num<=lines[-1].num).all()
-        tags = None
-    else:
-        annotations = edition.annotations\
-            .join(Edit, and_(Edit.entity_id==Annotation.id,
-                             Edit.current==True))\
-            .filter(Edit.last_line_num<=lines[-1].num,
-                    Edit.first_line_num>=lines[0].num).all()
-        # this query is like 5 times faster than the old double-for loop. I am,
-        # however, wondering if some of the join conditions should be offloaded
-        # into a filter
-        tags = Tag.query\
-            .outerjoin(tags_table)\
-            .join(Edit, and_(Edit.id==tags_table.c.edit_id, Edit.current==True,
-                             Edit.first_line_num>=lines[0].num,
-                             Edit.last_line_num<=lines[-1].num))\
-            .join(Annotation)\
-            .filter(Annotation.edition_id==edition.id).all()
+    annotations = edition.annotations\
+        .join(Edit)\
+        .filter(Edit.last_line_num<=lines[-1].num,
+                Edit.first_line_num>=lines[0].num, Edit.current==True,
+                Annotation.active==True).all()
 
     # index the annotations in a dictionary
     annotations_idx = defaultdict(list)
@@ -244,5 +226,4 @@ def read(text_url, edition_num):
                            text=text, edition=edition,
                            section='.'.join(map(str, section)), lines=lines,
                            annotations_idx=annotations_idx,
-                           tags=tags, tag=tag,
                            can_edit_lines=can_edit_lines)

@@ -64,9 +64,7 @@ def line_check(fl, ll):
     fl = 1 if fl < 1 else fl
     ll = 1 if ll < 1 else ll
     if ll < fl:
-        tmp = ll
-        ll = fl
-        fl = tmp
+        fl, ll = ll, fl
     return fl, ll
 
 
