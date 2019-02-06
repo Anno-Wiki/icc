@@ -1,3 +1,15 @@
+"""This file is the absolute primary collection of routes. That is to say, it
+consists of the sine qua non routes for the icc. They include:
+
+- The search route
+- The primary index
+- The list of annotations by line route
+- The read route.
+
+Of course, one could argue that he annotation routes are the sine qua non of the
+icc. I would argue that you are an idiot.
+
+"""
 from collections import defaultdict
 
 from flask import (render_template, redirect, url_for, request, abort, g,
@@ -17,6 +29,10 @@ from icc.forms import LineNumberForm, SearchForm
 
 @main.before_request
 def before_request():
+    """The before request route makes sure that the user's account is not
+    locked. If it is, then it logs them out. It then adds the search form and
+    the list of annotation flagas to the global variable.
+    """
     if current_user.is_authenticated and current_user.locked:
         logout_user()
     g.search_form = SearchForm()
@@ -25,6 +41,14 @@ def before_request():
 
 @main.route('/search')
 def search():
+    """The search method is for lines. It uses elasticsearch to search for a
+    given line, which can then be reviewed, and checked for annotations in
+    another view.
+
+    A separate search function will be created for the omni-search. Lines are
+    the primary way of interacting with the application. Eventually my
+    omni-search will be parsed to handle searching annotations, wikis, and tags.
+    """
     if not g.search_form.validate():
         return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
@@ -91,6 +115,9 @@ def index():
 @main.route('/text/<text_url>/line/<line_num>/annotations',
             methods=['GET', 'POST'], defaults={'edition_num': None})
 def line_annotations(text_url, edition_num, line_num):
+    """See all annotations for a given line. That is to say, all the annotations
+    which have this particular line within their target body.
+    """
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'weight', type=str)
 
@@ -146,7 +173,18 @@ def read(text_url, edition_num):
     """The main read route for viewing the text of any edition."""
     def underscores_to_ems(lines):
         """Convert all of the underscores to em tags and prepend and
-        append em tags based on line.emphasis values.
+        append em tags based on line.emphasis values. This is to open and close
+        any emphasis tags that correspond to underscores that span multiple
+        lines. If we *don't* do this, we get all kinds of broken html. And
+        that's never fun.
+
+        This method is ten thousand times faster than an actual markdown
+        pre-processor. The only thing that would be faster is if I put the
+        actual emphasis tags into the database. I may still eventually do that.
+        The issue will be when I begin to use char-by-char annotation. That will
+        be a headache. I still don't know what the char-by-char highlighting
+        will return in javascript. Will it ignore emphasis tags, or include
+        them? This will have to be tested.
         """
         us = False
         for i, line in enumerate(lines):
@@ -208,7 +246,7 @@ def read(text_url, edition_num):
                 Edit.first_line_num>=lines[0].num, Edit.current==True,
                 Annotation.active==True).all()
 
-    # index the annotations in a dictionary
+    # index the annotations in a dictionary by the line number.
     annotations_idx = defaultdict(list)
     if annotations:
         for a in annotations:
