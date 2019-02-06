@@ -147,27 +147,23 @@ def read(text_url, edition_num):
         append em tags based on line.emphasis values.
         """
         us = False
+        underscoredict = {True: '</em>', False: '<em>'}
+        emdict = {'oem': lambda line: f'{line}</em>',
+                  'cem': lambda line: f'<em>{line}',
+                  'em': lambda line: f'<em>{line}</em>',
+                  'nem': lambda line: line}
         for i, line in enumerate(lines):
-            if '_' in lines[i].line:
+            linetext = line.line
+            if '_' in linetext:
                 newline = []
-                for c in lines[i].line:
+                for c in linetext:
                     if c == '_':
-                        if us:
-                            newline.append('</em>')
-                            us = False
-                        else:
-                            newline.append('<em>')
-                            us = True
+                        newline.append(underscoredict[us])
+                        us = not us
                     else:
                         newline.append(c)
-                lines[i].line = ''.join(newline)
-
-            if line.emphasis == 'oem':
-                lines[i].line = lines[i].line + '</em>'
-            elif line.emphasis == 'cem':
-                lines[i].line = '<em>' + lines[i].line
-            elif line.emphasis == 'em':
-                lines[i].line = '<em>' + lines[i].line + '</em>'
+                linetext = ''.join(newline)
+                lines[i].line = emdict[line.emphasis](linetext)
 
     text = Text.get_by_url(text_url).first_or_404()
     edition = text.primary if not edition_num else \
