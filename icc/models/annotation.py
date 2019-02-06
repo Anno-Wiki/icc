@@ -515,9 +515,9 @@ class Annotation(Base):
         """Upvote the annotation. Applies a :class:`ReputationChange` object to
         the user who wrote the annotation.
         """
-        reptype = user.ReputationEnum.query.filter_by(enum='upvote').first()
+        reptype = ReputationEnum.query.filter_by(enum='upvote').first()
         weight = voter.up_power()
-        repchange = user.ReputationChange(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, type=reptype,
                                      delta=reptype.default_delta)
         vote = Vote(voter=voter, annotation=self, delta=weight,
                     repchange=repchange)
@@ -529,13 +529,13 @@ class Annotation(Base):
         """Downvote the annotation. Applies a :class:`ReputationChange` object
         to the user who wrote the annotation.
         """
-        reptype = user.ReputationEnum.query.filter_by(enum='downvote').first()
+        reptype = ReputationEnum.query.filter_by(enum='downvote').first()
         weight = voter.down_power()
         if self.annotator.reputation + reptype.default_delta < 0:
             repdelta = -self.annotator.reputation
         else:
             repdelta = reptype.default_delta
-        repchange = user.ReputationChange(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, type=reptype,
                                      delta=repdelta)
         vote = Vote(voter=voter, annotation=self, delta=weight,
                     repchange=repchange)
