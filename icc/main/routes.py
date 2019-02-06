@@ -20,6 +20,7 @@ def before_request():
     if current_user.is_authenticated and current_user.locked:
         logout_user()
     g.search_form = SearchForm()
+    g.aflags = AnnotationFlagEnum.query.all()
 
 
 @main.route('/search')
