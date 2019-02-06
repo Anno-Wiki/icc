@@ -10,6 +10,7 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
+from sqlalchemy.exc import ProgrammingError
 
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -81,9 +82,12 @@ def create_app(config_class=Config):
     app.jinja_env.globals['len'] = len
     with app.app_context():
         # Make the annotation flag enums available to all templates.
-        from icc.models.annotation import AnnotationFlagEnum
-        flags = AnnotationFlagEnum.query.all()
-        app.jinja_env.globals['aflags'] = flags
+        try:
+            from icc.models.annotation import AnnotationFlagEnum
+            flags = AnnotationFlagEnum.query.all()
+            app.jinja_env.globals['aflags'] = flags
+        except ProgrammingError:
+            print('Table not created.')
 
     return app
 
