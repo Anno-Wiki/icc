@@ -77,15 +77,11 @@ def index():
     prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
                  annotations.has_prev else None)
 
-    uservotes = (current_user.get_vote_dict() if current_user.is_authenticated
-                 else None)
-
     aflags = AnnotationFlagEnum.query.all()
 
     return render_template('indexes/annotation_list.html', title="Home",
                            active_page='index',
                            sort=sort, sorts=sorturls,
-                           uservotes=uservotes,
                            next_page=next_page, prev_page=prev_page,
                            annotations=annotations.items,
                            aflags=aflags)
@@ -137,9 +133,6 @@ def line_annotations(text_url, edition_num, line_num):
                          page=annotations.prev_num) if annotations.has_prev else
                  None)
 
-    uservotes = (current_user.get_vote_dict() if current_user.is_authenticated
-                 else None)
-
     aflags = AnnotationFlagEnum.query.all()
 
     return render_template('indexes/annotation_list.html',
@@ -147,7 +140,6 @@ def line_annotations(text_url, edition_num, line_num):
                            next_page=next_page, prev_page=prev_page,
                            sorts=sorturls, sort=sort,
                            annotations=annotations.items,
-                           uservotes=uservotes,
                            aflags=aflags)
 
 
@@ -245,9 +237,6 @@ def read(text_url, edition_num):
         for a in annotations:
             annotations_idx[a.HEAD.last_line_num].append(a)
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated\
-        else None
-
     # I have to query this so I only make a db call once instead of each time
     # for every line to find out if the user has edit_rights
     can_edit_lines = current_user.is_authorized('edit_lines')\
@@ -261,7 +250,7 @@ def read(text_url, edition_num):
         'read.html', title=text.title, form=form,
         text=text, edition=edition,
         section='.'.join(map(str, section)), lines=lines,
-        annotations_idx=annotations_idx, uservotes=uservotes,
+        annotations_idx=annotations_idx,
         tags=tags, tag=tag,
         next_page=next_page, prev_page=prev_page,
         can_edit_lines=can_edit_lines, aflags=aflags)

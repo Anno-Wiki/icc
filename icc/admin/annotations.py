@@ -57,12 +57,10 @@ def view_deactivated_annotations():
         'admin.view_deactivated_annotations', page=annotations.prev_num,
         sort=sort) if annotations.has_prev else None
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
     return render_template(
         'indexes/annotation_list.html', title="Deactivated Annotations",
         prev_page=prev_page, next_page=next_page, sort=sort, sorts=sorts,
-        uservotes=uservotes, annotations=annotations.items)
+        annotations=annotations.items)
 
 
 @admin.route('/flags/annotation/all/')

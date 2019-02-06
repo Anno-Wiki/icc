@@ -148,13 +148,11 @@ def profile(user_id):
         'user.profile', user_id=user.id, page=annotations.prev_num, sort=sort)\
         if annotations.has_prev else None
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
 
     return render_template(
         'view/user.html', title=f"User {user.displayname}", next_page=next_page,
         prev_page=prev_page, sort=sort, sorts=sorts, userflags=userflags,
-        user=user, annotations=annotations.items, uservotes=uservotes,
+        user=user, annotations=annotations.items,
         annotationflags=annotationflags)
 
 

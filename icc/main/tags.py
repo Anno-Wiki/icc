@@ -95,11 +95,8 @@ def tag(tag):
         if annotations.has_prev else None
 
     annotationflags = AnnotationFlagEnum.query.all()
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated\
-        else None
 
     return render_template(
         'view/tag.html', title=tag.tag, next_page=next_page,
         prev_page=prev_page, sorts=sorts, sort=sort, tag=tag,
-        annotations=annotations.items, annotationflags=annotationflags,
-        uservotes=uservotes)
+        annotations=annotations.items, annotationflags=annotationflags)

@@ -109,13 +109,10 @@ def annotation(annotation_id):
         current_user.authorize('view_deactivated_annotations')
 
     annotationflags = AnnotationFlagEnum.query.all()
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
 
     return render_template(
         'view/annotation.html', title=f"Annotation [{annotation.id}]",
-        annotation=annotation, uservotes=uservotes,
-        annotationflags=annotationflags)
+        annotation=annotation, annotationflags=annotationflags)
 
 
 @main.route('/annotation/<annotation_id>/flag/<flag_id>')

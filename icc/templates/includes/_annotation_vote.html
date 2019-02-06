@@ -1,5 +1,8 @@
-{% if uservotes and annotation.id in uservotes and
-    uservotes[annotation.id] %}
+{% if current_user.is_authenticated %}
+    {% set vote = current_user.get_vote(annotation) %}
+{% endif %}
+
+{% if vote and vote.is_up() %}
     <a href="{{ url_for("main.upvote", annotation_id=annotation.id,
         next=request.full_path) }}" class="voted">
         up
@@ -11,8 +14,7 @@
     </a>
 {% endif -%}
 /
-{%- if uservotes and annotation.id in uservotes and not
-    uservotes[annotation.id] %}
+{%- if vote and not vote.is_up() %}
     <a href="{{ url_for("main.downvote", annotation_id=annotation.id,
         next=request.full_path) }}" class="voted">
         down

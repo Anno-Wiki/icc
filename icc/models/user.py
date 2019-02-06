@@ -42,19 +42,18 @@ class User(UserMixin, Base):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     # user meta information relationships
-    rights = db.relationship(
-        'Right', secondary='rights', backref='admins')
+    rights = db.relationship('Right', secondary='rights', backref='admins')
 
     # annotations voted on
-    votes = db.relationship(
-        'Annotation', secondary='vote', primaryjoin='User.id==Vote.voter_id',
-        secondaryjoin='Annotation.id==Vote.annotation_id', backref='voters',
-        lazy='dynamic')
+    votes = db.relationship('Annotation', secondary='vote',
+                            primaryjoin='User.id==Vote.voter_id',
+                            secondaryjoin='Annotation.id==Vote.annotation_id',
+                            backref='voters', lazy='dynamic')
     # edits voted on
-    edit_votes = db.relationship(
-        'Edit', secondary='edit_vote', primaryjoin='User.id==EditVote.voter_id',
-        secondaryjoin='Edit.id==EditVote.edit_id', backref='edit_voters',
-        lazy='dynamic')
+    edit_votes = db.relationship('Edit', secondary='edit_vote',
+                                 primaryjoin='User.id==EditVote.voter_id',
+                                 secondaryjoin='Edit.id==EditVote.edit_id',
+                                 backref='edit_voters', lazy='dynamic')
     # wiki edits voted on
     wiki_edit_votes = db.relationship(
         'WikiEdit', secondary='wiki_edit_vote',
@@ -196,13 +195,7 @@ class User(UserMixin, Base):
         return annotation in self.votes
 
     def get_vote(self, annotation):
-        return self.ballots.filter(annotation.Vote.annotation == annotation).first()
-
-    def get_vote_dict(self):
-        v = {}
-        for vote in self.voteballots:
-            v[vote.annotation.id] = vote.is_up()
-        return v
+        return self.voteballots.filter_by(annotation=annotation).first()
 
     # text request vote utilities
     def get_text_request_vote_dict(self):

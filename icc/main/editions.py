@@ -79,12 +79,9 @@ def edition_annotations(text_url, edition_num):
         'main.edition_annotations', text_url=text_url, edition_num=edition.num,
         sort=sort, page=annotations.prev_num) if annotations.has_prev else None
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
     annotationflags = AnnotationFlagEnum.query.all()
 
     return render_template(
         'indexes/annotation_list.html', title=f"{text.title} - Annotations",
         next_page=next_page, prev_page=prev_page, sorts=sorts, sort=sort,
-        annotations=annotations.items, annotationflags=annotationflags,
-        uservotes=uservotes)
+        annotations=annotations.items, annotationflags=annotationflags)

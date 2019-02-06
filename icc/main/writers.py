@@ -139,11 +139,7 @@ def writer_annotations(writer_url):
         'main.writer_annotations', writer_url=writer.url, sort=sort,
         page=annotations.prev_num) if annotations.has_prev else None
 
-    uservotes = current_user.get_vote_dict() if current_user.is_authenticated \
-        else None
-
     return render_template(
         'indexes/annotation_list.html', title=f"{writer.name} - Annotations",
         next_page=next_page, prev_page=prev_page, sorts=sorts, sort=sort,
-        annotations=annotations.items, annotationflags=annotationflags,
-        uservotes=uservotes)
+        annotations=annotations.items, annotationflags=annotationflags)
