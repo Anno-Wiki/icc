@@ -79,11 +79,16 @@ def create_app(config_class=Config):
     app.jinja_env.globals['time'] = time
     app.jinja_env.globals['round'] = round
     app.jinja_env.globals['len'] = len
+    with app.app_context():
+        # Make the annotation flag enums available to all templates.
+        from icc.models.annotation import AnnotationFlagEnum
+        flags = AnnotationFlagEnum.query.all()
+        app.jinja_env.globals['aflags'] = flags
 
     return app
 
 
-from icc import models, funky
+# from icc import models, funky
 
 from icc.models.annotation import classes as aclasses
 from icc.models.content import classes as cclasses

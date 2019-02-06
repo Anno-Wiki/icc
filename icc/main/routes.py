@@ -77,14 +77,11 @@ def index():
     prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
                  annotations.has_prev else None)
 
-    aflags = AnnotationFlagEnum.query.all()
-
     return render_template('indexes/annotation_list.html', title="Home",
                            active_page='index',
                            sort=sort, sorts=sorturls,
                            next_page=next_page, prev_page=prev_page,
-                           annotations=annotations.items,
-                           aflags=aflags)
+                           annotations=annotations.items)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/'
@@ -124,23 +121,20 @@ def line_annotations(text_url, edition_num, line_num):
     if not annotations and page > 1:
         abort(404)
 
-    next_page = (url_for('main.edition_annotations', text_url=text.url,
-                         edition_num=edition.num, line_num=line.num, sort=sort,
-                         page=annotations.next_num) if annotations.has_next else
-                 None)
-    prev_page = (url_for('main.edition_annotations', text_url=text_url,
-                         edition_num=edition.num, line_num=line.num, sort=sort,
-                         page=annotations.prev_num) if annotations.has_prev else
-                 None)
-
-    aflags = AnnotationFlagEnum.query.all()
+    next_page = (
+        url_for('main.edition_annotations', text_url=text.url,
+                edition_num=edition.num, line_num=line.num, sort=sort,
+                page=annotations.next_num) if annotations.has_next else None)
+    prev_page = (
+        url_for('main.edition_annotations', text_url=text_url,
+                edition_num=edition.num, line_num=line.num, sort=sort,
+                page=annotations.prev_num) if annotations.has_prev else None)
 
     return render_template('indexes/annotation_list.html',
                            title=f"{text.title} - Annotations",
                            next_page=next_page, prev_page=prev_page,
                            sorts=sorturls, sort=sort,
-                           annotations=annotations.items,
-                           aflags=aflags)
+                           annotations=annotations.items)
 
 
 @main.route('/read/<text_url>/edition/<edition_num>', methods=['GET', 'POST'])
@@ -244,13 +238,11 @@ def read(text_url, edition_num):
 
     # This is faster than the markdown plugin
     underscores_to_ems(lines)
-    aflags = AnnotationFlagEnum.query.all()
 
-    return render_template(
-        'read.html', title=text.title, form=form,
-        text=text, edition=edition,
-        section='.'.join(map(str, section)), lines=lines,
-        annotations_idx=annotations_idx,
-        tags=tags, tag=tag,
-        next_page=next_page, prev_page=prev_page,
-        can_edit_lines=can_edit_lines, aflags=aflags)
+    return render_template('read.html', title=text.title, form=form,
+                           next_page=next_page, prev_page=prev_page,
+                           text=text, edition=edition,
+                           section='.'.join(map(str, section)), lines=lines,
+                           annotations_idx=annotations_idx,
+                           tags=tags, tag=tag,
+                           can_edit_lines=can_edit_lines)

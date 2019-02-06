@@ -62,7 +62,7 @@
                 <a href="{{ url_for("main.flag_annotation",
                     flag_id=flag.id, annotation_id=annotation.id,
                     next=request.full_path) }}">
-                    {{ flag.flag }}
+                    {{ flag.enum }}
                 </a>
             {% endfor %}
         </div>
