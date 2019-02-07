@@ -27,7 +27,7 @@ from icc.models.tables import tags as tags_table
 from icc.forms import LineNumberForm, SearchForm
 
 
-@main.before_request
+@main.before_app_request
 def before_request():
     """The before request route makes sure that the user's account is not
     locked. If it is, then it logs them out. It then adds the search form and
