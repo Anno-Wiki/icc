@@ -245,17 +245,11 @@ def read(text_url, edition_num):
         for a in annotations:
             annotations_idx[a.HEAD.last_line_num].append(a)
 
-    # I have to query this so I only make a db call once instead of each time
-    # for every line to find out if the user has edit_rights
-    can_edit_lines = current_user.is_authorized('edit_lines')\
-        if current_user.is_authenticated else False
-
     # This is faster than the markdown plugin
     underscores_to_ems(lines)
 
     return render_template('read.html', title=text.title, form=form,
                            next_page=next_page, prev_page=prev_page,
-                           text=text, edition=edition,
-                           section='.'.join(map(str, section)), lines=lines,
-                           annotations_idx=annotations_idx,
-                           can_edit_lines=can_edit_lines)
+                           text=text, edition=edition, lines=lines,
+                           section='.'.join(map(str, section)),
+                           annotations_idx=annotations_idx)
