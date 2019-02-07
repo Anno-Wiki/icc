@@ -22,8 +22,8 @@ def edition(text_url, edition_num):
 def edition_annotations(text_url, edition_num):
     """The annotations for the edition."""
     default = 'newest'
+    sort = request.args.get('sort', default, type=str)
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'weight', type=str)
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = text.editions.filter_by(num=edition_num).first_or_404()
 

@@ -14,7 +14,7 @@ def tag_index():
     # The annotations and activity sorts only display tags with at least one
     # annotation. This doesn't seem like a serious problem to me.
     default = 'tag'
-    sort = request.args.get('sort', 'tag', type=str)
+    sort = request.args.get('sort', default, type=str)
     page = request.args.get('page', 1, type=int)
 
     sorts = {
@@ -57,7 +57,7 @@ def tag_annotations(tag):
     """See all annotations for a given tag."""
     default = 'newest'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'weight', type=str)
+    sort = request.args.get('sort', default, type=str)
     tag = Tag.query.filter_by(tag=tag).first_or_404()
 
     sorts = {

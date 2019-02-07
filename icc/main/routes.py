@@ -111,7 +111,7 @@ def line_annotations(text_url, edition_num, line_num):
     """
     default = 'newest'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'weight', type=str)
+    sort = request.args.get('sort', default, type=str)
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = (text.primary if not edition_num else
                Edition.query.filter(Edition.text==text,
