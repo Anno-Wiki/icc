@@ -172,6 +172,6 @@ def test_profile(minclient):
             'csrf_token': get_token(rv.data)}
     client.post(url, data=data, follow_redirects=True)
     with app.test_request_context():
-        url = url_for('user.profile')
+        url = url_for('user.profile', user_id=u.id)
     rv = client.get(url)
     assert bytes(u.displayname, 'utf-8') in rv.data
