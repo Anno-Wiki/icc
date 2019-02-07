@@ -1,3 +1,4 @@
+"""The main routes for wikis."""
 import re
 import difflib
 
@@ -25,90 +26,68 @@ def edit_wiki(wiki_id):
     if wiki.edit_pending:
         flash("That wiki is locked from a pending edit.")
         return redirect(redirect_url)
-
     if form.validate_on_submit():
         wiki.edit(current_user, body=form.wiki.data, reason=form.reason.data)
         db.session.commit()
         return redirect(redirect_url)
 
     form.wiki.data = wiki.current.body
-
     return render_template('forms/wiki.html', title="Edit wiki", form=form)
 
 
 @main.route('/wiki/<wiki_id>/history')
 def wiki_edit_history(wiki_id):
+    """The edit history for a given wiki."""
+    default = 'num'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'num', type=str)
-
+    sort = request.args.get('sort', default, type=str)
     wiki = Wiki.query.get_or_404(wiki_id)
 
-    if sort == 'num':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.num.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'num_invert':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.num.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor':
-        edits = wiki.edits\
-            .outerjoin(User).filter(WikiEdit.approved == True)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor_invert':
-        edits = wiki.edits\
-            .outerjoin(User).filter(WikiEdit.approved == True)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.timestamp.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.timestamp.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.reason.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason_invert':
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.reason.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        edits = wiki.edits\
-            .filter(WikiEdit.approved == True)\
-            .order_by(WikiEdit.num.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-        sort = 'num'
+    sorts = {
+        'num': (wiki.edits.filter_by(approved=True)
+                .order_by(WikiEdit.num.desc())),
+        'num_invert': (wiki.edits.filter_by(approved=True)
+                       .order_by(WikiEdit.num.asc())),
+        'time': (wiki.edits.filter_by(approved=True)
+                 .order_by(WikiEdit.timestamp.desc())),
+        'time_invert': (wiki.edits.filter_by(approved=True)
+                        .order_by(WikiEdit.timestamp.asc())),
+        'editor': (wiki.edits.filter_by(approved=True)
+                   .join(User).order_by(User.displayname.asc())),
+        'editor_invert': (wiki.edits.filter_by(approved=True)
+                          .join(User).order_by(User.displayname.desc())),
+        'reason': (wiki.edits.filter_by(approved=True)
+                   .order_by(WikiEdit.reason.asc())),
+        'reason_invert': (wiki.edits.filter_by(approved=True)
+                          .order_by(WikiEdit.reason.desc())),
+    }
 
-    next_page = url_for(
-        'admin.wiki_edit_review_queue', page=edits.next_num, sort=sort)\
-        if edits.has_next else None
-    prev_page = url_for(
-        'admin.wiki_edit_review_queue', page=edits.prev_num, sort=sort)\
-        if edits.has_prev else None
+    sort = sort if sort in sorts else default
+    edits = sorts[sort]\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
-    return render_template(
-        'indexes/wiki_edits.html', title=f"{str(wiki.entity)} Edit History",
-        next_page=next_page, prev_page=prev_page, page=page, sort=sort,
-        edits=edits.items, wiki=wiki)
+    sorturls = {key: url_for('main.wiki_edit_history', wiki_id=wiki_id,
+                             sort=key, page=page) for key in sorts.keys()}
+    next_page = (url_for('main.wiki_edit_history', page=edits.next_num,
+                         sort=sort) if edits.has_next else None)
+    prev_page = (url_for('main.wiki_edit_history', page=edits.prev_num,
+                         sort=sort) if edits.has_prev else None)
+    return render_template('indexes/wiki_edits.html',
+                           title=f"{str(wiki.entity)} Edit History",
+                           next_page=next_page, prev_page=prev_page,
+                           sorts=sorturls, sort=sort,
+                           wiki=wiki, edits=edits.items)
 
 
 @main.route('/wiki/<wiki_id>/edit/<edit_num>')
 def view_wiki_edit(wiki_id, edit_num):
+    """The diff page for a wiki edit in comparison to it's previous version. For
+    the first version we use a special template.
+    """
     wiki = Wiki.query.get_or_404(wiki_id)
     edit = wiki.edits\
-        .filter(WikiEdit.approved == True,
-                WikiEdit.num == edit_num).first_or_404()
+        .filter(WikiEdit.approved==True,
+                WikiEdit.num==edit_num).first_or_404()
 
     if not edit.previous:
         return render_template(

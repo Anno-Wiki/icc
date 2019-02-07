@@ -3,7 +3,7 @@
 {% block content %}
     {% set header = [
         ("num_invert", "num", "Edit Number &#9662;", "Edit Number &#9652;"),
-        ("editor_invert", "editor", "Editor &#9662;", "Editor &#9652;"), 
+        ("editor_invert", "editor", "Editor &#9662;", "Editor &#9652;"),
         ("time_invert", "time", "Time &#9662;", "Time &#9652;"),
         ("reason_invert", "reason", "Reason &#9662;", "Reason &#9652;"),
         ]
@@ -14,10 +14,11 @@
         <tr class="header">
             {% for altid, id, caption, altcaption in header %}
                 <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
-                    <a href="{% if sort == altid or sort != id %}{{
-                    url_for("main.wiki_edit_history", wiki_id=wiki.id, sort=id,
-                    page=page) }}{% else %}{{ url_for("main.wiki_edit_history",
-                    wiki_id=wiki.id, sort=altid, page=page) }}{% endif %}">
+                    <a href="{% if sort == altid or sort != id %}
+                        {{ sorts[id] }}
+                    {% else %}
+                        {{ sorts[altid] }}
+                    {% endif %}">
                         {% if sort == altid %}
                             {{ altcaption|safe }}
                         {% else %}
