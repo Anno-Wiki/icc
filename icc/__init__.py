@@ -10,6 +10,7 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
+from sqlalchemy.exc import ProgrammingError
 
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
