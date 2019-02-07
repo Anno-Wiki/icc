@@ -49,8 +49,6 @@ def search():
     the primary way of interacting with the application. Eventually my
     omni-search will be parsed to handle searching annotations, wikis, and tags.
     """
-    if not g.search_form.validate():
-        return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     lines, line_total = Line.search(g.search_form.q.data, page,
                                     current_app.config['LINES_PER_SEARCH_PAGE'])
