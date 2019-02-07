@@ -145,7 +145,7 @@ def line_annotations(text_url, edition_num, line_num):
     annotations = sorts[sort]\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
-    if not annotations and page > 1:
+    if not annotations.items and page > 1:
         abort(404)
 
     next_page = (
