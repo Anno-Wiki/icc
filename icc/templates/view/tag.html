@@ -4,26 +4,14 @@
     <h1><tag>{{ tag.tag }}</tag></h1>
     <h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
-    <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-        next=request.full_path) }}">{% if current_user.is_authenticated and
-        tag in current_user.followed_tags %}unfollow{% else %}follow{% endif
-        %}</a>
+    <div id="summary">{{ tag.wiki.current.body|markdown }}</div>
+
+    <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">annotations</a>
+    | <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
+        next=request.full_path) }}">{% if current_user.is_authenticated and tag
+        in current_user.followed_tags %}unfollow{% else %}follow{% endif %}</a>
     | <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id) }}">edit
-        history</a>
-
-    <br>
-    <br>
-
-    sort by:
-    {% for type, url in sorts.items() %}
-        <a href="{{ url }}"{% if type == "sort" %} class="active"{% endif %}>
-            {{ type }}
-        </a>
-    {% endfor %}
-
-    {% for annotation in annotations %}
-        {% include "includes/_annotation_standalone.html" %}
-    {% endfor %}
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id)
+        }}">edit history</a>
 
 {% endblock %}
