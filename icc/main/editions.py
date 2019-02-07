@@ -1,36 +1,30 @@
 """The routes governing editions."""
 from flask import render_template, url_for, request, abort, current_app
-from flask_login import current_user
-
 from icc.main import main
 
-from icc.models.annotation import (Annotation, Edit, AnnotationFlagEnum)
-from icc.models.content import (Text, Edition, Line, LineEnum)
+from icc.models.annotation import Annotation, Edit
+from icc.models.content import Text, Edition
 
 
 @main.route('/text/<text_url>/edition/<edition_num>')
 def edition(text_url, edition_num):
     """The main edition view."""
+
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = Edition.query.filter(Edition.text_id==text.id,
                                    Edition.num==edition_num).first_or_404()
-
-    # get all the heierarchical chapter lines
     hierarchy = edition.toc()
-
-    return render_template('view/edition.html', title=f"{text.title} "
-                           f"#{edition.num}", hierarchy=hierarchy, edition=edition)
+    return render_template('view/edition.html',
+                           title=f"{text.title} #{edition.num}",
+                           hierarchy=hierarchy, edition=edition)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/annotations')
 def edition_annotations(text_url, edition_num):
-    default = 'newest'
-    page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'weight', type=str)
+    """The annotations for the edition."""
 
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
-    edition = text.editions.filter_by(num=edition_num).first()
-
+    edition = text.editions.filter_by(num=edition_num).first_or_404()
     sorts = {
         'newest': (edition.annotations.filter_by(active=True)
                    .order_by(Annotation.timestamp.desc())),
@@ -41,13 +35,16 @@ def edition_annotations(text_url, edition_num):
                      .order_by(Edit.timestamp.desc())),
         'weight': (edition.annotations.filter_by(active=True)
                    .order_by(Annotation.weight.desc())),
-        'line': (edition.annotations.join(Edit).filter(Annotation.active==True,
-                                                       Edit.current==True)
+        'line': (edition.annotations.join(Edit)
+                 .filter(Annotation.active==True, Edit.current==True)
                  .order_by(Edit.last_line_num.asc()))
     }
 
+    default = 'newest'
+    sort = request.args.get('sort', 'weight', type=str)
     sort = sort if sort in sorts else default
 
+    page = request.args.get('page', 1, type=int)
     annotations = sorts[sort]\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
