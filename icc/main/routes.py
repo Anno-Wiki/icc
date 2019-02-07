@@ -82,24 +82,18 @@ def index():
                    .order_by(Annotation.weight.desc())),
     }
 
-    # default to newest in case there's some funky sort that ends up in this
-    # variable.
     sort = sort if sort in sorts else default
-
     annotations = sorts[sort]\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-
     if not annotations.items and page > 1:
         abort(404)
 
     sorturls = {key: url_for('main.index', page=page, sort=key) for key in
                 sorts.keys()}
-
     next_page = (url_for('main.index', page=annotations.next_num, sort=sort) if
                  annotations.has_next else None)
     prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
                  annotations.has_prev else None)
-
     return render_template('indexes/annotation_list.html', title="Home",
                            active_page='index',
                            sort=sort, sorts=sorturls,
@@ -115,9 +109,9 @@ def line_annotations(text_url, edition_num, line_num):
     """See all annotations for a given line. That is to say, all the annotations
     which have this particular line within their target body.
     """
+    default = 'newest'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'weight', type=str)
-
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = (text.primary if not edition_num else
                Edition.query.filter(Edition.text==text,
@@ -133,18 +127,15 @@ def line_annotations(text_url, edition_num, line_num):
                      .filter(Annotation.active==True, Edit.current==True))
     }
 
-    sort = sort if sort in sorts else 'newest'
+    sort = sort if sort in sorts else default
+    annotations = sorts[sort]\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+    if not annotations.items and page > 1:
+        abort(404)
 
     sorturls = {key: url_for('main.index', text_url=text_url,
                              edition_num=edition_num, line_num=line_num,
                              sort=key) for key in sorts.keys()}
-
-    annotations = sorts[sort]\
-        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-
-    if not annotations.items and page > 1:
-        abort(404)
-
     next_page = (
         url_for('main.edition_annotations', text_url=text.url,
                 edition_num=edition.num, line_num=line.num, sort=sort,
@@ -153,7 +144,6 @@ def line_annotations(text_url, edition_num, line_num):
         url_for('main.edition_annotations', text_url=text_url,
                 edition_num=edition.num, line_num=line.num, sort=sort,
                 page=annotations.prev_num) if annotations.has_prev else None)
-
     return render_template('indexes/annotation_list.html',
                            title=f"{text.title} - Annotations",
                            next_page=next_page, prev_page=prev_page,
