@@ -692,6 +692,7 @@ class Edit(Base, EditMixin):
     entity_id = db.Column(db.Integer,
                           db.ForeignKey('annotation.id', ondelete='CASCADE'),
                           index=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     first_line_num = db.Column(db.Integer, db.ForeignKey('line.num'))
     last_line_num = db.Column(db.Integer, db.ForeignKey('line.num'), index=True)

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c016247ff7ea
+Revision ID: 6a15c613de3b
 Revises: 
-Create Date: 2019-02-05 15:49:47.194503
+Create Date: 2019-02-07 10:11:45.177488
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c016247ff7ea'
+revision = '6a15c613de3b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -388,11 +388,11 @@ def upgrade():
     sa.Column('approved', sa.Boolean(), nullable=True),
     sa.Column('rejected', sa.Boolean(), nullable=True),
     sa.Column('reason', sa.String(length=191), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('entity_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('first_line_num', sa.Integer(), nullable=True),
     sa.Column('last_line_num', sa.Integer(), nullable=True),
     sa.Column('first_char_idx', sa.Integer(), nullable=True),
@@ -411,7 +411,6 @@ def upgrade():
     op.create_index(op.f('ix_edit_entity_id'), 'edit', ['entity_id'], unique=False)
     op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
     op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
-    op.create_index(op.f('ix_edit_timestamp'), 'edit', ['timestamp'], unique=False)
     op.create_table('line_attribute',
     sa.Column('line_id', sa.Integer(), nullable=False),
     sa.Column('enum_id', sa.Integer(), nullable=False),
@@ -473,7 +472,6 @@ def downgrade():
     op.drop_index(op.f('ix_line_attribute_line_id'), table_name='line_attribute')
     op.drop_index(op.f('ix_line_attribute_enum_id'), table_name='line_attribute')
     op.drop_table('line_attribute')
-    op.drop_index(op.f('ix_edit_timestamp'), table_name='edit')
     op.drop_index(op.f('ix_edit_rejected'), table_name='edit')
     op.drop_index(op.f('ix_edit_last_line_num'), table_name='edit')
     op.drop_index(op.f('ix_edit_entity_id'), table_name='edit')
