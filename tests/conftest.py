@@ -39,7 +39,9 @@ def open_json(filename):
 
 @pytest.fixture
 def app():
-    """Create the app; this is the fundamental fixture. The mother fixture..."""
+    """Create the app and yield it; this is the fundamental fixture. The mother
+    fixture...
+    """
     app = create_app(TestConfig)
 
     with app.app_context():
@@ -54,7 +56,7 @@ def app():
 
 @pytest.fixture
 def appclient(app):
-    """Return an unpopulated test client."""
+    """Return the app and an unpopulated test client in a tuple."""
     return app, app.test_client()
 
 
@@ -79,7 +81,7 @@ def minpop(app):
 
 @pytest.fixture
 def minclient(minpop):
-    """Return the minimally populated app and it's test client."""
+    """Return the minimally populated app and it's test client in a tuple."""
     return minpop, minpop.test_client()
 
 
@@ -121,5 +123,5 @@ def pop(minpop):
 
 @pytest.fixture
 def popclient(pop):
-    """Return the populated client."""
+    """Return the populated app and a test client in a tuple."""
     return pop, pop.test_client()
