@@ -15,14 +15,12 @@ from collections import defaultdict
 from flask import (render_template, redirect, url_for, request, abort, g,
                    current_app)
 from flask_login import current_user, logout_user
-from sqlalchemy import and_
 
 from icc.funky import line_check
 from icc.main import main
 
-from icc.models.annotation import Annotation, Edit, Tag, AnnotationFlagEnum
+from icc.models.annotation import Annotation, Edit, AnnotationFlagEnum
 from icc.models.content import Text, Edition, Line
-from icc.models.tables import tags as tags_table
 
 from icc.forms import LineNumberForm, SearchForm
 
