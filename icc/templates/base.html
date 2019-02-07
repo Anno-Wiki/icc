@@ -102,12 +102,13 @@
                 {% endif %}
 
                 <div class="dropdown">
-                    <a href="{{ url_for('user.profile') }}"
-                        class="dropbtn">
+                    <a href="{{ url_for('user.profile', user_id=current_user.id)
+                       }}" class="dropbtn">
                         {{ current_user.displayname }}&#x25BE;
                     </a>
                     <div class="dropdown-content">
-                        <a href="{{ url_for('user.profile') }}">
+                        <a href="{{ url_for('user.profile',
+                            user_id=current_user.id) }}">
                             profile
                         </a>
                         <a href="{{ url_for('user.edit_profile') }}">edit profile</a>

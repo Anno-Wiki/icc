@@ -1,5 +1,5 @@
-from flask import render_template, flash, redirect, url_for, request, abort,\
-        current_app
+from flask import (render_template, flash, redirect, url_for, request, abort,
+                   current_app)
 from flask_login import login_user, logout_user, current_user, login_required
 
 from sqlalchemy import and_
@@ -106,11 +106,11 @@ def index():
 
 
 @user.route('/<user_id>/profile')
-@user.route('/profile', defaults={'user_id': None})
 def profile(user_id):
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'newest', type=str)
-    user = User.query.get_or_404(user_id) if user_id else current_user
+    user = User.query.get(user_id)
+
     if not user.is_authenticated:
         redirect(url_for('user.index'))
     if sort == 'weight':
@@ -147,7 +147,6 @@ def profile(user_id):
     prev_page = url_for(
         'user.profile', user_id=user.id, page=annotations.prev_num, sort=sort)\
         if annotations.has_prev else None
-
 
     return render_template(
         'view/user.html', title=f"User {user.displayname}", next_page=next_page,
