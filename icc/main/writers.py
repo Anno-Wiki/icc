@@ -13,7 +13,11 @@ from icc.models.tables import authors as authors_table
 
 @main.route('/writer/list')
 def writer_index():
-    """The writer index."""
+    """The writer index.
+
+    Once I get the authors table translated into a WriterConnection class enum,
+    I'll add an annotations sort.
+    """
     default = 'last name'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
@@ -112,7 +116,7 @@ def writer_annotations(writer_url):
 
     sort = sort if sort in sorts else default
     annotations = sorts[sort] \
-        .paginate(page, current_app.config['CARDS_PER_PAGE'], False)
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)
 
