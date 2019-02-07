@@ -1,3 +1,4 @@
+"""Test all of the main.routes routes."""
 import pytest
 import math
 
