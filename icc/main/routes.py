@@ -73,14 +73,15 @@ def index():
     sort = request.args.get('sort', default, type=str)
 
     # one letter representations of the classes to reduce code length.
-    a = Annotation
-    e = Edit
     sorts = {
-        'newest': a.query.filter_by(active=True).order_by(a.timestamp.desc()),
-        'oldest': a.query.filter_by(active=True).order_by(a.timestamp.asc()),
-        'modified': (a.query.join(e).order_by(e.timestamp.desc())
-                     .filter(a.active==True, e.current==True)),
-        'weight': a.query.filter_by(active=True).order_by(a.weight.desc()),
+        'newest': (Annotation.query.filter_by(active=True)
+                   .order_by(Annotation.timestamp.desc())),
+        'oldest': (Annotation.query.filter_by(active=True)
+                   .order_by(Annotation.timestamp.asc())),
+        'modified': (Annotation.query.join(Edit).order_by(Edit.timestamp.desc())
+                     .filter(Annotation.active==True, Edit.current==True)),
+        'weight': (Annotation.query.filter_by(active=True)
+                   .order_by(Annotation.weight.desc())),
     }
 
     # default to newest in case there's some funky sort that ends up in this
@@ -126,14 +127,12 @@ def line_annotations(text_url, edition_num, line_num):
     line = Line.query.filter(Line.edition==edition,
                              Line.num==line_num).first_or_404()
 
-    a = Annotation
-    e = Edit
     sorts = {
-        'newest': line.annotations.order_by(a.timestamp.desc()),
-        'oldest': line.annotations.order_by(a.timestamp.asc()),
-        'weight': line.annotations.order_by(a.weight.desc()),
-        'modified': (line.annotations.join(e).order_by(e.timestamp.desc())
-                     .filter(a.active==True, e.current==True))
+        'newest': line.annotations.order_by(Annotation.timestamp.desc()),
+        'oldest': line.annotations.order_by(Annotation.timestamp.asc()),
+        'weight': line.annotations.order_by(Annotation.weight.desc()),
+        'modified': (line.annotations.join(Edit).order_by(Edit.timestamp.desc())
+                     .filter(Annotation.active==True, Edit.current==True))
     }
 
     sort = sort if sort in sorts else 'newest'
