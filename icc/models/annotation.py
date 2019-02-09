@@ -490,8 +490,10 @@ class Annotation(Base):
             raise TypeError("Positional arguments not accepted.")
         elif None in params:
             raise TypeError("Keyword arguments cannot be None.")
-        elif not type(tags) == list:
+        elif not isinstance(tags, list):
             raise TypeError("Tags must be a list of tags.")
+        elif not all(isinstance(tag, Tag) for tag in tags):
+            raise TypeError("Tags must be a list of tag objects.")
         edit = Edit(
             edition=self.edition, editor=editor, num=self.HEAD.num+1,
             reason=reason, annotation=self, first_line_num=fl, last_line_num=ll,

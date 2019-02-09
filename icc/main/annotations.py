@@ -6,13 +6,12 @@ from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, abort,\
     current_app
 from flask_login import current_user, login_required
-from sqlalchemy import and_
 
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import (Annotation, Comment, Vote, Edit, EditVote,
-                                   Tag, AnnotationFlagEnum)
+from icc.models.annotation import (Annotation, Comment, Vote, Edit, Tag,
+                                   AnnotationFlagEnum)
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
@@ -20,198 +19,80 @@ from icc.forms import AnnotationForm, CommentForm
 from icc.funky import generate_next, line_check
 
 
-@main.route(
-    '/annotate/<text_url>/<first_line>/<last_line>', methods=['GET', 'POST'],
-    defaults={'edition_num': None})
-@main.route(
-    '/annotate/<text_url>/edition/<edition_num>/<first_line>/<last_line>',
-    methods=['GET', 'POST'])
+def process_tags(tagstring):
+    """Helper function to process a space separated string of tag names into the
+    tag objects.
+    """
+    raw_tags = tagstring.split()
+    tags = []
+    allgood = True
+    for tag in raw_tags:
+        t = Tag.query.filter_by(tag=tag).first()
+        if t:
+            tags.append(t)
+        else:
+            flash(f"tag {tag} does not exist.")
+            allgood = False
+    if len(tags) > 5:
+        flash("There is a five tag limit.")
+        allgood = False
+    return allgood, tags
+
+
+@main.route('/annotate/<text_url>/<first_line>/<last_line>',
+            methods=['GET', 'POST'], defaults={'edition_num': None})
+@main.route('/annotate/<text_url>/edition/<edition_num>'
+            '/<first_line>/<last_line>', methods=['GET', 'POST'])
 @login_required
 def annotate(text_url, edition_num, first_line, last_line):
-    if int(first_line) > int(last_line):
-        tmp = first_line
-        first_line = last_line
-        last_line = tmp
-    if int(first_line) < 1:
-        first_line = 1
-    if int(last_line) < 1:
-        first_line = 1
-        last_line = 1
-
-    text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
-    if edition_num:
-        edition = Edition.query.\
-            filter(Edition.text_id == text.id,
-                   Edition.num == edition_num).first_or_404()
-    else:
-        edition = text.primary
-    lines = edition.lines\
-        .filter(Line.num >= first_line, Line.num <= last_line).all()
-    context = edition.lines\
-        .filter(Line.num >= int(first_line)-5,
-                Line.num <= int(last_line)+5).all()
+    """Create an annotation."""
+    fl, ll = line_check(int(first_line), int(first_line))
     form = AnnotationForm()
-
+    text = Text.get_by_url(text_url).first_or_404()
+    edition = (text.primary if not edition_num else
+               Edition.query.filter(Edition.text_id==text.id,
+                                    Edition.num==edition_num).first_or_404())
+    lines = edition.lines.filter(Line.num>=fl, Line.num<=ll).all()
     if lines is None:
         abort(404)
-
     redirect_url = generate_next(lines[0].get_url())
+    context = edition.lines.filter(Line.num>=int(fl)-5,
+                                   Line.num<=int(ll)+5).all()
 
     if form.validate_on_submit():
-        # line number boiler plate
-        fl, ll = line_check(int(form.first_line.data), int(form.last_line.data))
-
-        # Process all the tags
-        raw_tags = form.tags.data.split()
-        tags = []
-        for tag in raw_tags:
-            t = Tag.query.filter_by(tag=tag).first()
-            if t:
-                tags.append(t)
-            else:
-                flash(f"tag {tag} does not exist.")
-                return render_template(
-                    'forms/annotation.html', title=text.title, form=form,
-                    text=text, edition=edition, lines=lines, context=context)
-
-        if len(tags) > 5:
-            flash("There is a five tag limit.")
-            return render_template(
-                'forms/annotation.html', title=text.title, form=form, text=text,
-                edition=edition, lines=lines, context=context)
-
-        annotation = Annotation(
-            edition=edition, annotator=current_user, fl=fl, ll=ll,
-            fc=form.first_char_idx.data, lc=form.last_char_idx.data,
-            body=form.annotation.data, tags=tags)
-
+        fl, ll = line_check(form.first_line.data, form.last_line.data)
+        allgood, tags = process_tags(form.tags.data)
+        if not allgood:
+            return render_template('forms/annotation.html', title=text.title,
+                                   form=form, text=text, edition=edition,
+                                   lines=lines, context=context)
+        annotation = Annotation(edition=edition, annotator=current_user,
+                                fl=fl, ll=ll,
+                                fc=form.first_char_idx.data,
+                                lc=form.last_char_idx.data,
+                                body=form.annotation.data, tags=tags)
         db.session.add(annotation)
         db.session.commit()
-
         flash("Annotation Submitted")
-
         return redirect(redirect_url)
     else:
         form.first_line.data = first_line
         form.last_line.data = last_line
         form.first_char_idx.data = 0
         form.last_char_idx.data = -1
-
-    return render_template(
-        'forms/annotation.html', title=f"Annotating {text.title}", form=form,
-        text=text, edition=edition, lines=lines, context=context)
-
-
-@main.route('/annotation/<annotation_id>')
-def annotation(annotation_id):
-    annotation = Annotation.query.get_or_404(annotation_id)
-    if not annotation.active:
-        current_user.authorize('view_deactivated_annotations')
-
-    annotationflags = AnnotationFlagEnum.query.all()
-
-    return render_template(
-        'view/annotation.html', title=f"Annotation [{annotation.id}]",
-        annotation=annotation, annotationflags=annotationflags)
+    return render_template('forms/annotation.html',
+                           title=f"Annotating {text.title}", form=form,
+                           text=text, edition=edition,
+                           lines=lines, context=context)
 
 
-@main.route('/annotation/<annotation_id>/flag/<flag_id>')
-@login_required
-def flag_annotation(flag_id, annotation_id):
-    annotation = Annotation.query.get_or_404(annotation_id)
-
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation.id))
-
-    if not annotation.active:
-        current_user.authorize('view_deactivated_annotations')
-    flag = AnnotationFlagEnum.query.get_or_404(flag_id)
-
-    annotation.flag(flag, current_user)
-    db.session.commit()
-    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
-    return redirect(redirect_url)
-
-
-# Voting routes
-@main.route('/upvote/<annotation_id>')
-@login_required
-def upvote(annotation_id):
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation_id))
-
-    annotation = Annotation.query.get_or_404(annotation_id)
-    if not annotation.active:
-        flash("You cannot vote on deactivated annotations.")
-        return redirect(redirect_url)
-
-    if current_user == annotation.annotator:
-        flash("You cannot vote on your own annotations.")
-        return redirect(redirect_url)
-    elif current_user.already_voted(annotation):
-        vote = current_user.voteballots\
-            .filter(Vote.annotation == annotation).first()
-        diff = datetime.utcnow() - vote.timestamp
-
-        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
-            flash("Your vote is locked until the annotation is modified.")
-            return redirect(redirect_url)
-        elif vote.is_up():
-            annotation.rollback(vote)
-            db.session.commit()
-            return redirect(redirect_url)
-        else:
-            annotation.rollback(vote)
-
-    annotation.upvote(current_user)
-    db.session.commit()
-
-    return redirect(redirect_url)
-
-
-@main.route('/downvote/<annotation_id>')
-@login_required
-def downvote(annotation_id):
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation_id))
-
-    annotation = Annotation.query.get_or_404(annotation_id)
-    if not annotation.active:
-        flash("You cannot vote on deactivated annotations.")
-
-    if current_user == annotation.annotator:
-        flash("You cannot vote on your own annotation.")
-        return redirect(redirect_url)
-    elif current_user.already_voted(annotation):
-        vote = current_user\
-            .voteballots.filter(Vote.annotation == annotation).first()
-        diff = datetime.utcnow() - vote.timestamp
-
-        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
-            flash("Your vote is locked until the annotation is modified.")
-            return redirect(redirect_url)
-        elif not vote.is_up():
-            annotation.rollback(vote)
-            db.session.commit()
-            return redirect(redirect_url)
-        else:
-            annotation.rollback(vote)
-
-    annotation.downvote(current_user)
-    db.session.commit()
-
-    return redirect(redirect_url)
-
-
-# Edit routes
 @main.route('/edit/<annotation_id>', methods=['GET', 'POST'])
 @login_required
 def edit(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
     form = AnnotationForm()
     redirect_url = generate_next(url_for('main.annotation',
                                          annotation_id=annotation_id))
-
-    annotation = Annotation.query.get_or_404(annotation_id)
     if (annotation.locked and not
             current_user.is_authorized('edit_locked_annotations')):
         flash("That annotation is locked from editing.")
@@ -224,37 +105,26 @@ def edit(annotation_id):
 
     lines = annotation.HEAD.lines
     context = annotation.HEAD.context
-
     if form.validate_on_submit():
-        # line number boilerplate
-        fl, ll = line_check(int(form.first_line.data), int(form.last_line.data))
-        fail = False    # if at any point we run into problems, flip this var
+        fl, ll = line_check(form.first_line.data, form.last_line.data)
 
-        raw_tags = form.tags.data.split()
-        tags = []
-        for tag in raw_tags:
-            t = Tag.query.filter_by(tag=tag).first()
-            if t:
-                tags.append(t)
-            else:
-                fail = True
-                flash(f"tag {tag} does not exist.")
-        if len(tags) > 5:
-            fail = True
-            flash("There is a five tag limit.")
-
-        success = annotation.edit(
-            editor=current_user, reason=form.reason.data, fl=fl, ll=ll,
-            fc=form.first_char_idx.data, lc=form.last_char_idx.data,
-            body=form.annotation.data, tags=tags)
+        tagsuccess, tags = process_tags(form.tags.data)
+        try:
+            editsuccess = annotation.edit(
+                editor=current_user, reason=form.reason.data, fl=fl, ll=ll,
+                fc=form.first_char_idx.data, lc=form.last_char_idx.data,
+                body=form.annotation.data, tags=tags)
+        except:
+            editsuccess = False
 
         # rerender the template with the work already filled
-        if not success or fail:
+        if not (editsuccess and tagsuccess):
             db.session.rollback()
-            return render_template(
-                'forms/annotation.html', form=form, title=annotation.text.title,
-                lines=lines, text=annotation.text, annotation=annotation)
-        db.session.commit()
+            return render_template('forms/annotation.html', form=form,
+                                   title=annotation.text.title, lines=lines,
+                                   text=annotation.text, annotation=annotation)
+        else:
+            db.session.commit()
         return redirect(redirect_url)
 
     elif not annotation.edit_pending:
@@ -267,61 +137,144 @@ def edit(annotation_id):
         form.last_char_idx.data = annotation.HEAD.last_char_idx
         form.annotation.data = annotation.HEAD.body
         form.tags.data = ' '.join(tag_strings)
-    return render_template(
-        'forms/annotation.html', title=f"Edit Annotation {annotation.id}",
-        form=form,  text=annotation.text, lines=lines, annotation=annotation,
-        context=context)
+    return render_template('forms/annotation.html', form=form,
+                           title=f"Edit Annotation {annotation.id}",
+                           text=annotation.text, lines=lines,
+                           annotation=annotation, context=context)
+
+
+@main.route('/annotation/<annotation_id>')
+def annotation(annotation_id):
+    """Main view route for an annotation."""
+    annotation = Annotation.query.get_or_404(annotation_id)
+    if not annotation.active:
+        current_user.authorize('view_deactivated_annotations')
+    return render_template('view/annotation.html',
+                           title=f"Annotation [{annotation.id}]",
+                           annotation=annotation)
+
+
+@main.route('/annotation/<annotation_id>/flag/<flag_id>')
+@login_required
+def flag_annotation(flag_id, annotation_id):
+    """Flag an annotation."""
+    annotation = Annotation.query.get_or_404(annotation_id)
+    redirect_url = generate_next(url_for('main.annotation',
+                                         annotation_id=annotation.id))
+    if not annotation.active:
+        current_user.authorize('view_deactivated_annotations')
+    flag = AnnotationFlagEnum.query.get_or_404(flag_id)
+    annotation.flag(flag, current_user)
+    db.session.commit()
+    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
+    return redirect(redirect_url)
+
+
+@main.route('/upvote/<annotation_id>')
+@login_required
+def upvote(annotation_id):
+    """Upvote an annotation."""
+    annotation = Annotation.query.get_or_404(annotation_id)
+    redirect_url = generate_next(url_for('main.annotation',
+                                         annotation_id=annotation_id))
+    if not annotation.active:
+        flash("You cannot vote on deactivated annotations.")
+        return redirect(redirect_url)
+    elif current_user == annotation.annotator:
+        flash("You cannot vote on your own annotations.")
+        return redirect(redirect_url)
+    elif current_user.already_voted(annotation):
+        vote = current_user.voteballots\
+            .filter(Vote.annotation==annotation).first()
+        diff = datetime.utcnow() - vote.timestamp
+        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
+            flash("Your vote is locked until the annotation is modified.")
+            return redirect(redirect_url)
+        elif vote.is_up():
+            annotation.rollback(vote)
+            db.session.commit()
+            return redirect(redirect_url)
+        else:
+            annotation.rollback(vote)
+    annotation.upvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
+
+
+@main.route('/downvote/<annotation_id>')
+@login_required
+def downvote(annotation_id):
+    annotation = Annotation.query.get_or_404(annotation_id)
+    redirect_url = generate_next(url_for('main.annotation',
+                                         annotation_id=annotation_id))
+    if not annotation.active:
+        flash("You cannot vote on deactivated annotations.")
+    elif current_user == annotation.annotator:
+        flash("You cannot vote on your own annotation.")
+        return redirect(redirect_url)
+    elif current_user.already_voted(annotation):
+        vote = current_user\
+            .voteballots.filter(Vote.annotation==annotation).first()
+        diff = datetime.utcnow() - vote.timestamp
+        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
+            flash("Your vote is locked until the annotation is modified.")
+            return redirect(redirect_url)
+        elif not vote.is_up():
+            annotation.rollback(vote)
+            db.session.commit()
+            return redirect(redirect_url)
+        else:
+            annotation.rollback(vote)
+    annotation.downvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
 
 
 @main.route('/annotation/<annotation_id>/edit/history')
 def edit_history(annotation_id):
+    default = 'num'
+    page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'num_invert', type=str)
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize('view_deactivated_annotations')
 
-    default = 'num'
-    page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'num_invert', type=str)
-
-    e = Edit
-    a = annotation
     sorts = {
-        'num': a.history.order_by(e.num.asc()),
-        'num_invert': a.history.order_by(e.num.desc()),
-        'editor': a.history.join(User).order_by(User.displayname.asc()),
-        'editor_invert': (a.history.join(User)
+        'num': annotation.history.order_by(Edit.num.asc()),
+        'num_invert': Annotation.history.order_by(Edit.num.desc()),
+        'editor': (annotation.history.join(User)
+                   .order_by(User.displayname.asc())),
+        'editor_invert': (annotation.history.join(User)
                           .order_by(User.displayname.desc())),
-        'time': a.history.order_by(e.timestamp.asc()),
-        'time_invert': a.history.order_by(e.timestamp.desc()),
-        'reason': a.history.order_by(e.reason.asc()),
-        'reason_invert': a.history.order_by(e.reason.desc()),
+        'time': annotation.history.order_by(Edit.timestamp.asc()),
+        'time_invert': annotation.history.order_by(Edit.timestamp.desc()),
+        'reason': annotation.history.order_by(Edit.reason.asc()),
+        'reason_invert': annotation.history.order_by(Edit.reason.desc()),
     }
+
     sort = sort if sort in sorts else default
-    edits = sorts[sort].paginate(page,
-                                 current_app.config['NOTIFICATIONS_PER_PAGE'],
-                                 False)
-    urlsorts = {
-        key: url_for('main.edit_history', annotation_id=annotation_id,
-                     page=edits.next_num, sort=key) for key in sorts.keys()
-    }
+    edits = sorts[sort]\
+        .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
-    next_page = url_for(
-        'main.edit_history', annotation_id=annotation_id, page=edits.next_num,
-        sort=sort) if edits.has_next else None
-    prev_page = url_for(
-        'main.edit_history', annotation_id=annotation_id, page=edits.prev_num,
-        sort=sort) if edits.has_prev else None
-
+    urlsorts = {key: url_for('main.edit_history', annotation_id=annotation_id,
+                             page=edits.next_num, sort=key) for key in
+                sorts.keys()}
+    next_page = (url_for('main.edit_history', annotation_id=annotation_id,
+                         page=edits.next_num, sort=sort) if edits.has_next else
+                 None)
+    prev_page = (url_for('main.edit_history', annotation_id=annotation_id,
+                         page=edits.prev_num, sort=sort) if edits.has_prev else
+                 None)
     return render_template('indexes/edit_history.html', title="Edit History",
-                           next_page=next_page, prev_page=prev_page, page=page,
+                           next_page=next_page, prev_page=prev_page,
                            sort=sort, sorts=urlsorts,
                            edits=edits.items, annotation=annotation)
 
 
 @main.route('/annotation/<annotation_id>/edit/<num>')
 def view_edit(annotation_id, num):
-    edit = Edit.query.filter(Edit.entity_id == annotation_id, Edit.num == num,
-                             Edit.approved == True).first_or_404()
+    edit = Edit.query.filter(Edit.entity_id==annotation_id, Edit.num==num,
+                             Edit.approved==True).first_or_404()
     if not edit.previous:
         return render_template(
             'view/first_version.html', title="First Version of "
@@ -379,9 +332,9 @@ def comments(annotation_id):
         flash("Comment posted")
         return redirect(url_for('main.comments', annotation_id=annotation.id))
 
-    return render_template(
-        'indexes/comments.html', title=f"[{annotation.id}] comments", form=form,
-        annotation=annotation, comments=comments.items)
+    return render_template('indexes/comments.html',
+                           title=f"[{annotation.id}] comments", form=form,
+                           annotation=annotation, comments=comments.items)
 
 
 @main.route('/annotation/<annotation_id>/comment/<comment_id>/reply',
