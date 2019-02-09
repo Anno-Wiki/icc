@@ -7,18 +7,6 @@ from icc.models.user import User
 from tests.utils import get_token
 
 
-def test_annotations_page(popclient):
-    """Test annotation view."""
-    app, client = popclient
-
-    with app.test_request_context():
-        annotation = Annotation.query.first()
-        url = url_for('main.annotation', annotation_id=annotation.id)
-        rv = client.get(url)
-        assert rv.status_code == 200
-        assert bytes(f'[{annotation.id}]', 'utf-8') in rv.data
-
-
 def test_annotate_page(popclient):
     """Test annotating."""
     app, client = popclient
@@ -97,6 +85,18 @@ def test_edit_page(popclient):
         rv = client.get(url)
         assert rv.status_code == 200
         assert b"This is a test!" in rv.data
+
+
+def test_annotations_page(popclient):
+    """Test annotation view."""
+    app, client = popclient
+
+    with app.test_request_context():
+        annotation = Annotation.query.first()
+        url = url_for('main.annotation', annotation_id=annotation.id)
+        rv = client.get(url)
+        assert rv.status_code == 200
+        assert bytes(f'[{annotation.id}]', 'utf-8') in rv.data
 
 
 def test_annotations_object(popclient):
