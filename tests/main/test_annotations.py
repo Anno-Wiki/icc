@@ -1,10 +1,11 @@
 from flask import url_for
 
+from icc import db
 from icc.models.content import Text, Line
 from icc.models.annotation import Annotation
 from icc.models.user import User
 
-from tests.utils import get_token
+from tests.utils import get_token, login
 
 
 def test_annotate_page(popclient):
@@ -95,3 +96,36 @@ def test_annotations_object(popclient):
             assert a.HEAD.body
             assert a.HEAD.tags
             assert a.HEAD.context
+
+
+def test_upvote(popclient):
+    """Test upvoting annotations."""
+    app, client = popclient
+
+    with app.test_request_context():
+        u = User.query.filter_by(displayname='george').first()
+        login(u, client)
+
+        # Make sure you don't get one of george's annotations.
+        annotation = Annotation.query.filter(Annotation.annotator != u).first()
+        url = url_for('main.upvote', annotation_id=annotation.id)
+        rv = client.get(url, follow_redirects=True)
+        assert rv.status_code == 200
+        db.session.commit()
+        assert annotation.weight == 1
+
+
+def test_downvote(popclient):
+    """Test downvoting annotations."""
+    app, client = popclient
+
+    with app.test_request_context():
+        u = User.query.filter_by(displayname='george').first()
+        login(u, client)
+
+        annotation = Annotation.query.filter(Annotation.annotator != u).first()
+        url = url_for('main.downvote', annotation_id=annotation.id)
+        rv = client.get(url, follow_redirects=True)
+        assert rv.status_code == 200
+        db.session.commit()
+        assert annotation.weight == -1
