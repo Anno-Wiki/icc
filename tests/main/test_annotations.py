@@ -14,7 +14,6 @@ def test_annotate_page(popclient):
     with app.test_request_context():
         u = User.query.filter_by(displayname='george').first()
 
-        # logging in
         login(u, client)
 
         # getting the context
@@ -52,7 +51,6 @@ def test_edit_page(popclient):
     with app.test_request_context():
         u = User.query.filter_by(displayname='george').first()
 
-        # logging in
         login(u, client)
 
         # annotating

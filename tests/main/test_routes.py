@@ -3,7 +3,7 @@ import pytest
 import math
 
 from flask import url_for
-from tests.utils import get_token
+from tests.utils import get_token, login
 from icc import db
 from icc.models.user import User
 from icc.models.annotation import Annotation
@@ -21,21 +21,14 @@ def test_before_request_lockout(minclient):
 
     """
     app, client = minclient
-    with app.test_request_context():
-        url = url_for('user.login')
-    rv = client.get(url)
-    assert rv.status_code == 200
-    data = {'email': 'george@example.com', 'password': 'testing',
-            'csrf_token': get_token(rv.data)}
-    rv = client.post(url, data=data, follow_redirects=True)
-    assert rv.status_code == 200
-    assert b'logout' in rv.data
+
 
     with app.test_request_context():
-        user = User.query.filter_by(email='george@example.com').first()
-        user.locked = True
+        u = User.query.filter_by(email='george@example.com').first()
+        login(u, client)
+        u.locked = True
         db.session.commit()
-        url = url_for('user.profile', user_id=user.id)
+        url = url_for('user.profile', user_id=u.id)
         rv = client.get(url)
         assert rv.status_code == 200
         assert b'login' in rv.data
