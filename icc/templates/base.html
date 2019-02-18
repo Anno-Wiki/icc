@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8" />
     {% if title %}
-        <title>{{ title }} - Annopedia</title>
+        <title>{{ title }} - anno.wiki</title>
     {% else %}
-        <title>Welcome to Annopedia</title>
+        <title>Welcome to anno.wiki</title>
     {% endif %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',
         filename='styles/style.css') }}">
@@ -23,7 +23,7 @@
             <a href="{{ url_for('main.index') }}">
                 <img src="{{ url_for('static', filename='images/n2.png')}}">
             </a>
-            <a href="{{ url_for('main.index') }}">Annopedia</a>
+            <a href="{{ url_for('main.index') }}">anno.wiki</a>
         </div>
 
         {% set navigation_bar = [
