@@ -15,13 +15,7 @@ def test_annotate_page(popclient):
         u = User.query.filter_by(displayname='george').first()
 
         # logging in
-        url = url_for('user.login')
-        rv = client.get(url)
-        data = {'email': u.email, 'password': 'testing',
-                'csrf_token': get_token(rv.data)}
-        rv = client.post(url, data=data, follow_redirects=True)
-        assert rv.status_code == 200
-        assert b'logout' in rv.data
+        login(u, client)
 
         # getting the context
         text = Text.query.first()
@@ -59,13 +53,7 @@ def test_edit_page(popclient):
         u = User.query.filter_by(displayname='george').first()
 
         # logging in
-        url = url_for('user.login')
-        rv = client.get(url)
-        data = {'email': u.email, 'password': 'testing',
-                'csrf_token': get_token(rv.data)}
-        rv = client.post(url, data=data, follow_redirects=True)
-        assert rv.status_code == 200
-        assert b'logout' in rv.data
+        login(u, client)
 
         # annotating
         annotation = Annotation.query.first()
