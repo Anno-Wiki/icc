@@ -70,7 +70,6 @@ def index():
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
 
-    # one letter representations of the classes to reduce code length.
     sorts = {
         'newest': (Annotation.query.filter_by(active=True)
                    .order_by(Annotation.timestamp.desc())),
