@@ -1,3 +1,6 @@
+"""Populate the text, authors, edition, writer connections, and lines for a
+text. Requires a `config.yml` file.
+"""
 import sys
 import os
 import codecs
@@ -13,9 +16,6 @@ from icc import db, create_app
 from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
                                 WriterConnection, ConnectionEnum, Writer,
                                 EMPHASIS_REVERSE)
-"""Populate the text, authors, edition, writer connections, and lines for a
-text. Requires a `config.yml` file.
-"""
 
 
 def get_text(config, initial=False):

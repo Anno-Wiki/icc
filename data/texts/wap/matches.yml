@@ -1,0 +1,10 @@
+toc:
+    "BOOK|EPILOGUE":
+        display: Book
+        precedence: 1
+        aggregate: False
+    "CHAPTER":
+        display: Chapter
+        precedence: 2
+        aggregate: False
+specials: {}

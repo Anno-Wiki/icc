@@ -25,16 +25,16 @@ $ICCVENV/bin/python $DIR/../inserts/inserttags.py \
     -c $DIR/../data/tags.yml
 
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
-cat $DIR/../data/texts/hod/hod.lines.json | \
+cat $DIR/../data/texts/hod/lines.json | \
     $ICCVENV/bin/python $DIR/../inserts/insertlines.py -i \
-    -c $DIR/../data/texts/hod/hod.yml
+    -c $DIR/../data/texts/hod/meta.yml
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
-cat $DIR/../data/texts/wap/wap.lines.json | \
+cat $DIR/../data/texts/wap/lines.json | \
     $ICCVENV/bin/python $DIR/../inserts/insertlines.py -i \
-    -c $DIR/../data/texts/wap/wap.yml
+    -c $DIR/../data/texts/wap/meta.yml
 
 echo "- adding annotations for War and Peace by Constance Garnett..."
-cat $DIR/../data/texts/wap/wap.ano.json | \
+cat $DIR/../data/texts/wap/annotations.json | \
     $ICCVENV/bin/python $DIR/../inserts/insertannotations.py\
     -t "War and Peace" -e 1 -a "constance-garnett"
