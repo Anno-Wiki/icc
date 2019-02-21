@@ -46,21 +46,8 @@ def test_writer_annotations(popclient):
                 assert rv.status_code == 404
 
 
-@pytest.mark.xfail
 def test_writer_index(popclient):
     """Test the writer index page.
-
-    Notes
-    -----
-    This test is marked xfail because of the nature of the sorts for this route.
-    Specifically, if the author has not edited or translated any works, those
-    routes will fail.
-
-    The solution to this is to add Galway Kinnell to the Edition of Gravity as
-    both a translator and editor in addition to author.
-
-    I will undertake this project when I reformulate the way authors are
-    calculated. For now, this is an xfail.
     """
     app, client = popclient
 

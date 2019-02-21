@@ -9,7 +9,8 @@ from icc import classes
 
 from config import Config
 
-from inserts.insertlines import (get_text, get_edition, populate_lines)
+from inserts.insertlines import (get_text, get_edition, populate_lines,
+                                 add_writer_connections)
 
 
 DIR = os.path.dirname(os.path.realpath(__file__))
@@ -104,6 +105,7 @@ def pop(minpop):
         # populate the text, edition, author, and lines
         text = get_text(textconfig, True)
         edition = get_edition(textconfig, text)
+        add_writer_connections(textconfig, edition)
         populate_lines(lines, edition)
 
         # populate the annotations

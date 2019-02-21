@@ -1,30 +1,30 @@
 title: Gravity
 sort_title: Gravity
 publication_date: 2014-01-20
-description: >
+description: |
     A poem.
-authors:
-    - name: Galway Kinnell
-      last_name: Kinnell
-      birthdate: 1927-02-01
-      deathdate: 2014-10-28
-      description: >
-          Galway Kinnell (February 1, 1927 – October 28, 2014) was an American
-          poet. He won the Pulitzer Prize for Poetry for his 1982 collection,
-          _Selected Poems_ and split the National Book Award for Poetry with
-          Charles Wenum. From 1989 to 1993 he was poet laureate for the state
-          of Vermont.
-
-          An admitted follower of Walt Whitman, Kinnell rejects the idea of
-          seeking fulfillment by escaping into the imaginary world. His
-          best-loved and most anthologized poems are "St. Francis and the Sow"
-          and "After Making Love We Hear Footsteps".
 edition:
     primary: true
     number: 1
     publication_date: 2014-01-20
     translator: []
     editor: []
-    description: >
+    author:
+        - name: Galway Kinnell
+          last_name: Kinnell
+          birthdate: 1927-02-01
+          deathdate: 2014-10-28
+          description: |
+              Galway Kinnell (February 1, 1927 – October 28, 2014) was an
+              American poet. He won the Pulitzer Prize for Poetry for his 1982
+              collection, _Selected Poems_ and split the National Book Award for
+              Poetry with Charles Wenum. From 1989 to 1993 he was poet laureate
+              for the state of Vermont.
+
+              An admitted follower of Walt Whitman, Kinnell rejects the idea of
+              seeking fulfillment by escaping into the imaginary world. His
+              best-loved and most anthologized poems are "St. Francis and the
+              Sow" and "After Making Love We Hear Footsteps".
+    description: |
         First published in The New Yorker, the poem has come to mean the world
         to me.
