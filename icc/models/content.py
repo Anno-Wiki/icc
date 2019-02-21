@@ -19,6 +19,9 @@ from icc.models.wiki import Wiki
 EMPHASIS = ('nem', 'oem', 'em', 'cem')
 EMPHASIS_REVERSE = {val:ind for ind,val in enumerate(EMPHASIS)}
 
+WRITERS = ('author', 'editor', 'translator')
+WRITERS_REVERSE = {val:ind for ind,val in enumerate(WRITERS)}
+
 
 class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
@@ -203,16 +206,11 @@ class Edition(Base):
                        edition_num=self.num)
 
 
-class ConnectionEnum(Base, EnumMixin):
-    """For connection writers to texts and editions."""
-    id = db.Column(db.Integer, primary_key=True)
-
-
 class WriterConnection(Base):
     id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
-    enum_id = db.Column(db.Integer, db.ForeignKey('connection_enum.id'))
+    enum_id = db.Column(db.Integer)
 
     writer = db.relationship('Writer',
                              backref=backref('connections', lazy='dynamic'))
@@ -220,11 +218,16 @@ class WriterConnection(Base):
                               backref=backref('connections', lazy='dynamic'))
     text = association_proxy('edition', 'text')
 
-    enum_obj = db.relationship('ConnectionEnum')
-    enum = association_proxy('enum_obj', 'enum')
-
     def __repr__(self):
         return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.enum = WRITERS[self.enum_id]
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.enum = WRITERS[self.enum_id]
 
 
 class LineEnum(Base, EnumMixin):
@@ -294,7 +297,8 @@ class Line(SearchableMixin, Base):
         uselist=True, lazy='dynamic')
 
     def __repr__(self):
-        return f'<l{self.num} {self.edition.text.title} [{self.primary.display}]>'
+        return (f"<l{self.num} {self.edition.text.title}"
+                f"[{self.primary.display}]>")
 
     @orm.reconstructor
     def init_on_load(self):
