@@ -6,8 +6,7 @@ from icc import db
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit
-from icc.models.content import (Text, Edition, Writer, WriterConnection,
-                                ConnectionEnum)
+from icc.models.content import Text, Edition, Writer, WriterConnection, WRITERS
 
 
 @main.route('/writer/list')
@@ -29,12 +28,11 @@ def writer_index():
             .group_by(Writer.id)\
             .order_by(db.func.count(Annotation.id).desc())
     }
-    connections = ['author', 'editor', 'translator']
-    for conn in connections:
+    for i, conn in enumerate(WRITERS):
         # this will create sorts for the different writer connection roles
         sorts[conn] = Writer.query\
             .join(WriterConnection)\
-            .filter_by(enum=conn)\
+            .filter_by(enum_id=i)\
             .group_by(Writer.id)\
             .order_by(db.func.count(WriterConnection.id).desc())
 
@@ -75,10 +73,6 @@ def writer_annotations(writer_url):
 
     One good idea to simplify a lot will be to make a dictionary on edition for
     every type of writer connection.
-
-    I'm also curious if I wouldn't be better off making the enum a static list
-    instead of a database table, like with everything else I've been moving
-    toward.
     """
     default = 'newest'
     page = request.args.get('page', 1, type=int)

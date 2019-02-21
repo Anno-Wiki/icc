@@ -5,7 +5,8 @@ from icc import db
 from icc.main import main
 
 from icc.models.annotation import Annotation,  Edit
-from icc.models.content import Text, Edition, Writer, WriterConnection, Line
+from icc.models.content import (Text, Edition, Writer, WriterConnection, Line,
+                                WRITERS)
 
 
 @main.route('/text/list')
@@ -29,9 +30,9 @@ def text_index():
     }
     connections = ['author', 'editor', 'translator']
 
-    for conn in connections:
+    for i, conn in enumerate(WRITERS):
         sorts[conn] = Text.query.join(Edition).join(WriterConnection)\
-            .group_by(Text.id).filter(WriterConnection.enum==conn)\
+            .group_by(Text.id).filter(WriterConnection.enum_id==i)\
             .order_by(db.func.count(WriterConnection.id).desc())
 
     sort = sort if sort in sorts else default
