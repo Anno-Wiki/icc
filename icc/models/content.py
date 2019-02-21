@@ -13,7 +13,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
 from icc.models.mixins import Base, EnumMixin, SearchableMixin
-from icc.models.tables import authors
 from icc.models.wiki import Wiki
 
 
@@ -31,24 +30,11 @@ class Writer(Base):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
-    authored = db.relationship('Text', secondary=authors)
-    edited = db.relationship(
-        'Edition', secondary='join(WriterEditionConnection, ConnectionEnum)',
-        primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
-        'ConnectionEnum.enum=="editor")',
-        secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
-        backref='editors')
-    translated = db.relationship(
-        'Edition', secondary='join(WriterEditionConnection, ConnectionEnum)',
-        primaryjoin='and_(WriterEditionConnection.writer_id==Writer.id,'
-        'ConnectionEnum.enum=="translator")',
-        secondaryjoin='Edition.id==WriterEditionConnection.edition_id',
-        backref='translators')
     annotations = db.relationship(
-        'Annotation', secondary='join(text,authors).join(Edition)',
-        primaryjoin='Writer.id==authors.c.writer_id',
-        secondaryjoin='and_(Text.id==Edition.text_id,Edition.primary==True,'
-        'Annotation.edition_id==Edition.id)', lazy='dynamic')
+        'Annotation', secondary='join(WriterConnection, Edition)',
+        primaryjoin='Writer.id==WriterConnection.writer_id',
+        secondaryjoin='Annotation.edition_id==Edition.id', lazy='dynamic')
+
 
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
@@ -81,7 +67,6 @@ class Text(Base):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
     wiki = db.relationship('Wiki', backref=backref('text', uselist=False))
-    authors = db.relationship('Writer', secondary='authors')
     editions = db.relationship('Edition', lazy='dynamic')
     primary = db.relationship(
         'Edition',
@@ -125,6 +110,7 @@ class Edition(Base):
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
     text_title = association_proxy('text', 'title')
+    writers = association_proxy('connections', 'writer')
 
     @staticmethod
     def check_section_argument(section):
@@ -222,18 +208,23 @@ class ConnectionEnum(Base, EnumMixin):
     id = db.Column(db.Integer, primary_key=True)
 
 
-class WriterEditionConnection(Base):
+class WriterConnection(Base):
     id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
     enum_id = db.Column(db.Integer, db.ForeignKey('connection_enum.id'))
 
-    writer = db.relationship('Writer', backref='connections')
-    edition = db.relationship('Edition')
-    enum = db.relationship('ConnectionEnum')
+    writer = db.relationship('Writer',
+                             backref=backref('connections', lazy='dynamic'))
+    edition = db.relationship('Edition',
+                              backref=backref('connections', lazy='dynamic'))
+    text = association_proxy('edition', 'text')
+
+    enum_obj = db.relationship('ConnectionEnum')
+    enum = association_proxy('enum_obj', 'enum')
 
     def __repr__(self):
-        return f'<{self.writer.name} was {self.type.type} on {self.edition}>'
+        return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
 
 
 class LineEnum(Base, EnumMixin):
@@ -256,10 +247,11 @@ class LineAttribute(Base):
 
     enum_obj = db.relationship('LineEnum', backref=backref('attrs',
                                                            lazy='dynamic'))
+    # the backref is a dictionary
     line = db.relationship(
-        'Line', backref=backref('attrs',
-                                collection_class=attribute_mapped_collection(
-                                    'precedence')))
+        'Line', backref=backref(
+            'attrs',
+            collection_class=attribute_mapped_collection('precedence')))
 
     enum = association_proxy('enum_obj', 'enum')
     display = association_proxy('enum_obj', 'display')

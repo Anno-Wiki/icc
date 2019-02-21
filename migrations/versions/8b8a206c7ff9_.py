@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6a15c613de3b
+Revision ID: 8b8a206c7ff9
 Revises: 
-Create Date: 2019-02-07 10:11:45.177488
+Create Date: 2019-02-20 12:52:20.774738
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6a15c613de3b'
+revision = '8b8a206c7ff9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -173,12 +173,6 @@ def upgrade():
     op.create_index(op.f('ix_writer_last_name'), 'writer', ['last_name'], unique=False)
     op.create_index(op.f('ix_writer_name'), 'writer', ['name'], unique=False)
     op.create_index(op.f('ix_writer_timestamp'), 'writer', ['timestamp'], unique=False)
-    op.create_table('authors',
-    sa.Column('writer_id', sa.Integer(), nullable=True),
-    sa.Column('text_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
-    sa.ForeignKeyConstraint(['writer_id'], ['writer.id'], )
-    )
     op.create_table('edition',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('num', sa.Integer(), nullable=True),
@@ -330,7 +324,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_text_request_vote_text_request_id'), 'text_request_vote', ['text_request_id'], unique=False)
-    op.create_table('writer_edition_connection',
+    op.create_table('writer_connection',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('writer_id', sa.Integer(), nullable=True),
     sa.Column('edition_id', sa.Integer(), nullable=True),
@@ -489,7 +483,7 @@ def downgrade():
     op.drop_index(op.f('ix_annotation_flag_annotation_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_annotation_flag_id'), table_name='annotation_flag')
     op.drop_table('annotation_flag')
-    op.drop_table('writer_edition_connection')
+    op.drop_table('writer_connection')
     op.drop_index(op.f('ix_text_request_vote_text_request_id'), table_name='text_request_vote')
     op.drop_table('text_request_vote')
     op.drop_table('text_request_flrs')
@@ -527,7 +521,6 @@ def downgrade():
     op.drop_table('tag_request')
     op.drop_table('tag_flrs')
     op.drop_table('edition')
-    op.drop_table('authors')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
     op.drop_index(op.f('ix_writer_name'), table_name='writer')
     op.drop_index(op.f('ix_writer_last_name'), table_name='writer')

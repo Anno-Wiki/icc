@@ -6,9 +6,8 @@ from icc import db
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit
-from icc.models.content import (Text, Writer, WriterEditionConnection,
+from icc.models.content import (Text, Edition, Writer, WriterConnection,
                                 ConnectionEnum)
-from icc.models.tables import authors as authors_table
 
 
 @main.route('/writer/list')

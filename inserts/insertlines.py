@@ -11,7 +11,7 @@ sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
 from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
-                                WriterEditionConnection, ConnectionEnum, Writer,
+                                WriterConnection, ConnectionEnum, Writer,
                                 EMPHASIS_REVERSE)
 """Populate the text, authors, edition, writer connections, and lines for a
 text. Requires a `config.yml` file.
@@ -26,24 +26,9 @@ def get_text(config, initial=False):
         text = Text(title=config['title'], sort_title=config['sort_title'],
                     published=config['publication_date'],
                     description=config['description'])
-        for author in config['authors']:
-            writer = Writer.query.filter(Writer.name == author['name']).first()
-            if writer:
-                text.authors.append(writer)
-                if __name__ == '__main__':
-                    print(f"Found {writer.name} in the database.")
-            else:
-                text.authors.append(
-                        Writer(name=author['name'],
-                               last_name=author['last_name'],
-                               birth_date=author['birthdate'],
-                               death_date=author['deathdate'],
-                               description=author['description']))
-                if __name__ == '__main__':
-                    print(f"Created author {text.authors[-1].name}.")
         db.session.add(text)
         if __name__ == '__main__':
-            print(f"Created text {text.title} by {text.authors}.")
+            print(f"Created text {text.title}.")
 
     else:
         text = Text.query.filter_by(title=config['title']).first()
@@ -95,8 +80,8 @@ def add_writer_connections(config, edition):
                 if __name__ == '__main__':
                     print(f"Writer {writer_obj.name} created.")
 
-            conn = WriterEditionConnection(writer=writer_obj, edition=edition,
-                                           enum=enum)
+            conn = WriterConnection(writer=writer_obj, edition=edition,
+                                           enum_obj=enum)
             db.session.add(conn)
             if __name__ == '__main__':
                 print(f"Writer {writer_obj.name} added as a {enum.enum}.")

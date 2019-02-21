@@ -1,10 +1,6 @@
 from icc import db
 
 
-authors = db.Table(
-    'authors',
-    db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
-    db.Column('text_id', db.Integer, db.ForeignKey('text.id')))
 tags = db.Table(
     'tags',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),

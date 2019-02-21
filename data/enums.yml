@@ -1,4 +1,5 @@
 ConnectionEnum:
+    - enum: author
     - enum: translator
     - enum: editor
 AnnotationFlagEnum:
