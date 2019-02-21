@@ -12,8 +12,8 @@ edition:
     author:
         - name: Galway Kinnell
           last_name: Kinnell
-          birthdate: 1927-02-01
-          deathdate: 2014-10-28
+          birth_date: 1927-02-01
+          death_date: 2014-10-28
           description: |
               Galway Kinnell (February 1, 1927 – October 28, 2014) was an
               American poet. He won the Pulitzer Prize for Poetry for his 1982
