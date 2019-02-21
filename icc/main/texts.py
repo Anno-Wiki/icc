@@ -17,8 +17,6 @@ def text_index():
 
     sorts = {
         'title': Text.query.order_by(Text.sort_title.asc()),
-        'author': (Text.query.join(authors_table).join(Writer)
-                   .order_by(Writer.last_name.asc())),
         'age': Text.query.order_by(Text.published.asc()),
         'youth': Text.query.order_by(Text.published.desc()),
         'length': (Text.query.join(Edition)
@@ -29,6 +27,12 @@ def text_index():
                         .order_by(db.func.count(Annotation.id).desc())
                         .group_by(Text.id)),
     }
+    connections = ['author', 'editor', 'translator']
+
+    for conn in connections:
+        sorts[conn] = Text.query.join(Edition).join(WriterConnection)\
+            .group_by(Text.id).filter(WriterConnection.enum==conn)\
+            .order_by(db.func.count(WriterConnection.id).desc())
 
     sort = sort if sort in sorts else default
     texts = sorts[sort]\

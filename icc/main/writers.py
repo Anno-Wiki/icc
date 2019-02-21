@@ -13,9 +13,6 @@ from icc.models.content import (Text, Edition, Writer, WriterConnection,
 @main.route('/writer/list')
 def writer_index():
     """The writer index.
-
-    Once I get the authors table translated into a WriterConnection class enum,
-    I'll add an annotations sort.
     """
     default = 'last name'
     page = request.args.get('page', 1, type=int)
@@ -25,19 +22,21 @@ def writer_index():
         'last name': Writer.query.order_by(Writer.last_name.asc()),
         'age': Writer.query.order_by(Writer.birth_date.asc()),
         'youth': Writer.query.order_by(Writer.birth_date.desc()),
-        'authored': (Writer.query.join(authors_table).join(Text)
-                     .order_by(db.func.count(Text.id).desc())
-                     .group_by(Writer.id)),
-        'edited': (Writer.query.join(WriterEditionConnection)
-                   .join(ConnectionEnum).filter(ConnectionEnum.enum=='Editor')
-                   .order_by(db.func.count(ConnectionEnum.id).desc())
-                   .group_by(Writer.id)),
-        'translated': (Writer.query.join(WriterEditionConnection)
-                       .join(ConnectionEnum)
-                       .filter(ConnectionEnum.enum=='Translator')
-                       .order_by(db.func.count(ConnectionEnum.id).desc())
-                       .group_by(Writer.id)),
+        'annotations': Writer.query\
+            .join(WriterConnection)\
+            .join(Edition)\
+            .join(Annotation)\
+            .group_by(Writer.id)\
+            .order_by(db.func.count(Annotation.id).desc())
     }
+    connections = ['author', 'editor', 'translator']
+    for conn in connections:
+        # this will create sorts for the different writer connection roles
+        sorts[conn] = Writer.query\
+            .join(WriterConnection)\
+            .filter_by(enum=conn)\
+            .group_by(Writer.id)\
+            .order_by(db.func.count(WriterConnection.id).desc())
 
     sort = sort if sort in sorts else default
     writers = sorts[sort]\
@@ -71,23 +70,6 @@ def writer_annotations(writer_url):
 
     Notes
     -----
-    Currently the way we calculate the annotations is not ideal. I cannot get
-    annotations for editors or translators. I could do it, but not in the same
-    attribute.
-
-    I will, in the near future, need to reformulate the way authors are defined.
-    Now they will need to be added via WriterEditionConnections, which I will
-    rename WriterConnections for obvious simplicity reasons, and will make
-    author a subset of those connections. It will simplify a lot.
-
-    But in the process, I will have to modify `insertlines.py`, and modify the
-    way the config yaml file is read in.
-
-    It won't be trivial is my point. It is stupid that I didn't do it in the
-    first place. The reason I didn't is obvious, because the naive way to do
-    this is to associate authorship with the text, because that's what it
-    technically is.
-
     Instead, I will associate it with the Edition, and make authors on text a
     special case, like an association_proxy.
 
@@ -97,7 +79,6 @@ def writer_annotations(writer_url):
     I'm also curious if I wouldn't be better off making the enum a static list
     instead of a database table, like with everything else I've been moving
     toward.
-
     """
     default = 'newest'
     page = request.args.get('page', 1, type=int)
