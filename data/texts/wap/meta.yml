@@ -27,8 +27,8 @@ edition:
     translator:
         - name: Constance Garnett
           last_name: Garnett
-          birthdate: 1861-12-19
-          deathdate: 1946-12-17
+          birth_date: 1861-12-19
+          death_date: 1946-12-17
           description: |
               Constance Clara Garnett (née Black; 19 December 1861 – 17 December
               1946) was an English translator of nineteenth-century Russian
@@ -39,8 +39,8 @@ edition:
     author:
         - name: Leo Tolstoy
           last_name: Tolstoy
-          birthdate: 1828-09-09
-          deathdate: 1910-11-20
+          birth_date: 1828-09-09
+          death_date: 1910-11-20
           description: |
               Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28
               August] 1828 – 20 November [O.S. 7 November] 1910), usually

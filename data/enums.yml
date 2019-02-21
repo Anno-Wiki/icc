@@ -1,7 +1,3 @@
-ConnectionEnum:
-    - enum: author
-    - enum: translator
-    - enum: editor
 AnnotationFlagEnum:
     - enum: spam
     - enum: innappropriate language

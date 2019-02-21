@@ -28,8 +28,8 @@ edition:
     author:
         - name: Joseph Conrad
           last_name: Conrad
-          birthdate: 1857-12-03
-          deathdate: 1924-08-03
+          birth_date: 1857-12-03
+          death_date: 1924-08-03
           description: |
               Joseph Conrad (born Józef Teodor Konrad Korzeniowski; 3 December
               1857 – 3 August 1924) was a Polish-British writer regarded as one

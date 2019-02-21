@@ -14,8 +14,8 @@ sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
 from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
-                                WriterConnection, ConnectionEnum, Writer,
-                                EMPHASIS_REVERSE)
+                                WriterConnection, Writer, EMPHASIS_REVERSE,
+                                WRITERS_REVERSE)
 
 
 def get_text(config, initial=False):
@@ -66,25 +66,20 @@ def add_writer_connections(config, edition):
     # For all the connection types we have, we go look in the edition dictionary
     # for those connection types, and then loop through the writers in those
     # dictionaries to create those connections.
-    conns = ConnectionEnum.query.all()
-    for enum in conns:
-        for writer in config['edition'][enum.enum]:
+    for value, enum in WRITERS_REVERSE.items():
+        for writer in config['edition'][value]:
             writer_obj = Writer.query.filter_by(name=writer['name']).first()
             if not writer_obj:
-                writer_obj = Writer(name=writer['name'],
-                                    last_name=writer['last_name'],
-                                    birth_date=writer['birthdate'],
-                                    death_date=writer['deathdate'],
-                                    description=writer['description'])
+                writer_obj = Writer(**writer)
                 db.session.add(writer_obj)
                 if __name__ == '__main__':
                     print(f"Writer {writer_obj.name} created.")
 
             conn = WriterConnection(writer=writer_obj, edition=edition,
-                                           enum_obj=enum)
+                                           enum_id=enum)
             db.session.add(conn)
             if __name__ == '__main__':
-                print(f"Writer {writer_obj.name} added as a {enum.enum}.")
+                print(f"Writer {writer_obj.name} added as a {value}.")
 
 
 def get_enums_dict():
