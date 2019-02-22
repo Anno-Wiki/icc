@@ -7,7 +7,6 @@ app (besides the user system).
 """
 import inspect
 import sys
-import string
 
 from collections import defaultdict
 from datetime import datetime
@@ -28,10 +27,10 @@ from icc.models.wiki import Wiki
 # an entire enum class in the database (for which it would be a waste of
 # resources, etc)
 EMPHASIS = ('nem', 'oem', 'em', 'cem')
-EMPHASIS_REVERSE = {val:ind for ind,val in enumerate(EMPHASIS)}
+EMPHASIS_REVERSE = {val: ind for ind, val in enumerate(EMPHASIS)}
 
 WRITERS = ('author', 'editor', 'translator')
-WRITERS_REVERSE = {val:ind for ind,val in enumerate(WRITERS)}
+WRITERS_REVERSE = {val: ind for ind, val in enumerate(WRITERS)}
 
 
 class Text(Base):
@@ -259,8 +258,8 @@ class Edition(Base):
 
         queries = []
         for precedence, num in enumerate(section):
-            queries.append(self.lines\
-                           .join(LineAttribute)\
+            queries.append(self.lines
+                           .join(LineAttribute)
                            .filter(LineAttribute.precedence==precedence+1,
                                    LineAttribute.num==num))
         query = queries[0].intersect(*queries[1:])
@@ -271,7 +270,6 @@ class Edition(Base):
         """Returns the header for the previous section else None."""
         Edition._check_section_argument(section)
         header = self.section(section).first()
-        num = header.attrs[len(section)].num
         prev_section = self.toc_by_precedence(len(section))\
             .filter(Line.num<header.num)\
             .order_by(Line.id.desc()).first()
@@ -426,6 +424,7 @@ class WriterConnection(Base):
 
     def __repr__(self):
         return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
+
 
 class LineEnum(Base, EnumMixin):
     """An enumerated type used to classify line attributes.

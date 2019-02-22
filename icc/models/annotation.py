@@ -140,7 +140,6 @@ class Tag(Base):
         return f'<tag>{self.tag}</tag>'
 
 
-
 class Comment(Base):
     """A class representing comments on annotations.
 
@@ -196,7 +195,7 @@ class Comment(Base):
                              backref=backref('children', lazy='dynamic'))
 
     def __repr__(self):
-            return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
+        return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
 
 
 class Vote(Base, VoteMixin):
@@ -474,7 +473,6 @@ class Annotation(Base):
             return f'{round(self.weight/1000,1)}k'
         else:
             return f'{self.weight}'
-
 
     def __init__(self, *ignore, edition, annotator, locked=False, fl, ll, fc,
                  lc, body, tags):
