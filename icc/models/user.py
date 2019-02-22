@@ -1,3 +1,4 @@
+"""The user classes. This module is more complicated than I'd like."""
 import jwt
 import sys
 import inspect
@@ -28,6 +29,7 @@ import icc.models.annotation
 
 @login.user_loader
 def load_user(id):
+    """Necessary method for flask_login."""
     return User.query.get(int(id))
 
 
@@ -41,8 +43,7 @@ class User(UserMixin, Base):
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # user meta information relationships
-    rights = db.relationship('Right', secondary='rights', backref='admins')
+    rights = db.relationship('Right', secondary='rights')
 
     # annotations voted on
     votes = db.relationship('Annotation', secondary='vote',
@@ -60,6 +61,7 @@ class User(UserMixin, Base):
         primaryjoin='User.id==WikiEditVote.voter_id',
         secondaryjoin='WikiEdit.id==WikiEditVote.edit_id', backref='voters',
         lazy='dynamic')
+
     # text requests voted on
     text_request_votes = db.relationship(
         'TextRequest', secondary='text_request_vote',
