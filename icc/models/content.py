@@ -2,6 +2,7 @@ import inspect
 import sys
 import string
 
+from collections import defaultdict
 from datetime import datetime
 
 from flask import url_for
@@ -23,45 +24,27 @@ WRITERS = ('author', 'editor', 'translator')
 WRITERS_REVERSE = {val:ind for ind,val in enumerate(WRITERS)}
 
 
-class Writer(Base):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), index=True)
-    last_name = db.Column(db.String(128), index=True)
-    birth_date = db.Column(db.Date, index=True)
-    death_date = db.Column(db.Date, index=True)
-    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
-    annotations = db.relationship(
-        'Annotation', secondary='join(WriterConnection, Edition)',
-        primaryjoin='Writer.id==WriterConnection.writer_id',
-        secondaryjoin='Annotation.edition_id==Edition.id', lazy='dynamic')
-
-
-    def __init__(self, *args, **kwargs):
-        description = kwargs.pop('description', None)
-        description = 'This writer does not have a biography yet.'\
-            if not description else description
-        super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description, entity_string=str(self))
-
-    @orm.reconstructor
-    def init_on_load(self):
-        self.url = self.name.replace(' ', '_')
-        self.first_name = self.name.split(' ', 1)[0]
-
-    def __repr__(self):
-        return f'<Writer: {self.name}>'
-
-    def __str__(self):
-        return self.name
-
-    def get_url(self):
-        return url_for('main.writer', writer_url=self.url)
-
-
 class Text(Base):
+    """The text-object. A text is more a categorical, or philosophical concept.
+    In essence, a book can have any number of editions, ranging from different
+    translations to re-edited or updated versions (which is more common with
+    non-fiction texts, and usually just consists of an added
+    preface/introduction).
+
+    Because of this dynamic, a text can is just a shell with a wiki that
+    editions point to. Editions are the heart of the program. But the Text has a
+    primary edition to which all annotations should be directed for a work
+    unless they regard textual issues that differ between translations or
+    editions.
+    """
+
+    @classmethod
+    def get_by_url(cls, url):
+        """This is a helper function that takes the output of url_name and
+        uses it to get the object that matches it.
+        """
+        return cls.query.filter_by(title=url.replace('_', ' '))
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
@@ -76,12 +59,31 @@ class Text(Base):
         primaryjoin='and_(Edition.text_id==Text.id,Edition.primary==True)',
         uselist=False)
 
-    @orm.reconstructor
-    def init_on_load(self):
-        self.url = self.title.translate(
-            str.maketrans(dict.fromkeys(string.punctuation))).replace(' ', '_')
+    @property
+    def url(self):
+        """This returns the actual internally-resolved url for the text's main
+        view page.
+        """
+        return url_for('main.text', text_url=self.url_name)
+
+    @property
+    def url_name(self):
+        """Returns the name of the object (title) translated in to a
+        url-utilizable string (i.e., no spaces).
+
+        Notes
+        -----
+        This method right now is very simple. The issue might become more
+        complex when we have works with titles that have punctuation marks in
+        them. eventually we might have to modify this method to translate those
+        characters into url-acceptable characters (e.g., escape them).
+        """
+        return self.title.replace(' ', '_')
 
     def __init__(self, *args, **kwargs):
+        """This init method creates a wiki for the object with the supplied
+        description.
+        """
         description = kwargs.pop('description', None)
         description = "This wiki is blank." if not description else description
         super().__init__(*args, **kwargs)
@@ -93,15 +95,16 @@ class Text(Base):
     def __str__(self):
         return self.title
 
-    def get_url(self):
-        return url_for('main.text', text_url=self.url)
-
-    @classmethod
-    def get_by_url(cls, url):
-        return cls.query.filter_by(title=url.replace('_', ' '))
-
 
 class Edition(Base):
+    @staticmethod
+    def _check_section_argument(section):
+        """Static helper method for throwing errors."""
+        if not isinstance(section, tuple):
+            raise TypeError("The argument must a tuple of integers.")
+        if not all(isinstance(n, int) for n in section):
+            raise TypeError("The section tuple must consist of only integers.")
+
     id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
@@ -113,27 +116,50 @@ class Edition(Base):
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
     text_title = association_proxy('text', 'title')
-    writers = association_proxy('connections', 'writer')
 
-    @staticmethod
-    def check_section_argument(section):
-        if not isinstance(section, tuple):
-            raise TypeError("The argument must a tuple of integers.")
-        if not all(isinstance(n, int) for n in section):
-            raise TypeError("The section tuple must consist of only integers.")
+    @property
+    def url(self):
+        """Returns the url for the object's main view page."""
+        return url_for('main.edition', text_url=self.text.url_name,
+                       edition_num=self.num)
+
+    @property
+    def title(self):
+        """Returns the title representation string of the edition."""
+        return (f"{self.text_title}*" if self.primary else
+                f"{self.text_title} - Edition #{self.num}")
+
+    @property
+    def edition_title(self):
+        return (f"Edition #{self.num} - Primary" if self.primary else
+                f"Edition #{self.num}")
+
+    @property
+    def deepest_precedence(self):
+        """Returns an integer representing the deepest precedence level of the
+        edition's toc hierarchy.
+        """
+        line = self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.precedence==0,
+                    LineAttribute.primary==True).first()
+        return len(line.section)
 
     def __init__(self, *args, **kwargs):
+        """Creates a wiki for the edition with the provided description."""
         description = kwargs.pop('description', None)
         description = 'This wiki is blank.' if not description else description
         super().__init__(*args, **kwargs)
-        self.title = f'{self.text_title} - Primary Edition*'\
-            if self.primary else f'{self.text_title} - Edition #{self.num}'
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
     def init_on_load(self):
-        self.title = f'{self.text_title}*'\
-            if self.primary else f'{self.text_title} - Edition #{self.num}'
+        """Creates a defaultdict of lists of writers based on their connection
+        type (e.g., author, editor, translator, etc.)
+        """
+        self.writers = defaultdict(list)
+        for conn in self.connections.all():
+            self.writers[conn.enum].append(conn.writer)
 
     def __repr__(self):
         return f'<Edition #{self.num} {self.text.title}>'
@@ -145,7 +171,7 @@ class Edition(Base):
         """Returns a base query of all the edition's lines in the particular
         hierarchical toc section.
         """
-        Edition.check_section_argument(section)
+        Edition._check_section_argument(section)
 
         queries = []
         for precedence, num in enumerate(section):
@@ -159,7 +185,7 @@ class Edition(Base):
 
     def prev_section(self, section):
         """Returns the header for the previous section else None."""
-        Edition.check_section_argument(section)
+        Edition._check_section_argument(section)
         header = self.section(section).first()
         num = header.attrs[len(section)].num
         prev_section = self.toc_by_precedence(len(section))\
@@ -169,7 +195,7 @@ class Edition(Base):
 
     def next_section(self, section):
         """Returns the header line for the next section else None."""
-        Edition.check_section_argument(section)
+        Edition._check_section_argument(section)
         header = self.section(section).first()
         next_section = self.toc_by_precedence(len(section))\
             .filter(Line.num>header.num).first()
@@ -192,18 +218,52 @@ class Edition(Base):
             .filter(LineAttribute.precedence==precedence,
                     LineAttribute.primary==True)
 
-    def deepest_precedence(self):
-        line = self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence==0,
-                    LineAttribute.primary==True).first()
-        return len(line.section())
+
+class Writer(Base):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    last_name = db.Column(db.String(128), index=True)
+    birth_date = db.Column(db.Date, index=True)
+    death_date = db.Column(db.Date, index=True)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
+    annotations = db.relationship(
+        'Annotation', secondary='join(WriterConnection, Edition)',
+        primaryjoin='Writer.id==WriterConnection.writer_id',
+        secondaryjoin='Annotation.edition_id==Edition.id', lazy='dynamic')
 
     @property
     def url(self):
-        """Returns the url for the object's main view page."""
-        return url_for('main.edition', text_url=self.text.url,
-                       edition_num=self.num)
+        return url_for('main.writer', writer_url=self.url_name)
+
+    @property
+    def url_name(self):
+        return self.name.replace(' ', '_')
+
+    @property
+    def first_name(self):
+        return self.name.split(' ', 1)[0]
+
+    def __init__(self, *args, **kwargs):
+        description = kwargs.pop('description', None)
+        description = 'This writer does not have a biography yet.'\
+            if not description else description
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description, entity_string=str(self))
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.works = defaultdict(list)
+        for conn in self.connections.all():
+            self.works[conn.enum].append(conn.edition)
+
+    def __repr__(self):
+        return f'<Writer: {self.name}>'
+
+    def __str__(self):
+        return self.name
 
 
 class WriterConnection(Base):
@@ -212,11 +272,14 @@ class WriterConnection(Base):
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
     enum_id = db.Column(db.Integer)
 
-    writer = db.relationship('Writer',
-                             backref=backref('connections', lazy='dynamic'))
-    edition = db.relationship('Edition',
-                              backref=backref('connections', lazy='dynamic'))
     text = association_proxy('edition', 'text')
+
+    # these are lazy so that we can filter them. For the non-lazy version, see
+    # their respective enum-mapped dictionaries Writer.works and Edition.writers
+    writer = db.relationship('Writer', backref=backref('connections',
+                                                       lazy='dynamic'))
+    edition = db.relationship('Edition', backref=backref('connections',
+                                                         lazy='dynamic'))
 
     def __repr__(self):
         return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
@@ -296,24 +359,25 @@ class Line(SearchableMixin, Base):
         'Annotation.active==True)', foreign_keys=[num, edition_id],
         uselist=True, lazy='dynamic')
 
-    def __repr__(self):
-        return (f"<l{self.num} {self.edition.text.title}"
-                f"[{self.primary.display}]>")
+    @property
+    def url(self):
+        return url_for('main.read', text_url=self.text.url_name,
+                       edition_num=self.edition.num, section=self.section)
+
+    @property
+    def section(self):
+        return tuple(i.num for i in self.attrs.values() if i.precedence > 0)
 
     @orm.reconstructor
     def init_on_load(self):
         self.emphasis = EMPHASIS[self.em_id]
-
         for attr in self.attrs.values():
             if attr.primary:
                 self.primary = attr
 
-    def section(self):
-        return tuple(i.num for i in self.attrs.values() if i.precedence > 0)
-
-    def get_url(self):
-        return url_for('main.read', text_url=self.text.url,
-                       edition_num=self.edition.num, section=self.section())
+    def __repr__(self):
+        return (f"<l{self.num} {self.edition.text.title}"
+                f"[{self.primary.display}]>")
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

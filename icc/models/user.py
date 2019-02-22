@@ -7,7 +7,7 @@ from time import time
 from hashlib import md5
 from math import log10
 
-from flask import abort, current_app as app
+from flask import abort, url_for, current_app as app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -123,6 +123,19 @@ class User(UserMixin, Base):
         backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic')
 
+    @property
+    def url(self):
+        return url_for("user.profile", user_id=self.id)
+
+    @property
+    def readable_reputation(self):
+        if self.reputation >= 1000000:
+            return f'{round(self.reputation/1000000)}m'
+        elif self.reputation >= 1000:
+            return f'{round(self.reputation/1000)}k'
+        else:
+            return f'{self.reputation}'
+
     def __repr__(self):
         return f"<User {self.displayname}>"
 
@@ -183,13 +196,6 @@ class User(UserMixin, Base):
         else:
             return -int(self.up_power()/2)
 
-    def readable_reputation(self):
-        if self.reputation >= 1000000:
-            return f'{round(self.reputation/1000000)}m'
-        elif self.reputation >= 1000:
-            return f'{round(self.reputation/1000)}k'
-        else:
-            return f'{self.reputation}'
 
     def already_voted(self, annotation):
         return annotation in self.votes

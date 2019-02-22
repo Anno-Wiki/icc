@@ -24,6 +24,9 @@ class EnumMixin:
 class VoteMixin:
     delta = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    @property
+    def is_up(self):
+        return self.delta > 0
 
     @declared_attr
     def voter_id(cls):
@@ -39,9 +42,6 @@ class VoteMixin:
 
     def __repr__(self):
         return f"<{self.voter.displayname} {self.delta} on "
-
-    def is_up(self):
-        return self.delta > 0
 
 
 class EditMixin:

@@ -40,33 +40,6 @@ class Tag(Base):
         A :class:`BaseQuery` object of all of the annotations which currently
         have this tag applied to them.
     """
-
-    id = db.Column(db.Integer, primary_key=True)
-    tag = db.Column(db.String(128), index=True, unique=True)
-    locked = db.Column(db.Boolean, default=False)
-    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
-
-    wiki = db.relationship('Wiki', backref=backref('tag', uselist=False))
-    annotations = db.relationship(
-        'Annotation', secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
-        'Edit.current==True))', primaryjoin='Tag.id==tags.c.tag_id',
-        secondaryjoin='and_(Edit.entity_id==Annotation.id,'
-        'Annotation.active==True)', lazy='dynamic', passive_deletes=True)
-
-    def __init__(self, *args, **kwargs):
-        """Creation of a tag also creates a :class:`Wiki`."""
-        description = kwargs.pop('description', None)
-        description = 'This tag has no description yet.' if not description\
-            else description
-        super().__init__(*args, **kwargs)
-        self.wiki = Wiki(body=description, entity_string=str(self))
-
-    def __repr__(self):
-        return f'<Tag {self.id}: {self.tag}>'
-
-    def __str__(self):
-        return f'<tag>{self.tag}</tag>'
-
     @classmethod
     def intersect(cls, tags):
         """Get the annotations at the intersection of multiple tags.
@@ -135,10 +108,37 @@ class Tag(Base):
         query = queries[0].union(*queries[1:])
         return query
 
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(128), index=True, unique=True)
+    locked = db.Column(db.Boolean, default=False)
+    wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
+
+    wiki = db.relationship('Wiki', backref=backref('tag', uselist=False))
+    annotations = db.relationship(
+        'Annotation', secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
+        'Edit.current==True))', primaryjoin='Tag.id==tags.c.tag_id',
+        secondaryjoin='and_(Edit.entity_id==Annotation.id,'
+        'Annotation.active==True)', lazy='dynamic', passive_deletes=True)
+
     @property
     def url(self):
         """The url for the main view page for the tag."""
         return url_for('main.tag', tag=self.tag)
+
+    def __init__(self, *args, **kwargs):
+        """Creation of a tag also creates a :class:`Wiki`."""
+        description = kwargs.pop('description', None)
+        description = ("This tag has no description yet." if not description
+                       else description)
+        super().__init__(*args, **kwargs)
+        self.wiki = Wiki(body=description, entity_string=str(self))
+
+    def __repr__(self):
+        return f'<Tag {self.id}: {self.tag}>'
+
+    def __str__(self):
+        return f'<tag>{self.tag}</tag>'
+
 
 
 class Comment(Base):
@@ -397,7 +397,6 @@ class Annotation(Base):
     might be prior-context and posterior-context, or something of that nature,
     instead of packing the same lines into the same list. Perhaps not. TBD.
     """
-
     id = db.Column(db.Integer, primary_key=True)
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -459,6 +458,23 @@ class Annotation(Base):
         'AnnotationFlag',
         primaryjoin='and_(Annotation.id==AnnotationFlag.annotation_id,'
         'AnnotationFlag.resolver_id==None)', passive_deletes=True)
+
+    @property
+    def url(self):
+        return url_for('main.annotation', annotation_id=self.id)
+
+    @property
+    def readable_weight(self):
+        """This property produces a readable weight, rather than a computer-like
+        int. The readable weight modulates based on the thousand and million.
+        """
+        if self.weight >= 1000000 or self.weight <= -1000000:
+            return f'{round(self.weight/1000000,1)}m'
+        elif self.weight >= 1000 or self.weight <= -1000:
+            return f'{round(self.weight/1000,1)}k'
+        else:
+            return f'{self.weight}'
+
 
     def __init__(self, *ignore, edition, annotator, locked=False, fl, ll, fc,
                  lc, body, tags):
@@ -564,19 +580,6 @@ class Annotation(Base):
         """
         event = AnnotationFlag(flag=flag, annotation=self, thrower=thrower)
         db.session.add(event)
-
-    def readable_weight(self):
-        """This method produces a readable weight, rather than a computer-like
-        int. The readable weight modulates based on the thousand and million. I
-        would like to convert it to a class property, since it's silly as a
-        meethod.
-        """
-        if self.weight >= 1000000 or self.weight <= -1000000:
-            return f'{round(self.weight/1000000,1)}m'
-        elif self.weight >= 1000 or self.weight <= -1000:
-            return f'{round(self.weight/1000,1)}k'
-        else:
-            return f'{self.weight}'
 
 
 class EditVote(Base, VoteMixin):
