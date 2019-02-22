@@ -17,7 +17,7 @@ from icc.models.user import User, UserFlagEnum
 def register():
     redirect_url = generate_next(url_for('main.index'))
     if current_user.is_authenticated:
-        return redirect_url
+        return redirect(redirect_url)
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(displayname=form.displayname.data, email=form.email.data)
