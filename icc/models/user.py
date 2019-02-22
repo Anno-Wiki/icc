@@ -90,11 +90,10 @@ class User(UserMixin, Base):
         primaryjoin=(user_flrs.c.follower_id == id),
         secondaryjoin=(user_flrs.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_texts = db.relationship(
-        'Text', secondary='text_flrs',
-        primaryjoin='text_flrs.c.user_id==User.id',
-        secondaryjoin='text_flrs.c.text_id==Text.id',
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+
+    followed_texts = db.relationship('Text', secondary='text_flrs',
+                                     lazy='dynamic')
+
     followed_writers = db.relationship(
         'Writer', secondary='writer_flrs',
         primaryjoin='writer_flrs.c.user_id==User.id',

@@ -52,6 +52,7 @@ class Text(Base):
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
+    followers = db.relationship('User', secondary='text_flrs', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('text', uselist=False))
     editions = db.relationship('Edition', lazy='dynamic')
     primary = db.relationship(
@@ -170,7 +171,7 @@ class Edition(Base):
             self.writers[conn.enum].append(conn.writer)
 
     def __repr__(self):
-        return f'<Edition #{self.num} {self.text.title}>'
+        return f"<Edition #{self.num} {self.text.title}>"
 
     def __str__(self):
         return self.title
@@ -229,6 +230,7 @@ class Writer(Base):
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    connections = db.relationship('WriterConnection', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
     annotations = db.relationship(
         'Annotation', secondary='join(WriterConnection, Edition)',
