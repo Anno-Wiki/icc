@@ -145,6 +145,14 @@ class Edition(Base):
                     LineAttribute.primary==True).first()
         return len(line.section)
 
+    @property
+    def toc(self):
+        """Returns a base query for all of the toc headings of the edition."""
+        return self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.precedence>0,
+                    LineAttribute.primary==True)
+
     def __init__(self, *args, **kwargs):
         """Creates a wiki for the edition with the provided description."""
         description = kwargs.pop('description', None)
@@ -200,13 +208,6 @@ class Edition(Base):
         next_section = self.toc_by_precedence(len(section))\
             .filter(Line.num>header.num).first()
         return next_section
-
-    def toc(self):
-        """Returns a base query for all of the toc headings of the edition."""
-        return self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence>0,
-                    LineAttribute.primary==True)
 
     def toc_by_precedence(self, precedence):
         """Returns a base query for all of the toc headings of the edition of a

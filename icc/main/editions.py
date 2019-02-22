@@ -12,10 +12,9 @@ def edition(text_url, edition_num):
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = Edition.query.filter(Edition.text_id==text.id,
                                    Edition.num==edition_num).first_or_404()
-    hierarchy = edition.toc()
     return render_template('view/edition.html',
                            title=f"{text.title} #{edition.num}",
-                           hierarchy=hierarchy, edition=edition)
+                           hierarchy=edition.toc, edition=edition)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/annotations')
