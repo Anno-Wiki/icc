@@ -26,6 +26,10 @@ class Wiki(Base):
 
     @orm.reconstructor
     def init_on_load(self):
+        # This is a hack and needs to be improved.
+        # Basically, we rely on the backref defined on the entity in order to
+        # get the entity. I really want to make this more explicit and less
+        # hacky.
         self.entity = list(
             filter(None, [self.writer, self.text, self.tag, self.edition]))[0]
 
