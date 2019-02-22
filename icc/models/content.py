@@ -222,7 +222,7 @@ class Edition(Base):
 class Writer(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
-    last_name = db.Column(db.String(128), index=True)
+    family_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
     death_date = db.Column(db.Date, index=True)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
@@ -241,10 +241,6 @@ class Writer(Base):
     @property
     def url_name(self):
         return self.name.replace(' ', '_')
-
-    @property
-    def first_name(self):
-        return self.name.split(' ', 1)[0]
 
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
@@ -342,7 +338,6 @@ class Line(SearchableMixin, Base):
                                                          lazy='dynamic'))
     text = association_proxy('edition', 'text')
     text_title = association_proxy('edition', 'text_title')
-
 
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'

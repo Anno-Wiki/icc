@@ -27,7 +27,7 @@ edition:
     editor: []
     author:
         - name: Joseph Conrad
-          last_name: Conrad
+          family_name: Conrad
           birth_date: 1857-12-03
           death_date: 1924-08-03
           description: |

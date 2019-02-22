@@ -160,7 +160,7 @@ def upgrade():
     op.create_table('writer',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('last_name', sa.String(length=128), nullable=True),
+    sa.Column('family_name', sa.String(length=128), nullable=True),
     sa.Column('birth_date', sa.Date(), nullable=True),
     sa.Column('death_date', sa.Date(), nullable=True),
     sa.Column('wiki_id', sa.Integer(), nullable=False),
@@ -170,7 +170,7 @@ def upgrade():
     )
     op.create_index(op.f('ix_writer_birth_date'), 'writer', ['birth_date'], unique=False)
     op.create_index(op.f('ix_writer_death_date'), 'writer', ['death_date'], unique=False)
-    op.create_index(op.f('ix_writer_last_name'), 'writer', ['last_name'], unique=False)
+    op.create_index(op.f('ix_writer_family_name'), 'writer', ['family_name'], unique=False)
     op.create_index(op.f('ix_writer_name'), 'writer', ['name'], unique=False)
     op.create_index(op.f('ix_writer_timestamp'), 'writer', ['timestamp'], unique=False)
     op.create_table('edition',
@@ -522,7 +522,7 @@ def downgrade():
     op.drop_table('edition')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
     op.drop_index(op.f('ix_writer_name'), table_name='writer')
-    op.drop_index(op.f('ix_writer_last_name'), table_name='writer')
+    op.drop_index(op.f('ix_writer_family_name'), table_name='writer')
     op.drop_index(op.f('ix_writer_death_date'), table_name='writer')
     op.drop_index(op.f('ix_writer_birth_date'), table_name='writer')
     op.drop_table('writer')

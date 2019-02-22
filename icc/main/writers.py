@@ -18,7 +18,7 @@ def writer_index():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'last name': Writer.query.order_by(Writer.last_name.asc()),
+        'last name': Writer.query.order_by(Writer.family_name.asc()),
         'age': Writer.query.order_by(Writer.birth_date.asc()),
         'youth': Writer.query.order_by(Writer.birth_date.desc()),
         'annotations': Writer.query\

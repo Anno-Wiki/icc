@@ -26,7 +26,7 @@ edition:
     publication_date: 1904-01-01
     translator:
         - name: Constance Garnett
-          last_name: Garnett
+          family_name: Garnett
           birth_date: 1861-12-19
           death_date: 1946-12-17
           description: |
@@ -38,7 +38,7 @@ edition:
     editor: []
     author:
         - name: Leo Tolstoy
-          last_name: Tolstoy
+          family_name: Tolstoy
           birth_date: 1828-09-09
           death_date: 1910-11-20
           description: |

@@ -11,7 +11,7 @@ edition:
     editor: []
     author:
         - name: Galway Kinnell
-          last_name: Kinnell
+          family_name: Kinnell
           birth_date: 1927-02-01
           death_date: 2014-10-28
           description: |
