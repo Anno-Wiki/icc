@@ -774,7 +774,7 @@ class Edit(Base, EditMixin):
             return
         ov = voter.get_edit_vote(self)
         if ov:
-            if ov.is_up():
+            if ov.is_up:
                 self.rollback(ov)
                 return
             else:
@@ -796,7 +796,7 @@ class Edit(Base, EditMixin):
             return
         ov = voter.get_edit_vote(self)
         if ov:
-            if not ov.is_up():
+            if not ov.is_up:
                 self.rollback(ov)
                 return
             else:
