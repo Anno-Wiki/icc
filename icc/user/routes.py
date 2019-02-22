@@ -15,8 +15,9 @@ from icc.models.user import User, UserFlagEnum
 
 @user.route('/register', methods=['GET', 'POST'])
 def register():
+    redirect_url = generate_next(url_for('main.index'))
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect_url
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(displayname=form.displayname.data, email=form.email.data)
@@ -24,7 +25,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash("Congratulations, you are now a registered user!")
-        return redirect(url_for('user.login'))
+        login_user(user)
+        return redirect(redirect_url)
     return render_template('forms/register.html', title="Register", form=form)
 
 

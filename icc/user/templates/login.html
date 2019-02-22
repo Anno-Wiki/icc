@@ -34,6 +34,7 @@
 
 </form>
 
-<p>New User? <a href="{{ url_for("user.register") }}">Click to Register!</a></p>
+<p>New User? <a href="{{ url_for("user.register", next=request.args.get('next'))
+    }}">Click to Register!</a></p>
 
 {% endblock %}
