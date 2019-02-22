@@ -11,8 +11,7 @@ def test_edition(popclient):
     with app.test_request_context():
         editions = Edition.query.all()
         for edition in editions:
-            url = url_for('main.edition', text_url=edition.text.url,
-                          edition_num=edition.num)
+            url = edition.url
             rv = client.get(url)
             assert rv.status_code == 200
             assert bytes(edition.text.title, 'utf-8') in rv.data
@@ -31,7 +30,7 @@ def test_edition_annotations(popclient):
         sorts = ['newest', 'oldest', 'weight', 'line']
         for edition in editions:
             url = url_for('main.edition_annotations',
-                          text_url=edition.text.url,
+                          text_url=edition.text.url_name,
                           edition_num=edition.num)
             entities = edition.annotations.count()
             assert entities > 0

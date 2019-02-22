@@ -28,7 +28,7 @@ def test_before_request_lockout(minclient):
         login(u, client)
         u.locked = True
         db.session.commit()
-        url = url_for('user.profile', user_id=u.id)
+        url = u.url
         rv = client.get(url)
         assert rv.status_code == 200
         assert b'login' in rv.data

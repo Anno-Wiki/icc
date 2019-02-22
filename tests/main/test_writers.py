@@ -12,7 +12,7 @@ def test_writer_view(popclient):
     with app.test_request_context():
         writers = Writer.query.all()
         for writer in writers:
-            url = url_for('main.writer', writer_url=writer.url)
+            url = writer.url
             rv = client.get(url)
             assert rv.status_code == 200
             assert bytes(writer.name, 'utf-8') in rv.data
@@ -27,7 +27,7 @@ def test_writer_annotations(popclient):
         assert len(writers) > 0
         sorts = ['newest', 'oldest', 'weight']
         for writer in writers:
-            url = url_for('main.writer_annotations', writer_url=writer.url)
+            url = url_for('main.writer_annotations', writer_url=writer.url_name)
             entities = writer.annotations.count()
             assert entities > 0
             max_pages = int(math.ceil(

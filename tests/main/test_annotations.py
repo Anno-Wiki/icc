@@ -25,7 +25,7 @@ def test_annotate_page(popclient):
         # annotating
         count = Annotation.query.count()
         url = url_for('main.annotate',
-                      text_url=text.url, edition_num=edition.num,
+                      text_url=text.url_name, edition_num=edition.num,
                       first_line=line.num+1, last_line=line.num+2)
         rv = client.get(url)
         data = {'first_line': line.num+1, 'last_line': line.num+2,

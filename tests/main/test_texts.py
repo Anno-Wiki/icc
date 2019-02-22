@@ -11,7 +11,7 @@ def test_text_view(popclient):
     with app.test_request_context():
         texts = Text.query.all()
         for text in texts:
-            url = url_for('main.text', text_url=text.url)
+            url = text.url
             rv = client.get(url)
             assert rv.status_code == 200
             assert bytes(text.title, 'utf-8') in rv.data
@@ -27,7 +27,7 @@ def test_text_annotations(popclient):
 
         sorts = ['newest', 'oldest', 'weight', 'line']
         for text in texts:
-            url = url_for('main.text_annotations', text_url=text.url)
+            url = url_for('main.text_annotations', text_url=text.url_name)
             entities = text.annotations.count()
             assert entities > 0
             max_pages = int(math.ceil(
