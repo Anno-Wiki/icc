@@ -166,10 +166,7 @@ class User(UserMixin, Base):
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def authorize(self, right):
-        r = Right.query.filter_by(enum=right).first()
-        if r in self.rights:
-            pass
-        elif r.min_rep and self.reputation >= r.min_rep:
+        if self.is_authorized(right):
             pass
         else:
             abort(403)
@@ -189,7 +186,6 @@ class User(UserMixin, Base):
             return -1
         else:
             return -int(self.up_power()/2)
-
 
     def already_voted(self, annotation):
         return annotation in self.votes
