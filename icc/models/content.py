@@ -320,6 +320,11 @@ class Writer(Base):
         The id of the descriptive wiki object.
     timestamp : datetime
         The timestamp of when the writer was added to the database. Superfluous.
+    followers : BaseQuery
+        An SQLA BaseQuery of all of the followers of the writer.
+    connections : BaseQuery
+        An SQLA BaseQuery of all of the connection objects for the writer (i.e.,
+        the writer's relationships to various editions).
     wiki : :class:`Wiki`
         The descriptive wiki object.
     annotations : BaseQuery
@@ -334,6 +339,7 @@ class Writer(Base):
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    followers = db.relationship('User', secondary='writer_flrs', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
     annotations = db.relationship(
