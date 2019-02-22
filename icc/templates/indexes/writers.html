@@ -15,7 +15,7 @@ sort by:
     {% for writer in writers %}
         <div class="card">
             <h2>
-                <a href="{{ url_for("main.writer", writer_url=writer.url) }}">
+                <a href="{{ writer.url }}">
                     {{ writer.name }}
                 </a>
                 {% if writer.birth_date.year %}
@@ -26,23 +26,23 @@ sort by:
                 {% endif %}
             </h2>
 
-            Author &times; {{ len(writer.authored) }}
+            {% for category, works in writer.works.items() %}
+                {{ category.title() }} &times; {{ len(writer.works) }}
+            {% endfor %}
             <br>
             <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
                 next=request.full_path) }}">
                 {%- if current_user.is_authenticated and writer in
-                    current_user.followed_writers -%}
-                    unfollow
-                {%- else -%}
-                    follow
-                {%- endif -%}
+                    current_user.followed_writers -%}unfollow{%- else
+                    -%}follow{%- endif -%}
             </a>
 
-            <div{% if len(writer.wiki.current.body) >= 127 %} class="card_text_cutoff"{% endif %}>
+            <div{% if len(writer.wiki.current.body) >= 127 %}
+                class="card_text_cutoff"{% endif %}>
                 {{ writer.wiki.current.body[:127]|markdown }}
             </div>
 
-            <a href="{{ url_for("main.writer", writer_url=writer.url) }}">View More</a>
+            <a href="{{ writer.url }}">View More</a>
         </div>
     {% endfor %}
 </div>

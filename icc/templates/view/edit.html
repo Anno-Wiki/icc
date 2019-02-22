@@ -102,7 +102,7 @@
                 edit.previous.last_line_num == edit.last_line_num %}
                 on
                 <em>
-                    <a href="{{ edit.lines[0].get_url() }}#{{
+                    <a href="{{ edit.lines[0].url }}#{{
                         edit.first_line_num }}">
                         {%- if edit.first_line_num == edit.last_line_num %}
                             l.{{ edit.last_line_num }}
@@ -114,7 +114,7 @@
             {% else %}
                 previously on
                 <em>
-                    <a href="{{ edit.previous.lines[0].get_url() }}#{{
+                    <a href="{{ edit.previous.lines[0].url }}#{{
                         edit.previous.first_line_num }}">
                         {%- if edit.previous.first_line_num ==
                             edit.previous.last_line_num %}
@@ -127,7 +127,7 @@
                 </em>
                 now on
                 <em>
-                    <a href="{{ edit.lines[0].get_url() }}#{{
+                    <a href="{{ edit.lines[0].url }}#{{
                         edit.first_line_num }}">
                         {%- if edit.first_line_num == edit.last_line_num %}
                             l.{{ edit.last_line_num }}
@@ -232,7 +232,7 @@
             </sup>
                 on
             <em>
-                <a href="{{ edit.lines[0].get_url() }}#{{ edit.first_line_num }}">
+                <a href="{{ edit.lines[0].url }}#{{ edit.first_line_num }}">
                     {%- if edit.first_line_num == edit.last_line_num %}
                         l.{{ edit.last_line_num }}
                     {% else -%}
@@ -280,7 +280,7 @@
             </sup>
                 on
             <em>
-                <a href="{{ edit.previous.lines[0].get_url() }}#{{
+                <a href="{{ edit.previous.lines[0].url }}#{{
                     edit.previous.first_line_num }}">
                     {%- if edit.previous.first_line_num ==
                         edit.previous.last_line_num %}

@@ -1,0 +1,21 @@
+{%- if annotation.HEAD.num == 0 %}
+    <a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
+        num=annotation.HEAD.num) }}">
+        annotated
+    </a>
+    by
+    <a href="{{ annotation.annotator.url }}">{{ annotation.annotator.displayname
+        }}</a>
+
+    <strong>{{ annotation.annotator.readable_reputation }}</strong>
+    {{ annotation.added }}
+{%- else -%}
+    <a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
+        num=annotation.HEAD.num) }}">
+        last edited
+    </a>
+    by <a href="{{ annotation.HEAD.editor.url }}">{{
+        annotation.HEAD.editor.displayname }}</a>
+    <strong>{{ annotation.HEAD.editor.readable_reputation }}</strong>
+    {{ annotation.HEAD.modified }}
+{% endif %}

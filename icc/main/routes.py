@@ -204,7 +204,7 @@ def read(text_url, edition_num):
     section_strings = tuple(request.args.getlist('section'))
     # Get the section tuple or else all 1's for the deepest possible precedence.
     section = (tuple(int(i) for i in section_strings) if section_strings else
-               tuple(1 for i in range(edition.deepest_precedence())))
+               tuple(1 for i in range(edition.deepest_precedence)))
 
     lines = edition.section(section).all()
     if not lines:
@@ -213,12 +213,12 @@ def read(text_url, edition_num):
     next_section = edition.next_section(section)
     next_page = url_for(
         'main.read', text_url=text_url, edition_num=edition.num,
-        section=next_section.section()) if next_section else None
+        section=next_section.section) if next_section else None
 
     prev_section = edition.prev_section(section)
     prev_page = url_for(
         'main.read', text_url=text_url, edition_num=edition.num,
-        section=prev_section.section()) if prev_section else None
+        section=prev_section.section) if prev_section else None
 
     annotations = edition.annotations\
         .join(Edit)\

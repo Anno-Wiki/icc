@@ -2,21 +2,13 @@
     <!--annotation header-->
     <div class="annotation_head">
 
-        <sup>
-            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
-                [{{ annotation.id }}]
-            </a>
-        </sup>
+        <sup><a href="{{ annotation.url }}">[{{ annotation.id }}]</a></sup>
         on
-        <em>
-            {% include "includes/_annotation_line_nums.html" %}
-        </em>
+        <em>{% include "includes/_annotation_line_nums.html" %}</em>
 
         {% include "includes/_annotation_weight.html" %}
 
-        {% if annotation.locked %}
-            &#128274;
-        {% endif %}
+        {% if annotation.locked %}&#128274;{% endif %}
     </div>
 
     <!--The text of the annotation-->
@@ -24,35 +16,27 @@
         {%- if len(annotation.HEAD.body) < 255 -%}
             {{ annotation.HEAD.body|markdown }}
         {%- else -%}
-            <span class="cutoff">
-                {{- annotation.HEAD.body[:255]|markdown -}}
-            </span>
-            <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
-                View More
-            </a>
-        {%- endif -%}
+            <span class="cutoff">{{- annotation.HEAD.body[:255]|markdown
+                -}}</span>
+            <a href="{{ url_for("main.annotation", annotation_id=annotation.id)
+                }}">View More</a> {%- endif -%}
     </div>
 
     <!--The tags-->
     <tags>
-        {% for t in annotation.HEAD.tags %}
-            <a href="{{ url_for("main.tag", tag=t.tag) }}">
-                <tag>{{ t.tag }}</tag>
-            </a>
+        {% for tag in annotation.HEAD.tags %}
+            <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
         {% endfor %}
     </tags>
 
     <br>
 
     {# The footer #}
-
-    {% include "includes/_annotation_authorship.html" %}
-    |
-    {% include "includes/_annotation_vote.html" %}
+    {% include "includes/_annotator.html" %}
+    | {% include "includes/_vote.html" %}
 
     {% if current_user != annotation.annotator %}
-        |
-        {% include "includes/_annotation_follow.html" %}
+        | {% include "includes/_annotation_follow.html" %}
     {% endif %}
 
     <div class="dropdown">
@@ -62,9 +46,7 @@
                 {% for flag in g.aflags %}
                     <a href="{{ url_for("main.flag_annotation",
                         flag_id=flag.id, annotation_id=annotation.id,
-                        next=request.full_path) }}">
-                        {{ flag.enum }}
-                    </a>
+                        next=request.full_path) }}">{{ flag.enum }}</a>
                 {% endfor %}
             {% endif %}
         </div>

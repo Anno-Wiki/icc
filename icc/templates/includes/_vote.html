@@ -2,7 +2,7 @@
     {% set vote = current_user.get_vote(annotation) %}
 {% endif %}
 
-{% if vote and vote.is_up() %}
+{% if vote and vote.is_up %}
     <a href="{{ url_for("main.upvote", annotation_id=annotation.id,
         next=request.full_path) }}" class="voted">
         up
@@ -14,7 +14,7 @@
     </a>
 {% endif -%}
 /
-{%- if vote and not vote.is_up() %}
+{%- if vote and not vote.is_up %}
     <a href="{{ url_for("main.downvote", annotation_id=annotation.id,
         next=request.full_path) }}" class="voted">
         down

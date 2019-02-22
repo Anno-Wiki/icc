@@ -20,30 +20,21 @@ sort by:
 <div class="index">
     {% for text in texts %}
         <div class="card">
-            <a href="{{ url_for("main.text", text_url=text.url) }}">
-                <h2>{{ text.title }}</h2>
-            </a>
-
+            <h2><a href="{{ text.url }}">{{ text.title }}</a></h2>
             &times; {{ text.editions.count() }} editions
-
             <br>
+
+            {# follow the text #}
             <a href="{{ url_for("user.follow_text", text_id=text.id,
-                next=request.full_path) }}">
-                {% if current_user.is_authenticated
-                    and text in current_user.followed_texts %}
-                    unfollow
-                {% else %}
-                    follow
-                {% endif %}
-            </a>
+                next=request.full_path) }}">{% if current_user.is_authenticated
+                and text in current_user.followed_texts %}unfollow{% else
+            %}follow{% endif %}</a>
 
-            <div{% if len(text.wiki.current.body) >= 127 %} class="card_text_cutoff"{%endif%}>
-                {{ text.wiki.current.body[:127]|markdown }}
-            </div>
+            <div{% if len(text.wiki.current.body) >= 127 %}
+                class="card_text_cutoff"{%endif%}>{{
+                text.wiki.current.body[:127]|markdown }}</div>
 
-            <a href="{{ url_for("main.text", text_url=text.url) }}">
-                View More
-            </a>
+            <a href="{{ text.url }}">View More</a>
         </div>
     {% endfor %}
 </div>

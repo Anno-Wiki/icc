@@ -4,27 +4,25 @@
     <script src="{{ url_for("static", filename="scripts/tags.js") }}"></script>
     <!--Header/Running Head-->
     <div class="running_head">
-        <a href="{{ url_for("main.text", text_url=text.url) }}"> {{ text.title }} </a> 
-        {% include "includes/_authors.html" %}
+        <a href="{{ edition.url }}"> {{ edition.title }} </a>
+        {% set writers = edition.writers['author'] %}
+        by {% include "includes/_writers_list.html" %}
     </div>
 
     <hr>
 
     <!--Selection-->
     {% if annotation %}
-        <h1>
-            Editing Annotation [{{ annotation.id }}] on {{
-            annotation.edition.text.title }}
-        </h1>
+        <h1>Editing Annotation [{{ annotation.id }}] on {{ edition.title }}</h1>
     {% else %}
-        <h1>Annotating {{ lines[0].edition.text.title }}</h1>
+        <h1>Annotating {{ edition.title }}</h1>
     {% endif %}
     <div id="content">
         {% if len(lines) > 1 %}
             <h3>Selection: <em>ll. {{ lines[0].num }}-{{ lines[-1].num
                     }}</em></h3>
         {% else %}
-            <h3>Selection:<em>l. {{ lines[0].num }}</em> of {{ text.title
+            <h3>Selection: <em>l. {{ lines[0].num }}</em> of {{ edition.title
                 }}</h3>
         {% endif %}
 
@@ -84,7 +82,7 @@
                     <div id="master_div">
 
                         {# tag spans is where we put the tags as they're
-                            created by the javascript" #}
+                            created by the javascript #}
 
                         <div id="tag_spans"></div>
                         <div id="input">{{ form.tags(size=22) }}</div>

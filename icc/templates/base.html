@@ -114,7 +114,7 @@
                         <a href="{{ url_for('user.edit_profile') }}">edit profile</a>
                     </div>
                 </div>
-                {{ current_user.readable_reputation() }}
+                {{ current_user.readable_reputation }}
 
                 | <a href="{{ url_for('user.logout') }}">logout</a>
 

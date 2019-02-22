@@ -4,17 +4,14 @@
 
 {# Header/Running Head #}
 <div class="running_head">
-    <a href="{{ url_for("main.text", text_url=text.url) }}">{{ text.title }}</a>
-    {% include "includes/_authors.html" %} &#167; {{ section }}
+    <a href="{{ edition.url }}">{{ edition.title }}</a>
+    {% set writers = edition.writers['author'] %}
+    by {% include "includes/_writers_list.html" %} &#167; {{ section }}
 
-    {% if not edition.primary %}
+    {% if edition.writers['translator'] %}
         <br>
-        Edition #{{ edition.num }}
-    {% endif %}
-
-    {% if edition.translators %}
-        <br>
-        {% include "includes/_translators.html" %}
+        {% set writers = edition.writers['translator'] %}
+        translated by {% include "includes/_writers_list.html" %}
     {% endif %}
 </div>
 
@@ -94,8 +91,9 @@
 
 {# Contrary to class name, running foot #}
 <div class="running_head">
-    <a href="{{ url_for("main.text", text_url=text.url) }}">{{ text.title }}</a>
-    {% include "includes/_authors.html" %} &#167; {{ section }}
+    <a href="{{ edition.url }}">{{ edition.title }}</a>
+    {% set writers = edition.writers['author'] %}
+    {% include "includes/_writers_list.html" %} &#167; {{ section }}
 </div>
 
 {% endblock %}

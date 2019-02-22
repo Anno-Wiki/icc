@@ -1,103 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>
-        <a href="{{ url_for("main.text", text_url=edition.text.url) }}">{{
-            edition.text.title }}</a> {% if edition.primary %}*{% endif %}
-    </h1>
-    {% set text = edition.text %}
-    <h2>{% include "includes/_authors.html" %}</h2>
-    <br>
-    <h2>Edition #{{ edition.num }}</h2>
-    {% if edition.translators %}
-        {% include "includes/_translators.html" %}
-    {% endif %}
-    {% if edition.editors %}
-        {% include "includes/_editors.html" %}
-    {% endif %}
+    <h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
+    <h2>{{ edition.edition_title }}</h2>
+
+    {% for category, writers in edition.writers.items() %}
+        <h3>{{ category.title() }}s<h3>
+        {% for writer in writers %}
+            <h4><a href="{{ writer.url }}">{{ writer.name }}</a></h4>
+        {% endfor %}
+    {% endfor %}
 
     <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-    <a href="{{ url_for("main.edition_annotations", text_url=edition.text.url,
-        edition_num=edition.num) }}">annotations</a>
+    <a href="{{ url_for("main.edition_annotations",
+        text_url=edition.text.url_name, edition_num=edition.num)
+        }}">annotations</a>
     | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
         next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id) }}">edit
-        history</a>
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
+        }}">edit history</a>
 
     {# table of contents #}
     <table class="table_of_contents">
         <tr class="toc_header">
             <th align="left">Section</th>
-            <th align="center">Section Title</th>
+            <th align="center">Title</th>
             <th align="right">Line</th>
         </tr>
         {% for section in hierarchy %}
-            {% if section.primary.enum == "lvl1" %}
-                <tr class="lvl1_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.primary.display }} {{ section.lvl1 }}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ section.get_url() }}">
-                            {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                    </td>
-                </tr>
-            {% elif section.primary.enum == "lvl2" %}
-                <tr class="lvl2_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.primary.display }} {{ section.lvl2 }}
-                        </a>
-                    </td>
-                    <td align="center">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                    </th>
-                </tr>
-            {% elif section.primary.enum == "lvl3" %}
-                <tr class="lvl3_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.primary.display }} {{ section.lvl3 }}
-                        </a>
-                    </td>
-                    <td align="center">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                    </th>
-                </tr>
-            {% elif section.primary.enum == "lvl4" %}
-                <tr class="lvl4_contents">
-                    <td align="left">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.primary.display }} {{ section.lvl4 }}
-                        </a>
-                    </td>
-                    <td align="center">
-                        <a href="{{ section.get_url() }}">
-                            {{ section.line }}
-                        </a>
-                    </td>
-                    <td align="right">
-                        <a href="{{ section.get_url() }}"> {{ section.num }} </a>
-                    </th>
-                </tr>
-            {% endif %}
+            <tr class="lvl{{ section.precedence }}">
+                <td align="left">
+                    <a href="{{ section.url }}">
+                        {{ section.primary.display }} {{section.primary.num }}
+                    </a>
+                </td>
+                <td align="center">
+                    <a href="{{ section.url }}">{{ section.line }}</a>
+                </td>
+                <td align="right">
+                    <a href="{{ section.url }}">{{ section.num }}</a>
+                </td>
+            </tr>
         {% endfor %}
     </table>
 {% endblock %}

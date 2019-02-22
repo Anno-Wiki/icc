@@ -2,11 +2,12 @@
 
 {% block content %}
     <h1>{{ text.title }}</h1>
-    <h2>{% include "includes/_authors.html" %}</h2>
+    {% set writers = text.primary.writers['author'] %}
+    <h2>{% include "includes/_writers_list.html" %}</h2>
 
     <div id="summary">{{ text.wiki.current.body|markdown }}</div>
 
-    <a href="{{ url_for("main.text_annotations", text_url=text.url)
+    <a href="{{ url_for("main.text_annotations", text_url=text.url_name)
         }}">annotations</a>
 
     | <a href="{{ url_for("user.follow_text", text_id=text.id,
@@ -20,10 +21,8 @@
     <div class="index">
         {% for edition in text.editions %}
             <div class="card">
-                <a href="{{ edition.url }}">
-                    <h2>Edition #{{ edition.num }}{% if edition.primary %} *{%
-                        endif %}</h2>
-                </a>
+                <h2><a href="{{ edition.url }}">{{ edition.edition_title
+                        }}</a></h2>
                 <div class="count">&times; {{ edition.lines.count() }}
                     lines</div>
 

@@ -21,7 +21,7 @@ from icc.funky import generate_next
 def edit_wiki(wiki_id):
     form = WikiForm()
     wiki = Wiki.query.get_or_404(wiki_id)
-    redirect_url = generate_next(wiki.entity.get_url())
+    redirect_url = generate_next(wiki.entity.url)
 
     if wiki.edit_pending:
         flash("That wiki is locked from a pending edit.")

@@ -55,7 +55,7 @@ def annotate(text_url, edition_num, first_line, last_line):
     lines = edition.lines.filter(Line.num>=fl, Line.num<=ll).all()
     if lines is None:
         abort(404)
-    redirect_url = generate_next(lines[0].get_url())
+    redirect_url = generate_next(lines[0].url)
     context = edition.lines.filter(Line.num>=int(fl)-5,
                                    Line.num<=int(ll)+5).all()
 
@@ -82,8 +82,7 @@ def annotate(text_url, edition_num, first_line, last_line):
         form.last_char_idx.data = -1
     return render_template('forms/annotation.html',
                            title=f"Annotating {text.title}", form=form,
-                           text=text, edition=edition,
-                           lines=lines, context=context)
+                           edition=edition, lines=lines, context=context)
 
 
 @main.route('/edit/<annotation_id>', methods=['GET', 'POST'])
@@ -139,7 +138,7 @@ def edit(annotation_id):
         form.tags.data = ' '.join(tag_strings)
     return render_template('forms/annotation.html', form=form,
                            title=f"Edit Annotation {annotation.id}",
-                           text=annotation.text, lines=lines,
+                           edition=annotation.edition, lines=lines,
                            annotation=annotation, context=context)
 
 
