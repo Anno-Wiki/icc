@@ -139,7 +139,6 @@ class Tag(Base):
 
 
 class Comment(Base):
-    id = db.Column(db.Integer, primary_key=True)
     """A class representing comments on annotations.
 
     Attributes
@@ -189,11 +188,9 @@ class Comment(Base):
     annotation = db.relationship('Annotation',
                                  backref=backref('comments', lazy='dynamic',
                                                  passive_deletes=True))
-
     parent = db.relationship(
-        'Comment', remote_side=[id],
-        backref=backref('children', remote_side=[parent_id], lazy='dynamic'),
-        uselist=False)
+        'Comment', remote_side='Comment.id', uselist=False,
+        backref=backref('children', remote_side=[parent_id], lazy='dynamic'))
 
     def __repr__(self):
         return f'<Comment {self.id} on [{self.annotation_id}]>'
