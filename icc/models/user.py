@@ -132,10 +132,28 @@ class User(UserMixin, Base):
         else:
             return f'{self.reputation}'
 
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+
+    @property
+    def up_power(self):
+        if self.reputation <= 1:
+            return 1
+        else:
+            return int(10*log10(self.reputation))
+
+    @property
+    def down_power(self):
+        power = self.up_power
+        if power / 2 <= 1:
+            return -1
+        else:
+            return -int(power)
+
     def __repr__(self):
         return f"<User {self.displayname}>"
 
-    # Utilities
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
 

@@ -3,7 +3,6 @@
 Essentially, anything that is required to render an annotation.
 """
 
-
 import sys
 import inspect
 from datetime import datetime
@@ -532,7 +531,7 @@ class Annotation(Base):
         the user who wrote the annotation.
         """
         reptype = ReputationEnum.query.filter_by(enum='upvote').first()
-        weight = voter.up_power()
+        weight = voter.up_power
         repchange = ReputationChange(user=self.annotator, type=reptype,
                                      delta=reptype.default_delta)
         vote = Vote(voter=voter, annotation=self, delta=weight,
