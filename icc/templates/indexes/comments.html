@@ -28,7 +28,7 @@
                 {% for reply in comment.children recursive %}
                     <div class="reply">
 
-                        <a href="{{ url_for("main.user.profile",
+                        <a href="{{ url_for("user.profile",
                             user_id=reply.poster.id) }}">{{
                             reply.poster.displayname }}</a>
 
