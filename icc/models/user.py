@@ -88,36 +88,22 @@ class User(UserMixin, Base):
         'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
-        'User', secondary=user_flrs,
-        primaryjoin=(user_flrs.c.follower_id == id),
-        secondaryjoin=(user_flrs.c.followed_id == id),
+        'User', secondary=user_flrs, primaryjoin=(user_flrs.c.follower_id==id),
+        secondaryjoin=(user_flrs.c.followed_id==id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-    followed_texts = db.relationship('Text', secondary='text_flrs',
-                                     lazy='dynamic')
-    followed_writers = db.relationship('Writer', secondary='writer_flrs',
-                                       lazy='dynamic')
+
+    followed_texts = db.relationship(
+        'Text', secondary='text_flrs', lazy='dynamic')
+    followed_writers = db.relationship(
+        'Writer', secondary='writer_flrs', lazy='dynamic')
     followed_tags = db.relationship(
-        'Tag', secondary='tag_flrs',
-        primaryjoin='tag_flrs.c.user_id==User.id',
-        secondaryjoin='tag_flrs.c.tag_id==Tag.id',
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+        'Tag', secondary='tag_flrs', lazy='dynamic')
     followed_annotations = db.relationship(
-        'Annotation', secondary='annotation_flrs',
-        primaryjoin='annotation_flrs.c.user_id==User.id',
-        secondaryjoin='annotation_flrs.c.annotation_id==Annotation.id',
-        backref=db.backref('followers', lazy='dynamic', passive_deletes=True),
-        lazy='dynamic')
+        'Annotation', secondary='annotation_flrs', lazy='dynamic')
     followed_tag_requests = db.relationship(
-        'TagRequest', secondary='tag_request_flrs',
-        primaryjoin='tag_request_flrs.c.user_id==User.id',
-        secondaryjoin='tag_request_flrs.c.tag_request_id==TagRequest.id',
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+        'TagRequest', secondary='tag_request_flrs', lazy='dynamic')
     followed_text_requests = db.relationship(
-        'TextRequest', secondary='text_request_flrs',
-        primaryjoin='text_request_flrs.c.user_id==User.id',
-        secondaryjoin='text_request_flrs.c.text_request_id==TextRequest.id',
-        backref=db.backref('followers', lazy='dynamic'),
-        lazy='dynamic')
+        'TextRequest', secondary='text_request_flrs', lazy='dynamic')
 
     @property
     def url(self):

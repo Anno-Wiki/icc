@@ -37,6 +37,8 @@ class TextRequest(Base):
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    followers = db.relationship('User', secondary='text_request_flrs',
+                                lazy='dynamic')
     requester = db.relationship('User', backref='text_requests')
     text = db.relationship('Text', backref='request')
 
@@ -97,6 +99,8 @@ class TagRequest(Base):
     requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+    followers = db.relationship('User', secondary='tag_request_flrs',
+                                lazy='dynamic')
     requester = db.relationship('User', backref='tag_requests')
     created_tag = db.relationship('Tag', backref='tag_request')
 

@@ -23,7 +23,6 @@ class Tag(Base):
 
     Attributes
     ----------
-    url
     id : int
         The id of the object
     tag : str
@@ -112,6 +111,7 @@ class Tag(Base):
     locked = db.Column(db.Boolean, default=False)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
+    followers = db.relationship('User', secondary='tag_flrs', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('tag', uselist=False))
     annotations = db.relationship(
         'Annotation', secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
