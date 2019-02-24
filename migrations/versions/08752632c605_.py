@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 18d107c0693b
+Revision ID: 08752632c605
 Revises: 
-Create Date: 2019-02-21 10:05:55.947371
+Create Date: 2019-02-24 11:01:19.907481
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '18d107c0693b'
+revision = '08752632c605'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,12 +24,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_annotation_flag_enum_enum'), 'annotation_flag_enum', ['enum'], unique=False)
-    op.create_table('connection_enum',
-    sa.Column('enum', sa.String(length=128), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_connection_enum_enum'), 'connection_enum', ['enum'], unique=False)
     op.create_table('line_enum',
     sa.Column('enum', sa.String(length=128), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -357,6 +351,19 @@ def upgrade():
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
+    op.create_table('annotation_vote',
+    sa.Column('delta', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_annotation_vote_annotation_id'), 'annotation_vote', ['annotation_id'], unique=False)
     op.create_table('comment',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('poster_id', sa.Integer(), nullable=False),
@@ -418,19 +425,6 @@ def upgrade():
     op.create_index(op.f('ix_line_attribute_line_id'), 'line_attribute', ['line_id'], unique=False)
     op.create_index(op.f('ix_line_attribute_precedence'), 'line_attribute', ['precedence'], unique=False)
     op.create_index(op.f('ix_line_attribute_primary'), 'line_attribute', ['primary'], unique=False)
-    op.create_table('vote',
-    sa.Column('delta', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('annotation_id', sa.Integer(), nullable=True),
-    sa.Column('reputation_change_id', sa.Integer(), nullable=True),
-    sa.Column('voter_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['reputation_change_id'], ['reputation_change.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_vote_annotation_id'), 'vote', ['annotation_id'], unique=False)
     op.create_table('edit_vote',
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -458,8 +452,6 @@ def downgrade():
     op.drop_table('tags')
     op.drop_index(op.f('ix_edit_vote_edit_id'), table_name='edit_vote')
     op.drop_table('edit_vote')
-    op.drop_index(op.f('ix_vote_annotation_id'), table_name='vote')
-    op.drop_table('vote')
     op.drop_index(op.f('ix_line_attribute_primary'), table_name='line_attribute')
     op.drop_index(op.f('ix_line_attribute_precedence'), table_name='line_attribute')
     op.drop_index(op.f('ix_line_attribute_line_id'), table_name='line_attribute')
@@ -476,6 +468,8 @@ def downgrade():
     op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_annotation_id'), table_name='comment')
     op.drop_table('comment')
+    op.drop_index(op.f('ix_annotation_vote_annotation_id'), table_name='annotation_vote')
+    op.drop_table('annotation_vote')
     op.drop_table('annotation_flrs')
     op.drop_index(op.f('ix_annotation_flag_thrower_id'), table_name='annotation_flag')
     op.drop_index(op.f('ix_annotation_flag_resolver_id'), table_name='annotation_flag')
@@ -557,8 +551,6 @@ def downgrade():
     op.drop_table('reputation_enum')
     op.drop_index(op.f('ix_line_enum_enum'), table_name='line_enum')
     op.drop_table('line_enum')
-    op.drop_index(op.f('ix_connection_enum_enum'), table_name='connection_enum')
-    op.drop_table('connection_enum')
     op.drop_index(op.f('ix_annotation_flag_enum_enum'), table_name='annotation_flag_enum')
     op.drop_table('annotation_flag_enum')
     # ### end Alembic commands ###

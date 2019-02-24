@@ -10,8 +10,8 @@ from flask_login import current_user, login_required
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import (Annotation, Comment, Vote, Edit, Tag,
-                                   AnnotationFlagEnum)
+from icc.models.annotation import (Annotation, Comment, AnnotationVote, Edit,
+                                   Tag, AnnotationFlagEnum)
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 

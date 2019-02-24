@@ -197,7 +197,7 @@ class Comment(Base):
         return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
 
 
-class Vote(Base, VoteMixin):
+class AnnotationVote(Base, VoteMixin):
     """A class that represents a user's vote on an annotation.
 
     Attributes
@@ -534,8 +534,8 @@ class Annotation(Base):
         weight = voter.up_power
         repchange = ReputationChange(user=self.annotator, type=reptype,
                                      delta=reptype.default_delta)
-        vote = Vote(voter=voter, annotation=self, delta=weight,
-                    repchange=repchange)
+        vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
+                              repchange=repchange)
         self.annotator.reputation += repchange.delta
         self.weight += vote.delta
         db.session.add(vote)
@@ -545,15 +545,15 @@ class Annotation(Base):
         to the user who wrote the annotation.
         """
         reptype = ReputationEnum.query.filter_by(enum='downvote').first()
-        weight = voter.down_power()
+        weight = voter.down_power
         if self.annotator.reputation + reptype.default_delta < 0:
             repdelta = -self.annotator.reputation
         else:
             repdelta = reptype.default_delta
         repchange = ReputationChange(user=self.annotator, type=reptype,
                                      delta=repdelta)
-        vote = Vote(voter=voter, annotation=self, delta=weight,
-                    repchange=repchange)
+        vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
+                              repchange=repchange)
         self.weight += vote.delta
         self.annotator.reputation += repchange.delta
         db.session.add(vote)
