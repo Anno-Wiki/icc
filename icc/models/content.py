@@ -159,6 +159,10 @@ class Edition(Base):
         The id of the descriptive wiki for the edition.
     published : DateTime
         The publication date of the specific edition.
+    timestamp : DateTime
+        Simple timestamp for when the Edition was created.
+    connections : BaseQuery
+        A filterable BaseQuery of WriterConnections.
     wiki : :class:`Wiki`
         The descriptive wiki object for the specific edition.
     text : :class:`Text`
@@ -183,6 +187,7 @@ class Edition(Base):
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
+    connections = db.relationship('WriterConnection', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')
     text_title = association_proxy('text', 'title')
@@ -406,11 +411,8 @@ class WriterConnection(Base):
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
     enum_id = db.Column(db.Integer)
 
-    # these are lazy so that we can filter them. For the non-lazy version, see
-    # their respective enum-mapped dictionaries Writer.works and Edition.writers
     writer = db.relationship('Writer')
-    edition = db.relationship('Edition', backref=backref('connections',
-                                                         lazy='dynamic'))
+    edition = db.relationship('Edition')
 
     def __init__(self, *args, **kwargs):
         """Resolves the enum_id to the enum."""
