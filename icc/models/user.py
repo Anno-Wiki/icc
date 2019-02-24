@@ -35,6 +35,41 @@ def load_user(id):
 
 
 class User(UserMixin, Base):
+    """The User class.
+
+    Attributes
+    ----------
+    displayname : str
+        We follow StackExchange in using displaynames that are non-unique and
+        can be changed. The user is primarily defined by his email.
+    email : str
+        The primary string-based identifier of the user. Must be unique. Have
+        not worked on email validation yet, need to.
+    password_hash : str
+        The FlaskLogin defined password hashing structure. I want to investigate
+        the security of this and make modifications before going live (e.g.,
+        check algorithm, salt, etc.).
+    reputation : int
+        The user's reputation. This is affected by :class:`ReputationChange`
+        objects.
+    locked : int
+        This is a boolean to lock the user's account from logging in for
+        security purposes.
+    about_me : str
+        A text of seemingly any length that allows the user to describe
+        themselves. I might convert this to a wiki. Not sure if it's worth it or
+        not. Probably not. About me history? Extreme. On the other hand, it
+        leverages the existing wiki system just like Wikipedia does.
+    last_seen : DateTime
+        A timestamp for when the user last made a database-modification.
+    rights : list
+        A list of all of the :class:`Right` objects the user has.
+    annotations : BaseQuery
+        An SQLA BaseQuery of all the annotations the user has authored.
+    voted_<class> : list
+        A list of <class> objects that have been voted on by the user. I am
+        going to work to make this more dynamic and less anti-DRY
+    """
     id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
@@ -71,6 +106,10 @@ class User(UserMixin, Base):
         secondaryjoin=(user_flrs.c.followed_id==id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
+    # while followed users is unique and will always require explicit
+    # definition, I think I can eventually find a way to create a
+    # FollowableMixin that can auto-define all these relationships and eliminate
+    # the need to explicitly define all the tables as well. Not today, though.
     followed_texts = db.relationship(
         'Text', secondary='text_flrs', lazy='dynamic')
     followed_writers = db.relationship(
