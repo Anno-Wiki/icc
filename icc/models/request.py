@@ -10,7 +10,6 @@ from icc.models.mixins import Base, VoteMixin
 
 
 class TextRequestVote(Base, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
     text_request_id = db.Column(
         db.Integer, db.ForeignKey('text_request.id', ondelete='CASCADE'),
         index=True)
@@ -23,7 +22,6 @@ class TextRequestVote(Base, VoteMixin):
 
 
 class TextRequest(Base):
-    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
@@ -74,7 +72,6 @@ class TextRequest(Base):
 
 
 class TagRequestVote(Base, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
     tag_request_id = db.Column(
         db.Integer, db.ForeignKey('tag_request.id', ondelete='CASCADE'),
         index=True)
@@ -87,7 +84,6 @@ class TagRequestVote(Base, VoteMixin):
 
 
 class TagRequest(Base):
-    id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
     approved = db.Column(db.Boolean, default=False, index=True)

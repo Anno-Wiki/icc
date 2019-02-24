@@ -86,7 +86,6 @@ class Text(Base):
         """
         return cls.query.filter_by(title=url.replace('_', ' '))
 
-    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
@@ -179,7 +178,6 @@ class Edition(Base):
         if not all(isinstance(n, int) for n in section):
             raise TypeError("The section tuple must consist of only integers.")
 
-    id = db.Column(db.Integer, primary_key=True)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
     primary = db.Column(db.Boolean, default=False)
@@ -334,7 +332,6 @@ class Writer(Base):
         An SQLA BaseQuery for all of the annotations on all of the editions the
         writer is responsible for.
     """
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
     family_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
@@ -406,7 +403,6 @@ class WriterConnection(Base):
     enum : str
         The enumerated string of the writer's role in the connection.
     """
-    id = db.Column(db.Integer, primary_key=True)
     writer_id = db.Column(db.Integer, db.ForeignKey('writer.id'))
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'))
     enum_id = db.Column(db.Integer)
@@ -441,7 +437,6 @@ class LineEnum(Base, EnumMixin):
         A string for the public display of the attribute. Usually used for
         headings in the toc on edition.html.
     """
-    id = db.Column(db.Integer, primary_key=True)
     display = db.Column(db.String(64))
 
     def __repr__(self):
@@ -450,10 +445,14 @@ class LineEnum(Base, EnumMixin):
 
 class LineAttribute(Base):
     """An association class between LineEnum and Line."""
+    # The LineAttribute class inherits db.Model instead of my Base class because
+    # it can't have a standard id column. We use the line_id and enum_id as a
+    # dual primary_key. Not sure why I do that, I could probably change it, but
+    # for now we'll keep it.
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
-                        index=True, primary_key=True)
+                        index=True)
     enum_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'),
-                        nullable=False, index=True, primary_key=True)
+                        nullable=False, index=True)
     num = db.Column(db.Integer, default=1)
     precedence = db.Column(db.Integer, default=1, index=True)
     primary = db.Column(db.Boolean, nullable=False, default=False, index=True)
@@ -511,7 +510,6 @@ class Line(SearchableMixin, Base):
     """
     __searchable__ = ['line', 'text_title']
 
-    id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
     em_id = db.Column(db.Integer)

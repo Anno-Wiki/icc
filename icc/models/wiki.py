@@ -11,7 +11,6 @@ from icc import db
 
 
 class Wiki(Base):
-    id = db.Column(db.Integer, primary_key=True)
     entity_string = db.Column(db.String(191), index=True)
 
     current = db.relationship(
@@ -58,8 +57,6 @@ class Wiki(Base):
 
 
 class WikiEditVote(Base, VoteMixin):
-    id = db.Column(db.Integer, primary_key=True)
-
     edit_id = db.Column(db.Integer,
                         db.ForeignKey('wiki_edit.id', ondelete='CASCADE'),
                         index=True, nullable=False)
@@ -73,7 +70,6 @@ class WikiEditVote(Base, VoteMixin):
 
 class WikiEdit(Base, EditMixin):
     __vote__ = WikiEditVote
-    id = db.Column(db.Integer, primary_key=True)
     entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))

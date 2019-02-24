@@ -35,6 +35,7 @@ def load_user(id):
 
 
 class User(UserMixin, Base):
+    id = db.Column(db.Integer, primary_key=True)
     """The User class.
 
     Attributes
@@ -70,7 +71,6 @@ class User(UserMixin, Base):
         A list of <class> objects that have been voted on by the user. I am
         going to work to make this more dynamic and less anti-DRY
     """
-    id = db.Column(db.Integer, primary_key=True)
     displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
@@ -101,10 +101,10 @@ class User(UserMixin, Base):
         'UserFlag', primaryjoin='and_(UserFlag.user_id==User.id,'
         'UserFlag.resolver_id==None)')
 
-    followed_users = db.relationship(
-        'User', secondary=user_flrs, primaryjoin=(user_flrs.c.follower_id==id),
-        secondaryjoin=(user_flrs.c.followed_id==id),
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+#    followed_users = db.relationship(
+#        'User', secondary=user_flrs, primaryjoin=(user_flrs.c.follower_id==id),
+#        secondaryjoin=(user_flrs.c.followed_id==id),
+#        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     # while followed users is unique and will always require explicit
     # definition, I think I can eventually find a way to create a
@@ -217,7 +217,6 @@ class User(UserMixin, Base):
 
 class Right(Base, EnumMixin):
     __tablename__ = 'user_right'
-    id = db.Column(db.Integer, primary_key=True)
     min_rep = db.Column(db.Integer)
 
     def __repr__(self):
@@ -225,12 +224,10 @@ class Right(Base, EnumMixin):
 
 
 class ReputationEnum(Base, EnumMixin):
-    id = db.Column(db.Integer, primary_key=True)
     default_delta = db.Column(db.Integer, nullable=False)
 
 
 class ReputationChange(Base):
-    id = db.Column(db.Integer, primary_key=True)
     delta = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -245,11 +242,10 @@ class ReputationChange(Base):
 
 
 class UserFlagEnum(Base, EnumMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    ...
 
 
 class UserFlag(Base):
-    id = db.Column(db.Integer, primary_key=True)
     user_flag_id = db.Column(db.Integer, db.ForeignKey('user_flag_enum.id'),
                              index=True)
 

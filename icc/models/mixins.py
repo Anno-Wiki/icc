@@ -16,6 +16,7 @@ class Base(db.Model):
     implement something later. I feel like it's a good early practice.
     """
     __abstract__ = True
+    id = db.Column(db.Integer, primary_key=True)
 
 
 class EnumMixin:

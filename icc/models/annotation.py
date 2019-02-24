@@ -106,7 +106,6 @@ class Tag(Base):
         query = queries[0].union(*queries[1:])
         return query
 
-    id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(128), index=True, unique=True)
     locked = db.Column(db.Boolean, default=False)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
@@ -171,7 +170,6 @@ class Comment(Base):
         The immediate children of the comment.
     """
 
-    id = db.Column(db.Integer, primary_key=True)
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
                           nullable=False)
     annotation_id = db.Column(
@@ -190,11 +188,12 @@ class Comment(Base):
     annotation = db.relationship('Annotation',
                                  backref=backref('comments', lazy='dynamic',
                                                  passive_deletes=True))
-    parent = db.relationship('Comment', remote_side=[id],
-                             backref=backref('children', lazy='dynamic'))
+    children = db.relationship('Comment',
+                               primaryjoin='foreign(Comment.id)==remote(Comment.parent_id)',
+                               backref=backref('parent', uselist=False))
 
     def __repr__(self):
-        return f'<Comment {self.parent_id} on [{self.annotation_id}]>'
+        return f'<Comment {self.id} on [{self.annotation_id}]>'
 
 
 class AnnotationVote(Base, VoteMixin):
@@ -216,7 +215,6 @@ class AnnotationVote(Base, VoteMixin):
 
     The Vote class also possesses all of the attributes of :class:`VoteMixin`.
     """
-    id = db.Column(db.Integer, primary_key=True)
     annotation_id = db.Column(
         db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
         index=True)
@@ -240,7 +238,6 @@ class AnnotationFlagEnum(Base, EnumMixin):
     id : int
         The id of the object
     """
-    id = db.Column(db.Integer, primary_key=True)
 
 
 class AnnotationFlag(Base):
@@ -274,7 +271,6 @@ class AnnotationFlag(Base):
 
 
     """
-    id = db.Column(db.Integer, primary_key=True)
     annotation_flag_id = db.Column(db.Integer,
                                    db.ForeignKey('annotation_flag_enum.id'),
                                    index=True)
@@ -398,7 +394,6 @@ class Annotation(Base):
     might be prior-context and posterior-context, or something of that nature,
     instead of packing the same lines into the same list. Perhaps not. TBD.
     """
-    id = db.Column(db.Integer, primary_key=True)
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     weight = db.Column(db.Integer, default=0)
@@ -611,7 +606,6 @@ class EditVote(Base, VoteMixin):
     :class:`VoteMixin`.
     """
 
-    id = db.Column(db.Integer, primary_key=True)
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
     edit = db.relationship('Edit',
@@ -694,7 +688,6 @@ class Edit(Base, EditMixin):
         A list of all the lines that are the target of the edit *plus* five
         lines on either side of the first and last lines of the target lines.
     """
-    id = db.Column(db.Integer, primary_key=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     entity_id = db.Column(db.Integer,
                           db.ForeignKey('annotation.id', ondelete='CASCADE'),
