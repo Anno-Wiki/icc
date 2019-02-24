@@ -223,8 +223,7 @@ class AnnotationVote(Base, VoteMixin):
     reputation_change_id = db.Column(
         db.Integer, db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
 
-    annotation = db.relationship('Annotation',
-                                 backref=backref('ballots', lazy='dynamic'))
+    annotation = db.relationship('Annotation')
     repchange = db.relationship('ReputationChange',
                                 backref=backref('vote', uselist=False))
 
@@ -314,6 +313,7 @@ class AnnotationFlag(Base):
 
 
 class Annotation(Base):
+    __vote__ = AnnotationVote
     """And now, the moment you've been waiting for, the star of the show: the
     main Annotation data class.
 
@@ -334,6 +334,9 @@ class Annotation(Base):
     active : bool
         The flag that indicates the annotation has been deactivated from
         viewing.
+    ballots : BaseQuery
+        An SQLA BaseQuery of all of the ballots that have been cast for this
+        annotation.
     annotator : :class`User`
         The user object of the user who annotated the annotation to begin with.
     first_line : :class:`Line`
@@ -403,15 +406,16 @@ class Annotation(Base):
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    annotator = db.relationship('User', backref=backref('annotations',
-                                                        lazy='dynamic'))
+    followers = db.relationship('User', secondary='annotation_flrs',
+                                lazy='dynamic')
+    ballots = db.relationship('AnnotationVote', lazy='dynamic')
+    annotator = db.relationship('User')
     first_line = db.relationship(
         'Line', secondary='edit', primaryjoin='Edit.entity_id==Annotation.id',
         secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
         'Edit.first_line_num==Line.num)', uselist=False)
 
-    edition = db.relationship('Edition', backref=backref('annotations',
-                                                         lazy='dynamic'))
+    edition = db.relationship('Edition', backref=backref('annotations', lazy='dynamic'))
     text = db.relationship('Text', secondary='edition',
                            backref=backref('annotations', lazy='dynamic'),
                            uselist=False)
@@ -624,6 +628,7 @@ class EditVote(Base, VoteMixin):
 
 
 class Edit(Base, EditMixin):
+    __vote__ = EditVote
     """The Edit class, which represents the current state of an
     :class:`Annotation`. An annotation object is just a HEAD, like in git. Or,
     rather, a tag? I can't remember how git's model works, but essentially, the

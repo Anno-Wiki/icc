@@ -79,7 +79,7 @@ def add_writer_connections(config, edition):
                                            enum_id=enum)
             db.session.add(conn)
             if __name__ == '__main__':
-                print(f"Writer {writer_obj.name} added as a {value}.")
+                print(f"Writer {writer_obj.name} added as {value}.")
 
 
 def get_enums_dict():

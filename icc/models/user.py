@@ -11,6 +11,7 @@ from math import log10
 from flask import abort, url_for, current_app as app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin
@@ -44,36 +45,14 @@ class User(UserMixin, Base):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     rights = db.relationship('Right', secondary='rights')
+    annotations = db.relationship('Annotation', lazy='dynamic')
 
-    # annotations voted on
-    votes = db.relationship('Annotation', secondary='vote',
-                            primaryjoin='User.id==Vote.voter_id',
-                            secondaryjoin='Annotation.id==Vote.annotation_id',
-                            backref='voters', lazy='dynamic')
-    # edits voted on
-    edit_votes = db.relationship('Edit', secondary='edit_vote',
-                                 primaryjoin='User.id==EditVote.voter_id',
-                                 secondaryjoin='Edit.id==EditVote.edit_id',
-                                 backref='edit_voters', lazy='dynamic')
-    # wiki edits voted on
-    wiki_edit_votes = db.relationship(
-        'WikiEdit', secondary='wiki_edit_vote',
-        primaryjoin='User.id==WikiEditVote.voter_id',
-        secondaryjoin='WikiEdit.id==WikiEditVote.edit_id', backref='voters',
-        lazy='dynamic')
+    voted_annotation = association_proxy('annotationvoteballots', 'annotation')
+    voted_edit = association_proxy('editballots', 'edit')
+    voted_wikiedit = association_proxy('wikieditballots', 'edit')
+    voted_textrequest = association_proxy('textrequestballots', 'request')
+    voted_tagrequest = association_proxy('tagrequestballots', 'request')
 
-    # text requests voted on
-    text_request_votes = db.relationship(
-        'TextRequest', secondary='text_request_vote',
-        primaryjoin='TextRequestVote.voter_id==User.id',
-        secondaryjoin='TextRequestVote.text_request_id==TextRequest.id',
-        backref='voters', lazy='dynamic', passive_deletes=True)
-    # tag requests voted on
-    tag_request_votes = db.relationship(
-        'TagRequest', secondary='tag_request_vote',
-        primaryjoin='TagRequestVote.voter_id==User.id',
-        secondaryjoin='TagRequestVote.tag_request_id==TagRequest.id',
-        backref='voters', lazy='dynamic')
 
     # flag relationships
     flags = db.relationship(
@@ -147,6 +126,7 @@ class User(UserMixin, Base):
         event = UserFlag(flag=flag, user=self, thrower=thrower)
         db.session.add(event)
 
+    # Password routes
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -167,10 +147,7 @@ class User(UserMixin, Base):
             return
         return User.query.get(id)
 
-    def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
-
+    # admin authorization methods
     def authorize(self, right):
         if self.is_authorized(right):
             pass
@@ -179,60 +156,24 @@ class User(UserMixin, Base):
 
     def is_authorized(self, right):
         r = Right.query.filter_by(enum=right).first()
+        print(r)
+        print(r.min_rep)
+        print(self.reputation)
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
-    def up_power(self):
-        if self.reputation <= 1:
-            return 1
-        else:
-            return int(10*log10(self.reputation))
+    def get_vote(self, obj):
+        """Get the vote on the object. If the object does not have a
+        __vote__ attribute, it's not going to work and a TypeError will be
+        raised.
 
-    def down_power(self):
-        if self.up_power() / 2 <= 1:
-            return -1
-        else:
-            return -int(self.up_power()/2)
-
-    def already_voted(self, annotation):
-        return annotation in self.votes
-
-    def get_vote(self, annotation):
-        return self.voteballots.filter_by(annotation=annotation).first()
-
-    # text request vote utilities
-    def get_text_request_vote_dict(self):
-        v = {}
-        for vote in self.text_request_ballots:
-            v[vote.text_request.id] = vote.is_up()
-        return v
-
-    def already_voted_text_request(self, text_request):
-        return text_request in self.text_request_votes
-
-    def get_text_request_vote(self, text_request):
-        return self.text_request_ballots.filter(
-            TextRequestVote.text_request == text_request).first()
-
-    # tag request vote utilities
-    def get_tag_request_vote_dict(self):
-        v = {}
-        for vote in self.tag_request_ballots:
-            v[vote.tag_request.id] = vote.is_up()
-        return v
-
-    def already_voted_tag_request(self, tag_request):
-        return tag_request in self.tag_request_votes
-
-    def get_tag_request_vote(self, tag_request):
-        return self.tag_request_ballots.filter(
-            TagRequestVote.tag_request == tag_request).first()
-
-    # edit vote utilities
-    def get_edit_vote(self, edit):
-        return self.edit_ballots.filter(annotation.EditVote.edit == edit).first()
-
-    def get_wiki_edit_vote(self, edit):
-        return self.wiki_edit_ballots.filter(WikiEditVote.edit == edit).first()
+        This method works for every votable class and can be tested as a bool
+        for whether or whether not the user has voted on the object.
+        """
+        if not obj.__vote__:
+            raise TypeError("The requested object is missing an `__vote__` "
+                            "attribute.")
+        vote_cls = obj.__vote__
+        return vote_cls.query.filter_by(voter=self).first()
 
 
 class Right(Base, EnumMixin):

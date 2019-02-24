@@ -72,6 +72,7 @@ class WikiEditVote(Base, VoteMixin):
 
 
 class WikiEdit(Base, EditMixin):
+    __vote__ = WikiEditVote
     id = db.Column(db.Integer, primary_key=True)
     entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
