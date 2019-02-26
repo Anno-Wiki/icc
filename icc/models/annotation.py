@@ -24,8 +24,6 @@ class Tag(Base, FollowableMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object
     tag : str
         The name of the tag
     locked : bool
@@ -143,8 +141,6 @@ class Comment(Base):
 
     Attributes
     ----------
-    id : int
-        The id of the object.
     poster_id : int
         The id of the user who posted the comment.
     annotation_id : int
@@ -201,8 +197,6 @@ class AnnotationVote(Base, VoteMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object
     annotation_id : int
         The id of the annotation voted on.
     reputationchange_id : int
@@ -231,13 +225,10 @@ class AnnotationVote(Base, VoteMixin):
 
 
 class AnnotationFlagEnum(Base, EnumMixin):
-    """An :class:`EnumMixin` class that represents annotation flags.
-
-    Attributes
-    ----------
-    id : int
-        The id of the object
+    """An :class:`EnumMixin` class that represents annotation flags. See the
+    Mixin and the Base for attributes.
     """
+    ...
 
 
 class AnnotationFlag(Base):
@@ -247,8 +238,6 @@ class AnnotationFlag(Base):
 
     Attributes
     ----------
-    id : int
-        The id of the object.
     annotation_flag_id : int
         The int of the :class:`AnnotationFlagEnum` template.
     annotation_id : int
@@ -267,13 +256,10 @@ class AnnotationFlag(Base):
         The :class:`User` that resolved the flag.
     flag : :class:`AnnotationFlagEnum`
         The :class:`AnnotationFlagEnum` template that the flag is based on.
-
-
-
     """
-    annotation_flag_id = db.Column(db.Integer,
-                                   db.ForeignKey('annotationflagenum.id'),
-                                   index=True)
+    annotationflag_id = db.Column(db.Integer,
+                                  db.ForeignKey('annotationflagenum.id'),
+                                  index=True)
     annotation_id = db.Column(db.Integer,
                               db.ForeignKey('annotation.id',
                                             ondelete='CASCADE'), index=True)
@@ -315,8 +301,6 @@ class Annotation(Base, FollowableMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object.
     annotator_id : int
         The id of the user who wrote the initial version of this annotation.
     edition_id : int
@@ -408,7 +392,8 @@ class Annotation(Base, FollowableMixin):
         secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
         'Edit.first_line_num==Line.num)', uselist=False)
 
-    edition = db.relationship('Edition', backref=backref('annotations', lazy='dynamic'))
+    edition = db.relationship('Edition', backref=backref('annotations',
+                                                         lazy='dynamic'))
     text = db.relationship('Text', secondary='edition',
                            backref=backref('annotations', lazy='dynamic'),
                            uselist=False)
@@ -586,8 +571,6 @@ class EditVote(Base, VoteMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object.
     edit_id : int
         The id of the :class:`Edit` the vote is applied to.
     edit : :class:`Edit`
@@ -632,8 +615,6 @@ class Edit(Base, EditMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object
     edition_id : int
         The id of the edition to which the annotation is applied. This column is
         *technically* redundant, but it simplifies some operations. I may

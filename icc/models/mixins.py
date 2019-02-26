@@ -14,6 +14,17 @@ from icc.search import add_to_index, remove_from_index, query_index
 class Base(db.Model):
     """This Base class does nothing. It is here in case I need to expand
     implement something later. I feel like it's a good early practice.
+
+    Attributes
+    ----------
+    id : int
+        The basic primary key id number of any class.
+
+    Notes
+    -----
+    The __tablename__ is automatically set to the class name lower-cased.
+    There's no need to mess around with underscores, that just confuses the
+    issue and makes programmatically referencing the table more difficult.
     """
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
@@ -72,7 +83,7 @@ class VoteMixin:
         # the backref is the name of the class lowercased with the word
         # `ballots` appended
         return db.relationship(
-            'User', backref=backref(f'{cls.__name__.lower()}ballots',
+            'User', backref=backref(f'{cls.__name__.lower()}_ballots',
                                     lazy='dynamic'))
 
     def __repr__(self):
@@ -176,9 +187,13 @@ class EditMixin:
 
 
 class FollowableMixin:
+    """A mixin to automagically make an object followable. Unfotunately, it
+    doesn't create the follow/unfollow routes automagically. That would be nice.
+    """
 
     @declared_attr
     def table(cls):
+        """Produces a followers table for the many-to-many relationship."""
         return db.Table(
             f'{cls.__name__.lower()}_followers',
             db.Column(f'{cls.__name__.lower()}_id', db.Integer,
@@ -187,9 +202,12 @@ class FollowableMixin:
 
     @declared_attr
     def followers(cls):
+        """Produces the relationship and backreference for followers."""
         return db.relationship('User',
                                secondary=f'{cls.__name__.lower()}_followers',
-                               backref=backref(f'followed_{cls.__name__.lower()}s', lazy='dynamic'),
+                               backref=backref(
+                                   f'followed_{cls.__name__.lower()}s',
+                                   lazy='dynamic'),
                                lazy='dynamic')
 
 

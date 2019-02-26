@@ -15,8 +15,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin
-from icc.models.wiki import WikiEditVote
-from icc.models.request import TextRequestVote, TagRequestVote
 
 # We have to import the whole module in this file to avoid the circular import.
 # I would love to find a simpler fix for this, but in this case we do this for
@@ -68,6 +66,10 @@ class User(UserMixin, Base):
     voted_<class> : list
         A list of <class> objects that have been voted on by the user. I am
         going to work to make this more dynamic and less anti-DRY
+    followed_<class>s : BaseQuery
+        A BaseQuery of all of the <class>'s that the user is currently
+        following. The <class> is the class's name lowercased (same as the table
+        name).
     """
     displayname = db.Column(db.String(64), index=True)
     email = db.Column(db.String(128), index=True, unique=True)
@@ -80,11 +82,11 @@ class User(UserMixin, Base):
     rights = db.relationship('AdminRight', secondary='rights')
     annotations = db.relationship('Annotation', lazy='dynamic')
 
-    voted_annotation = association_proxy('annotationvoteballots', 'annotation')
-    voted_edit = association_proxy('editballots', 'edit')
-    voted_wikiedit = association_proxy('wikieditballots', 'edit')
-    voted_textrequest = association_proxy('textrequestballots', 'request')
-    voted_tagrequest = association_proxy('tagrequestballots', 'request')
+    voted_annotation = association_proxy('annotationvote_ballots', 'annotation')
+    voted_edit = association_proxy('edit_ballots', 'edit')
+    voted_wikiedit = association_proxy('wikiedit_ballots', 'edit')
+    voted_textrequest = association_proxy('textrequest_ballots', 'request')
+    voted_tagrequest = association_proxy('tagrequest_ballots', 'request')
 
     followed_users = db.relationship(
         'User',

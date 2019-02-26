@@ -48,8 +48,6 @@ class Text(Base, FollowableMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object.
     title : string
         The title string of the object
     sort_title : string
@@ -143,8 +141,6 @@ class Edition(Base):
 
     Attributes
     ----------
-    id : int
-        The id of the edition.
     num : int
         The edition number of the edition. I.e., edition 1, 2, etc.
     text_id : int
@@ -304,8 +300,6 @@ class Writer(Base, FollowableMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the writer object.
     name : string
         The full name of the writer
     family_name : string
@@ -386,8 +380,6 @@ class WriterConnection(Base):
 
     Attributes
     ----------
-    id : int
-        The id of the connection object.
     writer_id : int
         The id of the writer in the connection.
     edition_id : int
@@ -427,8 +419,6 @@ class LineEnum(Base, EnumMixin):
 
     Attributes
     ----------
-    id : int
-        The id of the object
     enum : str
         A string representing the enum type. Mostly for internal use.
     display : str
@@ -443,10 +433,6 @@ class LineEnum(Base, EnumMixin):
 
 class LineAttribute(Base):
     """An association class between LineEnum and Line."""
-    # The LineAttribute class inherits db.Model instead of my Base class because
-    # it can't have a standard id column. We use the line_id and enum_id as a
-    # dual primary_key. Not sure why I do that, I could probably change it, but
-    # for now we'll keep it.
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
                         index=True)
     enum_id = db.Column(db.Integer, db.ForeignKey('lineenum.id'),
@@ -485,8 +471,6 @@ class Line(SearchableMixin, Base):
         A list of strings that correspond to the attributes that should be
         indexed in elasticsearch. It's defined by :class:`SearchableMixin` so
         see that for more information.
-    id : int
-        The id of the line's object.
     edition_id : int
         The id of the edition the line is in.
     num : int
