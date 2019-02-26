@@ -6,12 +6,12 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 
 from icc import db
-from icc.models.mixins import Base, VoteMixin
+from icc.models.mixins import Base, VoteMixin, FollowableMixin
 
 
 class TextRequestVote(Base, VoteMixin):
     text_request_id = db.Column(
-        db.Integer, db.ForeignKey('text_request.id', ondelete='CASCADE'),
+        db.Integer, db.ForeignKey('textrequest.id', ondelete='CASCADE'),
         index=True)
     text_request = db.relationship(
         'TextRequest', backref=backref('ballots', passive_deletes=True))
@@ -21,7 +21,7 @@ class TextRequestVote(Base, VoteMixin):
         return f"{prefix}{self.text_request}"
 
 
-class TextRequest(Base):
+class TextRequest(Base, FollowableMixin):
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
@@ -35,8 +35,6 @@ class TextRequest(Base):
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    followers = db.relationship('User', secondary='text_request_flrs',
-                                lazy='dynamic')
     requester = db.relationship('User', backref='text_requests')
     text = db.relationship('Text', backref='request')
 
@@ -73,7 +71,7 @@ class TextRequest(Base):
 
 class TagRequestVote(Base, VoteMixin):
     tag_request_id = db.Column(
-        db.Integer, db.ForeignKey('tag_request.id', ondelete='CASCADE'),
+        db.Integer, db.ForeignKey('tagrequest.id', ondelete='CASCADE'),
         index=True)
     tag_request = db.relationship(
         'TagRequest', backref=backref('ballots', passive_deletes=True))
@@ -83,7 +81,7 @@ class TagRequestVote(Base, VoteMixin):
         return f"{prefix}{self.tag_request}"
 
 
-class TagRequest(Base):
+class TagRequest(Base, FollowableMixin):
     tag = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
     approved = db.Column(db.Boolean, default=False, index=True)
@@ -95,8 +93,6 @@ class TagRequest(Base):
     requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    followers = db.relationship('User', secondary='tag_request_flrs',
-                                lazy='dynamic')
     requester = db.relationship('User', backref='tag_requests')
     created_tag = db.relationship('Tag', backref='tag_request')
 

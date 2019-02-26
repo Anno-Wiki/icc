@@ -8,7 +8,7 @@ idx = iccvenv.rfind('/')
 sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
-from icc.models.user import User, Right
+from icc.models.user import User, AdminRight
 
 parser = argparse.ArgumentParser("Insert users into icc database for testing.")
 parser.add_argument(
@@ -26,7 +26,7 @@ app = create_app()
 ctx = app.app_context()
 ctx.push()
 
-rights = Right.query.all()
+rights = AdminRight.query.all()
 i = 0
 for user in config['users']:
     u = User(displayname=user['displayname'], email=user['email'],

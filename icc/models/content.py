@@ -19,7 +19,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
-from icc.models.mixins import Base, EnumMixin, SearchableMixin
+from icc.models.mixins import Base, EnumMixin, SearchableMixin, FollowableMixin
 from icc.models.wiki import Wiki
 
 
@@ -33,7 +33,7 @@ WRITERS = ('author', 'editor', 'translator')
 WRITERS_REVERSE = {val: ind for ind, val in enumerate(WRITERS)}
 
 
-class Text(Base):
+class Text(Base, FollowableMixin):
     """The text-object. A text is more a categorical, or philosophical concept.
     In essence, a book can have any number of editions, ranging from different
     translations to re-edited or updated versions (which is more common with
@@ -92,7 +92,6 @@ class Text(Base):
     published = db.Column(db.Date)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
-    followers = db.relationship('User', secondary='text_flrs', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('text', uselist=False))
     editions = db.relationship('Edition', lazy='dynamic')
     primary = db.relationship(
@@ -297,7 +296,7 @@ class Edition(Base):
                     LineAttribute.primary==True)
 
 
-class Writer(Base):
+class Writer(Base, FollowableMixin):
     """The writer model. This used to be a lot more complicated but has become
     fairly elegant. All historical contributors to the text are writers, be they
     editors, translators, authors, or whatever the heck else we end up coming up
@@ -339,7 +338,6 @@ class Writer(Base):
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    followers = db.relationship('User', secondary='writer_flrs', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('writer', uselist=False))
     annotations = db.relationship(
@@ -451,7 +449,7 @@ class LineAttribute(Base):
     # for now we'll keep it.
     line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
                         index=True)
-    enum_id = db.Column(db.Integer, db.ForeignKey('line_enum.id'),
+    enum_id = db.Column(db.Integer, db.ForeignKey('lineenum.id'),
                         nullable=False, index=True)
     num = db.Column(db.Integer, default=1)
     precedence = db.Column(db.Integer, default=1, index=True)

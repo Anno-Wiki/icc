@@ -14,7 +14,7 @@ ReputationEnum:
       default_delta: 5
     - enum: downvote
       default_delta: -2
-Right:
+AdminRight:
     - enum: anonymize_users
       min_rep: null
     - enum: approve_edits

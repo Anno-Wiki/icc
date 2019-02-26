@@ -13,12 +13,13 @@ from sqlalchemy.orm import backref
 from flask import url_for, flash, current_app as app
 
 from icc import db
-from icc.models.mixins import Base, VoteMixin, EditMixin, EnumMixin
+from icc.models.mixins import (Base, VoteMixin, EditMixin, EnumMixin,
+                               FollowableMixin)
 from icc.models.user import ReputationEnum, ReputationChange
 from icc.models.wiki import Wiki
 
 
-class Tag(Base):
+class Tag(Base, FollowableMixin):
     """A class representing tags.
 
     Attributes
@@ -110,7 +111,6 @@ class Tag(Base):
     locked = db.Column(db.Boolean, default=False)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 
-    followers = db.relationship('User', secondary='tag_flrs', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('tag', uselist=False))
     annotations = db.relationship(
         'Annotation', secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
@@ -205,7 +205,7 @@ class AnnotationVote(Base, VoteMixin):
         The id of the object
     annotation_id : int
         The id of the annotation voted on.
-    reputation_change_id : int
+    reputationchange_id : int
         The id of the :class:`ReputationChange` object that accompanies the
         :class:`Vote`.
     annotation : int
@@ -218,8 +218,8 @@ class AnnotationVote(Base, VoteMixin):
     annotation_id = db.Column(
         db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
         index=True)
-    reputation_change_id = db.Column(
-        db.Integer, db.ForeignKey('reputation_change.id', ondelete='CASCADE'))
+    reputationchange_id = db.Column(
+        db.Integer, db.ForeignKey('reputationchange.id', ondelete='CASCADE'))
 
     annotation = db.relationship('Annotation')
     repchange = db.relationship('ReputationChange',
@@ -272,7 +272,7 @@ class AnnotationFlag(Base):
 
     """
     annotation_flag_id = db.Column(db.Integer,
-                                   db.ForeignKey('annotation_flag_enum.id'),
+                                   db.ForeignKey('annotationflagenum.id'),
                                    index=True)
     annotation_id = db.Column(db.Integer,
                               db.ForeignKey('annotation.id',
@@ -308,7 +308,7 @@ class AnnotationFlag(Base):
         self.resolver = None
 
 
-class Annotation(Base):
+class Annotation(Base, FollowableMixin):
     __vote__ = AnnotationVote
     """And now, the moment you've been waiting for, the star of the show: the
     main Annotation data class.
@@ -401,8 +401,6 @@ class Annotation(Base):
     locked = db.Column(db.Boolean, index=True, default=False)
     active = db.Column(db.Boolean, default=True)
 
-    followers = db.relationship('User', secondary='annotation_flrs',
-                                lazy='dynamic')
     ballots = db.relationship('AnnotationVote', lazy='dynamic')
     annotator = db.relationship('User')
     first_line = db.relationship(
@@ -594,7 +592,7 @@ class EditVote(Base, VoteMixin):
         The id of the :class:`Edit` the vote is applied to.
     edit : :class:`Edit`
         The edit object the vote was applied to.
-    reputation_change_id : int
+    reputationchange_id : int
         The id of the :class:`ReputationChange` object associated with the edit
         (if the edit is approved).
     repchange : :class:`ReputationChange`
@@ -611,8 +609,8 @@ class EditVote(Base, VoteMixin):
     edit = db.relationship('Edit',
                            backref=backref('edit_ballots', lazy='dynamic',
                                            passive_deletes=True))
-    reputation_change_id = db.Column(
-        db.Integer, db.ForeignKey('reputation_change.id'), default=None)
+    reputationchange_id = db.Column(
+        db.Integer, db.ForeignKey('reputationchange.id'), default=None)
     repchange = db.relationship(
         'ReputationChange', backref=backref('edit_vote', uselist=False))
 

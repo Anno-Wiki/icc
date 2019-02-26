@@ -18,6 +18,10 @@ class Base(db.Model):
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
 
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
 
 class EnumMixin:
     """Any enumerated class that has more than 4 types should be use this
@@ -169,6 +173,24 @@ class EditMixin:
         """Reject the edit."""
         self.rejected = True
         flash("The edit was rejected.")
+
+
+class FollowableMixin:
+
+    @declared_attr
+    def table(cls):
+        return db.Table(
+            f'{cls.__name__.lower()}_followers',
+            db.Column(f'{cls.__name__.lower()}_id', db.Integer,
+                      db.ForeignKey(f'{cls.__name__.lower()}.id')),
+            db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+
+    @declared_attr
+    def followers(cls):
+        return db.relationship('User',
+                               secondary=f'{cls.__name__.lower()}_followers',
+                               backref=backref(f'followed_{cls.__name__.lower()}s', lazy='dynamic'),
+                               lazy='dynamic')
 
 
 # If you encounter an error while committing to the effect that `NoneType has no

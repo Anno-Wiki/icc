@@ -58,7 +58,7 @@ class Wiki(Base):
 
 class WikiEditVote(Base, VoteMixin):
     edit_id = db.Column(db.Integer,
-                        db.ForeignKey('wiki_edit.id', ondelete='CASCADE'),
+                        db.ForeignKey('wikiedit.id', ondelete='CASCADE'),
                         index=True, nullable=False)
     edit = db.relationship('WikiEdit', backref=backref('ballots',
                                                        passive_deletes=True))

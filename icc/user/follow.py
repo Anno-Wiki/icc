@@ -57,7 +57,7 @@ def follow_user(user_id):
 @login_required
 def follow_writer(writer_id):
     writer = Writer.query.get_or_404(writer_id)
-    redirect_url = generate_next(url_for('writer', writer_url=writer.url))
+    redirect_url = generate_next(url_for('main.writer', writer_url=writer.url))
     if writer in current_user.followed_writers:
         current_user.followed_writers.remove(writer)
     else:
@@ -66,11 +66,11 @@ def follow_writer(writer_id):
     return redirect(redirect_url)
 
 
-@user.route('/user/follow/text/<text_id>')
+@user.route('/follow/text/<text_id>')
 @login_required
 def follow_text(text_id):
     text = Text.query.get_or_404(text_id)
-    redirect_url = generate_next(url_for('text', text_url=text.url))
+    redirect_url = generate_next(url_for('main.text', text_url=text.url))
     if text in current_user.followed_texts:
         current_user.followed_texts.remove(text)
     else:
@@ -83,7 +83,7 @@ def follow_text(text_id):
 @login_required
 def follow_book_request(book_request_id):
     book_request = TextRequest.query.get_or_404(book_request_id)
-    redirect_url = generate_next(url_for('view_book_request',
+    redirect_url = generate_next(url_for('requests.view_book_request',
                                          book_request_id=book_request.id))
     if book_request.approved:
         flash("You cannot follow a book request that has already been "
@@ -100,7 +100,7 @@ def follow_book_request(book_request_id):
 @login_required
 def follow_tag_request(tag_request_id):
     tag_request = TagRequest.query.get_or_404(tag_request_id)
-    redirect_url = generate_next(url_for('view_tag_request',
+    redirect_url = generate_next(url_for('requests.view_tag_request',
                                          tag_request_id=tag_request.id))
     if tag_request in current_user.followed_tag_requests:
         current_user.followed_tag_requests.remove(tag_request)
@@ -114,7 +114,7 @@ def follow_tag_request(tag_request_id):
 @login_required
 def follow_tag(tag_id):
     tag = Tag.query.get_or_404(tag_id)
-    redirect_url = generate_next(url_for('tag', tag=tag.tag))
+    redirect_url = generate_next(url_for('main.tag', tag=tag.tag))
     if tag in current_user.followed_tags:
         current_user.followed_tags.remove(tag)
     else:
@@ -128,7 +128,7 @@ def follow_tag(tag_id):
 def follow_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
 
-    redirect_url = generate_next(url_for('annotation',
+    redirect_url = generate_next(url_for('main.annotation',
                                          annotation_id=annotation.id))
 
     if not annotation.active:

@@ -62,7 +62,7 @@ class User(UserMixin, Base):
     last_seen : DateTime
         A timestamp for when the user last made a database-modification.
     rights : list
-        A list of all of the :class:`Right` objects the user has.
+        A list of all of the :class:`AdminRight` objects the user has.
     annotations : BaseQuery
         An SQLA BaseQuery of all the annotations the user has authored.
     voted_<class> : list
@@ -77,7 +77,7 @@ class User(UserMixin, Base):
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
-    rights = db.relationship('Right', secondary='rights')
+    rights = db.relationship('AdminRight', secondary='rights')
     annotations = db.relationship('Annotation', lazy='dynamic')
 
     voted_annotation = association_proxy('annotationvoteballots', 'annotation')
@@ -85,19 +85,6 @@ class User(UserMixin, Base):
     voted_wikiedit = association_proxy('wikieditballots', 'edit')
     voted_textrequest = association_proxy('textrequestballots', 'request')
     voted_tagrequest = association_proxy('tagrequestballots', 'request')
-
-
-    # flag relationships
-    flags = db.relationship(
-        'UserFlagEnum', secondary='user_flag',
-        primaryjoin='and_(UserFlag.user_id==User.id,'
-        'UserFlag.resolver_id==None)',
-        secondaryjoin='UserFlag.user_flag_id==UserFlagEnum.id', backref='users')
-    flag_history = db.relationship(
-        'UserFlag', primaryjoin='UserFlag.user_id==User.id', lazy='dynamic')
-    active_flags = db.relationship(
-        'UserFlag', primaryjoin='and_(UserFlag.user_id==User.id,'
-        'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
         'User',
@@ -108,23 +95,6 @@ class User(UserMixin, Base):
         primaryjoin='user_flrs.c.follower_id==User.id',
         secondaryjoin='user_flrs.c.followed_id==User.id',
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
-
-    # while followed users is unique and will always require explicit
-    # definition, I think I can eventually find a way to create a
-    # FollowableMixin that can auto-define all these relationships and eliminate
-    # the need to explicitly define all the tables as well. Not today, though.
-    followed_texts = db.relationship(
-        'Text', secondary='text_flrs', lazy='dynamic')
-    followed_writers = db.relationship(
-        'Writer', secondary='writer_flrs', lazy='dynamic')
-    followed_tags = db.relationship(
-        'Tag', secondary='tag_flrs', lazy='dynamic')
-    followed_annotations = db.relationship(
-        'Annotation', secondary='annotation_flrs', lazy='dynamic')
-    followed_tag_requests = db.relationship(
-        'TagRequest', secondary='tag_request_flrs', lazy='dynamic')
-    followed_text_requests = db.relationship(
-        'TextRequest', secondary='text_request_flrs', lazy='dynamic')
 
     @property
     def url(self):
@@ -197,7 +167,7 @@ class User(UserMixin, Base):
             abort(403)
 
     def is_authorized(self, right):
-        r = Right.query.filter_by(enum=right).first()
+        r = AdminRight.query.filter_by(enum=right).first()
         print(r)
         print(r.min_rep)
         print(self.reputation)
@@ -218,8 +188,7 @@ class User(UserMixin, Base):
         return vote_cls.query.filter_by(voter=self).first()
 
 
-class Right(Base, EnumMixin):
-    __tablename__ = 'user_right'
+class AdminRight(Base, EnumMixin):
     min_rep = db.Column(db.Integer)
 
     def __repr__(self):
@@ -234,7 +203,7 @@ class ReputationChange(Base):
     delta = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    enum_id = db.Column(db.Integer, db.ForeignKey('reputation_enum.id'),
+    enum_id = db.Column(db.Integer, db.ForeignKey('reputationenum.id'),
                         nullable=False)
 
     user = db.relationship('User', backref='changes')
@@ -249,7 +218,7 @@ class UserFlagEnum(Base, EnumMixin):
 
 
 class UserFlag(Base):
-    user_flag_id = db.Column(db.Integer, db.ForeignKey('user_flag_enum.id'),
+    user_flag_id = db.Column(db.Integer, db.ForeignKey('userflagenum.id'),
                              index=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
