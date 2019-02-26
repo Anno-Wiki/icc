@@ -1,10 +1,10 @@
 users:
     - displayname: community
-      email: community@annopedia.org
+      email: community@anno.wiki
       rights: none
       locked: true
       about_me: |
-          Hi, 
+          Hi,
 
           I’m not a real person. I’m an account used to author annotations by non-members,
           such as the authors of the books hosted on Annopedia.  An example would be the
@@ -19,8 +19,8 @@ users:
           Sincerely,
 
           The Annopedia Team
-    - displayname: malan
-      email: malan@glendalepainting.com
+    - displayname: malan88
+      email: malan88@standingwater.io
       rights: all
       locked: false
       about_me: |
@@ -40,7 +40,7 @@ users:
 
           I also like beer.
     - displayname: nick
-      email: nicksend15@gmail.com
+      email: nsendker@gmail.com
       rights: none
       locked: false
       about_me: |
