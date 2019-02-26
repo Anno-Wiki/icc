@@ -2,7 +2,7 @@ import time
 
 from flask import url_for
 from icc import db
-from icc.models.user import Right, User
+from icc.models.user import AdminRight, User
 from tests.utils import get_token
 
 
@@ -75,7 +75,7 @@ def test_login_logout(minclient):
 def test_user_rep_authorized(app):
     """Test user authorized by reputation."""
     u = User(displayname='john', email='john@example.com', reputation=10)
-    right = Right(enum='right_to_balloons', min_rep=10)
+    right = AdminRight(enum='right_to_balloons', min_rep=10)
     with app.app_context():
         db.session.add(right)
         db.session.commit()
@@ -85,7 +85,7 @@ def test_user_rep_authorized(app):
 def test_user_rep_not_authorized(app):
     """Test user not authorized by rep."""
     u = User(displayname='john', email='john@example.com', reputation=5)
-    right = Right(enum='right_to_balloons', min_rep=10)
+    right = AdminRight(enum='right_to_balloons', min_rep=10)
     with app.app_context():
         db.session.add(right)
         db.session.commit()
@@ -95,7 +95,7 @@ def test_user_rep_not_authorized(app):
 def test_user_rights_authorized(app):
     """Test user authorized by rights."""
     u = User(displayname='john', email='john@example.com', reputation=0)
-    right = Right(enum='right_to_balloons', min_rep=None)
+    right = AdminRight(enum='right_to_balloons', min_rep=None)
     u.rights = [right]
     with app.app_context():
         db.session.add(right)
@@ -106,7 +106,7 @@ def test_user_rights_authorized(app):
 def test_user_rights_not_authorized(app):
     """Test user not authorized by rights."""
     u = User(displayname='john', email='john@example.com', reputation=0)
-    right = Right(enum='right_to_balloons', min_rep=None)
+    right = AdminRight(enum='right_to_balloons', min_rep=None)
     with app.app_context():
         db.session.add(right)
         db.session.commit()
