@@ -35,7 +35,6 @@ def load_user(id):
 
 
 class User(UserMixin, Base):
-    id = db.Column(db.Integer, primary_key=True)
     """The User class.
 
     Attributes
@@ -101,10 +100,10 @@ class User(UserMixin, Base):
         'UserFlag', primaryjoin='and_(UserFlag.user_id==User.id,'
         'UserFlag.resolver_id==None)')
 
-#    followed_users = db.relationship(
-#        'User', secondary=user_flrs, primaryjoin=(user_flrs.c.follower_id==id),
-#        secondaryjoin=(user_flrs.c.followed_id==id),
-#        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    followed_users = db.relationship(
+        'User', secondary=user_flrs, primaryjoin='user_flrs.c.follower_id==User.id',
+        secondaryjoin='user_flrs.c.followed_id==User.id',
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     # while followed users is unique and will always require explicit
     # definition, I think I can eventually find a way to create a
