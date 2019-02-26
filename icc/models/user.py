@@ -15,7 +15,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin
-from icc.models.tables import user_flrs
 from icc.models.wiki import WikiEditVote
 from icc.models.request import TextRequestVote, TagRequestVote
 
@@ -101,7 +100,12 @@ class User(UserMixin, Base):
         'UserFlag.resolver_id==None)')
 
     followed_users = db.relationship(
-        'User', secondary=user_flrs, primaryjoin='user_flrs.c.follower_id==User.id',
+        'User',
+        secondary=db.Table(
+            'user_flrs',
+            db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+            db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))),
+        primaryjoin='user_flrs.c.follower_id==User.id',
         secondaryjoin='user_flrs.c.followed_id==User.id',
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 

@@ -21,10 +21,6 @@ writer_flrs = db.Table(
     'writer_flrs',
     db.Column('writer_id', db.Integer, db.ForeignKey('writer.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
-user_flrs = db.Table(
-    'user_flrs',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
 tag_flrs = db.Table(
     'tag_flrs',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
