@@ -22,6 +22,7 @@ class TextRequestVote(Base, VoteMixin):
 
 
 class TextRequest(Base, FollowableMixin):
+    __vote__ = TextRequestVote
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
@@ -82,6 +83,7 @@ class TagRequestVote(Base, VoteMixin):
 
 
 class TagRequest(Base, FollowableMixin):
+    __vote__ = TagRequestVote
     tag = db.Column(db.String(127), index=True)
     weight = db.Column(db.Integer, default=0, index=True)
     approved = db.Column(db.Boolean, default=False, index=True)
