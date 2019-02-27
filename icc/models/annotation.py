@@ -514,7 +514,7 @@ class Annotation(Base, FollowableMixin):
         """
         reptype = ReputationEnum.query.filter_by(enum='upvote').first()
         weight = voter.up_power
-        repchange = ReputationChange(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, enum=reptype,
                                      delta=reptype.default_delta)
         vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
                               repchange=repchange)
@@ -532,7 +532,7 @@ class Annotation(Base, FollowableMixin):
             repdelta = -self.annotator.reputation
         else:
             repdelta = reptype.default_delta
-        repchange = ReputationChange(user=self.annotator, type=reptype,
+        repchange = ReputationChange(user=self.annotator, enum=reptype,
                                      delta=repdelta)
         vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
                               repchange=repchange)
@@ -608,10 +608,6 @@ class Edit(Base, EditMixin):
     :class:`Annotation`. An annotation object is just a HEAD, like in git. Or,
     rather, a tag? I can't remember how git's model works, but essentially, the
     annotation object just serves as a pointer to it's current edit.
-
-    Note: I am 99.99% sure this object is currently broken. At least, the
-    downvote method is, because it calls a reject method that I don't see
-    anywhere. I will have to reimplement it.
 
     Attributes
     ----------
