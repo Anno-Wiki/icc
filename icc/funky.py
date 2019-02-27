@@ -4,39 +4,15 @@ from flask_login import current_user
 from werkzeug.urls import url_parse
 
 
-# This method is used to run through all the lines for a read view and convert/
-# prep them to be shown: (a) converts underscores to <em>/</em> tags, and (b)
-# opens and closes surrounding <em></em> tags on lines that need it so that the
-# tags don's span multiple levels in the DOM and throw everything into a tizzy.
-# It also allows me to display an arbitrary number of lines perfectly.
-def preplines(lines):
-    us = False
-
-    for i, line in enumerate(lines):
-
-        if '_' in lines[i].line:
-            newline = []
-            for c in lines[i].line:
-                if c == '_':
-                    if us:
-                        newline.append('</em>')
-                        us = False
-                    else:
-                        newline.append('<em>')
-                        us = True
-                else:
-                    newline.append(c)
-            lines[i].line = ''.join(newline)
-
-        if line.em_status.enum == 'oem':
-            lines[i].line = lines[i].line + '</em>'
-        elif line.em_status.enum == 'cem':
-            lines[i].line = '<em>' + lines[i].line
-        elif line.em_status.enum == 'em':
-            lines[i].line = '<em>' + lines[i].line + '</em>'
-
-
 def is_filled(data):
+    """This is a javascript-like function (in that it's obnoxious) that tests
+    whether a field in a wtform is filled or not.
+
+    Parameters
+    ----------
+    data : WTForm.data
+        Idk how to describe it! It's the data in a WTForm field.
+    """
     if not data.strip():
         return False
     if data is None:
@@ -58,6 +34,9 @@ def generate_next(alt_url):
 
 
 def line_check(fl, ll):
+    """This takes a first line and last line and last line in a wtf form for
+    annotating and returns a tuple of ints.
+    """
     # technically none of this can happen anyway because of my Edit.__init__(),
     # but I'm doing this anyway.
     fl = 1 if fl < 1 else fl
@@ -68,6 +47,7 @@ def line_check(fl, ll):
 
 
 def authorize(string):
+    """A wrapper function to authorize a route with a wrapper."""
     def inner(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
