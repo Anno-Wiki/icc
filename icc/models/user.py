@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db, login
-from icc.models.mixins import Base, EnumMixin
+from icc.models.mixins import Base, EnumMixin, FlagMixin
 
 # We have to import the whole module in this file to avoid the circular import.
 # I would love to find a simpler fix for this, but in this case we do this for
@@ -161,19 +161,6 @@ class User(UserMixin, Base):
     def update_last_seen(self):
         """A method that will update the user's last seen timestamp."""
         self.last_seen = datetime.utcnow()
-
-    def flag(self, flag, thrower):
-        """A method to flag the user.
-
-        Parameters
-        ----------
-        flag : str
-            A string that corresponds to the flag to flag the user with.
-        thrower : :class:`User`
-            A User object of the user throwing the flag. (i.e., the snitch 😜)
-        """
-        flag_obj = UserFlag(flag=flag, user=self, thrower=thrower)
-        db.session.add(flag_obj)
 
     # Password routes
     def set_password(self, password):
@@ -379,43 +366,13 @@ class ReputationChange(Base):
         return f'<rep change {self.type} on {self.user.displayname}>'
 
 
-class UserFlagEnum(Base, EnumMixin):
-    """An enum class for user flags."""
-
-
-class UserFlag(Base):
-    enum_id = db.Column(db.Integer, db.ForeignKey('userflagenum.id'),
-                        index=True)
+class UserFlag(Base, FlagMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    thrower_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
-    time_resolved = db.Column(db.DateTime)
-    resolver_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    entity = db.relationship('User', foreign_keys=[user_id], backref='flags')
 
-    user = db.relationship('User', foreign_keys=[user_id])
-    thrower = db.relationship('User', foreign_keys=[thrower_id])
-    resolver = db.relationship('User', foreign_keys=[resolver_id])
-    flag = db.relationship('UserFlagEnum')
 
-    def __init__(self, *args, **kwargs):
-        flag = kwargs.pop('flag')
-        super().__init__(*args, **kwargs)
-        flag_enum = UserFlagEnum.query.filter(enum=flag).first()
-        self.flag = flag_enum
-
-    def __repr__(self):
-        if self.resolved:
-            return f'<X UserFlag: {self.flag.enum} at {self.time_thrown}>'
-        else:
-            return f'<UserFlag thrown: {self.flag.enum} at {self.time_thrown}>'
-
-    def resolve(self, resolver):
-        self.time_resolved = datetime.utcnow()
-        self.resolver = resolver
-
-    def unresolve(self):
-        self.time_resolved = None
-        self.resolver = None
+# hoist the UserFlag enum class into the namespace.
+UserFlagEnum = UserFlag.enum_cls
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

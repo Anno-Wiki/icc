@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4d126ab11576
+Revision ID: 9f04c6ad4d6b
 Revises: 
-Create Date: 2019-02-26 16:04:43.898969
+Create Date: 2019-02-27 14:27:04.014962
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4d126ab11576'
+revision = '9f04c6ad4d6b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -115,21 +115,21 @@ def upgrade():
     )
     op.create_table('userflag',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_flag_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
-    sa.Column('resolver_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['enum_id'], ['userflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['user_flag_id'], ['userflagenum.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_userflag_enum_id'), 'userflag', ['enum_id'], unique=False)
     op.create_index(op.f('ix_userflag_resolver_id'), 'userflag', ['resolver_id'], unique=False)
     op.create_index(op.f('ix_userflag_thrower_id'), 'userflag', ['thrower_id'], unique=False)
-    op.create_index(op.f('ix_userflag_user_flag_id'), 'userflag', ['user_flag_id'], unique=False)
     op.create_index(op.f('ix_userflag_user_id'), 'userflag', ['user_id'], unique=False)
     op.create_table('wikiedit',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -335,20 +335,20 @@ def upgrade():
     )
     op.create_table('annotationflag',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('annotation_flag_id', sa.Integer(), nullable=True),
     sa.Column('annotation_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
-    sa.Column('resolver_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_flag_id'], ['annotationflagenum.id'], ),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['enum_id'], ['annotationflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_annotationflag_annotation_flag_id'), 'annotationflag', ['annotation_flag_id'], unique=False)
     op.create_index(op.f('ix_annotationflag_annotation_id'), 'annotationflag', ['annotation_id'], unique=False)
+    op.create_index(op.f('ix_annotationflag_enum_id'), 'annotationflag', ['enum_id'], unique=False)
     op.create_index(op.f('ix_annotationflag_resolver_id'), 'annotationflag', ['resolver_id'], unique=False)
     op.create_index(op.f('ix_annotationflag_thrower_id'), 'annotationflag', ['thrower_id'], unique=False)
     op.create_table('annotationvote',
@@ -473,8 +473,8 @@ def downgrade():
     op.drop_table('annotationvote')
     op.drop_index(op.f('ix_annotationflag_thrower_id'), table_name='annotationflag')
     op.drop_index(op.f('ix_annotationflag_resolver_id'), table_name='annotationflag')
+    op.drop_index(op.f('ix_annotationflag_enum_id'), table_name='annotationflag')
     op.drop_index(op.f('ix_annotationflag_annotation_id'), table_name='annotationflag')
-    op.drop_index(op.f('ix_annotationflag_annotation_flag_id'), table_name='annotationflag')
     op.drop_table('annotationflag')
     op.drop_table('annotation_followers')
     op.drop_table('writerconnection')
@@ -527,9 +527,9 @@ def downgrade():
     op.drop_index(op.f('ix_wikiedit_approved'), table_name='wikiedit')
     op.drop_table('wikiedit')
     op.drop_index(op.f('ix_userflag_user_id'), table_name='userflag')
-    op.drop_index(op.f('ix_userflag_user_flag_id'), table_name='userflag')
     op.drop_index(op.f('ix_userflag_thrower_id'), table_name='userflag')
     op.drop_index(op.f('ix_userflag_resolver_id'), table_name='userflag')
+    op.drop_index(op.f('ix_userflag_enum_id'), table_name='userflag')
     op.drop_table('userflag')
     op.drop_table('user_flrs')
     op.drop_index(op.f('ix_text_title'), table_name='text')

@@ -14,7 +14,7 @@ from flask import url_for, flash, current_app as app
 
 from icc import db
 from icc.models.mixins import (Base, VoteMixin, EditMixin, EnumMixin,
-                               FollowableMixin)
+                               FollowableMixin, FlagMixin)
 from icc.models.user import ReputationEnum, ReputationChange
 from icc.models.wiki import Wiki
 
@@ -224,74 +224,30 @@ class AnnotationVote(Base, VoteMixin):
         return f"{prefix}{self.annotation}"
 
 
-class AnnotationFlagEnum(Base, EnumMixin):
-    """An :class:`EnumMixin` class that represents annotation flags. See the
-    Mixin and the Base for attributes.
-    """
-    ...
-
-
-class AnnotationFlag(Base):
+class AnnotationFlag(Base, FlagMixin):
     """A flagging event for annotations. Uses the AnnotationFlagEnum for
     templating. Will need an update soon to overhaul the flagging system to be
     more public.
 
+    Inherits
+    --------
+    FlagMixin
+
     Attributes
     ----------
-    annotation_flag_id : int
-        The int of the :class:`AnnotationFlagEnum` template.
     annotation_id : int
         The int of the :class:`Annotation` object the flag is applied to.
-    thrower_id : int
-        The id of the :class:`User` who initially threw the flag.
-    time_thrown : datetime
-        The date and time in UTC that the flag was thrown.
-    time_resolved : datetime
-        The date and time in UTC that the flag was resolved.
-    annotation : :class:`Annotation`
-        The :class:`Annotation` object the flag was applied to.
-    thrower : :class:`User`
-        The :class:`User` that threw the flag.
-    resolver : :class:`User`
-        The :class:`User` that resolved the flag.
-    flag : :class:`AnnotationFlagEnum`
-        The :class:`AnnotationFlagEnum` template that the flag is based on.
+    entity : :class:`Annotation`
+        The actual annotation.
     """
-    annotationflag_id = db.Column(db.Integer,
-                                  db.ForeignKey('annotationflagenum.id'),
-                                  index=True)
     annotation_id = db.Column(db.Integer,
                               db.ForeignKey('annotation.id',
                                             ondelete='CASCADE'), index=True)
+    entity = db.relationship('Annotation')
 
-    thrower_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    time_thrown = db.Column(db.DateTime, default=datetime.utcnow())
 
-    time_resolved = db.Column(db.DateTime)
-    resolver_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-
-    annotation = db.relationship('Annotation', foreign_keys=[annotation_id])
-    thrower = db.relationship('User', foreign_keys=[thrower_id])
-    resolver = db.relationship('User', foreign_keys=[resolver_id])
-    flag = db.relationship('AnnotationFlagEnum')
-
-    def __repr__(self):
-        """Different representations depending on the status of the flag."""
-        if self.resolver:
-            return f'<X AnnotationFlag: {self.flag.flag} at {self.time_thrown}>'
-        else:
-            return (f'<AnnotationFlag thrown: {self.flag.flag} at'
-                    f' {self.time_thrown}>')
-
-    def resolve(self, resolver):
-        """Marks the time resolved and the resolver of the flag."""
-        self.time_resolved = datetime.utcnow()
-        self.resolver = resolver
-
-    def unresolve(self):
-        """Unmarks the time resolved and the resolver of the flag."""
-        self.time_resolved = None
-        self.resolver = None
+# hoist the enum into the namespace
+AnnotationFlagEnum = AnnotationFlag.enum_cls
 
 
 class Annotation(Base, FollowableMixin):
@@ -553,12 +509,6 @@ class Annotation(Base, FollowableMixin):
         self.annotator.reputation -= delta
         db.session.delete(vote)
         db.session.delete(vote.repchange)
-
-    def flag(self, flag, thrower):
-        """Flag the annotation with a particular enum. To be heavily overhauled.
-        """
-        event = AnnotationFlag(flag=flag, annotation=self, thrower=thrower)
-        db.session.add(event)
 
 
 class EditVote(Base, VoteMixin):

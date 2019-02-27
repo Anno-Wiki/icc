@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from flask import flash
 from flask_login import current_user
@@ -46,7 +47,111 @@ class EnumMixin:
     enum = db.Column(db.String(128), index=True)
 
     def __repr__(self):
-        return f"<{type(self)} {self.enum}>"
+        return f"<{type(self).__name__} {self.enum}>"
+
+
+class FlagMixin:
+    """FlagMixin is a complex mixin. It defines a new class for enums for flags.
+    I *like* it.
+    """
+
+    @declared_attr
+    def enum_cls(cls):
+        """Literally a class. It is the enum class for the flags. Generally,
+        after defining a Flag class, (which may end up becoming `FlaggableMixin`
+        composable if I'm crazy enough) you should hoist the enum_cls value up
+        into the namespace by declaring (after declaring the class that inherits
+        FlagMixin) `<cls>Enum = <cls>.enum_cls`. That solves a lot of problems.
+        """
+        return type(
+            f'{cls.__name__}Enum', (Base, EnumMixin),
+            {'__repr__': lambda self: f'<{type(self).__name__} {self.enum}'}
+        )
+
+    @declared_attr
+    def enum_id(cls):
+        """The id of the enum that this particular flag is typed."""
+        return db.Column(db.Integer,
+                         db.ForeignKey(f'{cls.__name__.lower()}enum.id'),
+                         index=True)
+
+    @declared_attr
+    def enum(cls):
+        """The actual enum object that this relationship is typed to."""
+        return db.relationship(f'{cls.__name__}Enum')
+
+    @declared_attr
+    def thrower_id(cls):
+        """The id of the user who threw the flag."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    @declared_attr
+    def thrower(cls):
+        """The user who threw the flag."""
+        return db.relationship('User', foreign_keys=[cls.thrower_id])
+
+    @declared_attr
+    def resolver_id(cls):
+        """The id of the user who resolved the flag."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    @declared_attr
+    def resolver(cls):
+        """The user who resolved the flag."""
+        return db.relationship('User', foreign_keys=[cls.resolver_id])
+
+    @declared_attr
+    def time_thrown(cls):
+        """The time the flag was thrown."""
+        return db.Column(db.DateTime, default=datetime.utcnow())
+
+    @declared_attr
+    def time_resolved(cls):
+        """The time the flag was resolved."""
+        return db.Column(db.DateTime)
+
+    def __init__(self, *args, **kwargs):
+        """The init takes the flag as a string and queries for it.
+
+        Raises
+        ------
+        ValueError
+            If the flag value is non-existent in the db.
+        """
+        flag = kwargs.pop('flag')
+        super().__init__(*args, **kwargs)
+        flag_enum = self.enum_cls.query.filter(enum=flag).first()
+        if not flag_enum:
+            raise ValueError(f'{flag} is not a valid flag')
+        self.enum = flag_enum
+
+    @classmethod
+    def flag(cls, obj, flag, thrower):
+        """A class method to flag the object (or jerk)."""
+        db.session.add(cls(entity=obj, flag=flag, thrower=thrower))
+
+    def __repr__(self):
+        """Branches representations based on resolution status."""
+        if self.resolved:
+            return f'<X {type(self).__name__}: {self.flag} at {self.time_thrown}>'
+        else:
+            return f'<{type(self).__name__} thrown: {self.flag} at {self.time_thrown}>'
+
+    def resolve(self, resolver):
+        """Resolve the flag.
+
+        Parameters
+        ----------
+        resolver : :class:`User`
+            The user that is resolving the flag.
+        """
+        self.time_resolved = datetime.utcnow()
+        self.resolver = resolver
+
+    def unresolve(self):
+        """Unresolves the flag (i.e., puts it back into play)."""
+        self.time_resolved = None
+        self.resolver = None
 
 
 class VoteMixin:

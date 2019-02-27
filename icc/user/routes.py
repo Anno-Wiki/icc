@@ -9,8 +9,8 @@ from icc.funky import generate_next
 from icc.user import user
 from icc.user.forms import LoginForm, RegistrationForm
 
-from icc.models.annotation import Annotation, Edit,  AnnotationFlagEnum
-from icc.models.user import User, UserFlagEnum
+from icc.models.annotation import Annotation, AnnotationFlag, Edit
+from icc.models.user import User, UserFlag
 
 
 @user.route('/register', methods=['GET', 'POST'])
@@ -140,8 +140,8 @@ def profile(user_id):
                           page=page),
     }
 
-    userflags = UserFlagEnum.query.all()
-    annotationflags = AnnotationFlagEnum.query.all()
+    userflags = UserFlag.enum_cls.query.all()
+    annotationflags = AnnotationFlag.enum_cls.query.all()
 
     next_page = url_for(
         'user.profile', user_id=user.id, page=annotations.next_num, sort=sort)\
@@ -163,7 +163,7 @@ def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
     flag = UserFlagEnum.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for('user.profile', user_id=user.id))
-    user.flag(flag, current_user)
+    UserFlag.flag(user, flag, current_user)
     db.session.commit()
     flash(f"User {user.displayname} flagged \"{flag.flag}\"")
     return redirect(redirect_url)

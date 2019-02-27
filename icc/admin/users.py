@@ -7,7 +7,7 @@ from icc.funky import generate_next, authorize
 from icc.forms import AreYouSureForm
 from icc.admin import admin
 
-from icc.models.user import User, UserFlag, UserFlagEnum
+from icc.models.user import User, UserFlag
 
 
 @admin.route('/user/<user_id>/delete/', methods=['GET', 'POST'])
@@ -61,8 +61,8 @@ def all_user_flags():
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = UserFlag.query\
-            .outerjoin(UserFlagEnum)\
-            .order_by(UserFlagEnum.flag.asc())\
+            .outerjoin(UserFlag.enum_cls)\
+            .order_by(UserFlag.enum_cls.flag.asc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = UserFlag.query\
