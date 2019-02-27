@@ -49,11 +49,10 @@ def is_filled(data):
 
 
 def generate_next(alt_url):
+    """A simple way to generate a next-url redirect."""
     redirect_url = request.args.get('next')
     if redirect_url and url_parse(redirect_url).netloc == '':
-        return request.args.get('next')
-    elif request.referrer:
-        return request.referrer
+        return redirect_url
     else:
         return alt_url
 

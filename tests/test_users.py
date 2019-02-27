@@ -6,9 +6,9 @@ from icc.models.user import AdminRight, User
 from tests.utils import get_token
 
 
-def test_register(appclient):
+def test_register(minclient):
     """Test user registration"""
-    app, client = appclient
+    app, client = minclient
     with app.test_request_context():
         url = url_for('user.register')
     rv = client.get(url)

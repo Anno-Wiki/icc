@@ -241,9 +241,8 @@ class User(UserMixin, Base):
             Whether the user is authorized.
         """
         r = AdminRight.query.filter_by(enum=right).first()
-        print(r)
-        print(r.min_rep)
-        print(self.reputation)
+        if not r:
+            raise TypeError("The right does not exist.""")
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def authorize(self, right):
