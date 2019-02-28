@@ -7,8 +7,7 @@ from icc.forms import AreYouSureForm
 from icc.funky import generate_next, authorize
 from icc.admin import admin
 
-from icc.models.annotation import (Annotation, Edit, AnnotationFlagEnum,
-                                   AnnotationFlag)
+from icc.models.annotation import Annotation, Edit, AnnotationFlag
 from icc.models.content import Text, Edition
 from icc.models.user import User
 
@@ -80,13 +79,13 @@ def all_annotation_flags():
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = AnnotationFlag.query\
-            .outerjoin(AnnotationFlagEnum)\
-            .order_by(AnnotationFlagEnum.flag.asc())\
+            .outerjoin(AnnotationFlag.enum_cls)\
+            .order_by(AnnotationFlag.enum_cls.flag.asc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = AnnotationFlag.query\
-            .outerjoin(AnnotationFlagEnum)\
-            .order_by(AnnotationFlagEnum.flag.desc())\
+            .outerjoin(AnnotationFlag.enum_cls)\
+            .order_by(AnnotationFlag.enum_cls.flag.desc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = AnnotationFlag.query\
@@ -210,13 +209,13 @@ def annotation_flags(annotation_id):
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = annotation.flag_history\
-            .outerjoin(AnnotationFlagEnum)\
-            .order_by(AnnotationFlagEnum.flag.asc())\
+            .outerjoin(AnnotationFlag.enum_cls)\
+            .order_by(AnnotationFlag.enum_cls.flag.asc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = annotation.flag_history\
-            .outerjoin(AnnotationFlagEnum)\
-            .order_by(AnnotationFlagEnum.flag.desc())\
+            .outerjoin(AnnotationFlag.enum_cls)\
+            .order_by(AnnotationFlag.enum_cls.flag.desc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = annotation.flag_history\

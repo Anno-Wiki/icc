@@ -19,7 +19,7 @@ from flask_login import current_user, logout_user
 from icc.funky import line_check
 from icc.main import main
 
-from icc.models.annotation import Annotation, Edit, AnnotationFlagEnum
+from icc.models.annotation import Annotation, Edit, AnnotationFlag
 from icc.models.content import Text, Edition, Line
 
 from icc.forms import LineNumberForm, SearchForm
@@ -34,7 +34,7 @@ def before_request():
     if current_user.is_authenticated and current_user.locked:
         logout_user()
     g.search_form = SearchForm()
-    g.aflags = AnnotationFlagEnum.query.all()
+    g.aflags = AnnotationFlag.enum_cls.query.all()
 
 
 @main.route('/search')

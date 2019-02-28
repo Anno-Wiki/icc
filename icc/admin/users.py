@@ -66,8 +66,8 @@ def all_user_flags():
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = UserFlag.query\
-            .outerjoin(UserFlagEnum)\
-            .order_by(UserFlagEnum.flag.desc())\
+            .outerjoin(UserFlag.enum_cls)\
+            .order_by(UserFlag.enum_cls.flag.desc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = UserFlag.query\
@@ -171,13 +171,13 @@ def user_flags(user_id):
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag':
         flags = user.flag_history\
-            .outerjoin(UserFlagEnum)\
-            .order_by(UserFlagEnum.flag.asc())\
+            .outerjoin(UserFlag.enum_cls)\
+            .order_by(UserFlag.enum_cls.flag.asc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'flag_invert':
         flags = user.flag_history\
-            .outerjoin(UserFlagEnum)\
-            .order_by(UserFlagEnum.flag.desc())\
+            .outerjoin(UserFlag.enum_cls)\
+            .order_by(UserFlag.enum_cls.flag.desc())\
             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     elif sort == 'time':
         flags = user.flag_history\

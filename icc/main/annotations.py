@@ -11,7 +11,7 @@ from icc import db
 from icc.main import main
 
 from icc.models.annotation import (Annotation, Comment, AnnotationVote, Edit,
-                                   Tag, AnnotationFlagEnum)
+                                   Tag, AnnotationFlag)
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
@@ -162,10 +162,10 @@ def flag_annotation(flag_id, annotation_id):
                                          annotation_id=annotation.id))
     if not annotation.active:
         current_user.authorize('view_deactivated_annotations')
-    flag = AnnotationFlagEnum.query.get_or_404(flag_id)
-    annotation.flag(flag, current_user)
+    flag = AnnotationFlag.enum_cls.query.get_or_404(flag_id)
+    AnnotationFlag.flag(annotation, flag, current_user)
     db.session.commit()
-    flash(f"Annotation {annotation.id} flagged \"{flag.flag}\"")
+    flash(f"Annotation {annotation.id} flagged \"{flag.enum}\"")
     return redirect(redirect_url)
 
 

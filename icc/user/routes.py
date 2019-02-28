@@ -161,7 +161,7 @@ def profile(user_id):
 @login_required
 def flag_user(flag_id, user_id):
     user = User.query.get_or_404(user_id)
-    flag = UserFlagEnum.query.get_or_404(flag_id)
+    flag = UserFlag.enum_cls.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for('user.profile', user_id=user.id))
     UserFlag.flag(user, flag, current_user)
     db.session.commit()
