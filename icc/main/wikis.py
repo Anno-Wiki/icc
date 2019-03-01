@@ -19,6 +19,7 @@ from icc.funky import generate_next
 @main.route('/wiki/<wiki_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_wiki(wiki_id):
+    """Edit a wiki."""
     form = WikiForm()
     wiki = Wiki.query.get_or_404(wiki_id)
     redirect_url = generate_next(wiki.entity.url)
