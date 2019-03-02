@@ -1,3 +1,5 @@
+"""Administrative routes for tags."""
+
 from flask import render_template, flash, redirect, url_for
 from flask_login import login_required
 
@@ -16,6 +18,7 @@ from icc.models.annotation import Tag
 @login_required
 @authorize('create_tags')
 def create_tag(tag_request_id):
+    """Create a new tag."""
     tag_request = None
     if tag_request_id:
         tag_request = TagRequest.query.get_or_404(tag_request_id)
@@ -43,6 +46,7 @@ def create_tag(tag_request_id):
 @login_required
 @authorize('create_tags')
 def reject_tag(tag_request_id):
+    """Reject a tag request."""
     tag_request = TagRequest.query.get_or_404(tag_request_id)
     redirect_url = generate_next(url_for('tag_request_index'))
     tag_request.rejected = True
