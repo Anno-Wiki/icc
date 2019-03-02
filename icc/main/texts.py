@@ -72,16 +72,14 @@ def text_annotations(text_url):
         'newest': text.annotations.order_by(Annotation.timestamp.desc()),
         'oldest': text.annotations.order_by(Annotation.timestamp.asc()),
         'weight': text.annotations.order_by(Annotation.weight.desc()),
-        'line': (text.annotations.join(Edit)
-                 .filter(Edit.current==True)
+        'line': (text.annotations.join(Edit).filter(Edit.current==True)
                  .order_by(Edit.last_line_num.asc())),
-        'modified': (text.annotations.join(Edit)
-                     .filter(Edit.current==True)
+        'modified': (text.annotations.join(Edit).filter(Edit.current==True)
                      .order_by(Edit.timestamp.desc())),
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort]\
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)

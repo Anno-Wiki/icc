@@ -27,22 +27,24 @@ def edition_annotations(text_url, edition_num):
     edition = text.editions.filter_by(num=edition_num).first_or_404()
 
     sorts = {
-        'newest': (edition.annotations.filter_by(active=True)
+        'newest': (edition.annotations
+                   .filter_by(active=True)
                    .order_by(Annotation.timestamp.desc())),
-        'oldest': (edition.annotations.filter_by(active=True)
+        'oldest': (edition.annotations
+                   .filter_by(active=True)
                    .order_by(Annotation.timestamp.asc())),
         'modified': (edition.annotations.join(Edit)
-                     .filter(Annotation.active==True, Edit.current==True)
+                     .filter(Edit.current==True)
                      .order_by(Edit.timestamp.desc())),
-        'weight': (edition.annotations.filter_by(active=True)
+        'weight': (edition.annotations
                    .order_by(Annotation.weight.desc())),
         'line': (edition.annotations.join(Edit)
-                 .filter(Annotation.active==True, Edit.current==True)
+                 .filter(Edit.current==True)
                  .order_by(Edit.last_line_num.asc()))
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort]\
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)

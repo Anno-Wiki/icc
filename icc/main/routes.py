@@ -71,18 +71,15 @@ def index():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'newest': (Annotation.query.filter_by(active=True)
-                   .order_by(Annotation.timestamp.desc())),
-        'oldest': (Annotation.query.filter_by(active=True)
-                   .order_by(Annotation.timestamp.asc())),
+        'newest': Annotation.query.order_by(Annotation.timestamp.desc()),
+        'oldest': Annotation.query.order_by(Annotation.timestamp.asc()),
         'modified': (Annotation.query.join(Edit).order_by(Edit.timestamp.desc())
-                     .filter(Annotation.active==True, Edit.current==True)),
-        'weight': (Annotation.query.filter_by(active=True)
-                   .order_by(Annotation.weight.desc())),
+                     .filter(Edit.current==True)),
+        'weight': Annotation.query.order_by(Annotation.weight.desc()),
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort]\
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)
@@ -123,11 +120,11 @@ def line_annotations(text_url, edition_num, line_num):
         'oldest': line.annotations.order_by(Annotation.timestamp.asc()),
         'weight': line.annotations.order_by(Annotation.weight.desc()),
         'modified': (line.annotations.join(Edit).order_by(Edit.timestamp.desc())
-                     .filter(Annotation.active==True, Edit.current==True))
+                     .filter(Edit.current==True))
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort]\
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)

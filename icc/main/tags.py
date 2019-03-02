@@ -65,11 +65,11 @@ def tag_annotations(tag):
         'oldest': tag.annotations.order_by(Annotation.timestamp.asc()),
         'weight': tag.annotations.order_by(Annotation.weight.desc()),
         'modified': (tag.annotations.order_by(Edit.timestamp.desc())
-                     .filter(Annotation.active==True, Edit.current==True))
+                     .filter(Edit.current==True))
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort]\
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)

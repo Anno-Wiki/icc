@@ -89,7 +89,7 @@ def writer_annotations(writer_url):
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort] \
+    annotations = sorts[sort].filter(Annotation.active==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)
