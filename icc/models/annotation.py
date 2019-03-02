@@ -541,7 +541,7 @@ class EditVote(Base, VoteMixin):
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
     edit = db.relationship('Edit',
-                           backref=backref('edit_ballots', lazy='dynamic',
+                           backref=backref('ballots', lazy='dynamic',
                                            passive_deletes=True))
     reputationchange_id = db.Column(
         db.Integer, db.ForeignKey('reputationchange.id'), default=None)
@@ -611,7 +611,7 @@ class Edit(Base, EditMixin):
     lines : list
         A list of all of the lines that are the target of the edit.
     context : list
-        A list of all the lines that are the target of the edit *plus* five
+g       A list of all the lines that are the target of the edit *plus* five
         lines on either side of the first and last lines of the target lines.
     """
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -693,7 +693,7 @@ class Edit(Base, EditMixin):
         if self.editor == voter:
             flash("You cannot vote on your own edits.")
             return
-        ov = voter.get_edit_vote(self)
+        ov = voter.get_vote(self)
         if ov:
             if ov.is_up:
                 self.rollback(ov)
@@ -715,7 +715,7 @@ class Edit(Base, EditMixin):
         if self.editor == voter:
             flash("You cannot vote on your own edits.")
             return
-        ov = voter.get_edit_vote(self)
+        ov = voter.get_vote(self)
         if ov:
             if not ov.is_up:
                 self.rollback(ov)

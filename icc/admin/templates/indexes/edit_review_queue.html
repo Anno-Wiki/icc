@@ -2,9 +2,9 @@
 
 {% block content %}
     {% set header = [
-        ("voted", "voted_invert", "Vote &#9662;", "Vote &#9652;"),
-        ("id", "id_invert", "Annotation &#9662;", "Annotation &#9652;"), 
-        ("edit_num", "edit_num_invert", "Edit &#9662;", "Edit &#9652;"),
+        ("voted", "voted_invert", "Voted? &#9662;", "Voted? &#9652;"),
+        ("id", "id_invert", "Annotation &#9662;", "Annotation &#9652;"),
+        ("edit_num", "edit_num_invert", "Edit # &#9662;", "Edit # &#9652;"),
         ("editor", "editor_invert", "Editor &#9662;", "Editor &#9652;"),
         ("time", "time_invert", "Time &#9662;", "Time &#9652;"),
         ("reason", "reason_invert", "Reason &#9662;", "Reason &#9652;"),
@@ -31,31 +31,19 @@
 
         {% if edits %}
             {% for edit in edits %}
-                <tr{% if edit in votes %} class="read"{% else %}
-                    class="unread"{% endif %}>
+                {% set vote = current_user.get_vote(edit) %}
+                <tr{% if vote %} class="read"{%
+                    else %} class="unread"{% endif %}>
                     <td>
-                        {% if edit in votes %}
-                            {% if edit in votes and
-                            current_user.get_edit_vote(edit).is_up() %}
-                                <a href="{{ url_for("admin.upvote_edit",
-                                annotation_id=edit.annotation.id,
-                                edit_id=edit.id) }}">&#10003;</a>
-                            {% else %}
-                                <a href="{{ url_for("admin.downvote_edit",
-                                    annotation_id=edit.annotation.id,
-                                    edit_id=edit.id)
-                                    }}">&#10007;</a>
-                            {% endif %}
-                        {% else %}
-                            <a href="{{ url_for("admin.review_edit",
+                        <a href="{{ url_for("admin.review_edit",
                             annotation_id=edit.annotation.id, edit_id=edit.id)
-                            }}">review</a>
-                        {% endif %}
+                            }}">{% if vote %}&#10003;{% else %}review{% endif
+                            %}</a>
                     </td>
                     <td>
-                        <a href="{{ url_for("annotation",
-                            annotation_id=edit.annotation_id) }}">
-                            [{{ edit.annotation_id }}]
+                        <a href="{{ url_for("main.annotation",
+                            annotation_id=edit.annotation.id) }}">
+                            [{{ edit.annotation.id }}]
                         </a>
                     </td>
                     <td>

@@ -1,3 +1,5 @@
+"""Administrative routes for edits."""
+
 import re
 import difflib
 
@@ -19,103 +21,74 @@ from icc.models.user import User
 @login_required
 @authorize('review_edits')
 def edit_review_queue():
+    """The edit review queue. This is one of the chief moderation routes."""
+    default = 'voted'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'voted', type=str)
+    sort = request.args.get('sort', default, type=str)
 
-    if sort == 'voted':
-        edits = Edit.query\
-            .outerjoin(EditVote, and_(EditVote.voter_id == current_user.id,
-                                      EditVote.edit_id == Edit.id))\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(EditVote.delta.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'voted_invert':
-        edits = Edit.query\
-            .outerjoin(EditVote, and_(EditVote.voter_id == current_user.id,
-                                      EditVote.edit_id == Edit.id))\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(EditVote.delta.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'id':
-        edits = Edit.query.outerjoin(Annotation)\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Annotation.id.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'id_invert':
-        edits = Edit.query.outerjoin(Annotation)\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Annotation.id.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'edit_num':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.num.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'edit_num_invert':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.num.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor':
-        edits = Edit.query.outerjoin(User)\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor_invert':
-        edits = Edit.query.outerjoin(User)\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.timestamp.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.timestamp.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.reason.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason_invert':
-        edits = Edit.query\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(Edit.reason.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        edits = Edit.query\
-            .outerjoin(EditVote, and_(EditVote.voter_id == current_user.id,
-                                      EditVote.edit_id == Edit.id))\
-            .filter(Edit.approved == False, Edit.rejected == False)\
-            .order_by(EditVote.delta.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-        sort = 'voted'
+    sorts = {
+        'voted': (Edit.query
+                  .outerjoin(EditVote, and_(EditVote.voter_id==current_user.id,
+                                            EditVote.edit_id==Edit.id))
+                  .order_by(EditVote.delta.desc())),
+        'voted_invert': (Edit.query
+                         .outerjoin(EditVote,
+                                    and_(EditVote.voter_id==current_user.id,
+                                         EditVote.edit_id==Edit.id))
+                         .order_by(EditVote.delta.asc())),
+        'id': (Edit.query.outerjoin(Annotation)
+               .order_by(Annotation.id.asc())),
+        'id_invert': (Edit.query.outerjoin(Annotation)
+                      .order_by(Annotation.id.desc())),
+        'edit_num': (Edit.query
+                     .order_by(Edit.num.asc())),
+        'edit_num_invert': (Edit.query
+                            .order_by(Edit.num.desc())),
+        'editor': (Edit.query.outerjoin(User)
+                   .order_by(User.displayname.asc())),
+        'editor_invert': (Edit.query.outerjoin(User)
+                          .order_by(User.displayname.desc())),
+        'time': (Edit.query
+                 .order_by(Edit.timestamp.asc())),
+        'time_invert': (Edit.query
+            .order_by(Edit.timestamp.desc())),
+        'reason': (Edit.query
+                   .order_by(Edit.reason.asc())),
+        'reason_invert': (Edit.query
+                          .order_by(Edit.reason.desc()))
+    }
 
-    votes = current_user.edit_votes
+    sort = sort if sort in sorts else default
+    edits = (sorts[sort]
+                   .filter(Edit.approved==False, Edit.rejected==False)
+                   .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'],
+                             False))
+    if not edits.items and page > 1:
+        abort(404)
 
+
+    sorturls = {key: url_for('admin.edit_review_queue', page=page,
+                             sort=key) for key in sorts.keys()}
     next_page = url_for('admin.edit_review_queue', page=edits.next_num,
                         sort=sort) if edits.has_next else None
     prev_page = url_for('admin.edit_review_queue', page=edits.prev_num,
                         sort=sort) if edits.has_prev else None
-
-    return render_template(
-        'indexes/edit_review_queue.html', title="Edit Review Queue",
-        next_page=next_page, prev_page=prev_page, sort=sort, edits=edits.items,
-        votes=votes)
+    return render_template('indexes/edit_review_queue.html',
+                           title="Edit Review Queue",
+                           next_page=next_page, prev_page=prev_page,
+                           sort=sort, sorts=sorturls,
+                           edits=edits.items)
 
 
 @admin.route('/annotation/<annotation_id>/edit/<edit_id>/review')
 @login_required
 @authorize('review_edits')
 def review_edit(annotation_id, edit_id):
+    """Review an edit. This, with the queue, are the chief moderation routes."""
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
-        return redirect(url_for('view_edit', annotation_id=edit.annotation_id,
-                                num=edit.num))
+        return redirect(url_for('main.view_edit',
+                                annotation_id=edit.annotation.id, num=edit.num))
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
 
@@ -152,6 +125,7 @@ def review_edit(annotation_id, edit_id):
 @login_required
 @authorize('review_edits')
 def upvote_edit(annotation_id, edit_id):
+    """Upvote an edit."""
     edit = Edit.query.get_or_404(edit_id)
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
@@ -167,6 +141,7 @@ def upvote_edit(annotation_id, edit_id):
 @login_required
 @authorize('review_edits')
 def downvote_edit(annotation_id, edit_id):
+    """Downvote an edit."""
     edit = Edit.query.get_or_404(edit_id)
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
