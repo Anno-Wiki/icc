@@ -20,102 +20,49 @@ from icc.models.user import User
 @login_required
 @authorize('review_wiki_edits')
 def wiki_edit_review_queue():
+    """Edit review queue for wikis."""
+    default = 'voted'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'voted', type=str)
+    sort = request.args.get('sort', default, type=str)
 
-    if sort == 'voted':
-        edits = WikiEdit.query\
-            .outerjoin(WikiEditVote,
-                       and_(WikiEditVote.voter_id == current_user.id,
-                            WikiEditVote.edit_id == WikiEdit.id))\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEditVote.delta.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'voted_invert':
-        edits = WikiEdit.query\
-            .outerjoin(WikiEditVote,
-                       and_(WikiEditVote.voter_id == current_user.id,
-                            WikiEditVote.edit_id == WikiEdit.id))\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEditVote.delta.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'entity':
-        edits = WikiEdit.query\
-            .outerjoin(Wiki)\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(Wiki.entity_string.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'entity_invert':
-        edits = WikiEdit.query\
-            .outerjoin(Wiki)\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(Wiki.entity_string.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'num':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.num.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'num_invert':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.num.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor':
-        edits = WikiEdit.query\
-            .outerjoin(User)\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'editor_invert':
-        edits = WikiEdit.query\
-            .outerjoin(User)\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.timestamp.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.timestamp.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.reason.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'reason_invert':
-        edits = WikiEdit.query\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEdit.reason.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        edits = WikiEdit.query\
-            .outerjoin(WikiEditVote,
-                       and_(WikiEditVote.voter_id == current_user.id,
-                            WikiEditVote.edit_id == WikiEdit.id))\
-            .filter(WikiEdit.approved == False, WikiEdit.rejected == False)\
-            .order_by(WikiEditVote.delta.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-        sort = 'voted'
+    sorts = {
+        'voted': (WikiEdit.query.join(WikiEditVote)
+                  .order_by(WikiEditVote.delta.desc())),
+        'voted_invert': (WikiEdit.query.join(WikiEditVote)
+                         .order_by(WikiEditVote.delta.asc())),
+        'entity': WikiEdit.query.join(Wiki).order_by(Wiki.entity_string.asc()),
+        'entity_invert': (WikiEdit.query.join(Wiki)
+                          .order_by(Wiki.entity_string.desc())),
+        'num': WikiEdit.query.order_by(WikiEdit.num.asc()),
+        'num_invert': WikiEdit.query.order_by(WikiEdit.num.desc()),
+        'editor': WikiEdit.query.join(User).order_by(User.displayname.asc()),
+        'editor_invert': (WikiEdit.query.join(User)
+                          .order_by(User.displayname.desc())),
+        'time': WikiEdit.query.order_by(WikiEdit.timestamp.asc()),
+        'time_invert': WikiEdit.query.order_by(WikiEdit.timestamp.desc()),
+        'reason': WikiEdit.query.order_by(WikiEdit.reason.asc()),
+        'reason_invert': WikiEdit.query.order_by(WikiEdit.reason.desc()),
+    }
 
-    ids = [edit.id for edit in edits.items]
+    sort = sort if sort in sorts else default
+    edits = (sorts[sort]
+             .filter(WikiEdit.approved==False, WikiEdit.rejected==False)
+             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'],
+                       False))
+    if not edits.items and page > 1:
+        abort(404)
 
-    votes = current_user.wiki_edit_votes.filter(WikiEdit.id.in_(ids)).all()
-
+    sorturls = {key: url_for('admin.wiki_edit_review_queue', page=page,
+                             sort=key) for key in sorts.keys()}
     next_page = url_for('admin.wiki_edit_review_queue', page=edits.next_num,
                         sort=sort) if edits.has_next else None
     prev_page = url_for('admin.wiki_edit_review_queue', page=edits.prev_num,
                         sort=sort) if edits.has_prev else None
-
-    return render_template(
-        'indexes/wiki_edit_review_queue.html', title="Wiki Edit Review Queue",
-        next_page=next_page, prev_page=prev_page, sort=sort, page=page,
-        edits=edits.items, votes=votes)
+    return render_template('indexes/wiki_edit_review_queue.html',
+                           title="Wiki Edit Review Queue",
+                           next_page=next_page, prev_page=prev_page, page=page,
+                           sort=sort, sorts=sorturls,
+                           edits=edits.items)
 
 
 @admin.route('/wiki/<wiki_id>/edit/<edit_id>/review')
