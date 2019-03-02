@@ -2,12 +2,12 @@
 
 {% block content %}
 <h2>
-    Annotation 
-    <a href="{{ url_for("annotation", annotation_id=annotation.id) }}">
+    Annotation
+    <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
         [{{ annotation.id }}]
     </a>
     on
-    <a href="{{ url_for("text", text_url=annotation.text.url) }}">
+    <a href="{{ url_for("main.text", text_url=annotation.text.url) }}">
         {{ annotation.text.title }}
     </a>
     flags

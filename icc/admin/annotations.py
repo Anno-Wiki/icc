@@ -1,5 +1,7 @@
-from flask import render_template, flash, redirect, url_for, request,\
-    current_app
+"""Administration routes for annotations."""
+
+from flask import (render_template, flash, redirect, url_for, request,
+                   current_app, abort)
 from flask_login import current_user, login_required
 
 from icc import db
@@ -12,305 +14,222 @@ from icc.models.content import Text, Edition
 from icc.models.user import User
 
 
-@admin.route('/deactivate/annotation/<annotation_id>/')
+@admin.route('/annotation/<annotation_id>/deactivate')
 @login_required
 @authorize('deactivate_annotations')
 def deactivate(annotation_id):
+    """This route will deactivate (or reactivate) an annotation. Requires the
+    'deactivate_annotations' right.
+    """
     annotation = Annotation.query.get_or_404(annotation_id)
     annotation.active = not annotation.active
     db.session.commit()
+
     if annotation.active:
         flash(f"Annotation {annotation.id} activated")
     else:
         flash(f"Annotation {annotation.id} deactivated.")
 
-    redirect_url = generate_next(url_for('annotation',
+    redirect_url = generate_next(url_for('main.annotation',
                                          annotation_id=annotation_id))
     return redirect(redirect_url)
 
 
-@admin.route('/list/deactivated/annotations/')
+@admin.route('/list/annotations/deactivated')
 @login_required
 @authorize('view_deactivated_annotations')
 def view_deactivated_annotations():
-    sort = request.args.get('sort', 'added', type=str)
+    """View a list of all deactivated annotations. There should never be that
+    many of these because we're going to make deletion a thing. I think. I need
+    to overhaul annotation flagging with voting.
+    """
+    default = 'added'
     page = request.args.get('page', 1, type=int)
-    if sort == 'added':
-        annotations = Annotation.query.filter_by(active=False)\
-            .order_by(Annotation.timestamp.desc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    elif sort == 'weight':
-        annotations = Annotation.query.filter_by(active=False)\
-            .order_by(Annotation.weight.desc())\
-            .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
-    sorts = {
-        'added': url_for('admin.view_deactivated_annotations', page=page,
-                         sort='added'),
-        'weight': url_for('admin.view_deactivated_annotations', page=page,
-                          sort='weight')
-    }
-    next_page = url_for(
-        'admin.view_deactivated_annotations', page=annotations.next_num,
-        sort=sort) if annotations.has_next else None
-    prev_page = url_for(
-        'admin.view_deactivated_annotations', page=annotations.prev_num,
-        sort=sort) if annotations.has_prev else None
+    sort = request.args.get('sort', default, type=str)
 
-    return render_template(
-        'indexes/annotation_list.html', title="Deactivated Annotations",
-        prev_page=prev_page, next_page=next_page, sort=sort, sorts=sorts,
-        annotations=annotations.items)
+    sorts = {
+        'added': (Annotation.query.filter_by(active=False)
+                  .order_by(Annotation.timestamp.desc())),
+        'weight': (Annotation.query.filter_by(active=False)
+                   .order_by(Annotation.weight.desc()))
+    }
+
+    sort = sort if sort in sorts else default
+    annotations = sorts[sort].paginate(
+        page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+    if not annotations.items and page > 1:
+        abort(404)
+
+    sorturls = {key: url_for('admin.view_deactivated_annotations', page=page,
+                             sort=key) for key in sorts.keys()}
+    next_page = (url_for('admin.view_deactivated_annotations',
+                         page=annotations.next_num, sort=sort) if
+                 annotations.has_next else None)
+    prev_page = (url_for('admin.view_deactivated_annotations',
+                         page=annotations.prev_num, sort=sort) if
+                 annotations.has_prev else None)
+    return render_template('indexes/annotation_list.html',
+                           title="Deactivated Annotations",
+                           prev_page=prev_page, next_page=next_page,
+                           sort=sort, sorts=sorturls,
+                           annotations=annotations.items)
 
 
 @admin.route('/flags/annotation/all/')
 @login_required
 @authorize('resolve_annotation_flags')
 def all_annotation_flags():
+    """View all the flags on all annotations. This is a high-level admin route
+    for now. But soon I will make this a more democratic process including with
+    voting.
+    """
+    default = 'marked'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'marked', type=str)
-
-    if sort == 'marked':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'marked_invert':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag':
-        flags = AnnotationFlag.query\
-            .outerjoin(AnnotationFlag.enum_cls)\
-            .order_by(AnnotationFlag.enum_cls.flag.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag_invert':
-        flags = AnnotationFlag.query\
-            .outerjoin(AnnotationFlag.enum_cls)\
-            .order_by(AnnotationFlag.enum_cls.flag.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_thrown.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_thrown.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower':
-        flags = AnnotationFlag.query\
-            .outerjoin(User, User.id == AnnotationFlag.thrower_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower_invert':
-        flags = AnnotationFlag.query\
-            .outerjoin(User, User.id == AnnotationFlag.thrower_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver':
-        flags = AnnotationFlag.query\
-            .outerjoin(User, User.id == AnnotationFlag.resolver_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver_invert':
-        flags = AnnotationFlag.query\
-            .outerjoin(User, User.id == AnnotationFlag.resolver_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved_invert':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'annotation':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.annotation_id.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'annotation_invert':
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.annotation_id.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'text':
-        flags = AnnotationFlag.query\
-            .join(Annotation, Annotation.id == AnnotationFlag.annotation_id)\
-            .join(Edition, Edition.id == Annotation.edition_id)\
-            .join(Text, Text.id == Edition.text_id)\
-            .order_by(Text.sort_title)\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        flags = AnnotationFlag.query\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
+    sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'marked': url_for('admin.all_annotation_flags', sort='marked',
-                          page=page),
-        'marked_invert': url_for('admin.all_annotation_flags',
-                                 sort='marked_invert', page=page),
-        'flag': url_for('admin.all_annotation_flags', sort='flag', page=page),
-        'flag_invert': url_for('admin.all_annotation_flags', sort='flag_invert',
-                               page=page),
-        'time': url_for('admin.all_annotation_flags', sort='time', page=page),
-        'time_invert': url_for('admin.all_annotation_flags', sort='time_invert',
-                               page=page),
-        'thrower': url_for('admin.all_annotation_flags', sort='thrower',
-                           page=page),
-        'thrower_invert': url_for('admin.all_annotation_flags',
-                                  sort='thrower_invert', page=page),
-        'resolver': url_for('admin.all_annotation_flags', sort='resolver',
-                            page=page),
-        'resolver_invert': url_for('admin.all_annotation_flags',
-                                   sort='resolver_invert', page=page),
-        'time_resolved': url_for('admin.all_annotation_flags',
-                                 sort='time_resolved', page=page),
-        'time_resolved_invert': url_for( 'admin.all_annotation_flags',
-                                        sort='time_resolved_invert', page=page),
-        'annotation': url_for( 'admin.all_annotation_flags', sort='annotation',
-                              page=page),
-        'annotation_invert': url_for('admin.all_annotation_flags',
-                                     sort='annotation_invert', page=page),
-        'text': url_for('admin.all_annotation_flags', sort='text', page=page),
-        'text_invert': url_for('admin.all_annotation_flags', sort='text_invert',
-                               page=page),
+        'marked': (AnnotationFlag.query
+                   .order_by(AnnotationFlag.time_resolved.desc())),
+        'marked_invert': (AnnotationFlag.query
+                          .order_by(AnnotationFlag.time_resolved.asc())),
+        'flag': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
+                 .order_by(AnnotationFlag.enum_cls.enum.asc())),
+        'flag_invert': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
+                        .order_by(AnnotationFlag.enum_cls.enum.desc())),
+        'time': (AnnotationFlag.query
+                 .order_by(AnnotationFlag.time_thrown.desc())),
+        'time_invert': (AnnotationFlag.query
+                        .order_by(AnnotationFlag.time_thrown.asc())),
+        'thrower': (AnnotationFlag.query
+                    .outerjoin(User, User.id==AnnotationFlag.thrower_id)
+                    .order_by(User.displayname.asc())),
+        'thrower_invert': (AnnotationFlag.query
+                           .outerjoin(User, User.id==AnnotationFlag.thrower_id)
+                           .order_by(User.displayname.desc())),
+        'resolver': (AnnotationFlag.query
+                     .outerjoin(User, User.id==AnnotationFlag.resolver_id)
+                     .order_by(User.displayname.asc())),
+        'resolver_invert': (AnnotationFlag.query.outerjoin(
+            User, User.id==AnnotationFlag.resolver_id)
+                            .order_by(User.displayname.desc())),
+        'time_resolved': (AnnotationFlag.query
+                          .order_by(AnnotationFlag.time_resolved.desc())),
+        'time_resolved_invert': (AnnotationFlag.query
+                                 .order_by(AnnotationFlag.time_resolved.asc())),
+        'annotation': (AnnotationFlag.query
+                       .order_by(AnnotationFlag.annotation_id.asc())),
+        'annotation_invert': (AnnotationFlag.query
+                              .order_by(AnnotationFlag.annotation_id.desc())),
+        'text': (AnnotationFlag.query
+                 .join(Annotation, Annotation.id==AnnotationFlag.annotation_id)
+                 .join(Edition, Edition.id==Annotation.edition_id)
+                 .join(Text, Text.id==Edition.text_id)
+                 .order_by(Text.sort_title))
     }
 
-    next_page = url_for(
-        'admin.all_annotation_flags', page=flags.next_num, sort=sort
-    ) if flags.has_next else None
+    sort = sort if sort in sorts else default
+    flags = sorts[sort].paginate(page,
+                                 current_app.config['NOTIFICATIONS_PER_PAGE'],
+                                 False)
+    if not flags.items and page > 1:
+        abort(404)
 
-    prev_page = url_for(
-        'admin.all_annotation_flags', page=flags.prev_num, sort=sort
-    ) if flags.has_prev else None
+    sorturls = {key: url_for('admin.all_annotation_flags', page=page, sort=key)
+                for key in sorts.keys()}
+    next_page = url_for('admin.all_annotation_flags', page=flags.next_num,
+                        sort=sort) if flags.has_next else None
 
-    return render_template(
-        'indexes/all_annotation_flags.html', title=f"Annotation Flags",
-        next_page=next_page, prev_page=prev_page, sort=sort, sorts=sorts,
-        flags=flags.items)
+    prev_page = url_for('admin.all_annotation_flags', page=flags.prev_num,
+                        sort=sort) if flags.has_prev else None
+    return render_template('indexes/all_annotation_flags.html',
+                           title=f"Annotation Flags",
+                           next_page=next_page, prev_page=prev_page,
+                           sort=sort, sorts=sorturls,
+                           flags=flags.items)
 
 
 @admin.route('/flags/annotation/<annotation_id>/')
 @login_required
 @authorize('resolve_annotation_flags')
 def annotation_flags(annotation_id):
+    """View all flags for a given annotation."""
+    default = 'marked'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'marked', type=str)
+    sort = request.args.get('sort', default, type=str)
+
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize('resolve_deactivated_annotation_flags')
 
-    if sort == 'marked':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'marked_invert':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag':
-        flags = annotation.flag_history\
-            .outerjoin(AnnotationFlag.enum_cls)\
-            .order_by(AnnotationFlag.enum_cls.flag.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag_invert':
-        flags = annotation.flag_history\
-            .outerjoin(AnnotationFlag.enum_cls)\
-            .order_by(AnnotationFlag.enum_cls.flag.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_thrown.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_thrown.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower':
-        flags = annotation.flag_history\
-            .outerjoin(User, User.id == AnnotationFlag.thrower_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower_invert':
-        flags = annotation.flag_history\
-            .outerjoin(User, User.id == AnnotationFlag.thrower_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver':
-        flags = annotation.flag_history\
-            .outerjoin(User, User.id == AnnotationFlag.resolver_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver_invert':
-        flags = annotation.flag_history\
-            .outerjoin(User, User.id == AnnotationFlag.resolver_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved_invert':
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        flags = annotation.flag_history\
-            .order_by(AnnotationFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-
     sorts = {
-        'marked': url_for('admin.annotation_flags', annotation_id=annotation.id,
-                          sort='marked', page=page),
-        'marked_invert': url_for('admin.annotation_flags',
-                                 annotation_id=annotation.id,
-                                 sort='marked_invert', page=page),
-        'flag': url_for('admin.annotation_flags', annotation_id=annotation.id,
-                        sort='flag', page=page),
-        'flag_invert': url_for('admin.annotation_flags',
-                               annotation_id=annotation.id, sort='flag_invert',
-                               page=page),
-        'time': url_for('admin.annotation_flags', annotation_id=annotation.id,
-                        sort='time', page=page),
-        'time_invert': url_for('admin.annotation_flags',
-                               annotation_id=annotation.id, sort='time_invert',
-                               page=page),
-        'thrower': url_for('admin.annotation_flags',
-                           annotation_id=annotation.id, sort='thrower',
-                           page=page),
-        'thrower_invert': url_for('admin.annotation_flags',
-                                  annotation_id=annotation.id,
-                                  sort='thrower_invert', page=page),
-        'resolver': url_for('admin.annotation_flags',
-                            annotation_id=annotation.id, sort='resolver',
-                            page=page),
-        'resolver_invert': url_for('admin.annotation_flags',
-                                   annotation_id=annotation.id,
-                                   sort='resolver_invert', page=page),
-        'time_resolved': url_for('admin.annotation_flags',
-                                 annotation_id=annotation.id,
-                                 sort='time_resolved', page=page),
-        'time_resolved_invert': url_for('admin.annotation_flags',
-                                        annotation_id=annotation.id,
-                                        sort='time_resolved_invert', page=page),
+        'marked': (annotation.flags
+                   .order_by(AnnotationFlag.time_resolved.desc())),
+        'marked_invert': (annotation.flags
+                          .order_by(AnnotationFlag.time_resolved.asc())),
+        'flag': (annotation.flags.outerjoin(AnnotationFlag.enum_cls)
+                 .order_by(AnnotationFlag.enum_cls.enum.asc())),
+        'flag_invert': (annotation.flags.outerjoin(AnnotationFlag.enum_cls)
+                        .order_by(AnnotationFlag.enum_cls.enum.desc())),
+        'time': annotation.flags.order_by(AnnotationFlag.time_thrown.desc()),
+        'time_invert': (annotation.flags
+                        .order_by(AnnotationFlag.time_thrown.asc())),
+        'thrower': (annotation.flags
+                    .outerjoin(User, User.id==AnnotationFlag.thrower_id)
+                    .order_by(User.displayname.asc())),
+        'thrower_invert': (annotation.flags
+                           .outerjoin(User, User.id==AnnotationFlag.thrower_id)
+                           .order_by(User.displayname.desc())),
+        'resolver': (annotation.flags
+                     .outerjoin(User, User.id==AnnotationFlag.resolver_id)
+                     .order_by(User.displayname.asc())),
+        'resolver_invert': (
+            annotation.flags
+            .outerjoin(User, User.id==AnnotationFlag.resolver_id)
+            .order_by(User.displayname.desc())),
+        'time_resolved': (annotation.flags
+                          .order_by(AnnotationFlag.time_resolved.desc())),
+        'time_resolved_invert': (annotation.flags
+                                 .order_by(AnnotationFlag.time_resolved.asc())),
+        'annotation': (annotation.flags
+                       .order_by(AnnotationFlag.annotation_id.asc())),
+        'annotation_invert': (annotation.flags
+                              .order_by(AnnotationFlag.annotation_id.desc())),
+        'text': (annotation.flags
+                 .join(Annotation, Annotation.id==AnnotationFlag.annotation_id)
+                 .join(Edition, Edition.id==Annotation.edition_id)
+                 .join(Text, Text.id==Edition.text_id)
+                 .order_by(Text.sort_title))
     }
 
-    next_page = url_for(
-        'admin.annotation_flags', annotation_id=annotation.id,
-        page=flags.next_num, sort=sort) if flags.has_next else None
-    prev_page = url_for(
-        'admin.annotation_flags', annotation_id=annotation.id,
-        page=flags.prev_num, sort=sort) if flags.has_prev else None
-    return render_template(
-        'indexes/annotation_flags.html',
-        title=f"Annotation {annotation.id} flags", next_page=next_page,
-        prev_page=prev_page, sort=sort, sorts=sorts, flags=flags.items,
-        annotation=annotation)
+    sort = sort if sort in sorts else default
+    flags = sorts[sort].paginate(page,
+                                 current_app.config['NOTIFICATIONS_PER_PAGE'],
+                                 False)
+    if not flags.items and page > 1:
+        abort(404)
+
+    sorturls = {key: url_for('admin.annotation_flags',
+                             annotation_id=annotation_id, page=page, sort=key)
+                for key in sorts.keys()}
+    next_page = (url_for('admin.annotation_flags', annotation_id=annotation.id,
+                         page=flags.next_num, sort=sort) if flags.has_next else
+                 None)
+    prev_page = (url_for('admin.annotation_flags', annotation_id=annotation.id,
+                         page=flags.prev_num, sort=sort) if flags.has_prev else
+                 None)
+    return render_template('indexes/annotation_flags.html',
+                           title=f"Annotation {annotation.id} flags",
+                           next_page=next_page, prev_page=prev_page,
+                           sort=sort, sorts=sorturls,
+                           flags=flags.items, annotation=annotation)
 
 
 @admin.route('/flags/annotation/mark/<flag_id>/')
 @login_required
 @authorize('resolve_annotation_flags')
 def mark_annotation_flag(flag_id):
+    """Resolve/Unresolve an annotation flag. This system needs to be overhauled.
+    """
     flag = AnnotationFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for('admin.annotation_flags',
                                          annotation_id=flag.annotation_id))
@@ -326,6 +245,8 @@ def mark_annotation_flag(flag_id):
 @login_required
 @authorize('resolve_annotation_flags')
 def mark_annotation_flags(annotation_id):
+    """Resolve all flags for a given annotation. This route will be deprecated
+    after the annotation flag democratization overhaul."""
     annotation = Annotation.query.get_or_404(annotation_id)
     if not annotation.active:
         current_user.authorize('resolve_deactivated_annotation_flags')
@@ -341,10 +262,21 @@ def mark_annotation_flags(annotation_id):
 @login_required
 @authorize('delete_annotations')
 def delete_annotation(annotation_id):
+    """Delete an annotation. Like, full on remove it from the system.
+
+    This route will be eliminated. Or it's security priveleges changed. The
+    purpose of this route is for two different scenarios:
+
+    1. The annotation is useless/spam/etc. and should be eliminated.
+    2. The annotation is dangerous (illegal content, copyright violation, etc.)
+
+    My inclination is to keep it for the latter, but use other methods for the
+    former.
+    """
     form = AreYouSureForm()
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = url_for('main.text_annotations',
-                           text_url=annotation.text.url)
+    redirect_url = generate_next(url_for('main.text_annotations',
+                                         text_url=annotation.text.url))
     if form.validate_on_submit():
         for e in annotation.all_edits:
             e.tags = []
@@ -352,26 +284,31 @@ def delete_annotation(annotation_id):
         db.session.commit()
         flash(f"Annotation [{annotation_id}] deleted.")
         return redirect(redirect_url)
-    text = """
-If you click submit the annotation, all of the edits to the annotation, all of
-the votes to the edits, all of the votes to the annotation, and all of the
-reputation changes based on the annotation, will be deleted permanently.
+    text = """If you click submit the annotation, all of the edits to the
+    annotation, all of the votes to the edits, all of the votes to the
+    annotation, and all of the reputation changes based on the annotation, will
+    be deleted permanently.
 
-This is not something to take lightly. Unless there is illegal content
-associated with the annotation, you really ought to simply deactivate it.
+    This is not something to take lightly. Unless there is illegal content
+    associated with the annotation, you really ought to simply deactivate it.
     """
-    return render_template(
-        'forms/delete_check.html', title=f"Delete [{annotation_id}]", form=form,
-        text=text)
+    return render_template('forms/delete_check.html',
+                           title=f"Delete [{annotation_id}]",
+                           form=form,
+                           text=text)
 
 
 @admin.route('/edit/<edit_id>/delete/', methods=['GET', 'POST'])
 @login_required
 @authorize('delete_annotations')
 def delete_edit(edit_id):
+    """This annotation is to delete an *edit* to an annotation because it
+    contains illegal content.
+    """
     form = AreYouSureForm()
     edit = Edit.query.get_or_404(edit_id)
-    redirect_url = url_for('edit_history', annotation_id=edit.annotation_id)
+    redirect_url = generate_next(url_for('main.edit_history',
+                                         annotation_id=edit.annotation_id))
     if form.validate_on_submit():
         if edit.current:
             edit.previous.current = True
@@ -383,15 +320,15 @@ def delete_edit(edit_id):
         db.session.delete(edit)
         db.session.commit()
         return redirect(redirect_url)
-    text = """
-If you click submit the edit, all of the votes for the edit, and all of the
-reputation changes based on the edit being approved will be deleted. The edit
-numbers of all the subsequent edits will be decremented by one. It will
-therefore be as though the edit never even existed.
+    text = """If you click submit the edit, all of the votes for the edit, and
+    all of the reputation changes based on the edit being approved will be
+    deleted. The edit numbers of all the subsequent edits will be decremented by
+    one. It will therefore be as though the edit never even existed.
 
-The only reason for this is if there is illegal content in the edit.
+    The only reason for this is if there is illegal content in the edit.
     """
-    return render_template(
-        'forms/delete_check.html',
-        title=f"Delete edit #{edit.num} of [{edit.annotation_id}]", form=form,
-        text=text)
+    return render_template('forms/delete_check.html',
+                           title=f"Delete edit #{edit.num} of "
+                           f"[{edit.annotation_id}]",
+                           form=form,
+                           text=text)

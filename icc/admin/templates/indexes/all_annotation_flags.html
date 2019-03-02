@@ -187,17 +187,15 @@
                 </td>
 
                 <td>
-                    <a href="{{ url_for("annotation",
-                        annotation_id=flag.annotation.id) }}">
-                        [{{ flag.annotation.id }}]
-                    </a>
+                    <a href="{{ url_for("main.annotation",
+                        annotation_id=flag.entity.id) }}">[{{ flag.entity.id
+                        }}]</a>
                 </td>
 
                 <td>
-                    <a href="{{ url_for("text",
-                        text_url=flag.annotation.text.url) }}">
-                        {{ flag.annotation.text.title }}
-                    </a>
+                    <a href="{{ url_for("main.text",
+                        text_url=flag.entity.text.url) }}">{{
+                        flag.entity.text.title }}</a>
                 </td>
                 <td>
                     {{ flag.flag.flag }}

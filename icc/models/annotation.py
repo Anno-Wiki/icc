@@ -243,7 +243,8 @@ class AnnotationFlag(Base, FlagMixin):
     annotation_id = db.Column(db.Integer,
                               db.ForeignKey('annotation.id',
                                             ondelete='CASCADE'), index=True)
-    entity = db.relationship('Annotation')
+    entity = db.relationship('Annotation', backref=backref('flags',
+                                                           lazy='dynamic'))
 
 
 # hoist the enum into the namespace
