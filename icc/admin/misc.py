@@ -1,3 +1,4 @@
+"""Grab bag of uncategorizable routes."""
 from flask import render_template, flash, redirect, url_for
 from flask_login import login_required
 
@@ -13,6 +14,8 @@ from icc.models.content import Line
 @login_required
 @authorize('edit_lines')
 def edit_line(line_id):
+    """Edit a line. Purely for administrators. Perhaps to be made more robust.
+    """
     line = Line.query.get_or_404(line_id)
     form = LineForm()
     form.line.data = line.line
