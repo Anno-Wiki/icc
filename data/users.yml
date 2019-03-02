@@ -33,7 +33,7 @@ users:
           I also really like wine.
     - displayname: chris
       email: chriss@glendalepainting.com
-      rights: all
+      rights: none
       locked: false
       about_me: |
           I'm a fake user created by malan to be used like a puppet.
