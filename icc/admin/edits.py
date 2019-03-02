@@ -27,35 +27,20 @@ def edit_review_queue():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'voted': (Edit.query
-                  .outerjoin(EditVote, and_(EditVote.voter_id==current_user.id,
-                                            EditVote.edit_id==Edit.id))
-                  .order_by(EditVote.delta.desc())),
-        'voted_invert': (Edit.query
-                         .outerjoin(EditVote,
-                                    and_(EditVote.voter_id==current_user.id,
-                                         EditVote.edit_id==Edit.id))
+        'voted': Edit.query.join(EditVote).order_by(EditVote.delta.desc()),
+        'voted_invert': (Edit.query.join(EditVote)
                          .order_by(EditVote.delta.asc())),
-        'id': (Edit.query.outerjoin(Annotation)
-               .order_by(Annotation.id.asc())),
-        'id_invert': (Edit.query.outerjoin(Annotation)
-                      .order_by(Annotation.id.desc())),
-        'edit_num': (Edit.query
-                     .order_by(Edit.num.asc())),
-        'edit_num_invert': (Edit.query
-                            .order_by(Edit.num.desc())),
-        'editor': (Edit.query.outerjoin(User)
-                   .order_by(User.displayname.asc())),
-        'editor_invert': (Edit.query.outerjoin(User)
+        'id': Edit.query.join(Annotation).order_by(Annotation.id.asc()),
+        'id_invert': Edit.query.join(Annotation).order_by(Annotation.id.desc()),
+        'edit_num': Edit.query.order_by(Edit.num.asc()),
+        'edit_num_invert': Edit.query.order_by(Edit.num.desc()),
+        'editor': Edit.query.join(User).order_by(User.displayname.asc()),
+        'editor_invert': (Edit.query.join(User)
                           .order_by(User.displayname.desc())),
-        'time': (Edit.query
-                 .order_by(Edit.timestamp.asc())),
-        'time_invert': (Edit.query
-            .order_by(Edit.timestamp.desc())),
-        'reason': (Edit.query
-                   .order_by(Edit.reason.asc())),
-        'reason_invert': (Edit.query
-                          .order_by(Edit.reason.desc()))
+        'time': Edit.query.order_by(Edit.timestamp.asc()),
+        'time_invert': Edit.query.order_by(Edit.timestamp.desc()),
+        'reason': Edit.query.order_by(Edit.reason.asc()),
+        'reason_invert': Edit.query.order_by(Edit.reason.desc())
     }
 
     sort = sort if sort in sorts else default

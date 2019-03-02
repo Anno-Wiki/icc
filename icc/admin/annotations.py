@@ -48,14 +48,12 @@ def view_deactivated_annotations():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'added': (Annotation.query.filter_by(active=False)
-                  .order_by(Annotation.timestamp.desc())),
-        'weight': (Annotation.query.filter_by(active=False)
-                   .order_by(Annotation.weight.desc()))
+        'added': Annotation.query.order_by(Annotation.timestamp.desc()),
+        'weight': Annotation.query.order_by(Annotation.weight.desc()),
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort].paginate(
+    annotations = sorts[sort].filter_by(active=False).paginate(
         page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)
