@@ -11,7 +11,6 @@
         {% if annotation.locked %}&#128274;{% endif %}
     </div>
 
-    <!--The text of the annotation-->
     <div class="annotation_content">
         {%- if len(annotation.HEAD.body) < 255 -%}
             {{ annotation.HEAD.body|markdown }}
@@ -22,7 +21,6 @@
                 }}">View More</a> {%- endif -%}
     </div>
 
-    <!--The tags-->
     <tags>
         {% for tag in annotation.HEAD.tags %}
             <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
@@ -33,26 +31,13 @@
 
     {# The footer #}
     {% include "includes/_annotator.html" %}
+
     | {% include "includes/_vote.html" %}
 
-    {% if current_user != annotation.annotator %}
-        | {% include "includes/_annotation_follow.html" %}
-    {% endif %}
+    | {% include "includes/_annotation_follow.html" %}
 
-    <div class="dropdown">
-        | <a class="dropbtn">flag&#x25be;</a>
-        <div class="dropdown-content">
-            {% if g.aflags %}
-                {% for flag in g.aflags %}
-                    <a href="{{ url_for("main.flag_annotation",
-                        flag_id=flag.id, annotation_id=annotation.id,
-                        next=request.full_path) }}">{{ flag.enum }}</a>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
+    | {% include "includes/_annotation_flags.html" %}
 
-    <!--authenticated user links-->
     | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
         next=request.full_path) }}">edit</a>
 </annotation>

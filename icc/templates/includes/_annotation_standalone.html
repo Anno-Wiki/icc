@@ -49,34 +49,17 @@
 
     {% include "includes/_annotator.html" %}
 
-    |
-    {% include "includes/_vote.html" %}
+    | {% include "includes/_vote.html" %}
 
     {% if current_user != annotation.annotator %}
         | {% include "includes/_annotation_follow.html" %}
     {% endif %}
 
-    <!--flagging dropdown-->
-    <div class="dropdown">
-        | <a class="dropbtn">flag&#x25be;</a>
-        <div class="dropdown-content">
-            {% if g.aflags %}
-                {% for flag in g.aflags %}
-                    <a href="{{ url_for("main.flag_annotation",
-                        flag_id=flag.id, annotation_id=annotation.id,
-                        next=request.full_path) }}">
-                        {{ flag.enum }}
-                    </a>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
+    | {% include "includes/_annotation_flags.html" %}
 
-    {% if current_user.is_authenticated %}
-    <!--authenticated user routes-->
-        | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
-            next=request.full_path) }}">edit</a>
-    {% endif %}
+    | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
+        next=request.full_path) }}">edit</a>
+
     | <a href="{{ url_for("main.comments", annotation_id=annotation.id)
         }}">comments</a>
 </annotation>
