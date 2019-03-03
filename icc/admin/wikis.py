@@ -26,9 +26,9 @@ def wiki_edit_review_queue():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'voted': (WikiEdit.query.join(WikiEditVote)
+        'voted': (WikiEdit.query.outerjoin(WikiEditVote)
                   .order_by(WikiEditVote.delta.desc())),
-        'voted_invert': (WikiEdit.query.join(WikiEditVote)
+        'voted_invert': (WikiEdit.query.outerjoin(WikiEditVote)
                          .order_by(WikiEditVote.delta.asc())),
         'entity': WikiEdit.query.join(Wiki).order_by(Wiki.entity_string.asc()),
         'entity_invert': (WikiEdit.query.join(Wiki)
@@ -93,8 +93,8 @@ def review_wiki_edit(wiki_id, edit_id):
 @login_required
 @authorize('review_wiki_edits')
 def upvote_wiki_edit(wiki_id, edit_id):
-    redirect_url = generate_next(url_for('index'))
-    edit = WikiEdit.query.get(edit_id)
+    edit = WikiEdit.query.get_or_404(edit_id)
+    redirect_url = generate_next(edit.wiki.entity.url)
     if edit.approved:
         flash("That wiki edit has already been approved.")
     elif edit.rejected:
@@ -108,8 +108,8 @@ def upvote_wiki_edit(wiki_id, edit_id):
 @login_required
 @authorize('review_wiki_edits')
 def downvote_wiki_edit(wiki_id, edit_id):
-    redirect_url = generate_next(url_for('index'))
-    edit = WikiEdit.query.get(edit_id)
+    edit = WikiEdit.query.get_or_404(edit_id)
+    redirect_url = generate_next(edit.wiki.entity.url)
     if edit.approved:
         flash("That wiki edit has already been approved.")
     elif edit.rejected:
@@ -125,7 +125,8 @@ def downvote_wiki_edit(wiki_id, edit_id):
 def delete_wiki_edit(edit_id):
     form = AreYouSureForm()
     edit = WikiEdit.query.get_or_404(edit_id)
-    redirect_url = url_for('wiki_edit_history', wiki_id=edit.wiki.id)
+    redirect_url = generate_next(url_for('main.wiki_edit_history',
+                                         wiki_id=edit.wiki.id))
     if form.validate_on_submit():
         if edit.current:
             edit.previous.current = True

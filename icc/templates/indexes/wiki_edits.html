@@ -14,11 +14,8 @@
         <tr class="header">
             {% for altid, id, caption, altcaption in header %}
                 <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
-                    <a href="{% if sort == altid or sort != id %}
-                        {{ sorts[id] }}
-                    {% else %}
-                        {{ sorts[altid] }}
-                    {% endif %}">
+                    <a href="{% if sort == altid or sort != id %}{{ sorts[id]
+                        }}{% else %}{{ sorts[altid] }}{% endif %}">
                         {% if sort == altid %}
                             {{ altcaption|safe }}
                         {% else %}

@@ -11,18 +11,17 @@
                 edit.wiki.entity|string }}</a>
         </h1>
         <h2>Edit #{{ edit.num }}</h2>
-        <em><a href="{{ url_for("wiki_edit_history",
-                wiki_id=edit.wiki.id) }}">version history</a></em>
-        | <em><a href="{{ url_for("view_wiki_edit", wiki_id=edit.wiki.id,
+        <em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
+                }}">version history</a></em>
+        | <em><a href="{{ url_for("main.view_wiki_edit", wiki_id=edit.wiki.id,
                 edit_num=edit.previous.num) }}">previous version</a></em>
 
-        {% if current_user.is_authenticated
-            and current_user.is_authorized("delete_wiki_edits") %}
+        {% if current_user.is_authorized("delete_wiki_edits") %}
             | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
                     }}">delete</a></em>
         {% endif %}
 
-        {% set vote = current_user.get_wiki_edit_vote(edit) %}
+        {% set vote = current_user.get_vote(edit) %}
         <h3>
             {{ edit.weight }} |
             <a href="{{ url_for("admin.upvote_wiki_edit", wiki_id=edit.wiki.id,
@@ -36,7 +35,7 @@
                 and not vote.is_up() %} class="voted"{% else %}
                 class="notvoted"{% endif %}>reject</a>
         </h3>
-        
+
         {% if edit.ballots %}
             <h4>
                 approved by:
@@ -45,7 +44,7 @@
                         <a href="{{ url_for("user.profile",
                             user_id=ballot.voter.id) }}">
                             {{ ballot.voter.displayname }}
-                        </a> 
+                        </a>
                     {% endif %}
                 {% endfor %}
                 /
@@ -55,7 +54,7 @@
                         <a href="{{ url_for("user.profile",
                             user_id=ballot.voter.id) }}">
                             {{ ballot.voter.displayname }}
-                        </a> 
+                        </a>
                     {% endif %}
                 {% endfor %}
             </h4>
@@ -74,7 +73,7 @@
             {% endfor %}
         </div>
 
-        <hr> 
+        <hr>
         <p><em>New version, edit #{{ edit.num }}:</em></p>
         {{ edit.body|markdown }}
 
