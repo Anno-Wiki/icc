@@ -17,7 +17,7 @@ from icc.models.user import User
 @admin.route('/annotation/<annotation_id>/deactivate')
 @login_required
 @authorize('deactivate_annotations')
-def deactivate(annotation_id):
+def deactivate_annotation(annotation_id):
     """This route will deactivate (or reactivate) an annotation. Requires the
     'deactivate_annotations' right.
     """
@@ -26,7 +26,7 @@ def deactivate(annotation_id):
     db.session.commit()
 
     if annotation.active:
-        flash(f"Annotation {annotation.id} activated")
+        flash(f"Annotation {annotation.id} reactivated")
     else:
         flash(f"Annotation {annotation.id} deactivated.")
 
@@ -109,7 +109,8 @@ def all_annotation_flags():
                      .outerjoin(User, User.id==AnnotationFlag.resolver_id)
                      .order_by(User.displayname.asc())),
         'resolver_invert': (AnnotationFlag.query
-                            .join(User, User.id==AnnotationFlag.resolver_id)
+                            .outerjoin(User,
+                                       User.id==AnnotationFlag.resolver_id)
                             .order_by(User.displayname.desc())),
         'time_resolved': (AnnotationFlag.query
                           .order_by(AnnotationFlag.time_resolved.desc())),
@@ -225,8 +226,12 @@ def mark_annotation_flag(flag_id):
                                          annotation_id=flag.annotation_id))
     if flag.time_resolved:
         flag.unresolve()
+        flash(f"Flag {flag.enum.enum} on annotation [{flag.entity.id}] marked "
+              "unresolved.")
     else:
         flag.resolve(current_user)
+        flash(f"Flag {flag.enum.enum} on annotation [{flag.entity.id}] marked "
+              "resolved.")
     db.session.commit()
     return redirect(redirect_url)
 
@@ -245,6 +250,7 @@ def mark_all_annotation_flags(annotation_id):
     for flag in annotation.active_flags:
         flag.resolve(current_user)
     db.session.commit()
+    flash("All flags marked resolved.")
     return redirect(redirect_url)
 
 
@@ -284,41 +290,5 @@ def delete_annotation(annotation_id):
     """
     return render_template('forms/delete_check.html',
                            title=f"Delete [{annotation_id}]",
-                           form=form,
-                           text=text)
-
-
-@admin.route('/edit/<edit_id>/delete/', methods=['GET', 'POST'])
-@login_required
-@authorize('delete_annotations')
-def delete_edit(edit_id):
-    """This annotation is to delete an *edit* to an annotation because it
-    contains illegal content.
-    """
-    form = AreYouSureForm()
-    edit = Edit.query.get_or_404(edit_id)
-    redirect_url = generate_next(url_for('main.edit_history',
-                                         annotation_id=edit.annotation_id))
-    if form.validate_on_submit():
-        if edit.current:
-            edit.previous.current = True
-        else:
-            for e in edit.annotation.all_edits.order_by(Edit.num.desc()).all():
-                if e.num > edit.num:
-                    e.num -= 1
-        flash(f"Edit #{edit.num} of [{edit.annotation_id}] deleted.")
-        db.session.delete(edit)
-        db.session.commit()
-        return redirect(redirect_url)
-    text = """If you click submit the edit, all of the votes for the edit, and
-    all of the reputation changes based on the edit being approved will be
-    deleted. The edit numbers of all the subsequent edits will be decremented by
-    one. It will therefore be as though the edit never even existed.
-
-    The only reason for this is if there is illegal content in the edit.
-    """
-    return render_template('forms/delete_check.html',
-                           title=f"Delete edit #{edit.num} of "
-                           f"[{edit.annotation_id}]",
                            form=form,
                            text=text)
