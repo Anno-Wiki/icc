@@ -12,6 +12,7 @@ from flask import abort, url_for, current_app as app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import backref
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin, FlagMixin
@@ -367,7 +368,8 @@ class ReputationChange(Base):
 
 class UserFlag(Base, FlagMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    entity = db.relationship('User', foreign_keys=[user_id], backref='flags')
+    entity = db.relationship('User', foreign_keys=[user_id],
+                             backref=backref('flags', lazy='dynamic'))
 
 
 # hoist the UserFlag enum class into the namespace.

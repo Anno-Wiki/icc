@@ -110,25 +110,10 @@ class FlagMixin:
         """The time the flag was resolved."""
         return db.Column(db.DateTime)
 
-    def __init__(self, *args, **kwargs):
-        """The init takes the flag as a string and queries for it.
-
-        Raises
-        ------
-        ValueError
-            If the flag value is non-existent in the db.
-        """
-        flag = kwargs.pop('flag')
-        super().__init__(*args, **kwargs)
-        flag_enum = self.enum_cls.query.filter(enum=flag).first()
-        if not flag_enum:
-            raise ValueError(f'{flag} is not a valid flag')
-        self.enum = flag_enum
-
     @classmethod
-    def flag(cls, obj, flag, thrower):
+    def flag(cls, obj, enum, thrower):
         """A class method to flag the object (or jerk)."""
-        db.session.add(cls(entity=obj, flag=flag, thrower=thrower))
+        db.session.add(cls(entity=obj, enum=enum, thrower=thrower))
 
     def __repr__(self):
         """Branches representations based on resolution status."""
