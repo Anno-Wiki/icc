@@ -180,6 +180,7 @@ class Edition(Base):
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
+    annotations = db.relationship('Annotation', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
     wiki = db.relationship('Wiki', backref=backref('edition', uselist=False))
     text = db.relationship('Text')

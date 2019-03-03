@@ -349,8 +349,7 @@ class Annotation(Base, FollowableMixin):
         secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
         'Edit.first_line_num==Line.num)', uselist=False)
 
-    edition = db.relationship('Edition', backref=backref('annotations',
-                                                         lazy='dynamic'))
+    edition = db.relationship('Edition')
     text = db.relationship('Text', secondary='edition',
                            backref=backref('annotations', lazy='dynamic'),
                            uselist=False)
@@ -360,17 +359,21 @@ class Annotation(Base, FollowableMixin):
                            'Edit.entity_id==Annotation.id)', uselist=False)
 
     edits = db.relationship(
-        'Edit', primaryjoin='and_(Edit.entity_id==Annotation.id,'
-        'Edit.approved==True)', passive_deletes=True)
+        'Edit',
+        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==True)',
+        passive_deletes=True)
     history = db.relationship(
-        'Edit', primaryjoin='and_(Edit.entity_id==Annotation.id,'
-        'Edit.approved==True)', lazy='dynamic', passive_deletes=True)
+        'Edit',
+        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==True)',
+        lazy='dynamic', passive_deletes=True)
     all_edits = db.relationship(
         'Edit', primaryjoin='Edit.entity_id==Annotation.id', lazy='dynamic',
         passive_deletes=True)
     edit_pending = db.relationship(
-        'Edit', primaryjoin='and_(Edit.entity_id==Annotation.id,'
-        'Edit.approved==False, Edit.rejected==False)', passive_deletes=True)
+        'Edit',
+        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==False, '
+        'Edit.rejected==False)',
+        passive_deletes=True)
 
     # relationships to `Line`
     lines = db.relationship(
@@ -537,7 +540,6 @@ class EditVote(Base, VoteMixin):
     The EditVote class also possesses all of the attributes of
     :class:`VoteMixin`.
     """
-
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
     edit = db.relationship('Edit',
