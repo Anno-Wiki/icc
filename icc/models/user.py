@@ -11,7 +11,6 @@ from math import log10
 from flask import abort, url_for, current_app as app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref
 
 from icc import db, login

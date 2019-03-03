@@ -3,7 +3,6 @@ from datetime import datetime
 
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.associationproxy import association_proxy
 
 from flask import flash
 from flask_login import current_user
@@ -118,9 +117,11 @@ class FlagMixin:
     def __repr__(self):
         """Branches representations based on resolution status."""
         if self.resolved:
-            return f'<X {type(self).__name__}: {self.flag} at {self.time_thrown}>'
+            return (f"<X {type(self).__name__}: "
+                    f"{self.flag} at {self.time_thrown}>")
         else:
-            return f'<{type(self).__name__} thrown: {self.flag} at {self.time_thrown}>'
+            return (f"<{type(self).__name__} thrown: "
+                    f"{self.flag} at {self.time_thrown}>")
 
     def resolve(self, resolver):
         """Resolve the flag.

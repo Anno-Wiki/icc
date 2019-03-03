@@ -13,8 +13,8 @@ from sqlalchemy.orm import backref
 from flask import url_for, flash, current_app as app
 
 from icc import db
-from icc.models.mixins import (Base, VoteMixin, EditMixin, EnumMixin,
-                               FollowableMixin, FlagMixin)
+from icc.models.mixins import (Base, VoteMixin, EditMixin, FollowableMixin,
+                               FlagMixin)
 from icc.models.user import ReputationEnum, ReputationChange
 from icc.models.wiki import Wiki
 

@@ -75,7 +75,7 @@ class WikiEdit(Base, EditMixin):
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))
 
     def __repr__(self):
-        return f"{self.wiki}>"
+        return f"<WikiEdit on {self.wiki}>"
 
     def upvote(self, voter):
         if self.approved or self.rejected:
@@ -84,14 +84,14 @@ class WikiEdit(Base, EditMixin):
         if self.editor == voter:
             flash("You cannot vote on your own edits.")
             return
-        ov = voter.get_wiki_edit_vote(self)
+        ov = voter.get_vote(self)
         if ov:
             if ov.is_up():
                 self.rollback(ov)
                 return
             else:
                 self.rollback(ov)
-        vote = WikiEditVote(edit=self, delta=1, voter=voter)
+        vote = self.__vote__(edit=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight >= app.config['VOTES_FOR_WIKI_EDIT_APPROVAL'] or\
@@ -105,14 +105,14 @@ class WikiEdit(Base, EditMixin):
         if self.editor == voter:
             flash("You cannot vote on your own edits.")
             return
-        ov = voter.get_wiki_edit_vote(self)
+        ov = voter.get_vote(self)
         if ov:
             if not ov.is_up():
                 self.rollback(ov)
                 return
             else:
                 self.rollback(ov)
-        vote = WikiEditVote(edit=self, delta=-1, voter=voter)
+        vote = self.__vote__(edit=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight <= app.config['VOTES_FOR_WIKI_EDIT_REJECTION'] or\
