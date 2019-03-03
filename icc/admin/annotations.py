@@ -53,8 +53,8 @@ def view_deactivated_annotations():
     }
 
     sort = sort if sort in sorts else default
-    annotations = sorts[sort].filter_by(active=False).paginate(
-        page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+    annotations = sorts[sort].filter_by(active=False)\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
     if not annotations.items and page > 1:
         abort(404)
 
@@ -92,23 +92,24 @@ def all_annotation_flags():
                           .order_by(AnnotationFlag.time_resolved.asc())),
         'flag': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
                  .order_by(AnnotationFlag.enum_cls.enum.asc())),
-        'flag_invert': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
+        'flag_invert': (AnnotationFlag.query
+                        .outerjoin(AnnotationFlag.enum_cls)
                         .order_by(AnnotationFlag.enum_cls.enum.desc())),
+        'thrower': (AnnotationFlag.query
+                    .join(User, User.id==AnnotationFlag.thrower_id)
+                    .order_by(User.displayname.asc())),
+        'thrower_invert': (AnnotationFlag.query
+                           .join(User, User.id==AnnotationFlag.thrower_id)
+                           .order_by(User.displayname.desc())),
         'time': (AnnotationFlag.query
                  .order_by(AnnotationFlag.time_thrown.desc())),
         'time_invert': (AnnotationFlag.query
                         .order_by(AnnotationFlag.time_thrown.asc())),
-        'thrower': (AnnotationFlag.query
-                    .outerjoin(User, User.id==AnnotationFlag.thrower_id)
-                    .order_by(User.displayname.asc())),
-        'thrower_invert': (AnnotationFlag.query
-                           .outerjoin(User, User.id==AnnotationFlag.thrower_id)
-                           .order_by(User.displayname.desc())),
         'resolver': (AnnotationFlag.query
                      .outerjoin(User, User.id==AnnotationFlag.resolver_id)
                      .order_by(User.displayname.asc())),
-        'resolver_invert': (AnnotationFlag.query.outerjoin(
-            User, User.id==AnnotationFlag.resolver_id)
+        'resolver_invert': (AnnotationFlag.query
+                            .join(User, User.id==AnnotationFlag.resolver_id)
                             .order_by(User.displayname.desc())),
         'time_resolved': (AnnotationFlag.query
                           .order_by(AnnotationFlag.time_resolved.desc())),
@@ -122,7 +123,13 @@ def all_annotation_flags():
                  .join(Annotation, Annotation.id==AnnotationFlag.annotation_id)
                  .join(Edition, Edition.id==Annotation.edition_id)
                  .join(Text, Text.id==Edition.text_id)
-                 .order_by(Text.sort_title))
+                 .order_by(Text.sort_title.asc())),
+        'text_invert': (AnnotationFlag.query
+                        .join(Annotation,
+                              Annotation.id==AnnotationFlag.annotation_id)
+                        .join(Edition, Edition.id==Annotation.edition_id)
+                        .join(Text, Text.id==Edition.text_id)
+                        .order_by(Text.sort_title.desc()))
     }
 
     sort = sort if sort in sorts else default
@@ -171,12 +178,6 @@ def annotation_flags(annotation_id):
         'time': annotation.flags.order_by(AnnotationFlag.time_thrown.desc()),
         'time_invert': (annotation.flags
                         .order_by(AnnotationFlag.time_thrown.asc())),
-        'thrower': (annotation.flags
-                    .outerjoin(User, User.id==AnnotationFlag.thrower_id)
-                    .order_by(User.displayname.asc())),
-        'thrower_invert': (annotation.flags
-                           .outerjoin(User, User.id==AnnotationFlag.thrower_id)
-                           .order_by(User.displayname.desc())),
         'resolver': (annotation.flags
                      .outerjoin(User, User.id==AnnotationFlag.resolver_id)
                      .order_by(User.displayname.asc())),
@@ -188,15 +189,6 @@ def annotation_flags(annotation_id):
                           .order_by(AnnotationFlag.time_resolved.desc())),
         'time_resolved_invert': (annotation.flags
                                  .order_by(AnnotationFlag.time_resolved.asc())),
-        'annotation': (annotation.flags
-                       .order_by(AnnotationFlag.annotation_id.asc())),
-        'annotation_invert': (annotation.flags
-                              .order_by(AnnotationFlag.annotation_id.desc())),
-        'text': (annotation.flags
-                 .join(Annotation, Annotation.id==AnnotationFlag.annotation_id)
-                 .join(Edition, Edition.id==Annotation.edition_id)
-                 .join(Text, Text.id==Edition.text_id)
-                 .order_by(Text.sort_title))
     }
 
     sort = sort if sort in sorts else default
@@ -242,7 +234,7 @@ def mark_annotation_flag(flag_id):
 @admin.route('/flags/annotation/<annotation_id>/mark/all/')
 @login_required
 @authorize('resolve_annotation_flags')
-def mark_annotation_flags(annotation_id):
+def mark_all_annotation_flags(annotation_id):
     """Resolve all flags for a given annotation. This route will be deprecated
     after the annotation flag democratization overhaul."""
     annotation = Annotation.query.get_or_404(annotation_id)
