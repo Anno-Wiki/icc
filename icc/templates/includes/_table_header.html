@@ -1,0 +1,16 @@
+<tr class="header">
+    {# the tuple order is id, display, altid, altdisplay #}
+
+    {% for id, display, altid, altdisplay in header %}
+        <td {% if sort.startswith(id) %} class="highlight"{% endif %}>
+            <a href="{% if sort == id %}{{ sorts[altid] }}{% else %}{{ sorts[id]
+                }}{% endif %}">
+                {% if sort == altid %}
+                    {{ altdisplay|safe }}
+                {% else %}
+                    {{ display|safe }}
+                {% endif %}
+            </a>
+        </td>
+    {% endfor %}
+</tr>
