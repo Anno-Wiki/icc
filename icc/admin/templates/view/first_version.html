@@ -5,18 +5,12 @@
     <h1>Annotation {{ edit.annotation.id }} of {{ edit.book.title }}</h1>
     <h2>Initial Version</h2>
     <em>
-        <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id) }}">
-            version history
-        </a>
+        <a href="{{ url_for("edit_history", annotation_id=edit.annotation.id)
+            }}">version history</a>
     </em>
-    {% if current_user.is_authenticated
-        and current_user.is_authorized("delete_edits") %}
-        |
-        <em>
-            <a href="{{ url_for("delete_edit", edit_id=edit.id) }}">
-                delete
-            </a>
-        </em>
+    {% if current_user.is_authorized("delete_edits") %}
+        | <em><a href="{{ url_for("delete_edit", edit_id=edit.id)
+                }}">delete</a></em>
     {% endif %}
 
 
@@ -25,13 +19,11 @@
         {% for line in edit.context %}
             {% if line in edit.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="{{ line.primary.enum }} plus">
-                    {{ line.line }}
-                </line>
+                <line id="{{ line.line_num }}" class="{{ line.primary.enum
+                    }} plus">{{ line.line }}</line>
             {% else %}
-                <line id="{{ line.line_num }}" class="{{ line.primary.enum }}"> 
-                    {{ line.line }}
-                </line>
+                <line id="{{ line.line_num }}" class="{{ line.primary.enum
+                    }}">{{ line.line }}</line>
             {% endif %}
         {% endfor %}
     </div>
@@ -40,12 +32,9 @@
     <annotation id="difference">
         <div class="annotation_head">
             Annotation
-            <sup>
-                <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
-                    }}">
-                    [{{ edit.annotation.id }}]
-                </a>
-            </sup>
+            <sup><a href="{{ url_for("annotation",
+                    annotation_id=edit.annotation.id) }}">[{{ edit.annotation.id
+                    }}]</a></sup>
             on
             <em>
                 <a href="{{ edit.lines[0].url }}#{{ edit.first_line_num
@@ -79,9 +68,9 @@
             {% endfor %}
         </tags>
 
-        <br> 
+        <br>
 
-        <!--annotation authorship-->
+        {# annotation authorship #}
         <em>
             <a href="{{ url_for("annotation", annotation_id=edit.annotation.id)
                 }}">
@@ -94,6 +83,6 @@
         </a>
         {{ edit.annotation.added }}
     </annotation>
-    
+
 </div>
 {% endblock %}
