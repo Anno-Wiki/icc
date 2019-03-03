@@ -15,6 +15,7 @@ from sqlalchemy.exc import ProgrammingError
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()

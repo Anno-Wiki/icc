@@ -9,7 +9,7 @@ from hashlib import md5
 from math import log10
 
 from flask import abort, url_for, current_app as app
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import backref
 
@@ -39,6 +39,22 @@ def _load_user(id):
     :class:`User`
     """
     return User.query.get(int(id))
+
+
+class MyAnonymousUserMixin(AnonymousUserMixin):
+    """An override for the typical anonymous user class that provides methods to
+    prevent AttributeError's.
+    """
+    def is_authorized(self, right):
+        """Is the user authorized? No. They're anonymous. Of course not."""
+        return False
+
+    def authorize(self, right):
+        """Is the user authorized? No. They're anonymous. Of course not."""
+        abort(503)
+
+
+login.anonymous_user = MyAnonymousUserMixin
 
 
 class User(UserMixin, Base):
