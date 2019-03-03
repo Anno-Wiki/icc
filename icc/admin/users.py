@@ -1,3 +1,4 @@
+"""Administrative routes for users."""
 from flask import (render_template, flash, redirect, url_for, request,
                    current_app)
 from flask_login import current_user, login_required
@@ -14,6 +15,7 @@ from icc.models.user import User, UserFlag
 @login_required
 @authorize('anonymize_users')
 def anonymize_user(user_id):
+    """Anonymize a user account (equivalent to deleting it)."""
     form = AreYouSureForm()
     user = User.query.get_or_404(user_id)
     redirect_url = url_for('user', user_id=user.id)
@@ -36,6 +38,7 @@ def anonymize_user(user_id):
 @login_required
 @authorize('lock_users')
 def lock_user(user_id):
+    """Lock a user account."""
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for('user', user_id=user.id))
     user.locked = not user.locked
@@ -48,222 +51,117 @@ def lock_user(user_id):
 @login_required
 @authorize('resolve_user_flags')
 def all_user_flags():
+    """Display all user flags for all users."""
+    default = 'marked'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'marked', type=str)
-
-    if sort == 'marked':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'marked_invert':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag':
-        flags = UserFlag.query\
-            .outerjoin(UserFlag.enum_cls)\
-            .order_by(UserFlag.enum_cls.flag.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag_invert':
-        flags = UserFlag.query\
-            .outerjoin(UserFlag.enum_cls)\
-            .order_by(UserFlag.enum_cls.flag.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_thrown.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_thrown.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.thrower_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower_invert':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.thrower_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.resolver_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver_invert':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.resolver_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved_invert':
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'user':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.user_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'user_invert':
-        flags = UserFlag.query\
-            .outerjoin(User, User.id == UserFlag.user_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    else:
-        flags = UserFlag.query\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
+    sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'marked': url_for('admin.all_user_flags', sort='marked', page=page),
-        'marked_invert': url_for('admin.all_user_flags', sort='marked_invert',
-                                 page=page),
-        'flag': url_for('admin.all_user_flags', sort='flag', page=page),
-        'flag_invert': url_for('admin.all_user_flags', sort='flag_invert',
-                               page=page),
-        'time': url_for('admin.all_user_flags', sort='time', page=page),
-        'time_invert': url_for('admin.all_user_flags', sort='time_invert',
-                               page=page),
-        'thrower': url_for('admin.all_user_flags', sort='thrower', page=page),
-        'thrower_invert': url_for('admin.all_user_flags', sort='thrower_invert',
-                                  page=page),
-        'resolver': url_for('admin.all_user_flags', sort='resolver', page=page),
-        'resolver_invert': url_for('admin.all_user_flags',
-                                   sort='resolver_invert', page=page),
-        'time_resolved': url_for('admin.all_user_flags', sort='time_resolved',
-                                 page=page),
-        'time_resolved_invert': url_for('admin.all_user_flags',
-                                        sort='time_resolved_invert', page=page),
-        'user': url_for('admin.all_user_flags', sort='user', page=page),
-        'user_invert': url_for('admin.all_user_flags', sort='user_invert',
-                               page=page),
+        'marked': UserFlag.query.order_by(UserFlag.time_resolved.desc()),
+        'marked_invert': UserFlag.query.order_by(UserFlag.time_resolved.asc()),
+        'flag': (UserFlag.query.join(UserFlag.enum_cls)
+                 .order_by(UserFlag.enum_cls.enum.asc())),
+        'flag_invert': (UserFlag.query.join(UserFlag.enum_cls)
+                        .order_by(UserFlag.enum_cls.enum.desc())),
+        'time': UserFlag.query.order_by(UserFlag.time_thrown.desc()),
+        'time_invert': UserFlag.query.order_by(UserFlag.time_thrown.asc()),
+        'thrower': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                    .order_by(User.displayname.asc())),
+        'thrower_invert': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                           .order_by(User.displayname.desc())),
+        'resolver': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                     .order_by(User.displayname.asc())),
+        'resolver_invert': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                            .order_by(User.displayname.desc())),
+        'time_resolved': UserFlag.query.order_by(UserFlag.time_resolved.desc()),
+        'time_resolved_invert': (UserFlag.query
+                                 .order_by(UserFlag.time_resolved.asc())),
+        'user': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                 .order_by(User.displayname.asc())),
+        'user_invert': (UserFlag.query
+                        .join(User, User.id==UserFlag.user_id)
+                        .order_by(User.displayname.desc())),
     }
 
-    next_page = url_for('admin.all_user_flags', page=flags.next_num, sort=sort)\
-        if flags.has_next else None
-    prev_page = url_for('admin.all_user_flags', page=flags.prev_num, sort=sort)\
-        if flags.has_prev else None
-    return render_template('indexes/all_user_flags.html', title=f"User Flags",
+    sort = sort if sort in sorts else default
+    flags = sorts[sort]\
+        .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
+    if not flags.items and page > 1:
+        abort(404)
+
+    sorturls = {key: url_for('admin.all_user_flags', page=page, sort=key) for
+                key in sorts.keys()}
+    next_page = (url_for('admin.all_user_flags', page=flags.next_num, sort=sort)
+                 if flags.has_next else None)
+    prev_page = (url_for('admin.all_user_flags', page=flags.prev_num, sort=sort)
+                 if flags.has_prev else None)
+    return render_template('indexes/all_user_flags.html',
+                           title=f"User Flags",
                            next_page=next_page, prev_page=prev_page,
-                           flags=flags.items, sort=sort, sorts=sorts)
+                           sort=sort, sorts=sorturls,
+                           flags=flags.items)
 
 
 @admin.route('/flags/user/<user_id>/')
 @login_required
 @authorize('resolve_user_flags')
 def user_flags(user_id):
+    """Display all flags for a given user."""
+    default = 'marked'
     page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'marked', type=str)
+    sort = request.args.get('sort', default, type=str)
     user = User.query.get_or_404(user_id)
-    if sort == 'marked':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'marked_invert':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag':
-        flags = user.flag_history\
-            .outerjoin(UserFlag.enum_cls)\
-            .order_by(UserFlag.enum_cls.flag.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'flag_invert':
-        flags = user.flag_history\
-            .outerjoin(UserFlag.enum_cls)\
-            .order_by(UserFlag.enum_cls.flag.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_thrown.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_invert':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_thrown.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower':
-        flags = user.flag_history\
-            .outerjoin(User, User.id == UserFlag.thrower_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'thrower_invert':
-        flags = user.flag_history\
-            .outerjoin(User, User.id == UserFlag.thrower_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver':
-        flags = user.flag_history\
-            .outerjoin(User, User.id == UserFlag.resolver_id)\
-            .order_by(User.displayname.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'resolver_invert':
-        flags = user.flag_history\
-            .outerjoin(User, User.id == UserFlag.resolver_id)\
-            .order_by(User.displayname.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-    elif sort == 'time_resolved_invert':
-        flags = user.flag_history\
-            .order_by(UserFlag.time_resolved.asc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
-
-    else:
-        flags = user.flag_history\
-            .order_by(UserFlag.time_resolved.desc())\
-            .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorts = {
-        'marked': url_for('admin.user_flags', user_id=user.id, sort='marked',
-                          page=page),
-        'marked_invert': url_for('admin.user_flags', user_id=user.id,
-                                 sort='marked_invert', page=page),
-        'flag': url_for('admin.user_flags', user_id=user.id, sort='flag',
-                        page=page),
-        'flag_invert': url_for('admin.user_flags', user_id=user.id,
-                               sort='flag_invert', page=page),
-        'time': url_for('admin.user_flags', user_id=user.id, sort='time',
-                        page=page),
-        'time_invert': url_for('admin.user_flags', user_id=user.id,
-                               sort='time_invert', page=page),
-        'thrower': url_for('admin.user_flags', user_id=user.id, sort='thrower',
-                           page=page),
-        'thrower_invert': url_for('admin.user_flags', user_id=user.id,
-                                  sort='thrower_invert', page=page),
-        'resolver': url_for('admin.user_flags', user_id=user.id,
-                            sort='resolver', page=page),
-        'resolver_invert': url_for('admin.user_flags', user_id=user.id,
-                                   sort='resolver_invert', page=page),
-        'time_resolved': url_for('admin.user_flags', user_id=user.id,
-                                 sort='time_resolved', page=page),
-        'time_resolved_invert': url_for('admin.user_flags', user_id=user.id,
-                                        sort='time_resolved_invert', page=page),
+        'marked': user.flags.order_by(UserFlag.time_resolved.desc()),
+        'marked_invert': (user.flags
+                          .order_by(UserFlag.time_resolved.asc())),
+        'flag': (user.flags.join(UserFlag.enum_cls)
+                .order_by(UserFlag.enum_cls.enum.asc())),
+        'flag_invert': (user.flags.join(UserFlag.enum_cls)
+                        .order_by(UserFlag.enum_cls.enum.desc())),
+        'time': user.flags.order_by(UserFlag.time_thrown.desc()),
+        'time_invert': user.flags.order_by(UserFlag.time_thrown.asc()),
+        'thrower': (user.flags.join(User, UserFlag.user_id==User.id)
+                    .order_by(User.displayname.asc())),
+        'thrower_invert': (user.flags.join(User, UserFlag.user_id==User.id)
+                        .order_by(User.displayname.desc())),
+        'resolver': (user.flags.join(User, UserFlag.user_id==User.id)
+                     .order_by(User.displayname.asc())),
+        'resolver_invert': (user.flags.join(User, UserFlag.user_id==User.id)
+                            .order_by(User.displayname.desc())),
+        'time_resolved': (user.flags
+                          .order_by(UserFlag.time_resolved.desc())),
+        'time_resolved_invert': (user.flags
+                             .order_by(UserFlag.time_resolved.asc())),
     }
 
-    next_page = url_for(
-        'admin.user_flags', user_id=user.id, page=flags.next_num, sort=sort)\
-        if flags.has_next else None
-    prev_page = url_for(
-        'admin.user_flags', user_id=user.id, page=flags.prev_num, sort=sort)\
-        if flags.has_prev else None
-    return render_template(
-        'indexes/user_flags.html', title=f"{user.displayname} flags",
-        next_page=next_page, prev_page=prev_page, sort=sort, sorts=sorts,
-        user=user, flags=flags.items)
+    sort = sort if sort in sorts else default
+    flags = sorts[sort]\
+        .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
+    if not flags.items and page > 1:
+        abort(404)
+
+    sorturls = {key: url_for('admin.user_flags', user_id=user_id, page=page,
+                             sort=key) for key in sorts.keys()}
+    next_page = (url_for('admin.user_flags', user_id=user.id,
+                         page=flags.next_num, sort=sort) if flags.has_next else
+                 None)
+    prev_page = (url_for('admin.user_flags', user_id=user.id,
+                         page=flags.prev_num, sort=sort) if flags.has_prev else
+                 None)
+    return render_template('indexes/user_flags.html',
+                           title=f"{user.displayname} flags",
+                           next_page=next_page, prev_page=prev_page,
+                           sort=sort, sorts=sorturls,
+                           user=user, flags=flags.items)
 
 
 @admin.route('/flags/mark/user_flag/<flag_id>/')
 @login_required
 @authorize('resolve_user_flags')
 def mark_user_flag(flag_id):
+    """Mark a specific user flag resolved or unresolved."""
     flag = UserFlag.query.get_or_404(flag_id)
     redirect_url = generate_next(url_for('admin.user_flags',
                                          user_id=flag.user_id))
@@ -278,7 +176,8 @@ def mark_user_flag(flag_id):
 @admin.route('/flags/mark_all/<user_id>/')
 @login_required
 @authorize('resolve_user_flags')
-def mark_user_flags(user_id):
+def mark_all_user_flags(user_id):
+    """Mark all user flags resolved or unresolved."""
     user = User.query.get_or_404(user_id)
     redirect_url = generate_next(url_for('admin.user_flags', user_id=user.id))
     for flag in user.active_flags:

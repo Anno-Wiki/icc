@@ -141,7 +141,6 @@ def profile(user_id):
     }
 
     userflags = UserFlag.enum_cls.query.all()
-    annotationflags = AnnotationFlag.enum_cls.query.all()
 
     next_page = url_for(
         'user.profile', user_id=user.id, page=annotations.next_num, sort=sort)\
@@ -153,8 +152,7 @@ def profile(user_id):
     return render_template(
         'view/user.html', title=f"User {user.displayname}", next_page=next_page,
         prev_page=prev_page, sort=sort, sorts=sorts, userflags=userflags,
-        user=user, annotations=annotations.items,
-        annotationflags=annotationflags)
+        user=user, annotations=annotations.items)
 
 
 @user.route('/<user_id>/flag/<flag_id>')
@@ -165,5 +163,5 @@ def flag_user(flag_id, user_id):
     redirect_url = generate_next(url_for('user.profile', user_id=user.id))
     UserFlag.flag(user, flag, current_user)
     db.session.commit()
-    flash(f"User {user.displayname} flagged \"{flag.flag}\"")
+    flash(f"User {user.displayname} flagged \"{flag.enum}\"")
     return redirect(redirect_url)

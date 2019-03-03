@@ -4,7 +4,7 @@
 <h1>Are you sure?</h1>
 {{ text|markdown }}
 <form action="" method="POST" novalidate>
-    {{ form.csrf_token() }} 
+    {{ form.csrf_token() }}
     {{ form.submit }}
 </form>
 {% endblock %}
