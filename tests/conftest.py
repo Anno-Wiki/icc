@@ -1,3 +1,5 @@
+"""The main configuration file for pytest"""
+
 import os
 import io
 import json
@@ -8,13 +10,13 @@ from icc import create_app, db
 from icc import classes
 
 from config import Config
+from tests.utils import TESTADMIN, PASSWORD
 
 from inserts.insertlines import (get_text, get_edition, populate_lines,
                                  add_writer_connections)
 
 
 DIR = os.path.dirname(os.path.realpath(__file__))
-PASSWORD = 'testing'
 
 
 class TestConfig(Config):
@@ -67,7 +69,6 @@ def minpop(app):
     data = open_json(f'enums.json')
 
     with app.app_context():
-        # populate remaining enums
         for enum, enums in data.items():
             for instance in enums:
                 obj = classes[enum](**instance)
@@ -75,8 +76,12 @@ def minpop(app):
                     obj.set_password(PASSWORD)
                 db.session.add(obj)
 
-        db.session.commit()
+        # make the admin
+        rights = classes['AdminRight'].query.all()
+        u_cls = classes['User']
+        u_cls.query.filter_by(email=TESTADMIN).first().rights = rights
 
+        db.session.commit()
     return app
 
 

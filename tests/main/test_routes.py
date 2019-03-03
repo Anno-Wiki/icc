@@ -78,9 +78,6 @@ def test_index(popclient):
         assert rv.status_code == 404
 
 
-    app, client = popclient
-
-
 def test_line_annotations(popclient):
     """Test the annotations page for a given line."""
     app, client = popclient

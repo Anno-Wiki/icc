@@ -89,3 +89,8 @@ User:
           I created all of this.  This entire site.  I am the puppetmaster.
 
           I also really like wine.
+    - displayname: admin
+      email: admin@example.com
+      locked: false
+      about_me: |
+          I'm the admin. Prepare to be administrated.
