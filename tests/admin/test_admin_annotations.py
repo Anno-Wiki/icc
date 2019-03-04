@@ -66,6 +66,7 @@ def test_deactivated_list(popclient):
 
 
 def test_all_annotation_flags(popclient):
+    """Test the route to view all annotation flags for all annotations."""
     app, client = popclient
 
     with app.test_request_context():
@@ -109,6 +110,7 @@ def test_all_annotation_flags(popclient):
 
 
 def test_annotation_flags(popclient):
+    """Test the view page for annotation flags for a particular annotation."""
     app, client = popclient
 
     with app.test_request_context():
@@ -131,7 +133,7 @@ def test_annotation_flags(popclient):
     max_pages = int(math.ceil(entities/app.config['NOTIFICATIONS_PER_PAGE']))
     sorts = ['marked', 'marked_invert', 'flag', 'flag_invert', 'thrower',
              'thrower_invert', 'time', 'time_invert', 'resolver',
-             'resolver_invert', 'time_resolved', 'time_resolved_invert',]
+             'resolver_invert', 'time_resolved', 'time_resolved_invert']
 
     rv = client.get(url)
     assert rv.status_code == 200
@@ -160,8 +162,7 @@ def test_mark_annotation_flag(popclient):
 
         login(user, client)
         for flag in flags:
-            url = url_for('admin.mark_annotation_flag',
-                        flag_id=flag.id)
+            url = url_for('admin.mark_annotation_flag', flag_id=flag.id)
             rv = client.get(url, follow_redirects=True)
             assert rv.status_code == 200
             assert b'marked resolved.' in rv.data
@@ -172,6 +173,7 @@ def test_mark_annotation_flag(popclient):
 
 
 def test_mark_all_annotation_flags(popclient):
+    """Test the route to mark all flags for a given annotation resolved."""
     app, client = popclient
 
     with app.test_request_context():

@@ -1,3 +1,4 @@
+"""Test the routes for main.annotations."""
 from flask import url_for
 
 from icc import db

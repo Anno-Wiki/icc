@@ -5,6 +5,7 @@ from flask_login import logout_user
 
 PASSWORD = 'testing'
 TESTUSER = 'george@example.com'
+TESTUSER2 = 'fred@example.com'
 TESTADMIN = 'admin@example.com'
 COMMUNITY = 'community@example.com'
 
