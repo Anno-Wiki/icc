@@ -28,7 +28,7 @@ def edit_review_queue():
 
     sorts = {
         'voted': Edit.query.outerjoin(EditVote).order_by(EditVote.delta.desc()),
-        'voted_invert': (Edit.query.join(EditVote)
+        'voted_invert': (Edit.query.outerjoin(EditVote)
                          .order_by(EditVote.delta.asc())),
         'id': Edit.query.join(Annotation).order_by(Annotation.id.asc()),
         'id_invert': Edit.query.join(Annotation).order_by(Annotation.id.desc()),
