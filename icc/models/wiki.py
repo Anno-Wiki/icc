@@ -60,8 +60,8 @@ class WikiEditVote(Base, VoteMixin):
     edit_id = db.Column(db.Integer,
                         db.ForeignKey('wikiedit.id', ondelete='CASCADE'),
                         index=True, nullable=False)
-    edit = db.relationship('WikiEdit', backref=backref('ballots',
-                                                       passive_deletes=True))
+    entity = db.relationship('WikiEdit', backref=backref('ballots',
+                                                         passive_deletes=True))
 
     def __repr__(self):
         prefix = super().__repr__()
@@ -91,7 +91,7 @@ class WikiEdit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = self.__vote__(edit=self, delta=1, voter=voter)
+        vote = self.__vote__(entity=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight >= app.config['VOTES_FOR_WIKI_EDIT_APPROVAL'] or\
@@ -112,7 +112,7 @@ class WikiEdit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = self.__vote__(edit=self, delta=-1, voter=voter)
+        vote = self.__vote__(entity=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight <= app.config['VOTES_FOR_WIKI_EDIT_REJECTION'] or\

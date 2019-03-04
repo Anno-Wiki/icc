@@ -13,7 +13,7 @@ class TextRequestVote(Base, VoteMixin):
     text_request_id = db.Column(
         db.Integer, db.ForeignKey('textrequest.id', ondelete='CASCADE'),
         index=True)
-    text_request = db.relationship(
+    entity = db.relationship(
         'TextRequest', backref=backref('ballots', passive_deletes=True))
 
     def __repr__(self):
@@ -49,7 +49,7 @@ class TextRequest(Base, FollowableMixin):
     def upvote(self, voter):
         weight = 1
         self.weight += weight
-        vote = TextRequestVote(voter=voter, text_request=self, delta=weight)
+        vote = TextRequestVote(voter=voter, entity=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
@@ -74,7 +74,7 @@ class TagRequestVote(Base, VoteMixin):
     tag_request_id = db.Column(
         db.Integer, db.ForeignKey('tagrequest.id', ondelete='CASCADE'),
         index=True)
-    tag_request = db.relationship(
+    entity = db.relationship(
         'TagRequest', backref=backref('ballots', passive_deletes=True))
 
     def __repr__(self):
@@ -105,13 +105,13 @@ class TagRequest(Base, FollowableMixin):
     def upvote(self, voter):
         weight = 1
         self.weight += weight
-        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
+        vote = TagRequestVote(voter=voter, entity=self, delta=weight)
         db.session.add(vote)
 
     def downvote(self, voter):
         weight = -1
         self.weight += weight
-        vote = TagRequestVote(voter=voter, tag_request=self, delta=weight)
+        vote = TagRequestVote(voter=voter, entity=self, delta=weight)
         db.session.add(vote)
 
     def readable_weight(self):

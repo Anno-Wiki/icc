@@ -215,7 +215,7 @@ class AnnotationVote(Base, VoteMixin):
     reputationchange_id = db.Column(
         db.Integer, db.ForeignKey('reputationchange.id', ondelete='CASCADE'))
 
-    annotation = db.relationship('Annotation')
+    entity = db.relationship('Annotation')
     repchange = db.relationship('ReputationChange',
                                 backref=backref('vote', uselist=False))
 
@@ -245,8 +245,6 @@ class AnnotationFlag(Base, FlagMixin):
                                             ondelete='CASCADE'), index=True)
     entity = db.relationship('Annotation', backref=backref('flags',
                                                            lazy='dynamic'))
-
-
 
 
 class Annotation(Base, FollowableMixin):
@@ -474,7 +472,7 @@ class Annotation(Base, FollowableMixin):
         weight = voter.up_power
         repchange = ReputationChange(user=self.annotator, enum=reptype,
                                      delta=reptype.default_delta)
-        vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
+        vote = AnnotationVote(voter=voter, entity=self, delta=weight,
                               repchange=repchange)
         self.annotator.reputation += repchange.delta
         self.weight += vote.delta
@@ -492,7 +490,7 @@ class Annotation(Base, FollowableMixin):
             repdelta = reptype.default_delta
         repchange = ReputationChange(user=self.annotator, enum=reptype,
                                      delta=repdelta)
-        vote = AnnotationVote(voter=voter, annotation=self, delta=weight,
+        vote = AnnotationVote(voter=voter, entity=self, delta=weight,
                               repchange=repchange)
         self.weight += vote.delta
         self.annotator.reputation += repchange.delta
@@ -540,7 +538,7 @@ class EditVote(Base, VoteMixin):
     """
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
-    edit = db.relationship('Edit',
+    entity = db.relationship('Edit',
                            backref=backref('ballots', lazy='dynamic',
                                            passive_deletes=True))
     reputationchange_id = db.Column(
@@ -700,7 +698,7 @@ class Edit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = EditVote(edit=self, delta=1, voter=voter)
+        vote = EditVote(entity=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight >= app.config['VOTES_FOR_EDIT_APPROVAL'] or\
@@ -722,7 +720,7 @@ class Edit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = EditVote(edit=self, delta=-1, voter=voter)
+        vote = EditVote(entity=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight <= app.config['VOTES_FOR_EDIT_REJECTION'] or\

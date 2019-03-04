@@ -309,7 +309,8 @@ class User(UserMixin, Base):
             raise TypeError("The requested object is missing an `__vote__` "
                             "attribute.")
         vote_cls = obj.__vote__
-        return vote_cls.query.filter_by(voter=self).first()
+        return vote_cls.query.filter(vote_cls.voter==self,
+                                     vote_cls.entity==obj).first()
 
 
 class AdminRight(Base, EnumMixin):
