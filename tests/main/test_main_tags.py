@@ -2,6 +2,7 @@
 import math
 from flask import url_for
 from icc.models.annotation import Tag
+from tests.utils import looptest
 
 def test_tag_index(popclient):
     """Test the tag index page."""
@@ -13,18 +14,9 @@ def test_tag_index(popclient):
         entities = Tag.query.count()
         max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
 
-    rv = client.get(f'{url}')
-    assert rv.status_code == 200
-    assert b'<tag>' in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200
-        assert b'<tag>' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')
-        assert rv.status_code == 200
-        assert b'<tag>' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')
-        assert rv.status_code == 404
+    test = 'tag'
+    looptest(url=url, client=client, sorts=sorts, test=test,
+             max_pages=max_pages)
 
 
 def test_tag(popclient):
@@ -55,15 +47,7 @@ def test_tag_annotations(popclient):
             assert entities > 0
             max_pages = int(math.ceil(
                     entities/app.config['ANNOTATIONS_PER_PAGE']))
-            rv = client.get(url)
-            assert rv.status_code == 200
-            assert b'<annotation' in rv.data
-            for sort in sorts:
-                rv = client.get(f'{url}?sort={sort}')
-                assert rv.status_code == 200
-                assert b'<annotation' in rv.data
-                rv = client.get(f'{url}?sort={sort}&page={max_pages}')
-                assert rv.status_code == 200
-                assert b'<annotation' in rv.data
-                rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')
-                assert rv.status_code == 404
+
+            test='<annotation'
+            looptest(client=client, max_pages=max_pages, url=url, sorts=sorts,
+                     test=test)

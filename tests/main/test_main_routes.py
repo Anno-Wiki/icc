@@ -3,7 +3,7 @@ import pytest
 import math
 
 from flask import url_for
-from tests.utils import get_token, login, TESTUSER
+from tests.utils import get_token, login, TESTUSER, looptest
 from icc import db
 from icc.models.user import User
 from icc.models.annotation import Annotation
@@ -65,17 +65,9 @@ def test_index(popclient):
         max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
 
     rv = client.get(url)
-    assert rv.status_code == 200
-    assert b'<annotation' in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
+
+    looptest(url=url, max_pages=max_pages, test='<annotation', client=client,
+             sorts=sorts)
 
 
 def test_line_annotations(popclient):
@@ -93,16 +85,9 @@ def test_line_annotations(popclient):
     assert b'<annotation' in rv.data
     assert (b"Cygnus X-1 is a real black hole, but Cygnus, for the record, is "
             b"Latin for swan." in rv.data)
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
 
+    looptest(url=url, max_pages=max_pages, test='<annotation', client=client,
+             sorts=sorts)
 
 def test_read(popclient):
     """Test the read route.

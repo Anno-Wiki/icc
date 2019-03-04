@@ -7,7 +7,7 @@ from icc import db
 from icc.models.annotation import Annotation, AnnotationFlag
 from icc.models.user import User
 
-from tests.utils import login, logout, TESTADMIN, TESTUSER
+from tests.utils import login, logout, TESTADMIN, TESTUSER, looptest
 
 
 def test_deactivate(popclient):
@@ -51,18 +51,10 @@ def test_deactivated_list(popclient):
     entities = len(annotations)
     max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
     sorts = ['added', 'weight']
-    rv = client.get(url)
-    assert rv.status_code == 200
-    assert b'<annotation' in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert b'<annotation' in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
+
+    test = '<annotation'
+    looptest(sorts=sorts, url=url, max_pages=max_pages, client=client,
+             test=test)
 
 
 def test_all_annotation_flags(popclient):
@@ -95,18 +87,9 @@ def test_all_annotation_flags(popclient):
              'resolver_invert', 'time_resolved', 'time_resolved_invert',
              'annotation', 'annotation_invert', 'text', 'text_invert']
 
-    rv = client.get(url)
-    assert rv.status_code == 200
-    assert bytes(username, 'utf-8') in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert bytes(username, 'utf-8') in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert bytes(username, 'utf-8') in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
+
+    looptest(test=username, sorts=sorts, max_pages=max_pages, url=url,
+             client=client)
 
 
 def test_annotation_flags(popclient):
@@ -135,18 +118,8 @@ def test_annotation_flags(popclient):
              'thrower_invert', 'time', 'time_invert', 'resolver',
              'resolver_invert', 'time_resolved', 'time_resolved_invert']
 
-    rv = client.get(url)
-    assert rv.status_code == 200
-    assert bytes(username, 'utf-8') in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert bytes(username, 'utf-8') in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert bytes(username, 'utf-8') in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
+    looptest(url=url, test=username, sorts=sorts, client=client,
+             max_pages=max_pages)
 
 
 def test_mark_annotation_flag(popclient):

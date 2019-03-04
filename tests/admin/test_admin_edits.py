@@ -7,7 +7,7 @@ from icc import db
 from icc.models.annotation import Annotation
 from icc.models.user import User
 
-from tests.utils import login, TESTADMIN, TESTUSER2
+from tests.utils import login, TESTADMIN, TESTUSER2, looptest
 
 
 def test_edit_review_queue(popclient):
@@ -42,15 +42,7 @@ def test_edit_review_queue(popclient):
 
     max_pages = int(math.ceil(entities/app.config['NOTIFICATIONS_PER_PAGE']))
     sorts = ['added', 'weight']
-    rv = client.get(url)
-    assert rv.status_code == 200
-    assert b'cleared' not in rv.data
-    for sort in sorts:
-        rv = client.get(f'{url}?sort={sort}')
-        assert rv.status_code == 200                                # sort
-        assert b'cleared' not in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages}')      # sort/page
-        assert rv.status_code == 200
-        assert b'cleared' not in rv.data
-        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')    # max page
-        assert rv.status_code == 404
+
+    test = 'cleared'
+    looptest(client=client, url=url, max_pages=max_pages, sorts=sorts,
+             test=test)
