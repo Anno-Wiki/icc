@@ -13,5 +13,6 @@ def test_user_index(minclient):
         max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
 
     sorts = ['reputation', 'name', 'annotation', 'edits']
-    looptest(url=url, sorts=sorts, max_pages=max_pages,
-             test='<div class="card">', client=client)
+    tests = ['<div class="card">']
+    looptest(url=url, sorts=sorts, max_pages=max_pages, tests=tests,
+             client=client)

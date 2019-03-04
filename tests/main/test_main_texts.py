@@ -34,6 +34,6 @@ def test_text_annotations(popclient):
             max_pages = int(math.ceil(
                     entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-            test = '<annotation'
-            looptest(test=test, url=url, sorts=sorts, client=client,
+            tests = ['<annotation']
+            looptest(tests=tests, url=url, sorts=sorts, client=client,
                      max_pages=max_pages)

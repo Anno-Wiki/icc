@@ -66,7 +66,8 @@ def test_index(popclient):
 
     rv = client.get(url)
 
-    looptest(url=url, max_pages=max_pages, test='<annotation', client=client,
+    tests = ['<annotation']
+    looptest(url=url, max_pages=max_pages, tests=tests, client=client,
              sorts=sorts)
 
 
@@ -86,7 +87,8 @@ def test_line_annotations(popclient):
     assert (b"Cygnus X-1 is a real black hole, but Cygnus, for the record, is "
             b"Latin for swan." in rv.data)
 
-    looptest(url=url, max_pages=max_pages, test='<annotation', client=client,
+    tests = ['<annotation']
+    looptest(url=url, max_pages=max_pages, tests=tests, client=client,
              sorts=sorts)
 
 def test_read(popclient):

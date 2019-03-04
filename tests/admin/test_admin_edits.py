@@ -43,6 +43,6 @@ def test_edit_review_queue(popclient):
     max_pages = int(math.ceil(entities/app.config['NOTIFICATIONS_PER_PAGE']))
     sorts = ['added', 'weight']
 
-    test = 'cleared'
+    tests = ['cleared']
     looptest(client=client, url=url, max_pages=max_pages, sorts=sorts,
-             test=test)
+             tests=tests)

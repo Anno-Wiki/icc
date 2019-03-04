@@ -14,8 +14,8 @@ def test_tag_index(popclient):
         entities = Tag.query.count()
         max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
 
-    test = 'tag'
-    looptest(url=url, client=client, sorts=sorts, test=test,
+    tests = ['tag']
+    looptest(url=url, client=client, sorts=sorts, tests=tests,
              max_pages=max_pages)
 
 
@@ -48,6 +48,6 @@ def test_tag_annotations(popclient):
             max_pages = int(math.ceil(
                     entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-            test='<annotation'
+            tests = ['<annotation']
             looptest(client=client, max_pages=max_pages, url=url, sorts=sorts,
-                     test=test)
+                     tests=tests)

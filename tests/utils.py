@@ -33,16 +33,19 @@ def logout(client):
     assert b'login' in rv.data
 
 
-def looptest(*, url, sorts, max_pages, test, client):
+def looptest(*, url, sorts, max_pages, tests, client):
     rv = client.get(url, follow_redirects=True)
     assert rv.status_code == 200
-    assert bytes(test, 'utf-8') in rv.data
+    for test in tests:
+        assert bytes(test, 'utf-8') in rv.data
     for sort in sorts:
         rv = client.get(f'{url}?sort={sort}')
         assert rv.status_code == 200
-        assert bytes(test, 'utf-8') in rv.data
+        for test in tests:
+            assert bytes(test, 'utf-8') in rv.data
         rv = client.get(f'{url}?sort={sort}&page={max_pages}')
         assert rv.status_code == 200
-        assert bytes(test, 'utf-8') in rv.data
+        for test in tests:
+            assert bytes(test, 'utf-8') in rv.data
         rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')
         assert rv.status_code == 404

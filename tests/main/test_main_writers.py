@@ -1,4 +1,5 @@
 """Test the main.writers routes."""
+
 import math
 import pytest
 from flask import url_for
@@ -34,8 +35,8 @@ def test_writer_annotations(popclient):
             max_pages = int(math.ceil(
                     entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-            test = '<annotation'
-            looptest(test=test, url=url, sorts=sorts, client=client,
+            tests = ['<annotation']
+            looptest(tests=tests, url=url, sorts=sorts, client=client,
                      max_pages=max_pages)
 
 
@@ -51,6 +52,6 @@ def test_writer_index(popclient):
         entities = Writer.query.count()
         max_pages = int(math.ceil(entities / app.config['CARDS_PER_PAGE']))
 
-    test = '<div class="card">'
-    looptest(test=test, url=url, max_pages=max_pages, client=client,
+    tests = ['<div class="card">']
+    looptest(tests=tests, url=url, max_pages=max_pages, client=client,
              sorts=sorts)

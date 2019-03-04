@@ -52,9 +52,9 @@ def test_deactivated_list(popclient):
     max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
     sorts = ['added', 'weight']
 
-    test = '<annotation'
+    tests = ['<annotation']
     looptest(sorts=sorts, url=url, max_pages=max_pages, client=client,
-             test=test)
+             tests=tests)
 
 
 def test_all_annotation_flags(popclient):
@@ -87,8 +87,8 @@ def test_all_annotation_flags(popclient):
              'resolver_invert', 'time_resolved', 'time_resolved_invert',
              'annotation', 'annotation_invert', 'text', 'text_invert']
 
-
-    looptest(test=username, sorts=sorts, max_pages=max_pages, url=url,
+    tests = [username]
+    looptest(tests=tests, sorts=sorts, max_pages=max_pages, url=url,
              client=client)
 
 
@@ -118,7 +118,8 @@ def test_annotation_flags(popclient):
              'thrower_invert', 'time', 'time_invert', 'resolver',
              'resolver_invert', 'time_resolved', 'time_resolved_invert']
 
-    looptest(url=url, test=username, sorts=sorts, client=client,
+    tests = [username]
+    looptest(url=url, tests=tests, sorts=sorts, client=client,
              max_pages=max_pages)
 
 
