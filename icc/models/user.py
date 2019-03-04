@@ -388,8 +388,5 @@ class UserFlag(Base, FlagMixin):
                              backref=backref('flags', lazy='dynamic'))
 
 
-# hoist the UserFlag enum class into the namespace.
-UserFlagEnum = UserFlag.enum_cls
-
-
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
+classes['UserFlagEnum'] = UserFlag.enum_cls

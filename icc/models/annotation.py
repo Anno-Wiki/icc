@@ -247,8 +247,6 @@ class AnnotationFlag(Base, FlagMixin):
                                                            lazy='dynamic'))
 
 
-# hoist the enum into the namespace
-AnnotationFlagEnum = AnnotationFlag.enum_cls
 
 
 class Annotation(Base, FollowableMixin):
@@ -740,3 +738,4 @@ class Edit(Base, EditMixin):
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
+classes['AnnotationFlagEnum'] = AnnotationFlag.enum_cls
