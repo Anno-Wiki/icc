@@ -4,11 +4,11 @@ import math
 from flask import url_for
 
 from icc import db
-from icc.models.content import Text, Line
 from icc.models.annotation import Annotation, AnnotationFlag
 from icc.models.user import User
 
-from tests.utils import get_token, login, logout, TESTADMIN, TESTUSER
+from tests.utils import login, logout, TESTADMIN, TESTUSER
+
 
 def test_deactivate(popclient):
     """Test the route to deactivate an annotation."""

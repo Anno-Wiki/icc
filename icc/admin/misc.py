@@ -18,12 +18,11 @@ def edit_line(line_id):
     """
     line = Line.query.get_or_404(line_id)
     form = LineForm()
+    redirect_url = generate_next(line.url)
+    if form.validate_on_submit() and form.line.data is not None:
+        line.line = form.line.data
+        db.session.commit()
+        flash("Line updated.")
+        return redirect(redirect_url)
     form.line.data = line.line
-    redirect_url = generate_next(url_for(line.url))
-    if form.validate_on_submit():
-        if form.line.data is not None and len(form.line.data) <= 200:
-            line.line = form.line.data
-            db.session.commit()
-            flash("Line updated.")
-            return redirect(redirect_url)
     return render_template('forms/line.html', title="Edit Line", form=form)

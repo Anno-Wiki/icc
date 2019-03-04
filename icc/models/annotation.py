@@ -613,7 +613,7 @@ class Edit(Base, EditMixin):
     lines : list
         A list of all of the lines that are the target of the edit.
     context : list
-g       A list of all the lines that are the target of the edit *plus* five
+        A list of all the lines that are the target of the edit *plus* five
         lines on either side of the first and last lines of the target lines.
     """
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
@@ -670,7 +670,7 @@ g       A list of all the lines that are the target of the edit *plus* five
 
     def __repr__(self):
         prefix = super().__repr__()
-        return f"{prefix}    {self.annotation}>"
+        return f"<{prefix} {self.annotation}>"
 
     def get_hl(self):
         """This method is supposed to return the specific lines of the target

@@ -54,6 +54,7 @@ class MyAnonymousUserMixin(AnonymousUserMixin):
         abort(503)
 
 
+# override the AnonymouseUserMixin
 login.anonymous_user = MyAnonymousUserMixin
 
 

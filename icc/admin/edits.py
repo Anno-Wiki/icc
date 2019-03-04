@@ -4,7 +4,7 @@ import re
 import difflib
 
 from flask import (render_template, flash, redirect, url_for, request,
-                   current_app)
+                   current_app, abort)
 from flask_login import current_user, login_required
 
 from sqlalchemy import and_
@@ -27,7 +27,7 @@ def edit_review_queue():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'voted': Edit.query.join(EditVote).order_by(EditVote.delta.desc()),
+        'voted': Edit.query.outerjoin(EditVote).order_by(EditVote.delta.desc()),
         'voted_invert': (Edit.query.join(EditVote)
                          .order_by(EditVote.delta.asc())),
         'id': Edit.query.join(Annotation).order_by(Annotation.id.asc()),
@@ -46,8 +46,9 @@ def edit_review_queue():
     sort = sort if sort in sorts else default
     edits = (sorts[sort]
                    .filter(Edit.approved==False, Edit.rejected==False)
-                   .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'],
+                   .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'],
                              False))
+
     if not edits.items and page > 1:
         abort(404)
 
