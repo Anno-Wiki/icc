@@ -44,5 +44,20 @@ def test_edit_review_queue(popclient):
     sorts = ['added', 'weight']
 
     tests = ['cleared']
-    looptest(client=client, url=url, max_pages=max_pages, sorts=sorts,
-             tests=tests)
+    rv = client.get(url, follow_redirects=True)
+
+    assert rv.status_code == 200
+    for test in tests:
+        assert bytes(test, 'utf-8') not in rv.data
+    for sort in sorts:
+        print(sort)
+        rv = client.get(f'{url}?sort={sort}')
+        assert rv.status_code == 200
+        for test in tests:
+            assert bytes(test, 'utf-8') not in rv.data
+        rv = client.get(f'{url}?sort={sort}&page={max_pages}')
+        assert rv.status_code == 200
+        for test in tests:
+            assert bytes(test, 'utf-8') not in rv.data
+        rv = client.get(f'{url}?sort={sort}&page={max_pages+1}')
+        assert rv.status_code == 404

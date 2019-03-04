@@ -39,6 +39,7 @@ def looptest(*, url, sorts, max_pages, tests, client):
     for test in tests:
         assert bytes(test, 'utf-8') in rv.data
     for sort in sorts:
+        print(sort)
         rv = client.get(f'{url}?sort={sort}')
         assert rv.status_code == 200
         for test in tests:
