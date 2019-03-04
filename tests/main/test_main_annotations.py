@@ -6,7 +6,7 @@ from icc.models.content import Text, Line
 from icc.models.annotation import Annotation
 from icc.models.user import User
 
-from tests.utils import get_token, login
+from tests.utils import get_token, login, TESTUSER
 
 
 def test_annotate_page(popclient):
@@ -14,7 +14,7 @@ def test_annotate_page(popclient):
     app, client = popclient
 
     with app.test_request_context():
-        u = User.query.filter_by(displayname='george').first()
+        u = User.query.filter_by(email=TESTUSER).first()
 
         login(u, client)
 
@@ -51,7 +51,7 @@ def test_edit_page(popclient):
     app, client = popclient
 
     with app.test_request_context():
-        u = User.query.filter_by(displayname='george').first()
+        u = User.query.filter_by(email=TESTUSER).first()
 
         login(u, client)
 
@@ -104,7 +104,7 @@ def test_upvote(popclient):
     app, client = popclient
 
     with app.test_request_context():
-        u = User.query.filter_by(displayname='george').first()
+        u = User.query.filter_by(email=TESTUSER).first()
         login(u, client)
 
         # Make sure you don't get one of george's annotations.
@@ -121,7 +121,7 @@ def test_downvote(popclient):
     app, client = popclient
 
     with app.test_request_context():
-        u = User.query.filter_by(displayname='george').first()
+        u = User.query.filter_by(email=TESTUSER).first()
         login(u, client)
 
         annotation = Annotation.query.filter(Annotation.annotator != u).first()

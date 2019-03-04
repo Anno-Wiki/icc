@@ -3,7 +3,7 @@ import pytest
 import math
 
 from flask import url_for
-from tests.utils import get_token, login
+from tests.utils import get_token, login, TESTUSER
 from icc import db
 from icc.models.user import User
 from icc.models.annotation import Annotation
@@ -24,7 +24,7 @@ def test_before_request_lockout(minclient):
 
 
     with app.test_request_context():
-        u = User.query.filter_by(email='george@example.com').first()
+        u = User.query.filter_by(email=TESTUSER).first()
         login(u, client)
         u.locked = True
         db.session.commit()
@@ -88,8 +88,6 @@ def test_line_annotations(popclient):
         entities = 1
         max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-    print(max_pages)
-
     rv = client.get(url)
     assert rv.status_code == 200
     assert b'<annotation' in rv.data
@@ -111,16 +109,6 @@ def test_read(popclient):
 
     This test is simplistic for now. It should get more sophisticated in the
     future.
-
-    One thing I discovered in writing it is that there is no way to view the
-    poem in it's entirety.
-
-    This could be problematic. If I want to identify headings but display a
-    whole work, I cannot.
-
-    In this case it is not a problem, because the headings do not need to stand
-    out. I just wouldn't parse for sections for the actual site. I do it in this
-    case for a small work for testing purposes.
     """
     app, client = popclient
 

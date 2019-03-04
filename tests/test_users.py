@@ -3,7 +3,8 @@ import time
 from flask import url_for
 from icc import db
 from icc.models.user import AdminRight, User
-from tests.utils import get_token
+from tests.utils import (get_token, login, TESTUSER, TESTADMIN, COMMUNITY,
+                         PASSWORD)
 
 
 def test_register(minclient):
@@ -13,8 +14,8 @@ def test_register(minclient):
         url = url_for('user.register')
     rv = client.get(url)
     assert rv.status_code == 200
-    data={'displayname': 'tester', 'email': 'george@test.com',
-          'password': 'test', 'password2': 'test',
+    data={'displayname': 'tester', 'email': 'test@test.com',
+          'password': PASSWORD, 'password2': PASSWORD,
           'csrf_token': get_token(rv.data)}
     rv = client.post(url, data=data, follow_redirects=True)
     assert rv.status_code == 200
@@ -31,7 +32,7 @@ def test_locked_login(minclient):
         url = url_for('user.login')
     rv = client.get(url)
     assert rv.status_code == 200
-    data = {'email': 'community@example.com', 'password': 'testing',
+    data = {'email': COMMUNITY, 'password': PASSWORD,
             'csrf_token': get_token(rv.data)}
     rv = client.post(url, data=data, follow_redirects=True)
     assert rv.status_code == 200
@@ -45,7 +46,7 @@ def test_invalid_credentials_login(minclient):
         url = url_for('user.login')
     rv = client.get(url)
     assert rv.status_code == 200
-    data = {'email': 'george@example.com', 'password': 'nottesting',
+    data = {'email': TESTUSER, 'password': 'nottesting',
             'csrf_token': get_token(rv.data)}
     rv = client.post(url, data=data, follow_redirects=True)
     assert rv.status_code == 200
@@ -59,7 +60,7 @@ def test_login_logout(minclient):
         url = url_for('user.login')
     rv = client.get(url)
     assert rv.status_code == 200
-    data = {'email': 'george@example.com', 'password': 'testing',
+    data = {'email': TESTUSER, 'password': PASSWORD,
             'csrf_token': get_token(rv.data)}
     rv = client.post(url, data=data, follow_redirects=True)
     assert rv.status_code == 200
@@ -74,7 +75,7 @@ def test_login_logout(minclient):
 
 def test_user_rep_authorized(app):
     """Test user authorized by reputation."""
-    u = User(displayname='john', email='john@example.com', reputation=10)
+    u = User(displayname='john', email=TESTUSER, reputation=10)
     right = AdminRight(enum='right_to_balloons', min_rep=10)
     with app.app_context():
         db.session.add(right)
@@ -84,7 +85,7 @@ def test_user_rep_authorized(app):
 
 def test_user_rep_not_authorized(app):
     """Test user not authorized by rep."""
-    u = User(displayname='john', email='john@example.com', reputation=5)
+    u = User(displayname='john', email=TESTUSER, reputation=5)
     right = AdminRight(enum='right_to_balloons', min_rep=10)
     with app.app_context():
         db.session.add(right)
@@ -94,7 +95,7 @@ def test_user_rep_not_authorized(app):
 
 def test_user_rights_authorized(app):
     """Test user authorized by rights."""
-    u = User(displayname='john', email='john@example.com', reputation=0)
+    u = User(displayname='john', email=TESTUSER, reputation=0)
     right = AdminRight(enum='right_to_balloons', min_rep=None)
     u.rights = [right]
     with app.app_context():
@@ -105,7 +106,7 @@ def test_user_rights_authorized(app):
 
 def test_user_rights_not_authorized(app):
     """Test user not authorized by rights."""
-    u = User(displayname='john', email='john@example.com', reputation=0)
+    u = User(displayname='john', email=TESTUSER, reputation=0)
     right = AdminRight(enum='right_to_balloons', min_rep=None)
     with app.app_context():
         db.session.add(right)
@@ -115,7 +116,7 @@ def test_user_rights_not_authorized(app):
 
 def test_password():
     """Test user password authentication."""
-    u = User(displayname='john', email='john@example.com')
+    u = User(displayname='john', email=TESTUSER)
     u.set_password('dog')
     assert not u.check_password('cat')
     assert u.check_password('dog')
@@ -130,7 +131,7 @@ def test_avatar():
 
 def test_update_last_seen(app):
     """Test the update last time seen user function."""
-    u = User(displayname='john', email='john@example.com')
+    u = User(displayname='john', email=TESTUSER)
     with app.app_context():
         db.session.add(u)
         db.session.commit()
@@ -142,13 +143,13 @@ def test_update_last_seen(app):
 
 def test_repr():
     """Test the user __repr__ function."""
-    u = User(displayname='john', email='john@example.com')
+    u = User(displayname='john', email=TESTUSER)
     assert u != ''
 
 
 def test_reset_password_token(app):
     """Test the reset password token validation system."""
-    u = User(displayname='john', email='john@example.com')
+    u = User(displayname='john', email=TESTUSER)
     u.set_password('test')
     with app.app_context():
         db.session.add(u)
@@ -165,13 +166,7 @@ def test_profile(minclient):
     app, client = minclient
     with app.test_request_context():
         u = User.query.get(2)
-        url = url_for('user.login')
-    rv = client.get(url)
-    assert rv.status_code == 200
-    data = {'email': u.email, 'password': 'testing',
-            'csrf_token': get_token(rv.data)}
-    client.post(url, data=data, follow_redirects=True)
-    with app.test_request_context():
+        login(u, client)
         url = url_for('user.profile', user_id=u.id)
     rv = client.get(url)
     assert bytes(u.displayname, 'utf-8') in rv.data
