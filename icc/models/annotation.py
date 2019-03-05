@@ -698,7 +698,7 @@ class Edit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = EditVote(entity=self, delta=1, voter=voter)
+        vote = self.__vote__(entity=self, delta=1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight >= app.config['VOTES_FOR_EDIT_APPROVAL'] or\
@@ -720,7 +720,7 @@ class Edit(Base, EditMixin):
                 return
             else:
                 self.rollback(ov)
-        vote = EditVote(entity=self, delta=-1, voter=voter)
+        vote = self.__vote__(entity=self, delta=-1, voter=voter)
         self.weight += vote.delta
         db.session.add(vote)
         if self.weight <= app.config['VOTES_FOR_EDIT_REJECTION'] or\
