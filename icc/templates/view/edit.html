@@ -38,24 +38,6 @@
         </em>
     {% endif %}
 
-    {% if current_user.is_authenticated and current_user.is_authorized("review_edits") %}
-        {% if current_user.get_vote(edit) %}
-            <h3>
-                <a href="{{ url_for("admin.rescind", edit_id=edit.id,
-                    next=request.full_path) }}">
-                    rescind your vote
-                </a>
-            </h3>
-        {% elif edit.approved == True or edit.rejected == True %}
-        {% else %}
-            <h3>
-                <a href="{{ url_for("admin.approve", edit_id=edit.id) }}">keep</a>
-                /
-                <a href="{{ url_for("admin.reject", edit_id=edit.id) }}">reject</a>
-            </h3>
-        {% endif %}
-    {% endif %}
-
     <div class="diff">
         {% if edit.first_line_num != edit.previous.first_line_num or
             edit.last_line_num != edit.previous.last_line_num %}
