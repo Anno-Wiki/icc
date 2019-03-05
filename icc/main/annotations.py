@@ -10,8 +10,7 @@ from flask_login import current_user, login_required
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import (Annotation, Comment, AnnotationVote, Edit,
-                                   Tag, AnnotationFlag)
+from icc.models.annotation import Annotation, Comment, Edit, Tag, AnnotationFlag
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
@@ -176,20 +175,19 @@ def upvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = generate_next(url_for('main.annotation',
                                          annotation_id=annotation_id))
+    vote = current_user.get_vote(annotation)
     if not annotation.active:
         flash("You cannot vote on deactivated annotations.")
         return redirect(redirect_url)
     elif current_user == annotation.annotator:
         flash("You cannot vote on your own annotations.")
         return redirect(redirect_url)
-    elif current_user.get_vote(annotation):
-        vote = current_user.voteballots\
-            .filter(Vote.annotation==annotation).first()
+    elif vote:
         diff = datetime.utcnow() - vote.timestamp
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
-        elif vote.is_up():
+        elif vote.is_up:
             annotation.rollback(vote)
             db.session.commit()
             return redirect(redirect_url)
@@ -206,19 +204,18 @@ def downvote(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = generate_next(url_for('main.annotation',
                                          annotation_id=annotation_id))
+    vote = current_user.get_vote(annotation)
     if not annotation.active:
         flash("You cannot vote on deactivated annotations.")
     elif current_user == annotation.annotator:
         flash("You cannot vote on your own annotation.")
         return redirect(redirect_url)
-    elif current_user.get_vote(annotation):
-        vote = current_user\
-            .voteballots.filter(Vote.annotation==annotation).first()
+    elif vote:
         diff = datetime.utcnow() - vote.timestamp
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
-        elif not vote.is_up():
+        elif not vote.is_up:
             annotation.rollback(vote)
             db.session.commit()
             return redirect(redirect_url)
