@@ -139,7 +139,7 @@ if __name__ == '__main__':
                         help="Flag for a dry run test.")
 
     args = parser.parse_args()
-    config = yaml.load(open(args.config, 'rt'))
+    config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
     fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
     lines = json.load(fin)
 

@@ -21,7 +21,7 @@ parser.add_argument(
     '-d', '--dryrun', action='store_true', help="Flag for a dry run test.")
 
 args = parser.parse_args()
-config = yaml.load(open(args.config, 'rt'))
+config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
 app = create_app()
 ctx = app.app_context()
 ctx.push()

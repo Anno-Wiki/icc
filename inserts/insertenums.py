@@ -1,3 +1,5 @@
+"""Parse enum yaml files into the database."""
+
 import argparse
 import yaml
 import sys
@@ -10,7 +12,6 @@ sys.path.append(os.environ['ICCVENV'][:idx])
 from icc import db, create_app
 from icc import classes
 
-"""Parse enum yaml files into the database."""
 
 parser = argparse.ArgumentParser("Parse yaml enum files into the database")
 parser.add_argument(
@@ -18,7 +19,7 @@ parser.add_argument(
     help="Path to the enum yaml file.")
 args = parser.parse_args()
 
-enums = yaml.load(open(args.config, 'rt'))
+enums = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
 
 app = create_app()
 ctx = app.app_context()

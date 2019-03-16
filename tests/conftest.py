@@ -98,7 +98,8 @@ def pop(minpop):
     enumdata = open_json('enums.text.json')
     lines = open_json('gravity.json')
     annotations = open_json('annotations.json')
-    textconfig = yaml.load(open(f'{DIR}/data/gravity.config.yml', 'rt'))
+    textconfig = yaml.load(open(f'{DIR}/data/gravity.config.yml', 'rt'),
+                           Loader=yaml.FullLoader)
 
     with minpop.app_context():
         # populate remaining enums
