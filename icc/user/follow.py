@@ -96,16 +96,16 @@ def follow_text_request(request_id):
     return redirect(redirect_url)
 
 
-@user.route('/follow/request/tag/<tag_request_id>')
+@user.route('/follow/request/tag/<request_id>')
 @login_required
-def follow_tag_request(tag_request_id):
-    tag_request = TagRequest.query.get_or_404(tag_request_id)
+def follow_tag_request(request_id):
+    tag_request = TagRequest.query.get_or_404(request_id)
     redirect_url = generate_next(url_for('requests.view_tag_request',
-                                         tag_request_id=tag_request.id))
-    if tag_request in current_user.followed_tag_requests:
-        current_user.followed_tag_requests.remove(tag_request)
+                                         request_id=tag_request.id))
+    if tag_request in current_user.followed_tagrequests:
+        current_user.followed_tagrequests.remove(tag_request)
     else:
-        current_user.followed_tag_requests.append(tag_request)
+        current_user.followed_tagrequests.append(tag_request)
     db.session.commit()
     return redirect(redirect_url)
 

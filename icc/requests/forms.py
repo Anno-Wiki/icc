@@ -16,18 +16,8 @@ class TextRequestForm(FlaskForm):
 
 class TagRequestForm(FlaskForm):
     tag = StringField("tag", validators=[InputRequired()],
-            render_kw={"placeholder":"tag-name"})
+                      render_kw={"placeholder": "tag-name"})
     description = TextAreaField("Notes",
-            render_kw={"placeholder":"Enter a description of the tag, it’s"
-                " significance, and why it belongs on Annopedia."})
-    notes = TextAreaField("Notes", 
-            render_kw={"placeholder":"Enter notes for special consideration here."})
-    wikipedia = StringField("Wikipedia", 
-            validators=[URL(require_tld=True), InputRequired()],
-            render_kw={"placeholder":"URL to a relevant Wikipedia page."})
-
+            render_kw={"placeholder": "Enter a description of the tag, it’s "
+                       "significance, and why it belongs on Annopedia."})
     submit = SubmitField("Submit")
-
-    def validate_wikipedia(self, wikipedia):
-        if "wikipedia" not in wikipedia.data:
-            raise ValidationError(f"{wikipedia.data} is not a link to a Wikipedia page.")
