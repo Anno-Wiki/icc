@@ -25,7 +25,7 @@ AdminRight:
       min_rep: null
     - enum: delete_annotations
       min_rep: null
-    - enum: delete_book_requests
+    - enum: delete_text_requests
       min_rep: null
     - enum: delete_edits
       min_rep: null
@@ -55,7 +55,7 @@ AdminRight:
       min_rep: null
     - enum: reject_edits
       min_rep: null
-    - enum: request_books
+    - enum: request_texts
       min_rep: 100
     - enum: request_tags
       min_rep: 100

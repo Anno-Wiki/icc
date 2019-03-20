@@ -79,19 +79,19 @@ def follow_text(text_id):
     return redirect(redirect_url)
 
 
-@user.route('/follow/request/book/<book_request_id>')
+@user.route('/follow/request/text/<request_id>')
 @login_required
-def follow_book_request(book_request_id):
-    book_request = TextRequest.query.get_or_404(book_request_id)
-    redirect_url = generate_next(url_for('requests.view_book_request',
-                                         book_request_id=book_request.id))
+def follow_text_request(request_id):
+    request = TextRequest.query.get_or_404(request_id)
+    redirect_url = generate_next(url_for('requests.view_text_request',
+                                         request_id=request.id))
     if book_request.approved:
-        flash("You cannot follow a book request that has already been "
+        flash("You cannot follow a text request that has already been "
               "approved.")
-    if book_request in current_user.followed_book_requests:
-        current_user.followed_book_requests.remove(book_request)
+    if request in current_user.followed_textrequests:
+        current_user.followed_textrequests.remove(request)
     else:
-        current_user.followed_book_requests.append(book_request)
+        current_user.followed_textrequests.append(request)
     db.session.commit()
     return redirect(redirect_url)
 

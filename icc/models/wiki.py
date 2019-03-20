@@ -30,7 +30,8 @@ class Wiki(Base):
         # get the entity. I really want to make this more explicit and less
         # hacky.
         self.entity = list(
-            filter(None, [self.writer, self.text, self.tag, self.edition]))[0]
+            filter(None, [self.writer, self.text, self.tag, self.edition,
+                          self.textrequest, self.tagrequest]))[0]
 
     def __init__(self, *args, **kwargs):
         body = kwargs.pop('body', None)

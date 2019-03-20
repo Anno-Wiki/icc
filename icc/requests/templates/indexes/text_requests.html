@@ -3,104 +3,55 @@
 {% block content %}
 <h1>Book Requests</h1>
 
-{% if current_user.is_authenticated
-    and current_user.is_authorized("request_books") %}
+{% if current_user.is_authorized("request_texts") %}
     <h4>
         Don't see what you're looking for?
-        <a href="{{ url_for("book_request") }}">Try requesting it.</a>
+        <a href="{{ url_for("requests.request_text") }}">Try requesting it.</a>
     </h4>
 {% endif %}
 
 sort by:
 {% for type, url in sorts.items() %}
-    {% if type == sort %}
-        <a href="{{ url }}" class="active">{{ type }}</a>
-    {% else %}
-        <a href="{{ url }}">{{ type }}</a>
-    {% endif %}
+    <a href="{{ url }}"{% if type == sort %} class="active"{% endif %}>{{ type }}</a>
 {% endfor %}
 
 <div class="index">
-    {% for book_request in book_requests %}
+    {% for text_request in requests %}
         <div class="card">
-            <a href="{{ url_for("view_book_request",
-                book_request_id=book_request.id) }}">
-                {% if len(book_request.title) > 20 %}
-                    <h2 class="text_cutoff">
-                        {{ book_request.title[:20] }}
-                    </h2>
-                {% else %}
-                    <h2>
-                        {{ book_request.title }}
-                    </h2>
-                {% endif %}
+            <a href="{{ url_for("requests.view_text_request",
+                request_id=text_request.id) }}">
+                <h2{% if len(text_request.title) > 20 %} class="text_cutoff"{% endif
+                    %}>{{ text_request.title[:20] }}</h2>
             </a>
-            by {{ book_request.author }}<br>
-            <weight>
-                {{ book_request.readable_weight() }}
-            </weight>
-            {% if uservotes
-                and book_request.id in uservotes
-                and uservotes[book_request.id] %}
-                <a href="{{ url_for("upvote_book_request",
-                    book_request_id=book_request.id, next=request.full_path)
-                    }}" class="voted">
-                    up
-                </a>
-            {% else %}
-                <a href="{{ url_for("upvote_book_request",
-                   book_request_id=book_request.id, next=request.full_path) }}"
-                    class="notvoted">
-                    up
-                </a>
-            {% endif %}
+            by {{ text_request.authors }}<br>
+            {% set entity = text_request %}
+            {% include "includes/_weight.html" %}
+
+            {% set vote = current_user.get_vote(text_request) %}
+
+            <a href="{{ url_for("requests.upvote_text_request",
+                request_id=text_request.id, next=request.full_path) }}" class="{% if
+                vote and vote.is_up %}voted{% else %}notvoted{% endif %}">up</a>
             /
-            {% if uservotes
-                and book_request.id in uservotes
-                and not uservotes[book_request.id] %}
-                <a href="{{ url_for("downvote_book_request",
-                    book_request_id=book_request.id, next=request.full_path)
-                    }}" class="voted">
-                    down
-                </a>
-            {% else %}
-                <a href="{{ url_for("downvote_book_request",
-                    book_request_id=book_request.id, next=request.full_path)
-                    }}" class="notvoted">
-                    down
-                </a>
-            {% endif %}
-            |
-            {% if current_user.is_authenticated 
-                and book_request in current_user.followed_book_requests %}
-                <a href="{{ url_for("follow_book_request",
-                    book_request_id=book_request.id, next=request.full_path)
-                    }}">
-                    unfollow
-                </a>
-            {% else %}
-                <a href="{{ url_for("follow_book_request",
-                    book_request_id=book_request.id, next=request.full_path)
-                    }}">
-                    follow
-                </a>
-            {% endif %}
+            <a href="{{ url_for("requests.downvote_text_request",
+                request_id=text_request.id, next=request.full_path) }}" class="{% if
+                vote and not vote.is_up %}voted{% else %}notvoted{% endif
+                %}">down</a>
 
-            <div class="externals">
-                <a href="{{ book_request.wikipedia }}">Wikipedia</a>,
-                <a href="{{ book_request.gutenberg }}">Project Gutenberg</a>
-            </div>
-            {% if len(book_request.description) >= 127 %}
-            <div class="card_text_cutoff">
-            {% else %}
-            <div>
-            {% endif %}
-                {{ book_request.description[:127]|markdown }}
-            </div>
-            <a href="{{ url_for("view_book_request",
-                book_request_id=book_request.id) }}"> View More </a>
+            | <a href="{{ url_for("user.follow_text_request",
+                request_id=text_request.id, next=request.full_path) }}">{% if
+                current_user.is_authenticated and text_request in
+                current_user.followed_textrequests %}unfollow{% else %}follow{%
+                endif %}</a>
+
+            {% set long = (len(text_request.wiki.current.body) >= 127) %}
+            <div{% if long %} class="card_text_cutoff"{% endif %}>{{
+                text_request.wiki.current.body[:127]|markdown }}</div>
+
+            <a href="{{ url_for("requests.view_text_request",
+                request_id=text_request.id) }}">View
+                More</a>
         </div>
-        {% endfor %}
-    </div>
-
-    {% endblock %}
+    {% endfor %}
+</div>
+{% endblock %}

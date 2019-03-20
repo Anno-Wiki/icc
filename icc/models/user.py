@@ -53,6 +53,11 @@ class MyAnonymousUserMixin(AnonymousUserMixin):
         """Is the user authorized? No. They're anonymous. Of course not."""
         abort(503)
 
+    def get_vote(self, entity):
+        """The user obviously doesn't have a say because they're not authorized.
+        """
+        return None
+
 
 # override the AnonymouseUserMixin
 login.anonymous_user = MyAnonymousUserMixin
@@ -259,7 +264,7 @@ class User(UserMixin, Base):
         """
         r = AdminRight.query.filter_by(enum=right).first()
         if not r:
-            raise TypeError("The right does not exist.""")
+            raise TypeError(f"The right \"{right}\" does not exist.")
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def authorize(self, right):

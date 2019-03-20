@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 9f04c6ad4d6b
+Revision ID: a01c35b1a406
 Revises: 
-Create Date: 2019-02-27 14:27:04.014962
+Create Date: 2019-03-20 10:45:41.102807
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9f04c6ad4d6b'
+revision = 'a01c35b1a406'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -95,6 +95,25 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tag_tag'), 'tag', ['tag'], unique=True)
+    op.create_table('tagrequest',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('tag', sa.String(length=127), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('approved', sa.Boolean(), nullable=True),
+    sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('requester_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_tagrequest_approved'), 'tagrequest', ['approved'], unique=False)
+    op.create_index(op.f('ix_tagrequest_rejected'), 'tagrequest', ['rejected'], unique=False)
+    op.create_index(op.f('ix_tagrequest_requester_id'), 'tagrequest', ['requester_id'], unique=False)
+    op.create_index(op.f('ix_tagrequest_tag'), 'tagrequest', ['tag'], unique=False)
+    op.create_index(op.f('ix_tagrequest_timestamp'), 'tagrequest', ['timestamp'], unique=False)
+    op.create_index(op.f('ix_tagrequest_weight'), 'tagrequest', ['weight'], unique=False)
     op.create_table('text',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=128), nullable=True),
@@ -107,6 +126,27 @@ def upgrade():
     )
     op.create_index(op.f('ix_text_sort_title'), 'text', ['sort_title'], unique=False)
     op.create_index(op.f('ix_text_title'), 'text', ['title'], unique=False)
+    op.create_table('textrequest',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=127), nullable=True),
+    sa.Column('authors', sa.String(length=127), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('approved', sa.Boolean(), nullable=True),
+    sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('wiki_id', sa.Integer(), nullable=False),
+    sa.Column('requester_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_textrequest_approved'), 'textrequest', ['approved'], unique=False)
+    op.create_index(op.f('ix_textrequest_authors'), 'textrequest', ['authors'], unique=False)
+    op.create_index(op.f('ix_textrequest_rejected'), 'textrequest', ['rejected'], unique=False)
+    op.create_index(op.f('ix_textrequest_requester_id'), 'textrequest', ['requester_id'], unique=False)
+    op.create_index(op.f('ix_textrequest_timestamp'), 'textrequest', ['timestamp'], unique=False)
+    op.create_index(op.f('ix_textrequest_title'), 'textrequest', ['title'], unique=False)
+    op.create_index(op.f('ix_textrequest_weight'), 'textrequest', ['weight'], unique=False)
     op.create_table('user_flrs',
     sa.Column('follower_id', sa.Integer(), nullable=True),
     sa.Column('followed_id', sa.Integer(), nullable=True),
@@ -185,61 +225,46 @@ def upgrade():
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('tagrequest',
+    op.create_table('tagrequest_followers',
+    sa.Column('tagrequest_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['tagrequest_id'], ['tagrequest.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
+    op.create_table('tagrequestvote',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('tag', sa.String(length=127), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
-    sa.Column('approved', sa.Boolean(), nullable=True),
-    sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('tag_id', sa.Integer(), nullable=True),
-    sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('wikipedia', sa.String(length=127), nullable=True),
-    sa.Column('requester_id', sa.Integer(), nullable=True),
+    sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
+    sa.Column('tag_request_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['tag_request_id'], ['tagrequest.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_tagrequest_approved'), 'tagrequest', ['approved'], unique=False)
-    op.create_index(op.f('ix_tagrequest_rejected'), 'tagrequest', ['rejected'], unique=False)
-    op.create_index(op.f('ix_tagrequest_requester_id'), 'tagrequest', ['requester_id'], unique=False)
-    op.create_index(op.f('ix_tagrequest_tag'), 'tagrequest', ['tag'], unique=False)
-    op.create_index(op.f('ix_tagrequest_tag_id'), 'tagrequest', ['tag_id'], unique=False)
-    op.create_index(op.f('ix_tagrequest_timestamp'), 'tagrequest', ['timestamp'], unique=False)
-    op.create_index(op.f('ix_tagrequest_weight'), 'tagrequest', ['weight'], unique=False)
+    op.create_index(op.f('ix_tagrequestvote_tag_request_id'), 'tagrequestvote', ['tag_request_id'], unique=False)
     op.create_table('text_followers',
     sa.Column('text_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('textrequest',
+    op.create_table('textrequest_followers',
+    sa.Column('textrequest_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['textrequest_id'], ['textrequest.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
+    op.create_table('textrequestvote',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=127), nullable=True),
-    sa.Column('authors', sa.String(length=127), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
-    sa.Column('approved', sa.Boolean(), nullable=True),
-    sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('wikipedia', sa.String(length=127), nullable=True),
-    sa.Column('gutenberg', sa.String(length=127), nullable=True),
-    sa.Column('requester_id', sa.Integer(), nullable=True),
-    sa.Column('text_id', sa.Integer(), nullable=True),
+    sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['requester_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
+    sa.Column('text_request_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['text_request_id'], ['textrequest.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_textrequest_approved'), 'textrequest', ['approved'], unique=False)
-    op.create_index(op.f('ix_textrequest_authors'), 'textrequest', ['authors'], unique=False)
-    op.create_index(op.f('ix_textrequest_rejected'), 'textrequest', ['rejected'], unique=False)
-    op.create_index(op.f('ix_textrequest_requester_id'), 'textrequest', ['requester_id'], unique=False)
-    op.create_index(op.f('ix_textrequest_text_id'), 'textrequest', ['text_id'], unique=False)
-    op.create_index(op.f('ix_textrequest_timestamp'), 'textrequest', ['timestamp'], unique=False)
-    op.create_index(op.f('ix_textrequest_title'), 'textrequest', ['title'], unique=False)
-    op.create_index(op.f('ix_textrequest_weight'), 'textrequest', ['weight'], unique=False)
+    op.create_index(op.f('ix_textrequestvote_text_request_id'), 'textrequestvote', ['text_request_id'], unique=False)
     op.create_table('wikieditvote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=True),
@@ -284,40 +309,6 @@ def upgrade():
     )
     op.create_index(op.f('ix_line_edition_id'), 'line', ['edition_id'], unique=False)
     op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
-    op.create_table('tagrequest_followers',
-    sa.Column('tagrequest_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['tagrequest_id'], ['tagrequest.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('tagrequestvote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('delta', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('tag_request_id', sa.Integer(), nullable=True),
-    sa.Column('voter_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['tag_request_id'], ['tagrequest.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_tagrequestvote_tag_request_id'), 'tagrequestvote', ['tag_request_id'], unique=False)
-    op.create_table('textrequest_followers',
-    sa.Column('textrequest_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['textrequest_id'], ['textrequest.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
-    )
-    op.create_table('textrequestvote',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('delta', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('text_request_id', sa.Integer(), nullable=True),
-    sa.Column('voter_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['text_request_id'], ['textrequest.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_textrequestvote_text_request_id'), 'textrequestvote', ['text_request_id'], unique=False)
     op.create_table('writerconnection',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('writer_id', sa.Integer(), nullable=True),
@@ -478,12 +469,6 @@ def downgrade():
     op.drop_table('annotationflag')
     op.drop_table('annotation_followers')
     op.drop_table('writerconnection')
-    op.drop_index(op.f('ix_textrequestvote_text_request_id'), table_name='textrequestvote')
-    op.drop_table('textrequestvote')
-    op.drop_table('textrequest_followers')
-    op.drop_index(op.f('ix_tagrequestvote_tag_request_id'), table_name='tagrequestvote')
-    op.drop_table('tagrequestvote')
-    op.drop_table('tagrequest_followers')
     op.drop_index(op.f('ix_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_edition_id'), table_name='line')
     op.drop_table('line')
@@ -495,24 +480,13 @@ def downgrade():
     op.drop_table('writer_followers')
     op.drop_index(op.f('ix_wikieditvote_edit_id'), table_name='wikieditvote')
     op.drop_table('wikieditvote')
-    op.drop_index(op.f('ix_textrequest_weight'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_title'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_timestamp'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_text_id'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_requester_id'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_rejected'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_authors'), table_name='textrequest')
-    op.drop_index(op.f('ix_textrequest_approved'), table_name='textrequest')
-    op.drop_table('textrequest')
+    op.drop_index(op.f('ix_textrequestvote_text_request_id'), table_name='textrequestvote')
+    op.drop_table('textrequestvote')
+    op.drop_table('textrequest_followers')
     op.drop_table('text_followers')
-    op.drop_index(op.f('ix_tagrequest_weight'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_timestamp'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_tag_id'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_tag'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_requester_id'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_rejected'), table_name='tagrequest')
-    op.drop_index(op.f('ix_tagrequest_approved'), table_name='tagrequest')
-    op.drop_table('tagrequest')
+    op.drop_index(op.f('ix_tagrequestvote_tag_request_id'), table_name='tagrequestvote')
+    op.drop_table('tagrequestvote')
+    op.drop_table('tagrequest_followers')
     op.drop_table('tag_followers')
     op.drop_table('edition')
     op.drop_index(op.f('ix_writer_timestamp'), table_name='writer')
@@ -532,9 +506,24 @@ def downgrade():
     op.drop_index(op.f('ix_userflag_enum_id'), table_name='userflag')
     op.drop_table('userflag')
     op.drop_table('user_flrs')
+    op.drop_index(op.f('ix_textrequest_weight'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_title'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_timestamp'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_requester_id'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_rejected'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_authors'), table_name='textrequest')
+    op.drop_index(op.f('ix_textrequest_approved'), table_name='textrequest')
+    op.drop_table('textrequest')
     op.drop_index(op.f('ix_text_title'), table_name='text')
     op.drop_index(op.f('ix_text_sort_title'), table_name='text')
     op.drop_table('text')
+    op.drop_index(op.f('ix_tagrequest_weight'), table_name='tagrequest')
+    op.drop_index(op.f('ix_tagrequest_timestamp'), table_name='tagrequest')
+    op.drop_index(op.f('ix_tagrequest_tag'), table_name='tagrequest')
+    op.drop_index(op.f('ix_tagrequest_requester_id'), table_name='tagrequest')
+    op.drop_index(op.f('ix_tagrequest_rejected'), table_name='tagrequest')
+    op.drop_index(op.f('ix_tagrequest_approved'), table_name='tagrequest')
+    op.drop_table('tagrequest')
     op.drop_index(op.f('ix_tag_tag'), table_name='tag')
     op.drop_table('tag')
     op.drop_table('rights')
