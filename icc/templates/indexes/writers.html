@@ -3,14 +3,7 @@
 
 {% block content %}
 <h1>Authors</h1>
-sort by:
-{% for type, url in sorts.items() %}
-    {% if type == sort %}
-        <a href="{{ url }}" class="active">{{ type }}</a>
-    {% else %}
-        <a href="{{ url }}">{{ type }}</a>
-    {% endif %}
-{% endfor %}
+{% include "includes/_sorts.html" %}
 <div class="index">
     {% for writer in writers %}
         <div class="card">

@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    sort by:
-    {% for type, url in sorts.items() %}
-        {% if type == sort %}
-            <a href="{{ url }}" class="active">{{ type }}</a>
-        {% else %}
-            <a href="{{ url }}">{{ type }}</a>
-        {% endif %}
-    {% endfor %}
+    {% include "includes/_sorts.html" %}
     {% if annotations %}
         {% for annotation in annotations %}
             {% include "/includes/_annotation_standalone.html" %}
