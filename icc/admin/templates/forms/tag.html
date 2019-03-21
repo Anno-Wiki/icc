@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <form action="" method="POST" novalidate>
     {{ form.csrf_token() }}
 
@@ -16,4 +17,5 @@
     <br>
     {{ form.submit }}
 </form>
+
 {% endblock %}

@@ -1,88 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content">
-        {% if edit.rejected == True %}
-            <h1 class="rejected">&#10007; Edit Rejected<h1>
+
+<div id="content">
+
+{% if edit.rejected == True %}
+    <h1 class="rejected">&#10007; Edit Rejected<h1>
+{% endif %}
+<h1>
+    Wiki for
+    <a href="{{ edit.wiki.entity.url }}">{{
+        edit.wiki.entity|string }}</a>
+</h1>
+<h2>Edit #{{ edit.num }}</h2>
+
+<em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
+        }}">version history</a></em>
+| <em><a href="{{ url_for("main.view_wiki_edit", wiki_id=edit.wiki.id,
+        edit_num=edit.previous.num) }}">previous version</a></em>
+
+{% if current_user.is_authorized("delete_wiki_edits") %}
+    | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
+            }}">delete</a></em>
+{% endif %}
+
+{% set vote = current_user.get_vote(edit) %}
+<h3>
+    {{ edit.weight }} |
+    <a href="{{ url_for("admin.upvote_wiki_edit", wiki_id=edit.wiki.id,
+        edit_id=edit.id, next=url_for("admin.wiki_edit_review_queue")) }}"{% if
+        vote and vote.is_up() %} class="voted"{% else %} class="notvoted"{%
+        endif %}>keep</a>
+    /
+    <a href="{{ url_for("admin.downvote_wiki_edit", wiki_id=edit.wiki.id,
+        edit_id=edit.id, next=url_for("admin.wiki_edit_review_queue")) }}"{% if
+        vote and not vote.is_up() %} class="voted"{% else %} class="notvoted"{%
+    endif %}>reject</a>
+</h3>
+
+{% if edit.ballots %}
+    <h4>
+        approved by:
+        {% for ballot in edit.ballots %}
+            {% if ballot.is_up() %}
+                <a href="{{ url_for("user.profile", user_id=ballot.voter.id)
+                    }}">{{ ballot.voter.displayname }}</a>
+            {% endif %}
+        {% endfor %}
+        /
+        rejected by:
+        {% for ballot in edit.ballots %}
+            {% if not ballot.is_up() %}
+                <a href="{{ url_for("user.profile", user_id=ballot.voter.id)
+                    }}">{{ ballot.voter.displayname }}</a>
+            {% endif %}
+        {% endfor %}
+    </h4>
+{% endif %}
+
+<p><em>Difference:</em></p>
+<div class="diff">
+    {% for line in diff %}
+        {% if line.startswith("-") %}
+            <div class="delta">{{ line[2:]|markdown }}</div>
+        {% elif line.startswith("+") %}
+            <div class="plus">{{ line[2:]|markdown }}</div>
+        {% elif line.startswith(" ") %}
+            <div>{{ line|markdown }}</div>
         {% endif %}
-        <h1>
-            Wiki for
-            <a href="{{ edit.wiki.entity.url }}">{{
-                edit.wiki.entity|string }}</a>
-        </h1>
-        <h2>Edit #{{ edit.num }}</h2>
-        <em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
-                }}">version history</a></em>
-        | <em><a href="{{ url_for("main.view_wiki_edit", wiki_id=edit.wiki.id,
-                edit_num=edit.previous.num) }}">previous version</a></em>
+    {% endfor %}
+</div>
 
-        {% if current_user.is_authorized("delete_wiki_edits") %}
-            | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
-                    }}">delete</a></em>
-        {% endif %}
+<hr>
+<p><em>New version, edit #{{ edit.num }}:</em></p>
+{{ edit.body|markdown }}
 
-        {% set vote = current_user.get_vote(edit) %}
-        <h3>
-            {{ edit.weight }} |
-            <a href="{{ url_for("admin.upvote_wiki_edit", wiki_id=edit.wiki.id,
-                edit_id=edit.id, next=url_for("admin.wiki_edit_review_queue"))
-                }}"{% if vote and vote.is_up() %} class="voted"{% else %}
-                class="notvoted"{% endif %}>keep</a>
-            /
-            <a href="{{ url_for("admin.downvote_wiki_edit",
-                wiki_id=edit.wiki.id, edit_id=edit.id,
-                next=url_for("admin.wiki_edit_review_queue")) }}"{% if vote
-                and not vote.is_up() %} class="voted"{% else %}
-                class="notvoted"{% endif %}>reject</a>
-        </h3>
+<hr>
+{% if edit.previous.num > 0 %}
+    <p><em>Old version, edit #{{ edit.previous.num }}:</em></p>
+{% else %}
+    <p><em>Original version:</em></p>
+{% endif %}
+{{ edit.previous.body|markdown }}
 
-        {% if edit.ballots %}
-            <h4>
-                approved by:
-                {% for ballot in edit.ballots %}
-                    {% if ballot.is_up() %}
-                        <a href="{{ url_for("user.profile",
-                            user_id=ballot.voter.id) }}">
-                            {{ ballot.voter.displayname }}
-                        </a>
-                    {% endif %}
-                {% endfor %}
-                /
-                rejected by:
-                {% for ballot in edit.ballots %}
-                    {% if not ballot.is_up() %}
-                        <a href="{{ url_for("user.profile",
-                            user_id=ballot.voter.id) }}">
-                            {{ ballot.voter.displayname }}
-                        </a>
-                    {% endif %}
-                {% endfor %}
-            </h4>
-        {% endif %}
+</div>
 
-        <p><em>Difference:</em></p>
-        <div class="diff">
-            {% for line in diff %}
-                {% if line.startswith("-") %}
-                    <div class="delta">{{ line[2:]|markdown }}</div>
-                {% elif line.startswith("+") %}
-                    <div class="plus">{{ line[2:]|markdown }}</div>
-                {% elif line.startswith(" ") %}
-                    <div>{{ line|markdown }}</div>
-                {% endif %}
-            {% endfor %}
-        </div>
-
-        <hr>
-        <p><em>New version, edit #{{ edit.num }}:</em></p>
-        {{ edit.body|markdown }}
-
-        <hr>
-        {% if edit.previous.num > 0 %}
-            <p><em>Old version, edit #{{ edit.previous.num }}:</em></p>
-        {% else %}
-            <p><em>Original version:</em></p>
-        {% endif %}
-        {{ edit.previous.body|markdown }}
-    </div>
 {% endblock %}

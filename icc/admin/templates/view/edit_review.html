@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div id="content">
     {% if edit.rejected %}
         <h1 class="rejected">&#10007; Edit Rejected<h1>
     {% endif %}
     <h1>
         Annotation
-        <a href="{{ url_for("main.annotation",
-            annotation_id=edit.annotation.id) }}">[{{ edit.annotation.id
-            }}]</a>
+        <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
+            }}">[{{ edit.annotation.id }}]</a>
         of
         <a href="{{ url_for("main.edition", text_url=edit.edition.text.url,
             edition_num=edit.edition.num) }}">{{ edit.edition.title }}</a>
@@ -22,8 +22,7 @@
             annotation_id=edit.annotation.id, num=edit.previous.num)
             }}">previous version</a></em>
 
-    {% if current_user.is_authenticated
-        and current_user.is_authorized("delete_edits") %}
+    {% if current_user.is_authorized("delete_edits") %}
         | <em><a href="{{ url_for("admin.delete_edit", edit_id=edit.id)
                 }}">delete</a></em>
     {% endif %}
@@ -33,15 +32,15 @@
         {{ edit.weight }} |
         <a href="{{ url_for("admin.upvote_edit",
             annotation_id=edit.annotation.id, edit_id=edit.id,
-            next=url_for("admin.edit_review_queue")) }}"{%
-            if vote and vote.is_up %} class="voted"{% else %}
-            class="notvoted"{% endif %}>keep</a>
+            next=url_for("admin.edit_review_queue")) }}"{% if vote and
+            vote.is_up %} class="voted"{% else %} class="notvoted"{% endif
+            %}>keep</a>
         /
         <a href="{{ url_for("admin.downvote_edit",
             annotation_id=edit.annotation.id, edit_id=edit.id,
             next=url_for("admin.edit_review_queue")) }}"{% if vote and not
-            vote.is_up %} class="voted"{% else %} class="notvoted"{% endif
-            %}>reject</a>
+        vote.is_up %} class="voted"{% else %} class="notvoted"{% endif
+        %}>reject</a>
     </h3>
 
     {% if edit.ballots %}
@@ -49,18 +48,16 @@
             approved by:
             {% for ballot in edit.ballots %}
                 {% if ballot.is_up %}
-                    <a href="{{ url_for("user.profile",
-                        user_id=ballot.voter.id) }}">{{
-                        ballot.voter.displayname }}</a>
+                    <a href="{{ url_for("user.profile", user_id=ballot.voter.id)
+                        }}">{{ ballot.voter.displayname }}</a>
                 {% endif %}
             {% endfor %}
             /
             rejected by:
             {% for ballot in edit.ballots %}
                 {% if not ballot.is_up %}
-                    <a href="{{ url_for("user.profile",
-                        user_id=ballot.voter.id) }}">{{
-                        ballot.voter.displayname }}</a>
+                    <a href="{{ url_for("user.profile", user_id=ballot.voter.id)
+                        }}">{{ ballot.voter.displayname }}</a>
                 {% endif %}
             {% endfor %}
         </h4>
@@ -69,12 +66,12 @@
     <div class="diff">
         <p><em>Line selection {% if edit.first_line_num !=
             edit.previous.first_line_num or edit.last_line_num !=
-            edit.previous.last_line_num %}changes:{% else %}unchanged:{%
-            endif %}</em></p>
+            edit.previous.last_line_num %}changes:{% else %}unchanged:{% endif
+        %}</em></p>
         {% for line in context %}
             {% if line in edit.lines and line in edit.previous.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
-                <line id="{{ line.line_num }}" class="{{ line.primary.enum
+                <line id="{{ line.line_num }}" class="{{ line.primary.enum 
                     }} highlight">{{ line.line }}</line>
             {% elif line in edit.lines %}
                 <span class="linenum">{{ line.line_num }}</span>
@@ -96,14 +93,13 @@
         <div class="annotation_head">
             Annotation
             <sup><a href="{{ url_for("main.annotation",
-                    annotation_id=edit.annotation.id) }}">[{{
-                    edit.annotation.id }}]</a></sup>
+                    annotation_id=edit.annotation.id) }}">[{{ edit.annotation.id
+                    }}]</a></sup>
             {% if edit.previous.first_line_num == edit.first_line_num and
                 edit.previous.last_line_num == edit.last_line_num %}
                 on
                 <em>
-                    <a href="{{ edit.lines[0].url }}#{{
-                        edit.first_line_num }}">
+                    <a href="{{ edit.lines[0].url }}#{{ edit.first_line_num }}">
                         {%- if edit.first_line_num == edit.last_line_num %}
                             l.{{ edit.last_line_num }}
                         {% else -%}
@@ -117,7 +113,7 @@
                     <a href="{{ edit.previous.lines[0].url }}#{{
                         edit.previous.first_line_num }}">
                         {%- if edit.previous.first_line_num ==
-                            edit.previous.last_line_num %}
+                        edit.previous.last_line_num %}
                             l.{{ edit.previous.last_line_num }},
                         {% else %}
                             ll.{{ edit.previous.first_line_num }}-{{
@@ -198,9 +194,8 @@
                     }}">last edited</a>
                 by
             </em>
-            <a href="{{ url_for("user.profile",
-                user_id=edit.previous.editor.id) }}">{{
-                edit.previous.editor.displayname }}</a>
+            <a href="{{ url_for("user.profile", user_id=edit.previous.editor.id)
+                }}">{{ edit.previous.editor.displayname }}</a>
             {{ edit.previous.modified }}
             <br>
         {% endif %}
@@ -229,8 +224,7 @@
                     {%- if edit.first_line_num == edit.last_line_num %}
                         l.{{ edit.last_line_num }}
                     {% else -%}
-                        ll.{{ edit.first_line_num }}-{{ edit.last_line_num
-                            }}
+                        ll.{{ edit.first_line_num }}-{{ edit.last_line_num }}
                     {% endif -%}
                 </a>
             </em>
@@ -269,8 +263,8 @@
             Annotation
             <sup>
                 <a href="{{ url_for("main.annotation",
-                    annotation_id=edit.annotation.id) }}">[{{
-                    edit.annotation.id }}]</a>
+                    annotation_id=edit.annotation.id) }}">[{{ edit.annotation.id
+                    }}]</a>
             </sup>
                 on
             <em>
@@ -305,9 +299,8 @@
                     }}">last edited</a>
                 by
             </em>
-            <a href="{{ url_for("user.profile",
-                user_id=edit.previous.editor.id) }}">{{
-                edit.previous.editor.displayname }}</a>
+            <a href="{{ url_for("user.profile", user_id=edit.previous.editor.id)
+                }}">{{ edit.previous.editor.displayname }}</a>
             {{ edit.previous.modified }}
             <br>
             <em>previous edit reason:</em>
@@ -323,4 +316,5 @@
         {% endif %}
     </annotation>
 </div>
+
 {% endblock %}

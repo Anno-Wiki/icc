@@ -1,73 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% set header = [
-        ('marked',          '&#9662;',                  'marked_invert',            '&#9652;'),
-        ('flag',            'Flag &#9662;',             'flag_invert',              'Flag &#9652;'),
-        ('thrower',         'Thrower &#9662;',          'thrower_invert',           'Thrower &#9652;'),
-        ('time',            'Time Thrown &#9662;',      'time_invert',              'Time Thrown &#9652;'),
-        ('resolver',        'Resolver &#9662;',         'resolver_invert',          'Resolver &#9652;'),
-        ('time_resolved',   'Time Resolved &#9662;',    'time_resolved_invert',     'Time Resolved &#9652;'),
-        ]%}
-    <h2>
-        User <a href="{{ url_for("user.profile", user_id=user.id) }}">{{
-            user.displayname }}</a> flags
-    </h2>
 
-    <br>
-    {% if flags %}
-        {% if user.flags.filter_by(time_resolved=None).all() %}
-            <a href="{{ url_for("admin.mark_all_user_flags", user_id=user.id,
-                next=request.full_path) }}">
-                mark all resolved
-            </a>
-        {% endif %}
+{% set header = [
+    ('marked',          '&#9662;',                  'marked_invert',            '&#9652;'),
+    ('flag',            'Flag &#9662;',             'flag_invert',              'Flag &#9652;'),
+    ('thrower',         'Thrower &#9662;',          'thrower_invert',           'Thrower &#9652;'),
+    ('time',            'Time Thrown &#9662;',      'time_invert',              'Time Thrown &#9652;'),
+    ('resolver',        'Resolver &#9662;',         'resolver_invert',          'Resolver &#9652;'),
+    ('time_resolved',   'Time Resolved &#9662;',    'time_resolved_invert',     'Time Resolved &#9652;'),
+    ]%}
+<h2>
+    User <a href="{{ url_for("user.profile", user_id=user.id) }}">{{
+        user.displayname }}</a> flags
+</h2>
 
-        <table class="inbox">
-            {% include "includes/_table_header.html" %}
-
-            {% for flag in flags %}
-                <tr class ="{% if flag.resolver %}read{% else %}unread{% endif
-                    %}">
-                    <td>
-                        {# marked #}
-                        <a href="{{ url_for("admin.mark_user_flag",
-                            flag_id=flag.id, next=request.full_path) }}">{% if
-                            flag.resolver %}&#10003;{% else %}&#10007;{% endif
-                        %}</a>
-                    </td>
-                    <td>
-                        {# flag #}
-                        {{ flag.enum.enum }}
-                    </td>
-                    <td>
-                        {# thrower #}
-                        <a href="{{ url_for("user.profile",
-                            user_id=flag.thrower.id) }}">{{
-                            flag.thrower.displayname }}</a>
-                    </td>
-                    <td>
-                        {# time thrown #}
-                        {{ flag.time_thrown }}
-                    </td>
-                    <td>
-                        {# resolver #}
-                        {% if flag.resolver %}
-                            <a href="{{ url_for("user.profile",
-                                user_id=flag.resolver.id) }}">{{
-                                flag.resolver.displayname }}</a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {# time resolved #}
-                        {% if flag.time_resolved %}
-                            {{ flag.time_resolved }}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <h3>User has no flag history yet.</h3>
+<br>
+{% if flags %}
+    {% if user.flags.filter_by(time_resolved=None).all() %}
+        <a href="{{ url_for("admin.mark_all_user_flags", user_id=user.id,
+            next=request.full_path) }}">mark all resolved</a>
     {% endif %}
+
+    <table class="inbox">
+        {% include "includes/_table_header.html" %}
+
+        {% for flag in flags %}
+            <tr class ="{% if flag.resolver %}read{% else %}unread{% endif %}">
+                <td>
+                    {# marked #}
+                    <a href="{{ url_for("admin.mark_user_flag", flag_id=flag.id,
+                        next=request.full_path) }}">{% if flag.resolver
+                        %}&#10003;{% else %}&#10007;{% endif %}</a>
+                </td>
+                <td>
+                    {# flag #}
+                    {{ flag.enum.enum }}
+                </td>
+                <td>
+                    {# thrower #}
+                    <a href="{{ url_for("user.profile", user_id=flag.thrower.id)
+                        }}">{{ flag.thrower.displayname }}</a>
+                </td>
+                <td>
+                    {# time thrown #}
+                    {{ flag.time_thrown }}
+                </td>
+                <td>
+                    {# resolver #}
+                    {% if flag.resolver %}
+                        <a href="{{ url_for("user.profile",
+                            user_id=flag.resolver.id) }}">{{
+                            flag.resolver.displayname }}</a>
+                    {% endif %}
+                </td>
+                <td>
+                    {# time resolved #}
+                    {% if flag.time_resolved %}
+                        {{ flag.time_resolved }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h3>User has no flag history yet.</h3>
+{% endif %}
+
 {% endblock %}

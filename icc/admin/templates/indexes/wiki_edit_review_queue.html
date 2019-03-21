@@ -1,55 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% set header = [
-        ('voted',   'Vote &#9662;',     'voted_invert',    'Vote &#9652;'),
-        ('entity',  'Wiki &#9662;',     'entity_invert',   'Wiki &#9652;'),
-        ('num',     'Edit &#9662;',     'num_invert',      'Edit &#9652;'),
-        ('editor',  'Editor &#9662;',   'editor_invert',   'Editor &#9652;'),
-        ('time',    'Time &#9662;',     'time_invert',     'Time &#9652;'),
-        ('reason',  'Reason &#9662;',   'reason_invert',   'Reason &#9652;'),
-        ]
-    %}
 
-    <h1>Pending Wiki Edit Review Queue</h1>
-    <table class="inbox">
-        {% include "includes/_table_header.html" %}
+{% set header = [
+    ('voted',   'Vote &#9662;',     'voted_invert',    'Vote &#9652;'),
+    ('entity',  'Wiki &#9662;',     'entity_invert',   'Wiki &#9652;'),
+    ('num',     'Edit &#9662;',     'num_invert',      'Edit &#9652;'),
+    ('editor',  'Editor &#9662;',   'editor_invert',   'Editor &#9652;'),
+    ('time',    'Time &#9662;',     'time_invert',     'Time &#9652;'),
+    ('reason',  'Reason &#9662;',   'reason_invert',   'Reason &#9652;'),
+    ]
+%}
 
-        {% if edits %}
-            {% for edit in edits %}
-                <tr{% if edit in votes %} class="read"{% else %} class="unread"{%
-                    endif %}>
-                    <td>
-                        {% if edit in votes %}
-                            {% if edit in votes and
-                            current_user.get_wiki_edit_vote(edit).is_up() %}
-                                <a href="{{ url_for("admin.upvote_wiki_edit",
-                                    wiki_id=edit.wiki.id, edit_id=edit.id)
-                                    }}">&#10003;</a>
-                            {% else %}
-                                <a href="{{ url_for("admin.downvote_wiki_edit",
-                                    wiki_id=edit.wiki.id, edit_id=edit.id)
-                                    }}">&#10007;</a>
-                            {% endif %}
+<h1>Pending Wiki Edit Review Queue</h1>
+<table class="inbox">
+    {% include "includes/_table_header.html" %}
+
+    {% if edits %}
+        {% for edit in edits %}
+            <tr{% if edit in votes %} class="read"{% else %} class="unread"{%
+                endif %}>
+                <td>
+                    {% if edit in votes %}
+                        {% if edit in votes and
+                            current_user.get_vote(edit).is_up %}
+                            <a href="{{ url_for("admin.upvote_wiki_edit",
+                                wiki_id=edit.wiki.id, edit_id=edit.id)
+                                }}">&#10003;</a>
                         {% else %}
-                            <a href="{{ url_for("admin.review_wiki_edit",
-                            wiki_id=edit.wiki.id, edit_id=edit.id) }}">
-                                review
-                            </a>
+                            <a href="{{ url_for("admin.downvote_wiki_edit",
+                                wiki_id=edit.wiki.id, edit_id=edit.id)
+                                }}">&#10007;</a>
                         {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ edit.wiki.entity.url }}">{{
-                            edit.wiki.entity_string|safe }}</a>
-                    </td>
-                    <td>#{{ edit.num }}</td>
-                    <td>{{ edit.editor.displayname }}</td>
-                    <td>{{ edit.timestamp }}</td>
-                    <td>{{ edit.reason }}</td>
-                </tr>
-            {% endfor %}
-        {% else %}
-            <tr><td colspan="6">This queue is cleared.</td></tr>
-        {% endif %}
-    </table>
+                    {% else %}
+                        <a href="{{ url_for("admin.review_wiki_edit",
+                            wiki_id=edit.wiki.id, edit_id=edit.id)
+                            }}">review</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ edit.wiki.entity.url }}">{{
+                        edit.wiki.entity_string|safe }}</a>
+                </td>
+                <td>#{{ edit.num }}</td>
+                <td>{{ edit.editor.displayname }}</td>
+                <td>{{ edit.timestamp }}</td>
+                <td>{{ edit.reason }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="6">This queue is cleared.</td></tr>
+    {% endif %}
+</table>
+
 {% endblock %}
