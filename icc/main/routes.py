@@ -66,10 +66,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.locked:
             flash("That account is locked.")
-            return redirect(url_for('user.login'))
+            return redirect(url_for('main.login'))
         elif user is None or not user.check_password(form.password.data):
             flash("Invalid email or password")
-            return redirect(url_for('user.login'))
+            return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
 
         redirect_url = generate_next(url_for('main.index'))
