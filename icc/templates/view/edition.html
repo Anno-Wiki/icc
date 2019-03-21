@@ -16,6 +16,10 @@
     <a href="{{ url_for("main.edition_annotations",
         text_url=edition.text.url_name, edition_num=edition.num)
         }}">annotations</a>
+    | <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
+        next=request.full_path) }}">{% if current_user.is_authenticated and
+        edition in current_user.followed_editions %}unfollow{% else %}follow{%
+        endif %}</a>
     | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
         next=request.full_path) }}">edit</a>
     | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)

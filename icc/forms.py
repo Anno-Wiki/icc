@@ -1,8 +1,40 @@
 from flask import request
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, IntegerField, TextAreaField
-from wtforms.validators import InputRequired, Optional, Length
+from wtforms import (StringField, SubmitField, IntegerField, TextAreaField,
+                     PasswordField, BooleanField)
+from wtforms.validators import (ValidationError, InputRequired, Optional,
+                                Length, Email, EqualTo)
+
+from icc.models.user import User
+
+
+class LoginForm(FlaskForm):
+    email = StringField("Email", validators=[InputRequired()])
+    password = PasswordField("Password", validators=[InputRequired()])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Sign In")
+
+
+class RegistrationForm(FlaskForm):
+    displayname = StringField("Display Name", validators=[InputRequired()])
+    email = StringField("Email", validators=[InputRequired(), Email()])
+    password = PasswordField("Password", validators=[InputRequired()])
+    password2 = PasswordField("Repeat Password",
+                              validators=[InputRequired(), EqualTo("password")])
+    submit = SubmitField("Register")
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError("Please use a different email address.")
+
+    # I need to add a log for this sort of event, because it's actually pretty
+    # obvious someone is trying to be devious. Also see in EditProfileForm
+    def validate_displayname(self, displayname):
+        if displayname == "Community":
+            raise ValidationError("Community is the only forbidden "
+                                  "displayname.")
 
 
 class LineNumberForm(FlaskForm):

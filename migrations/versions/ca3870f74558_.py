@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a01c35b1a406
+Revision ID: ca3870f74558
 Revises: 
-Create Date: 2019-03-20 10:45:41.102807
+Create Date: 2019-03-21 11:54:17.671276
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a01c35b1a406'
+revision = 'ca3870f74558'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -298,6 +298,12 @@ def upgrade():
     op.create_index(op.f('ix_annotation_edition_id'), 'annotation', ['edition_id'], unique=False)
     op.create_index(op.f('ix_annotation_locked'), 'annotation', ['locked'], unique=False)
     op.create_index(op.f('ix_annotation_timestamp'), 'annotation', ['timestamp'], unique=False)
+    op.create_table('edition_followers',
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
+    )
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('edition_id', sa.Integer(), nullable=True),
@@ -472,6 +478,7 @@ def downgrade():
     op.drop_index(op.f('ix_line_num'), table_name='line')
     op.drop_index(op.f('ix_line_edition_id'), table_name='line')
     op.drop_table('line')
+    op.drop_table('edition_followers')
     op.drop_index(op.f('ix_annotation_timestamp'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_edition_id'), table_name='annotation')

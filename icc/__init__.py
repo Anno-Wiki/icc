@@ -19,7 +19,7 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
-login.login_view = 'user.login'
+login.login_view = 'main.login'
 mail = Mail()
 
 

@@ -6,23 +6,25 @@ consists of the sine qua non routes for the icc. They include:
 - The list of annotations by line route
 - The read route.
 
-Of course, one could argue that he annotation routes are the sine qua non of the
-icc. I would argue that you are an idiot.
-
+Of course, one could argue that the annotation routes are the sine qua non of
+the icc. I would argue that you are an idiot.
 """
+
 from collections import defaultdict
 
-from flask import (render_template, redirect, url_for, request, abort, g,
+from flask import (render_template, redirect, url_for, request, abort, g, flash,
                    current_app)
-from flask_login import current_user, logout_user
+from flask_login import current_user, logout_user, login_user
 
-from icc.funky import line_check
+from icc import db
+from icc.funky import line_check, generate_next
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, AnnotationFlag
 from icc.models.content import Text, Edition, Line
+from icc.models.user import User
 
-from icc.forms import LineNumberForm, SearchForm
+from icc.forms import LineNumberForm, SearchForm, RegistrationForm, LoginForm
 
 
 @main.before_app_request
@@ -35,6 +37,51 @@ def before_request():
         logout_user()
     g.search_form = SearchForm()
     g.aflags = AnnotationFlag.enum_cls.query.all()
+
+
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    redirect_url = generate_next(url_for('main.index'))
+    if current_user.is_authenticated:
+        return redirect(redirect_url)
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(displayname=form.displayname.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash("Congratulations, you are now a registered user!")
+        login_user(user)
+        return redirect(redirect_url)
+    return render_template('forms/register.html', title="Register", form=form)
+
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.locked:
+            flash("That account is locked.")
+            return redirect(url_for('user.login'))
+        elif user is None or not user.check_password(form.password.data):
+            flash("Invalid email or password")
+            return redirect(url_for('user.login'))
+        login_user(user, remember=form.remember_me.data)
+
+        redirect_url = generate_next(url_for('main.index'))
+        return redirect(redirect_url)
+
+    return render_template('forms/login.html', title="Sign In", form=form)
+
+
+@main.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('main.index'))
 
 
 @main.route('/search')

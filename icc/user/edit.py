@@ -17,11 +17,10 @@ from icc.models.user import User
 @login_required
 def edit_profile():
     form = EditProfileForm()
-
     if form.validate_on_submit():
-        current_user.displayname = form.displayname.data\
-                if is_filled(form.displayname.data)\
-                else f'user{current_user.id}'
+        current_user.displayname = (form.displayname.data if
+                                    is_filled(form.displayname.data) else
+                                    f'user_{current_user.id}')
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash("Your changes have been saved.")

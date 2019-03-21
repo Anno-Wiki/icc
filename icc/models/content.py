@@ -134,7 +134,7 @@ class Text(Base, FollowableMixin):
         return self.title
 
 
-class Edition(Base):
+class Edition(Base, FollowableMixin):
     """The Edition model. This is actually more central to the app than the Text
     object. The edition has all of the writer connections, annotations, and
     lines connected to it.

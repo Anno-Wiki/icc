@@ -52,12 +52,14 @@ def edition_annotations(text_url, edition_num):
     sorturls = {key: url_for('main.edition_annotations', text_url=text_url,
                              edition_num=edition_num, page=page, sort=key) for
                 key in sorts.keys()}
-    next_page = url_for(
-        'main.edition_annotations', text_url=text.url, edition_num=edition.num,
-        sort=sort, page=annotations.next_num) if annotations.has_next else None
-    prev_page = url_for(
-        'main.edition_annotations', text_url=text_url, edition_num=edition.num,
-        sort=sort, page=annotations.prev_num) if annotations.has_prev else None
+    next_page = (url_for('main.edition_annotations', text_url=text.url,
+                         edition_num=edition.num, sort=sort,
+                         page=annotations.next_num) if annotations.has_next else
+                 None)
+    prev_page = (url_for('main.edition_annotations', text_url=text_url,
+                         edition_num=edition.num, sort=sort,
+                         page=annotations.prev_num) if annotations.has_prev else
+                 None)
     return render_template('indexes/annotation_list.html',
                            title=f"{text.title} - Annotations",
                            next_page=next_page, prev_page=prev_page,

@@ -6,42 +6,16 @@ from icc.funky import generate_next
 from icc.user import user
 
 from icc.models.annotation import Annotation, Tag
-from icc.models.content import Text, Writer
+from icc.models.content import Text, Writer, Edition
 from icc.models.request import TextRequest, TagRequest
 from icc.models.user import User
-
-
-@user.route('/follow/list/users')
-@login_required
-def users_followed_idx():
-    followings = current_user.followed_users.all()
-    for f in followings:
-        f.url = url_for('user.profile', user_id=f.id)
-        f.name = f.displayname
-        f.unfollow_url = url_for('user.follow_user', user_id=f.id)
-
-    return render_template(
-        'indexes/followings.html', title="Followed Users",
-        followings=followings, type='users', column1='Display Name')
-
-
-@user.route('/follow/list/authors')
-@login_required
-def authors_followed_idx():
-    followings = current_user.followed_authors.all()
-    for f in followings:
-        f.url = url_for('author', name=f.url)
-        f.unfollow_url = url_for('user.follow_author', author_id=f.id)
-    return render_template(
-        'indexes/followings.html', title="Followed Authors",
-        followings=followings, type='authors', column1='Name')
 
 
 @user.route('/follow/user/<user_id>')
 @login_required
 def follow_user(user_id):
     user = User.query.get_or_404(user_id)
-    redirect_url = generate_next(url_for('user.profile', user_id=user.id))
+    redirect_url = generate_next(user.url)
     if user == current_user:
         flash("You can't follow yourself.")
         redirect(redirect_url)
@@ -57,7 +31,7 @@ def follow_user(user_id):
 @login_required
 def follow_writer(writer_id):
     writer = Writer.query.get_or_404(writer_id)
-    redirect_url = generate_next(url_for('main.writer', writer_url=writer.url))
+    redirect_url = generate_next(writer.url)
     if writer in current_user.followed_writers:
         current_user.followed_writers.remove(writer)
     else:
@@ -70,7 +44,7 @@ def follow_writer(writer_id):
 @login_required
 def follow_text(text_id):
     text = Text.query.get_or_404(text_id)
-    redirect_url = generate_next(url_for('main.text', text_url=text.url))
+    redirect_url = generate_next(text.url)
     if text in current_user.followed_texts:
         current_user.followed_texts.remove(text)
     else:
@@ -79,15 +53,27 @@ def follow_text(text_id):
     return redirect(redirect_url)
 
 
+@user.route('/follow/edition/<edition_id>')
+@login_required
+def follow_edition(edition_id):
+    edition = Edition.query.get_or_404(edition_id)
+    redirect_url = generate_next(edition.url)
+    if edition in current_user.followed_editions:
+        current_user.followed_editions.remove(edition)
+    else:
+        current_user.followed_editions.append(edition)
+    db.session.commit()
+    return redirect(redirect_url)
+
+
 @user.route('/follow/request/text/<request_id>')
 @login_required
 def follow_text_request(request_id):
-    request = TextRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.view_text_request',
-                                         request_id=request.id))
-    if book_request.approved:
-        flash("You cannot follow a text request that has already been "
-              "approved.")
+    text_request = TextRequest.query.get_or_404(request_id)
+    redirect_url = generate_next(text_request.url)
+    if text_request.approved or text_request.rejected:
+        flash("You cannot follow a text request that has already been approved "
+              "or rejected.")
     if request in current_user.followed_textrequests:
         current_user.followed_textrequests.remove(request)
     else:
@@ -100,8 +86,10 @@ def follow_text_request(request_id):
 @login_required
 def follow_tag_request(request_id):
     tag_request = TagRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.view_tag_request',
-                                         request_id=tag_request.id))
+    redirect_url = generate_next(tag_request.url)
+    if tag_request.approved or tag_request.rejected:
+        flash("You cannot follow a tag request that has already been approved "
+              "or rejected.")
     if tag_request in current_user.followed_tagrequests:
         current_user.followed_tagrequests.remove(tag_request)
     else:
@@ -114,7 +102,7 @@ def follow_tag_request(request_id):
 @login_required
 def follow_tag(tag_id):
     tag = Tag.query.get_or_404(tag_id)
-    redirect_url = generate_next(url_for('main.tag', tag=tag.tag))
+    redirect_url = generate_next(tag.url)
     if tag in current_user.followed_tags:
         current_user.followed_tags.remove(tag)
     else:
@@ -127,14 +115,10 @@ def follow_tag(tag_id):
 @login_required
 def follow_annotation(annotation_id):
     annotation = Annotation.query.get_or_404(annotation_id)
-
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation.id))
-
+    redirect_url = generate_next(annotation.url)
     if not annotation.active:
         flash("You cannot follow deactivated annotations.")
         redirect(redirect_url)
-
     if annotation.annotator == current_user:
         flash("You cannot follow your own annotation.")
         redirect(redirect_url)
