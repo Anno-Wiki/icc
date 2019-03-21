@@ -2,62 +2,35 @@
 {% set active_page="users" %}
 
 {% block content %}
-    <h1>Users</h1>
-    sort by:
-    {% for type, url in sorts.items() %}
-        {% if type == sort %}
-            <a href="{{ url }}" class="active">{{ type }}</a>
-        {% else %}
-            <a href="{{ url }}">{{ type }}</a>
-        {% endif %}
-    {% endfor %}
 
-    <div class="index">
-        {% for user in users %}
-            <div class="card">
-                <h2>
-                    <a href="{{ url_for("user.profile", user_id=user.id) }}">
-                        {{ user.displayname }}
-                    </a>
-                    {{ user.readable_reputation }}
-                </h2>
-                {% if current_user != user %}
-                    {% if current_user.is_authenticated and user in
-                        current_user.followed_users %}
-                        <a href="{{ url_for("user.follow_user", user_id=user.id,
-                            next=request.full_path) }}">
-                            unfollow
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for("user.follow_user", user_id=user.id,
-                            next=request.full_path) }}">
-                            follow
-                        </a>
-                    {% endif %}
+<h1>Users</h1>
+{% include "includes/_sorts.html" %}
+
+<div class="index">
+    {% for user in users %}
+        <div class="card">
+            <h2>
+                <a href="{{ user.url }}">{{ user.displayname }}</a>
+                {{ user.readable_reputation }}
+            </h2>
+            <a href="{{ url_for("user.follow_user", user_id=user.id,
+                next=request.full_path) }}">{% if
+                current_user.is_authenticated and user in
+            current_user.follow_users %}unfollow{% else %}follow{% endif
+            %}</a>
+
+            {% set long = (user.about_me and len(user.about_me) > 127) %}
+            <div{% if long %} class="card_text_cutoff"{% endif %}>
+                {% if user.about_me %}
+                    <p>{{ user.about_me[:127] }}</p>
                 {% else %}
-                    <br>
+                    <p>This user's biography is silent.</p>
                 {% endif %}
-
-                {% if user.about_me and len(user.about_me) > 127 %}
-                    <div class="card_text_cutoff">
-                        <p>
-                            {{ user.about_me[:127] }}
-                        </p>
-                    </div>
-                {% elif user.about_me %}
-                    <div>
-                        <p>
-                            {{ user.about_me }}
-                        </p>
-                    </div>
-                {% else %}
-                    <div>
-                        This user's biography is silent.
-                    </div>
-                {% endif %}
-
-                <a href="{{ url_for("user.profile", user_id=user.id) }}">View More</a>
             </div>
-        {% endfor %}
-    </div>
+
+            <a href="{{ user.url }}">View More</a>
+        </div>
+    {% endfor %}
+</div>
+
 {% endblock %}
