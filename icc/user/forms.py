@@ -1,3 +1,4 @@
+"""Forms specific to the user system."""
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import (ValidationError, InputRequired, Email, EqualTo,

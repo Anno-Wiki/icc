@@ -1,4 +1,5 @@
-from flask import render_template, flash, redirect, url_for
+"""All the routes to follow a thing. Any thing, really."""
+from flask import flash, redirect
 from flask_login import current_user, login_required
 
 from icc import db
@@ -68,7 +69,7 @@ def follow_user(user_id):
     redirect_url = generate_next(user.url)
     if user == current_user:
         flash("You can't follow yourself.")
-        redirect(redirect_url)
+        return redirect(redirect_url)
     else:
         return follow_entity(user, current_user.followed_users)
 
@@ -82,6 +83,7 @@ def follow_text_request(request_id):
     if text_request.approved or text_request.rejected:
         flash("You cannot follow a text request that has already been approved "
               "or rejected.")
+        return redirect(redirect_url)
     else:
         return follow_entity(text_request, current_user.followed_textrequests)
 
@@ -108,9 +110,9 @@ def follow_annotation(annotation_id):
     redirect_url = generate_next(annotation.url)
     if not annotation.active:
         flash("You cannot follow deactivated annotations.")
-        redirect(redirect_url)
+        return redirect(redirect_url)
     elif annotation.annotator == current_user:
         flash("You cannot follow your own annotation.")
-        redirect(redirect_url)
+        return redirect(redirect_url)
     else:
         return follow_entity(annotation, current_user.followed_annotations)

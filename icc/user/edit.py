@@ -1,3 +1,4 @@
+"""Routes for editing a user's profile/settings."""
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import logout_user, current_user, login_required
 
@@ -16,6 +17,7 @@ from icc.models.user import User
 @user.route('/profile/edit', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
+    """Edit the user's profile."""
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.displayname = (form.displayname.data if
@@ -36,6 +38,7 @@ def edit_profile():
 @user.route('/profile/delete', methods=['GET', 'POST'])
 @login_required
 def delete_profile_check():
+    """Delete the user's profile (i.e., anonymize)."""
     form = AreYouSureForm()
     redirect_url = generate_next(url_for('user.profile',
                                          user_id=current_user.id))
@@ -74,6 +77,7 @@ account is gone."""
 
 @user.route('/password/reset/request', methods=['GET', 'POST'])
 def reset_password_request():
+    """Request an email with a password reset magic link."""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = ResetPasswordRequestForm()
@@ -92,6 +96,7 @@ def reset_password_request():
 
 @user.route('/password/reset/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    """Reset the user's password given a magic link (token)."""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     user = User.verify_reset_password_token(token)
