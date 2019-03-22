@@ -11,7 +11,7 @@ def test_register(minclient):
     """Test user registration"""
     app, client = minclient
     with app.test_request_context():
-        url = url_for('user.register')
+        url = url_for('main.register')
     rv = client.get(url)
     assert rv.status_code == 200
     data={'displayname': 'tester', 'email': 'test@test.com',
@@ -29,7 +29,7 @@ def test_locked_login(minclient):
     """Test login of locked accounts."""
     app, client = minclient
     with app.test_request_context():
-        url = url_for('user.login')
+        url = url_for('main.login')
     rv = client.get(url)
     assert rv.status_code == 200
     data = {'email': COMMUNITY, 'password': PASSWORD,
@@ -43,7 +43,7 @@ def test_invalid_credentials_login(minclient):
     """Test login with invalid credentials."""
     app, client = minclient
     with app.test_request_context():
-        url = url_for('user.login')
+        url = url_for('main.login')
     rv = client.get(url)
     assert rv.status_code == 200
     data = {'email': TESTUSER, 'password': 'nottesting',
@@ -57,7 +57,7 @@ def test_login_logout(minclient):
     """Test login and logout."""
     app, client = minclient
     with app.test_request_context():
-        url = url_for('user.login')
+        url = url_for('main.login')
     rv = client.get(url)
     assert rv.status_code == 200
     data = {'email': TESTUSER, 'password': PASSWORD,
@@ -67,7 +67,7 @@ def test_login_logout(minclient):
     assert b'logout' in rv.data
     assert b'login' not in rv.data
     with app.test_request_context():
-        url = url_for('user.logout')
+        url = url_for('main.logout')
     rv = client.get(url, follow_redirects=True)
     assert b'login' in rv.data
     assert b'logout' not in rv.data

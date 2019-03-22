@@ -17,7 +17,7 @@ def get_token(data):
 
 
 def login(user, client):
-    url = url_for('user.login')
+    url = url_for('main.login')
     rv = client.get(url)
     data = {'email': user.email, 'password': 'testing',
             'csrf_token': get_token(rv.data)}
@@ -27,7 +27,7 @@ def login(user, client):
 
 
 def logout(client):
-    url = url_for('user.logout')
+    url = url_for('main.logout')
     rv = client.get(url, follow_redirects=True)
     assert rv.status_code == 200
     assert b'login' in rv.data

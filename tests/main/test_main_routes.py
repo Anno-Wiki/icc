@@ -3,7 +3,7 @@ import pytest
 import math
 
 from flask import url_for
-from tests.utils import get_token, login, TESTUSER, looptest
+from tests.utils import login, TESTUSER, looptest
 from icc import db
 from icc.models.user import User
 from icc.models.annotation import Annotation
@@ -21,7 +21,6 @@ def test_before_request_lockout(minclient):
 
     """
     app, client = minclient
-
 
     with app.test_request_context():
         u = User.query.filter_by(email=TESTUSER).first()
@@ -64,7 +63,6 @@ def test_index(popclient):
         entities = Annotation.query.count()
         max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-    rv = client.get(url)
 
     tests = ['<annotation']
     looptest(url=url, max_pages=max_pages, tests=tests, client=client,
@@ -90,6 +88,7 @@ def test_line_annotations(popclient):
     tests = ['<annotation']
     looptest(url=url, max_pages=max_pages, tests=tests, client=client,
              sorts=sorts)
+
 
 def test_read(popclient):
     """Test the read route.
