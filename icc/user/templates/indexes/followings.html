@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 {% if current_user.notifications.filter_by(seen=False).all() %}
     <a href="{{ url_for("mark_all_read") }}">mark all read</a>
 {% endif %}
@@ -13,7 +14,7 @@
 
     {% if not followings %}
         <tr>
-            <td> 
+            <td>
                 You aren't following any {{ type }} yet.
             </td>
         </tr>
@@ -32,4 +33,5 @@
     </tr>
     {% endfor %}
 </table>
+
 {% endblock %}
