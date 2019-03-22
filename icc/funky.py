@@ -7,11 +7,6 @@ from werkzeug.urls import url_parse
 def is_filled(data):
     """This is a javascript-like function (in that it's obnoxious) that tests
     whether a field in a wtform is filled or not.
-
-    Parameters
-    ----------
-    data : WTForm.data
-        Idk how to describe it! It's the data in a WTForm field.
     """
     if not data.strip():
         return False
@@ -34,8 +29,8 @@ def generate_next(alt_url):
 
 
 def line_check(fl, ll):
-    """This takes a first line and last line and last line in a wtf form for
-    annotating and returns a tuple of ints.
+    """This takes a first line and last line in a wtf form for annotating and
+    returns a tuple of ints.
     """
     # technically none of this can happen anyway because of my Edit.__init__(),
     # but I'm doing this anyway.

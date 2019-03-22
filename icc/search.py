@@ -1,7 +1,9 @@
+"""A module devoted to my search system."""
 from flask import current_app
 
 
 def add_to_index(index, model):
+    """Add an object to the index for that object."""
     if not current_app.elasticsearch:
         return
     payload = {}
@@ -12,12 +14,14 @@ def add_to_index(index, model):
 
 
 def remove_from_index(index, model):
+    """Remove the object from the index."""
     if not current_app.elasticsearch:
         return
     current_app.elasticsearch.delete(index=index, doc_type=index, id=model.id)
 
 
 def query_index(index, query, page, per_page):
+    """Search the index."""
     if not current_app.elasticsearch:
         return [], 0
     search = current_app.elasticsearch.search(

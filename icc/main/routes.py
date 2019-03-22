@@ -1,6 +1,7 @@
 """This file is the absolute primary collection of routes. That is to say, it
 consists of the sine qua non routes for the icc. They include:
 
+- login, logout, and register
 - The search route
 - The primary index
 - The list of annotations by line route
@@ -24,7 +25,8 @@ from icc.models.annotation import Annotation, Edit, AnnotationFlag
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
-from icc.forms import LineNumberForm, SearchForm, RegistrationForm, LoginForm
+from icc.forms import SearchForm
+from icc.main.forms import RegistrationForm, LoginForm, LineNumberForm
 
 
 @main.before_app_request

@@ -14,7 +14,7 @@ from icc.models.annotation import Annotation, Comment, Edit, Tag, AnnotationFlag
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
-from icc.forms import AnnotationForm, CommentForm
+from icc.main.forms import AnnotationForm, CommentForm
 from icc.funky import generate_next, line_check
 
 

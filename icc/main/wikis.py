@@ -12,7 +12,7 @@ from icc.main import main
 from icc.models.wiki import Wiki, WikiEdit
 from icc.models.user import User
 
-from icc.forms import WikiForm
+from icc.main.forms import WikiForm
 from icc.funky import generate_next
 
 

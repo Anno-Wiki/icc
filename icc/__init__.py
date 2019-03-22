@@ -1,5 +1,4 @@
 import os
-from time import time
 from elasticsearch import Elasticsearch
 
 from config import Config
@@ -10,7 +9,6 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
-from sqlalchemy.exc import ProgrammingError
 
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -83,7 +81,6 @@ def create_app(config_class=Config):
 
     return app
 
-# from icc import models, funky
 
 from icc.models.annotation import classes as aclasses
 from icc.models.content import classes as cclasses
