@@ -27,17 +27,7 @@ import icc.models.annotation
 
 @login.user_loader
 def _load_user(id):
-    """Necessary method for flask_login. Do not call.
-
-    Parameters
-    ----------
-    id : int
-        The id of the User
-
-    Returns
-    -------
-    :class:`User`
-    """
+    """Necessary method for flask_login. Do not call. """
     return User.query.get(int(id))
 
 
@@ -45,17 +35,25 @@ class MyAnonymousUserMixin(AnonymousUserMixin):
     """An override for the typical anonymous user class that provides methods to
     prevent AttributeError's.
     """
+
+    def is_auth_any(self, rights):
+        """Dummy auth method"""
+        return False
+
+    def is_auth_all(self, rights):
+        """Dummy auth method"""
+        return False
+
     def is_authorized(self, right):
-        """Is the user authorized? No. They're anonymous. Of course not."""
+        """Dummy auth method"""
         return False
 
     def authorize(self, right):
-        """Is the user authorized? No. They're anonymous. Of course not."""
+        """Dummy auth method"""
         abort(503)
 
     def get_vote(self, entity):
-        """The user obviously doesn't have a say because they're not authorized.
-        """
+        """Dummy vote return method"""
         return None
 
 
@@ -251,21 +249,23 @@ class User(UserMixin, Base):
     # admin authorization methods
     def is_authorized(self, right):
         """Check if a user is authorized with a particular right.
-
-        Parameters
-        ----------
-        right : str
-            The right.
-
-        Returns
-        -------
-        bool
-            Whether the user is authorized.
         """
         r = AdminRight.query.filter_by(enum=right).first()
         if not r:
             raise TypeError(f"The right \"{right}\" does not exist.")
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
+
+    def is_auth_all(self, rights):
+        for right in rights:
+            if not self.is_authorized(right):
+                return False
+        return True
+
+    def is_auth_any(self, rights):
+        for right in rights:
+            if self.is_authorized(right):
+                return True
+        return False
 
     def authorize(self, right):
         """Authorize a user with a right.

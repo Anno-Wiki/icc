@@ -78,9 +78,8 @@ def create_app(config_class=Config):
 
     # jinja environment variables
     app.jinja_env.globals['vars'] = app.config
-    app.jinja_env.globals['time'] = time
-    app.jinja_env.globals['round'] = round
     app.jinja_env.globals['len'] = len
+    app.jinja_env.globals['zip'] = zip
 
     return app
 
