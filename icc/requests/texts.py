@@ -1,5 +1,6 @@
+"""All the logic for a text request."""
 from flask import (render_template, flash, redirect, url_for, request,
-                   current_app)
+                   current_app, abort)
 from flask_login import current_user, login_required
 
 from icc import db
@@ -7,11 +8,12 @@ from icc.funky import generate_next
 from icc.requests import requests
 from icc.requests.forms import TextRequestForm
 
-from icc.models.request import TextRequest, TextRequestVote
+from icc.models.request import TextRequest
 
 
 @requests.route('text/list')
 def text_request_index():
+    """An index of active text requests."""
     default = 'weight'
     sort = request.args.get('sort', default, type=str)
     page = request.args.get('page', 1, type=int)
@@ -31,14 +33,12 @@ def text_request_index():
     if not requests.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('requests.text_request_index', page=page, sort=key) for
-                key in sorts.keys()}
-    next_page = (url_for('requests.text_request_index',
-                        page=requests.next_num, sort=sort) if
-                 requests.has_next else None)
-    prev_page = (url_for('requests.text_request_index',
-                         page=requests.prev_num, sort=sort) if
-                 requests.has_prev else None)
+    sorturls = {key: url_for('requests.text_request_index', page=page, sort=key)
+                for key in sorts.keys()}
+    next_page = (url_for('requests.text_request_index', page=requests.next_num,
+                         sort=sort) if requests.has_next else None)
+    prev_page = (url_for('requests.text_request_index', page=requests.prev_num,
+                         sort=sort) if requests.has_prev else None)
     return render_template('indexes/text_requests.html',
                            title="Text Requests",
                            next_page=next_page, prev_page=prev_page,
@@ -48,6 +48,7 @@ def text_request_index():
 
 @requests.route('/text/<request_id>')
 def view_text_request(request_id):
+    """View a text request."""
     text_request = TextRequest.query.get_or_404(request_id)
     return render_template('view/text_request.html', text_request=text_request)
 
@@ -58,9 +59,10 @@ def request_text():
     current_user.authorize('request_texts')
     form = TextRequestForm()
     if form.validate_on_submit():
-        text_request = TextRequest(title=form.title.data, authors=form.authors.data,
-                              description=form.description.data,
-                              requester=current_user, weight=0)
+        text_request = TextRequest(title=form.title.data,
+                                   authors=form.authors.data,
+                                   description=form.description.data,
+                                   requester=current_user, weight=0)
         db.session.add(text_request)
         text_request.upvote(current_user)
         current_user.followed_textrequests.append(text_request)
@@ -76,6 +78,7 @@ def request_text():
 @requests.route('/text/<request_id>/upvote')
 @login_required
 def upvote_text_request(request_id):
+    """Upvote a text request."""
     text_request = TextRequest.query.get_or_404(request_id)
     redirect_url = generate_next(url_for('requests.text_request_index'))
     vote = current_user.get_vote(text_request)
@@ -93,6 +96,7 @@ def upvote_text_request(request_id):
 @requests.route('/text/<request_id>/downvote')
 @login_required
 def downvote_text_request(request_id):
+    """Downvote a text request."""
     text_request = TextRequest.query.get_or_404(request_id)
     redirect_url = generate_next(url_for('requests.text_request_index'))
     vote = current_user.get_vote(text_request)
