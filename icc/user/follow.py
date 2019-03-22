@@ -11,89 +11,15 @@ from icc.models.request import TextRequest, TagRequest
 from icc.models.user import User
 
 
-@user.route('/follow/user/<user_id>')
-@login_required
-def follow_user(user_id):
-    user = User.query.get_or_404(user_id)
-    redirect_url = generate_next(user.url)
-    if user == current_user:
-        flash("You can't follow yourself.")
-        redirect(redirect_url)
-    elif user in current_user.followed_users:
-        current_user.followed_users.remove(user)
+def follow_entity(entity, followed):
+    """A helper function to reduce code duplication. Simply process the
+    following abstractly.
+    """
+    redirect_url = generate_next(entity.url)
+    if entity in followed:
+        followed.remove(entity)
     else:
-        current_user.followed_users.append(user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/follow/writer/<writer_id>')
-@login_required
-def follow_writer(writer_id):
-    writer = Writer.query.get_or_404(writer_id)
-    redirect_url = generate_next(writer.url)
-    if writer in current_user.followed_writers:
-        current_user.followed_writers.remove(writer)
-    else:
-        current_user.followed_writers.append(writer)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/follow/text/<text_id>')
-@login_required
-def follow_text(text_id):
-    text = Text.query.get_or_404(text_id)
-    redirect_url = generate_next(text.url)
-    if text in current_user.followed_texts:
-        current_user.followed_texts.remove(text)
-    else:
-        current_user.followed_texts.append(text)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/follow/edition/<edition_id>')
-@login_required
-def follow_edition(edition_id):
-    edition = Edition.query.get_or_404(edition_id)
-    redirect_url = generate_next(edition.url)
-    if edition in current_user.followed_editions:
-        current_user.followed_editions.remove(edition)
-    else:
-        current_user.followed_editions.append(edition)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/follow/request/text/<request_id>')
-@login_required
-def follow_text_request(request_id):
-    text_request = TextRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(text_request.url)
-    if text_request.approved or text_request.rejected:
-        flash("You cannot follow a text request that has already been approved "
-              "or rejected.")
-    if request in current_user.followed_textrequests:
-        current_user.followed_textrequests.remove(request)
-    else:
-        current_user.followed_textrequests.append(request)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@user.route('/follow/request/tag/<request_id>')
-@login_required
-def follow_tag_request(request_id):
-    tag_request = TagRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(tag_request.url)
-    if tag_request.approved or tag_request.rejected:
-        flash("You cannot follow a tag request that has already been approved "
-              "or rejected.")
-    if tag_request in current_user.followed_tagrequests:
-        current_user.followed_tagrequests.remove(tag_request)
-    else:
-        current_user.followed_tagrequests.append(tag_request)
+        followed.append(entity)
     db.session.commit()
     return redirect(redirect_url)
 
@@ -101,30 +27,90 @@ def follow_tag_request(request_id):
 @user.route('/follow/tag/<tag_id>')
 @login_required
 def follow_tag(tag_id):
-    tag = Tag.query.get_or_404(tag_id)
-    redirect_url = generate_next(tag.url)
-    if tag in current_user.followed_tags:
-        current_user.followed_tags.remove(tag)
+    """Follow a tag."""
+    entity = Tag.query.get_or_404(tag_id)
+    followed = current_user.followed_tags
+    return follow_entity(entity, followed)
+
+
+@user.route('/follow/writer/<writer_id>')
+@login_required
+def follow_writer(writer_id):
+    """Follow a writer."""
+    entity = Writer.query.get_or_404(writer_id)
+    followed = current_user.followed_writers
+    return follow_entity(entity, followed)
+
+
+@user.route('/follow/text/<text_id>')
+@login_required
+def follow_text(text_id):
+    """Follow a text."""
+    entity = Text.query.get_or_404(text_id)
+    followed = current_user.followed_texts
+    return follow_entity(entity, followed)
+
+
+@user.route('/follow/edition/<edition_id>')
+@login_required
+def follow_edition(edition_id):
+    """Follow a edition."""
+    entity = Edition.query.get_or_404(edition_id)
+    followed = current_user.followed_editions
+    return follow_entity(entity, followed)
+
+
+@user.route('/follow/user/<user_id>')
+@login_required
+def follow_user(user_id):
+    """Follow a user."""
+    user = User.query.get_or_404(user_id)
+    redirect_url = generate_next(user.url)
+    if user == current_user:
+        flash("You can't follow yourself.")
+        redirect(redirect_url)
     else:
-        current_user.followed_tags.append(tag)
-    db.session.commit()
-    return redirect(redirect_url)
+        return follow_entity(user, current_user.followed_users)
+
+
+@user.route('/follow/request/text/<request_id>')
+@login_required
+def follow_text_request(request_id):
+    """Follow a text request."""
+    text_request = TextRequest.query.get_or_404(request_id)
+    redirect_url = generate_next(text_request.url)
+    if text_request.approved or text_request.rejected:
+        flash("You cannot follow a text request that has already been approved "
+              "or rejected.")
+    else:
+        return follow_entity(text_request, current_user.followed_textrequests)
+
+
+@user.route('/follow/request/tag/<request_id>')
+@login_required
+def follow_tag_request(request_id):
+    """Follow a tag request."""
+    tag_request = TagRequest.query.get_or_404(request_id)
+    redirect_url = generate_next(tag_request.url)
+    if tag_request.approved or tag_request.rejected:
+        flash("You cannot follow a tag request that has already been approved "
+              "or rejected.")
+        return redirect(redirect_url)
+    else:
+        return follow_entity(tag_request, current_user.followed_tagrequests)
 
 
 @user.route('/follow/annotation/<annotation_id>')
 @login_required
 def follow_annotation(annotation_id):
+    """Follow an annotation."""
     annotation = Annotation.query.get_or_404(annotation_id)
     redirect_url = generate_next(annotation.url)
     if not annotation.active:
         flash("You cannot follow deactivated annotations.")
         redirect(redirect_url)
-    if annotation.annotator == current_user:
+    elif annotation.annotator == current_user:
         flash("You cannot follow your own annotation.")
         redirect(redirect_url)
-    elif annotation in current_user.followed_annotations:
-        current_user.followed_annotations.remove(annotation)
     else:
-        current_user.followed_annotations.append(annotation)
-    db.session.commit()
-    return redirect(redirect_url)
+        return follow_entity(annotation, current_user.followed_annotations)
