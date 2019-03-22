@@ -1,3 +1,4 @@
+"""Forms specific to the admin module."""
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import ValidationError, InputRequired, Length
@@ -6,6 +7,7 @@ from icc.models.annotation import Tag
 
 
 class TagForm(FlaskForm):
+    """A form to create a tag."""
     tag = StringField('Tag', render_kw={'placeholder': 'Tag'},
                       validators=[InputRequired()])
     description = TextAreaField('Description',
@@ -20,6 +22,7 @@ class TagForm(FlaskForm):
 
 
 class LineForm(FlaskForm):
+    """A form to edit a line."""
     line = StringField('Line',
                        validators=[InputRequired(), Length(min=0, max=140)],
                        render_kw={'maxlength': 200})

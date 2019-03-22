@@ -1,3 +1,4 @@
+"""The ajax routes."""
 from flask import request, jsonify
 from icc.models.annotation import Tag
 from icc.ajax import ajax
@@ -5,6 +6,9 @@ from icc.ajax import ajax
 
 @ajax.route('/autocomplete/tags/', methods=['POST'])
 def ajax_tags():
+    """This route provides json to populate an autocomplete tag entry similar to
+    stackoverflow (which still needs work).
+    """
     tagstr = request.form.get('tags')
     tags = tagstr.split()
     results = Tag.query.filter(Tag.tag.startswith(tags[-1]),

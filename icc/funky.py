@@ -1,3 +1,9 @@
+"""This file, cheekily named funky.py, is just a smörgåsbord of useful helper
+functions. I'm not even sure that I really want all of them to continue to
+exist, but they will for now.
+
+The most essential two functions are generate_next and authorize.
+"""
 from functools import wraps
 from flask import request
 from flask_login import current_user

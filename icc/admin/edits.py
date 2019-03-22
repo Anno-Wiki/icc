@@ -7,11 +7,10 @@ from flask import (render_template, flash, redirect, url_for, request,
                    current_app, abort)
 from flask_login import current_user, login_required
 
-from sqlalchemy import and_
-
 from icc import db
-from icc.funky import authorize
+from icc.funky import authorize, generate_next
 from icc.admin import admin
+from icc.forms import AreYouSureForm
 
 from icc.models.annotation import Edit, EditVote, Annotation
 from icc.models.user import User
@@ -44,14 +43,12 @@ def edit_review_queue():
     }
 
     sort = sort if sort in sorts else default
-    edits = (sorts[sort]
-                   .filter(Edit.approved==False, Edit.rejected==False)
-                   .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'],
-                             False))
+    edits = (sorts[sort].filter(Edit.approved==False, Edit.rejected==False)
+             .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'],
+                       False))
 
     if not edits.items and page > 1:
         abort(404)
-
 
     sorturls = {key: url_for('admin.edit_review_queue', page=page,
                              sort=key) for key in sorts.keys()}

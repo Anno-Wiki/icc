@@ -6,7 +6,7 @@ from icc import db
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit
-from icc.models.content import Text, Edition, Writer, WriterConnection, WRITERS
+from icc.models.content import Edition, Writer, WriterConnection, WRITERS
 
 
 @main.route('/writer/list')
@@ -21,12 +21,10 @@ def writer_index():
         'last name': Writer.query.order_by(Writer.family_name.asc()),
         'age': Writer.query.order_by(Writer.birth_date.asc()),
         'youth': Writer.query.order_by(Writer.birth_date.desc()),
-        'annotations': Writer.query\
-            .join(WriterConnection)\
-            .join(Edition)\
-            .join(Annotation)\
-            .group_by(Writer.id)\
-            .order_by(db.func.count(Annotation.id).desc())
+        'annotations': (Writer.query
+                        .join(WriterConnection).join(Edition).join(Annotation)
+                        .group_by(Writer.id)
+                        .order_by(db.func.count(Annotation.id).desc()))
     }
     for i, conn in enumerate(WRITERS):
         # this will create sorts for the different writer connection roles

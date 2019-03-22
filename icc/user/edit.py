@@ -87,7 +87,7 @@ def reset_password_request():
             send_password_reset_email(user)
             flash("Check your email for the instructions to request your "
                   "password.")
-            return redirect(url_for('user.login'))
+            return redirect(url_for('main.login'))
         else:
             flash("Email not found.")
     return render_template(
@@ -107,5 +107,5 @@ def reset_password(token):
         user.set_password(form.password.data)
         db.session.commit()
         flash("Your password has been changed.")
-        return redirect(url_for('user.login'))
+        return redirect(url_for('main.login'))
     return render_template('forms/reset_password.html', form=form)

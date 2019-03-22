@@ -6,6 +6,7 @@ from wtforms.validators import (ValidationError, InputRequired, Email, EqualTo,
 
 
 class EditProfileForm(FlaskForm):
+    """Edit your profile form."""
     displayname = StringField("Display Name", validators=[InputRequired()],
                               render_kw={
                                   "placeholder": "Enter a display name."})
@@ -22,11 +23,13 @@ class EditProfileForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
+    """A form to facilite requesting a password reset."""
     email = StringField("Email", validators=[InputRequired(), Email()])
     submit = SubmitField("Request Password Reset")
 
 
 class ResetPasswordForm(FlaskForm):
+    """A form to enter a new password."""
     password = PasswordField("Password", validators=[InputRequired()])
     password2 = PasswordField("Repeat Password",
                               validators=[InputRequired(), EqualTo("password")])

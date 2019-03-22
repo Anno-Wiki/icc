@@ -1,3 +1,4 @@
+"""Wiki models."""
 import sys
 import inspect
 
@@ -11,6 +12,9 @@ from icc import db
 
 
 class Wiki(Base):
+    """An actual wiki. It has some idiosyncracies I'm not fond of, notably in
+    init_on_load. But it's modelled after my Annotation system.
+    """
     entity_string = db.Column(db.String(191), index=True)
 
     current = db.relationship(
@@ -25,6 +29,8 @@ class Wiki(Base):
 
     @orm.reconstructor
     def init_on_load(self):
+        """The primary purpose of this method is to load the entity reference.
+        """
         # This is a hack and needs to be improved.
         # Basically, we rely on the backref defined on the entity in order to
         # get the entity. I really want to make this more explicit and less
@@ -34,6 +40,7 @@ class Wiki(Base):
                           self.textrequest, self.tagrequest]))[0]
 
     def __init__(self, *args, **kwargs):
+        """Creating a new wiki also populates the first edit."""
         body = kwargs.pop('body', None)
         body = 'This wiki is currently blank.' if not body else body
         super().__init__(*args, **kwargs)
@@ -45,6 +52,7 @@ class Wiki(Base):
         return f'<Wiki HEAD {str(self.entity)} at version {self.current.num}>'
 
     def edit(self, editor, body, reason):
+        """Edit the wiki, creatinga new WikiEdit."""
         edit = WikiEdit(wiki=self, num=self.current.num+1, editor=editor,
                         body=body, reason=reason)
         db.session.add(edit)
@@ -58,6 +66,7 @@ class Wiki(Base):
 
 
 class WikiEditVote(Base, VoteMixin):
+    """A Wiki Edit Vote."""
     edit_id = db.Column(db.Integer,
                         db.ForeignKey('wikiedit.id', ondelete='CASCADE'),
                         index=True, nullable=False)
@@ -70,6 +79,7 @@ class WikiEditVote(Base, VoteMixin):
 
 
 class WikiEdit(Base, EditMixin):
+    """A WikiEdit."""
     __vote__ = WikiEditVote
     entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
 

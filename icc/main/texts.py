@@ -1,12 +1,12 @@
 """The main routes for texts."""
+
 from flask import render_template, url_for, request, abort, current_app
 
 from icc import db
 from icc.main import main
 
 from icc.models.annotation import Annotation,  Edit
-from icc.models.content import (Text, Edition, Writer, WriterConnection, Line,
-                                WRITERS)
+from icc.models.content import Text, Edition, WriterConnection, Line, WRITERS
 
 
 @main.route('/text/list')
@@ -28,7 +28,6 @@ def text_index():
                         .order_by(db.func.count(Annotation.id).desc())
                         .group_by(Text.id)),
     }
-    connections = ['author', 'editor', 'translator']
 
     for i, conn in enumerate(WRITERS):
         # This creates a new sort for each possible writer connection.

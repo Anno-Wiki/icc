@@ -1,5 +1,5 @@
 """Grab bag of uncategorizable routes."""
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect
 from flask_login import login_required
 
 from icc import db

@@ -538,9 +538,8 @@ class EditVote(Base, VoteMixin):
     """
     edit_id = db.Column(
         db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
-    entity = db.relationship('Edit',
-                           backref=backref('ballots', lazy='dynamic',
-                                           passive_deletes=True))
+    entity = db.relationship('Edit', backref=backref('ballots', lazy='dynamic',
+                                                     passive_deletes=True))
     reputationchange_id = db.Column(
         db.Integer, db.ForeignKey('reputationchange.id'), default=None)
     repchange = db.relationship(

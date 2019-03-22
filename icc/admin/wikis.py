@@ -1,11 +1,9 @@
 import re
 import difflib
 
-from flask import render_template, flash, redirect, url_for, request,\
-    current_app
+from flask import (render_template, flash, redirect, url_for, request,
+                   current_app, abort)
 from flask_login import current_user, login_required
-
-from sqlalchemy import and_
 
 from icc import db
 from icc.forms import AreYouSureForm
