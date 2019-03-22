@@ -57,7 +57,7 @@ def wiki_edit_history(wiki_id):
     }
 
     sort = sort if sort in sorts else default
-    edits = sorts[sort].filter_by(approved=True)\
+    edits = sorts[sort].filter(WikiEdit.approved==True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
     sorturls = {key: url_for('main.wiki_edit_history', wiki_id=wiki_id,

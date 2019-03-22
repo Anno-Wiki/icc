@@ -19,24 +19,13 @@
             <br>
             &times; {{ tag.annotations.count() }}
             <br>
-            {% if current_user.is_authenticated
-                and tag in current_user.followed_tags %}
-                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-                    next=request.full_path) }}">
-                    unfollow
-                </a>
-            {% else %}
-                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-                    next=request.full_path) }}">
-                    follow
-                </a>
-            {% endif %}
+            <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
+                next=request.full_path) }}">{% if current_user.is_authenticated
+                and tag in current_user.followed_tags %}unfollow{% else
+            %}follow{% endif %}</a>
 
-            {% if len(tag.wiki.current.body) > 127 %}
-            <div class="card_text_cutoff">
-            {% else %}
-            <div>
-            {% endif %}
+            <div{% if len(tag.wiki.current.body) > 127 %}
+                class="card_text_cutoff"{% endif %}>
                 {{ tag.wiki.current.body[:127]|markdown }}
             </div>
             <a href="{{ tag.url }}">View More</a>

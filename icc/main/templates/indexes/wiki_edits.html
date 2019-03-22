@@ -1,51 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% set header = [
-        ("num_invert", "num", "Edit Number &#9662;", "Edit Number &#9652;"),
-        ("editor_invert", "editor", "Editor &#9662;", "Editor &#9652;"),
-        ("time_invert", "time", "Time &#9662;", "Time &#9652;"),
-        ("reason_invert", "reason", "Reason &#9662;", "Reason &#9652;"),
-        ]
-    %}
-
-    <h1><a href="{{ wiki.entity.url }}">{{ wiki.entity|string|safe }}</h1>
-    <table class="inbox">
-        <tr class="header">
-            {% for altid, id, caption, altcaption in header %}
-                <td{% if sort.startswith(id) %} class="highlight"{% endif %}>
-                    <a href="{% if sort == altid or sort != id %}{{ sorts[id]
-                        }}{% else %}{{ sorts[altid] }}{% endif %}">
-                        {% if sort == altid %}
-                            {{ altcaption|safe }}
-                        {% else %}
-                            {{ caption|safe }}
-                        {% endif %}
-                    </a>
+{% set header = [
+    ('num',         '# &#9662;',            'num_invert',       '# &#9652;'),
+    ('editor',      'Editor &#9662;',       'editor_invert',    'Editor &#9652;'),
+    ('time',        'Time &#9662;',         'time_invert',      'Time &#9652;'),
+    ('reason',      'Reason &#9662;',       'reason_invert',    'Reason &#9652;'),
+]%}
+<h1><a href="{{ wiki.entity.url }}">{{ wiki.entity|string|safe }}</h1>
+<table class="inbox">
+    {% include "includes/_table_header.html" %}
+    {% if edits %}
+        {% for edit in edits %}
+            <tr class="unread">
+                <td>
+                    <a href="{{ url_for("main.view_wiki_edit",
+                        wiki_id=edit.wiki.id, edit_num=edit.num) }}">{{ edit.num
+                        }}</a>
                 </td>
-            {% endfor %}
-        </tr>
-        {% if edits %}
-            {% for edit in edits %}
-                <tr class="unread">
-                    <td>
-                        <a href="{{ url_for("main.view_wiki_edit",
-                            wiki_id=edit.wiki.id, edit_num=edit.num) }}">
-                            view #{{ edit.num }}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for("user.profile",
-                            user_id=edit.editor.id) }}">
-                            {{ edit.editor.displayname }}
-                        </a>
-                    </td>
-                    <td>{{ edit.timestamp }}</td>
-                    <td>{{ edit.reason }}</td>
-                </tr>
-            {% endfor %}
-        {% else %}
-            <tr><td colspan="6">This queue is cleared.</td></tr>
-        {% endif %}
-    </table>
+                <td>
+                    <a href="{{ url_for("user.profile", user_id=edit.editor.id)
+                        }}">{{ edit.editor.displayname }}</a>
+                </td>
+                <td>{{ edit.timestamp }}</td>
+                <td>{{ edit.reason }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="6">This queue is cleared.</td></tr>
+    {% endif %}
+</table>
 {% endblock %}
