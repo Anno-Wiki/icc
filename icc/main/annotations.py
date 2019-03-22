@@ -237,7 +237,7 @@ def edit_history(annotation_id):
 
     sorts = {
         'num': annotation.history.order_by(Edit.num.asc()),
-        'num_invert': Annotation.history.order_by(Edit.num.desc()),
+        'num_invert': annotation.history.order_by(Edit.num.desc()),
         'editor': (annotation.history.join(User)
                    .order_by(User.displayname.asc())),
         'editor_invert': (annotation.history.join(User)
@@ -252,7 +252,7 @@ def edit_history(annotation_id):
     edits = sorts[sort]\
         .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
-    urlsorts = {key: url_for('main.edit_history', annotation_id=annotation_id,
+    sorturls = {key: url_for('main.edit_history', annotation_id=annotation_id,
                              page=edits.next_num, sort=key) for key in
                 sorts.keys()}
     next_page = (url_for('main.edit_history', annotation_id=annotation_id,
@@ -263,7 +263,7 @@ def edit_history(annotation_id):
                  None)
     return render_template('indexes/edit_history.html', title="Edit History",
                            next_page=next_page, prev_page=prev_page,
-                           sort=sort, sorts=urlsorts,
+                           sort=sort, sorts=sorturls,
                            edits=edits.items, annotation=annotation)
 
 

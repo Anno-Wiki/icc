@@ -10,106 +10,19 @@
              [{{ annotation.id }}]
         </sup>
     </a>
-    of 
+    of
     <a href="{{ url_for("main.text", text_url=annotation.text.url) }}">
         {{ annotation.text.title }}
     </a>
 </h1>
+{% set header = [
+    ('num',         '# &#9662;',            'num_invert',       '# &#9652;'),
+    ('editor',      'Editor &#9662;',       'editor_invert',    'Editor &#9662;'),
+    ('time',        'Time &#9662;',         'time_invert',      'Time &#9652;'),
+    ('reason',      'Reason &#9662;',       'reason_invert',    'Reason &#9652;'),
+    ]%}
 <table class="inbox">
-    <tr class="header">
-        {% if sort == "num" %}
-            <td class="highlight" style="width:5%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="edit_num_invert", page=page) }}">
-                    # &#9662;
-                </a>
-            </td>
-        {% elif sort =="edit_num_invert" %}
-            <td class="highlight" style="width:5%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                sort="num", page=page) }}">
-                    # &#9652;
-                </a>
-            </td>
-        {% else %}
-            <td style="width:5%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="num", page=page) }}">
-                    #
-                </a>
-            </td>
-        {% endif %}
-
-        {% if sort == "editor" %}
-            <td class="highlight">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="editor_invert", page=page) }}">
-                    Editor &#9662;
-                </a>
-            </td>
-        {% elif sort =="editor_invert" %}
-            <td class="highlight">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="editor", page=page) }}">
-                    Editor &#9652;
-                </a>
-            </td>
-        {% else %}
-            <td>
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="editor", page=page) }}">
-                    Editor
-                </a>
-            </td>
-        {% endif %}
-
-        {% if sort == "time" %}
-            <td class="highlight">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="time_invert", page=page) }}">
-                    Time &#9662;
-                </a>
-            </td>
-        {% elif sort =="time_invert" %}
-            <td class="highlight">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="time", page=page) }}">
-                    Time &#9652;
-                </a>
-            </td>
-        {% else %}
-            <td>
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="time", page=page) }}">
-                    Time
-                </a>
-            </td>
-        {% endif %}
-
-        {% if sort == "reason" %}
-            <td class="highlight" style="width:50%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="reason_invert", page=page) }}">
-                    Reason &#9662;
-                </a>
-            </td>
-        {% elif sort =="reason_invert" %}
-            <td class="highlight" style="width:50%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="reason", page=page) }}">
-                    Reason &#9652;
-                </a>
-            </td>
-        {% else %}
-            <td style="width:50%;">
-                <a href="{{ url_for("main.edit_history", annotation_id=annotation.id,
-                    sort="reason", page=page) }}">
-                    Reason
-                </a>
-            </td>
-        {% endif %}
-    </tr>
-
+    {% include "includes/_table_header.html" %}
     {% if edits %}
         {% for edit in edits %}
             <tr class="unread">
