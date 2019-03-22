@@ -45,26 +45,19 @@ def wiki_edit_history(wiki_id):
     wiki = Wiki.query.get_or_404(wiki_id)
 
     sorts = {
-        'num': (wiki.edits.filter_by(approved=True)
-                .order_by(WikiEdit.num.desc())),
-        'num_invert': (wiki.edits.filter_by(approved=True)
-                       .order_by(WikiEdit.num.asc())),
-        'time': (wiki.edits.filter_by(approved=True)
-                 .order_by(WikiEdit.timestamp.desc())),
-        'time_invert': (wiki.edits.filter_by(approved=True)
-                        .order_by(WikiEdit.timestamp.asc())),
-        'editor': (wiki.edits.filter_by(approved=True)
-                   .join(User).order_by(User.displayname.asc())),
-        'editor_invert': (wiki.edits.filter_by(approved=True)
-                          .join(User).order_by(User.displayname.desc())),
-        'reason': (wiki.edits.filter_by(approved=True)
-                   .order_by(WikiEdit.reason.asc())),
-        'reason_invert': (wiki.edits.filter_by(approved=True)
-                          .order_by(WikiEdit.reason.desc())),
+        'num': wiki.edits.order_by(WikiEdit.num.desc()),
+        'num_invert': wiki.edits.order_by(WikiEdit.num.asc()),
+        'time': wiki.edits.order_by(WikiEdit.timestamp.desc()),
+        'time_invert': wiki.edits.order_by(WikiEdit.timestamp.asc()),
+        'editor': wiki.edits.join(User).order_by(User.displayname.asc()),
+        'editor_invert': (wiki.edits.join(User)
+                          .order_by(User.displayname.desc())),
+        'reason': wiki.edits.order_by(WikiEdit.reason.asc()),
+        'reason_invert': wiki.edits.order_by(WikiEdit.reason.desc()),
     }
 
     sort = sort if sort in sorts else default
-    edits = sorts[sort]\
+    edits = sorts[sort].filter_by(approved=True)\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
     sorturls = {key: url_for('main.wiki_edit_history', wiki_id=wiki_id,

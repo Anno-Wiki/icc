@@ -179,14 +179,14 @@ def line_annotations(text_url, edition_num, line_num):
     sorturls = {key: url_for('main.index', text_url=text_url,
                              edition_num=edition_num, line_num=line_num,
                              sort=key) for key in sorts.keys()}
-    next_page = (
-        url_for('main.edition_annotations', text_url=text.url,
-                edition_num=edition.num, line_num=line.num, sort=sort,
-                page=annotations.next_num) if annotations.has_next else None)
-    prev_page = (
-        url_for('main.edition_annotations', text_url=text_url,
-                edition_num=edition.num, line_num=line.num, sort=sort,
-                page=annotations.prev_num) if annotations.has_prev else None)
+    next_page = (url_for('main.edition_annotations', text_url=text.url,
+                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         page=annotations.next_num) if annotations.has_next else
+                 None)
+    prev_page = (url_for('main.edition_annotations', text_url=text_url,
+                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         page=annotations.prev_num) if annotations.has_prev else
+                 None)
     return render_template('indexes/annotation_list.html',
                            title=f"{text.title} - Annotations",
                            next_page=next_page, prev_page=prev_page,
@@ -247,8 +247,8 @@ def read(text_url, edition_num):
 
     section_strings = tuple(request.args.getlist('section'))
     # Get the section tuple or else all 1's for the deepest possible precedence.
-    section = (tuple(int(i) for i in section_strings) if section_strings else
-               tuple(1 for i in range(edition.deepest_precedence)))
+    section = (tuple(int(i) for i in section_strings) if section_strings
+               else tuple(1 for i in range(edition.deepest_precedence)))
 
     lines = edition.section(section).all()
     if not lines:

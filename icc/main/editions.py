@@ -27,17 +27,12 @@ def edition_annotations(text_url, edition_num):
     edition = text.editions.filter_by(num=edition_num).first_or_404()
 
     sorts = {
-        'newest': (edition.annotations
-                   .filter_by(active=True)
-                   .order_by(Annotation.timestamp.desc())),
-        'oldest': (edition.annotations
-                   .filter_by(active=True)
-                   .order_by(Annotation.timestamp.asc())),
+        'newest': edition.annotations.order_by(Annotation.timestamp.desc()),
+        'oldest': edition.annotations.order_by(Annotation.timestamp.asc()),
         'modified': (edition.annotations.join(Edit)
                      .filter(Edit.current==True)
                      .order_by(Edit.timestamp.desc())),
-        'weight': (edition.annotations
-                   .order_by(Annotation.weight.desc())),
+        'weight': edition.annotations.order_by(Annotation.weight.desc()),
         'line': (edition.annotations.join(Edit)
                  .filter(Edit.current==True)
                  .order_by(Edit.last_line_num.asc()))

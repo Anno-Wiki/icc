@@ -64,16 +64,7 @@ def writer(writer_url):
 
 @main.route('/writer/<writer_url>/annotations')
 def writer_annotations(writer_url):
-    """See all annotations by writer.
-
-    Notes
-    -----
-    Instead, I will associate it with the Edition, and make authors on text a
-    special case, like an association_proxy.
-
-    One good idea to simplify a lot will be to make a dictionary on edition for
-    every type of writer connection.
-    """
+    """See all annotations by writer."""
     default = 'newest'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)

@@ -31,6 +31,10 @@ def text_index():
     connections = ['author', 'editor', 'translator']
 
     for i, conn in enumerate(WRITERS):
+        # This creates a new sort for each possible writer connection.
+        # It does it dynamically so I never have to worry about it again.
+        # Which I likely wouldn't anyway because how many ways are there to
+        # connect a writer to a text?
         sorts[conn] = Text.query.join(Edition).join(WriterConnection)\
             .group_by(Text.id).filter(WriterConnection.enum_id==i)\
             .order_by(db.func.count(WriterConnection.id).desc())
