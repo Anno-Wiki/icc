@@ -12,29 +12,17 @@ from icc.models.request import TagRequest
 from icc.models.annotation import Tag
 
 
-@admin.route('/tags/create/', methods=['GET', 'POST'],
-             defaults={'tag_request_id': None})
-@admin.route('/tags/create/<tag_request_id>/', methods=['GET', 'POST'])
+@admin.route('/tags/create/', methods=['GET', 'POST'])
 @login_required
 @authorize('create_tags')
-def create_tag(tag_request_id):
+def create_tag():
     """Create a new tag."""
     tag_request = None
-    if tag_request_id:
-        tag_request = TagRequest.query.get_or_404(tag_request_id)
-    redirect_url = generate_next(url_for('tag_request_index'))
+    redirect_url = generate_next(url_for('requests.tag_request_index'))
     form = TagForm()
     if form.validate_on_submit():
         if form.tag.data is not None and form.description.data is not None:
             tag = Tag(tag=form.tag.data, description=form.description.data)
-            db.session.add(tag)
-            db.session.commit()
-            flash("Tag created.")
-            return redirect(redirect_url)
-    elif tag_request:
-            tag = Tag(tag=tag_request.tag, description=tag_request.description)
-            tag_request.created_tag = tag
-            tag_request.approved = True
             db.session.add(tag)
             db.session.commit()
             flash("Tag created.")
@@ -48,7 +36,7 @@ def create_tag(tag_request_id):
 def reject_tag(tag_request_id):
     """Reject a tag request."""
     tag_request = TagRequest.query.get_or_404(tag_request_id)
-    redirect_url = generate_next(url_for('tag_request_index'))
+    redirect_url = generate_next(url_for('requests.tag_request_index'))
     tag_request.rejected = True
     db.session.commit()
     return redirect(redirect_url)
