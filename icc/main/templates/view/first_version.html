@@ -1,80 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content">
-        <h1>
-            Annotation {{ edit.annotation.id }} of {{ edit.edition.text.title }}
-        </h1>
-        <h2>Initial Version</h2>
-        <em><a href="{{ url_for("main.edit_history",
-                annotation_id=edit.annotation.id) }}">version history</a></em>
-        {% if current_user.is_authenticated
-            and current_user.is_authorized("delete_edits") %}
-            | <em><a href="{{ url_for("admin.delete_edit", edit_id=edit.id)
-                    }}">delete</a></em>
-        {% endif %}
 
-        <div class="diff">
-            <p><em>Line selection:</em></p>
-            {% for line in edit.context %}
-                {% if line in edit.lines %}
-                    <span class="linenum">{{ line.line_num }}</span>
-                    <line id="{{ line.line_num }}" class="{{ line.primary.enum }} plus">
-                        {{ line.line }}</line>
-                {% else %}
-                    <line id="{{ line.line_num }}" class="{{ line.primary.enum
-                        }}">{{ line.line }}</line>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <br>
-        <p><em>Annotation:</em></p>
-        <annotation id="difference">
-            <div class="annotation_head">
-                Annotation
-                <sup>
-                    <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
-                        }}">
-                        [{{ edit.annotation.id }}]
-                    </a>
-                </sup>
-                on
-                <em><a href="{{ edit.lines[0].url }}#{{
-                        edit.first_line_num }}">{%- if edit.first_line_num ==
-                        edit.last_line_num %}l.{{ edit.last_line_num }}{% else
-                        %}ll.{{ edit.first_line_num }}-{{ edit.last_line_num
-                        }}{% endif %}</a></em>
+<div id="content">
 
-                {% if edit.annotation.locked %}
-                    &#128274;
-                {% endif %}
-            </div>
+<h1>Annotation {{ edit.annotation.id }} of {{ edit.edition.text.title }}</h1>
+<h2>Initial Version</h2>
+<em><a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id)
+        }}">version history</a></em>
+{% if current_user.is_authorized("delete_edits") %}
+| <em><a href="{{ url_for("admin.delete_edit", edit_id=edit.id)
+        }}">delete</a></em>
+{% endif %}
 
-            <div class="annotation_content">
-                <div class="diff">
-                    <div class="plus">{{ edit.body|markdown }}</div>
-                </div>
-            </div>
+<div class="diff">
+    <p><em>Line selection:</em></p>
+    {% for line in edit.context %}
+        {% if line in edit.lines %}<span class="linenum">{{ line.line_num
+            }}</span>{% endif %}
+        <line id="{{ line.line_num }}" class="{{ line.primary.enum }}{% if line
+            in edit.lines %} plus{% endif %}">
+            {{ line.line }}
+        </line>
+    {% endfor %}
+</div>
+<br>
+<p><em>Annotation:</em></p>
+<annotation id="difference">
+    <div class="annotation_head">
+        Annotation
+        <sup><a href="{{ url_for("main.annotation",
+                annotation_id=edit.annotation.id) }}">[{{
+                edit.annotation.id }}]</a></sup>
+        on <em><a href="{{ edit.lines[0].url }}#{{
+                edit.first_line_num }}">{%- if edit.first_line_num ==
+                edit.last_line_num %}l.{{ edit.last_line_num }}{% else
+                %}ll.{{ edit.first_line_num }}-{{ edit.last_line_num
+                }}{% endif %}</a></em>
 
-            <tags>
-                {% for tag in edit.tags %}
-                    <a href="{{ url_for("main.tag", tag=tag.tag) }}">
-                        <tag class="plus">
-                            + {{ tag.tag }}
-                        </tag>
-                    </a>
-                {% endfor %}
-            </tags>
-
-            <br> 
-
-            <!--annotation authorship-->
-            <em><a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
-                    }}">annotated</a> by</em>
-            <a href="{{ url_for("user.profile",
-                user_id=edit.annotation.annotator.id) }}">{{
-                edit.annotation.annotator.displayname }}</a>
-            {{ edit.annotation.added }}
-        </annotation>
+        {% if edit.annotation.locked %}&#128274;{% endif %}
     </div>
+
+    <div class="annotation_content">
+        <div class="diff">
+            <div class="plus">{{ edit.body|markdown }}</div>
+        </div>
+    </div>
+
+    <tags>
+        {% for tag in edit.tags %}
+            <a href="{{ url_for("main.tag", tag=tag.tag) }}">
+                <tag class="plus">+ {{ tag.tag }}</tag>
+            </a>
+        {% endfor %}
+    </tags>
+
+    <br>
+
+    <!--annotation authorship-->
+    <em><a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
+            }}">annotated</a> by</em>
+    <a href="{{ url_for("user.profile",
+        user_id=edit.annotation.annotator.id) }}">{{
+        edit.annotation.annotator.displayname }}</a>
+    {{ edit.annotation.added }}
+</annotation>
+</div>
+
 {% endblock %}

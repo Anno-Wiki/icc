@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1><tag>{{ tag.tag }}</tag></h1>
-    <h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
-    <div id="summary">{{ tag.wiki.current.body|markdown }}</div>
+<h1><tag>{{ tag.tag }}</tag></h1>
+<h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
-    <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">annotations</a>
-    | <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-        next=request.full_path) }}">{% if current_user.is_authenticated and tag
-        in current_user.followed_tags %}unfollow{% else %}follow{% endif %}</a>
-    | <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id)
-        }}">edit history</a>
+<div id="summary">{{ tag.wiki.current.body|markdown }}</div>
+
+<a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">annotations</a>
+| <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
+    next=request.full_path) }}">{% if current_user.is_authenticated and tag
+    in current_user.followed_tags %}unfollow{% else %}follow{% endif %}</a>
+| <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">edit</a>
+| <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id)
+    }}">edit history</a>
 
 {% endblock %}

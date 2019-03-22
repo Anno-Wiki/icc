@@ -1,35 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content">
-        <h1>{{ edit.entity|string }}</h1>
-        <h2>Initial Version</h2>
-        <em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
-                }}">version history</a></em>
-        {% if current_user.is_authenticated
-            and current_user.is_authorized("delete_wiki_edits") %}
-            | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
-                    }}">delete</a></em>
-        {% endif %}
+<div id="content">
 
-        {% if edit.voters %}
-            <h4>
-                approved by:
-                {% for voter in edit.voters %}
-                    <a href="{{ url_for("user.profile", user_id=voter.id) }}">
-                        {{ voter.displayname }}{% if not voter == edit.voters[-1]
-                        %},{% endif %}
-                    </a> 
-                {% endfor %}
-            </h4>
-        {% endif %}
+<h1>{{ edit.entity|string }}</h1>
+<h2>Initial Version</h2>
+<em><a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id)
+        }}">version history</a></em>
+{% if current_user.is_authorized("delete_wiki_edits") %}
+    | <em><a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id)
+            }}">delete</a></em>
+{% endif %}
 
-        <p><em>Difference:</em></p>
-        <div class="diff ">
-            <div class="plus">{{ edit.body }}</div>
-        </div>
-        <hr> 
-        <p><em>New version, edit #{{ edit.num }}:</em></p>
-        {{ edit.body|markdown }}
-    </div>
+{% if edit.voters %}
+    <h4>
+        approved by:
+        {% for voter in edit.voters %}
+            <a href="{{ url_for("user.profile", user_id=voter.id) }}">
+                {{ voter.displayname }}{% if not voter == edit.voters[-1]
+                %},{% endif %}
+            </a>
+        {% endfor %}
+    </h4>
+{% endif %}
+
+<p><em>Difference:</em></p>
+<div class="diff ">
+    <div class="plus">{{ edit.body }}</div>
+</div>
+<hr>
+<p><em>New version, edit #{{ edit.num }}:</em></p>
+{{ edit.body|markdown }}
+
+</div>
 {% endblock %}

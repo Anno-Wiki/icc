@@ -1,46 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ writer.name }}</h1>
-    <h2>&times; {{ len(writer.works['author']) }} authored</h2>
-    <div id="bio">{{ writer.wiki.current.body|markdown }}</div>
-    <a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name)
-        }}">annotations</a>
-    | <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-        next=request.full_path) }}">{% if current_user.is_authenticated and
-        writer in current_user.followed_writers %}unfollow{% else %}follow{%
-        endif %}</a>
-    | <a href="{{ url_for("main.edit_wiki", wiki_id=writer.wiki.id,
-        next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=writer.wiki.id) }}">edit
-        history</a>
 
-    {% for category, works in writer.works.items() %}
-        <h3>{{ category.title() }}</h3>
-        <div class="index">
-            {% for edition in works %}
-                <div class="card">
-                    <a href="{{ edition.url }}">
-                        <h2>{{ edition.title }}</h2>
-                    </a>
-                    <div class="count">
-                        &times; {{ edition.lines.count() }} lines
-                    </div>
+<h1>{{ writer.name }}</h1>
+<h2>&times; {{ len(writer.works['author']) }} authored</h2>
+<div id="bio">{{ writer.wiki.current.body|markdown }}</div>
+<a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name)
+    }}">annotations</a>
+| <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
+    next=request.full_path) }}">{% if current_user.is_authenticated and writer
+    in current_user.followed_writers %}unfollow{% else %}follow{% endif %}</a>
+| <a href="{{ url_for("main.edit_wiki", wiki_id=writer.wiki.id,
+    next=request.full_path) }}">edit</a>
+| <a href="{{ url_for("main.wiki_edit_history", wiki_id=writer.wiki.id) }}">edit
+    history</a>
 
-                    {# Display the wiki of the text if this is the primary
-                    edition, else the wiki of the edition. #}
-                    {% if edition.primary %}
-                        {% set wiki = edition.text.wiki %}
-                    {% else %}
-                        {% set wiki = edition.wiki %}
-                    {% endif %}
-                    <div{% if len(wiki.current.body) >= 127 %}
-                        class="card_text_cutoff"{% endif %}>{{
-                        wiki.current.body[:127]|markdown }}</div>
-
-                    <a href="{{ edition.url }}">View More</a>
+{% for category, works in writer.works.items() %}
+    <h3>{{ category.title() }}</h3>
+    <div class="index">
+        {% for edition in works %}
+            <div class="card">
+                <a href="{{ edition.url }}">
+                    <h2>{{ edition.title }}</h2>
+                </a>
+                <div class="count">
+                    &times; {{ edition.lines.count() }} lines
                 </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
+
+                {# Display the wiki of the text if this is the primary
+                edition, else the wiki of the edition. #}
+                {% if edition.primary %}
+                    {% set wiki = edition.text.wiki %}
+                {% else %}
+                    {% set wiki = edition.wiki %}
+                {% endif %}
+                <div{% if len(wiki.current.body) >= 127 %}
+                    class="card_text_cutoff"{% endif %}>{{
+                    wiki.current.body[:127]|markdown }}</div>
+
+                <a href="{{ edition.url }}">View More</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}
+
 {% endblock %}

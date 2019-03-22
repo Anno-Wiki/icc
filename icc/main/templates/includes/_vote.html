@@ -1,25 +1,9 @@
 {% set vote = current_user.get_vote(annotation) %}
 
-{% if vote and vote.is_up %}
-    <a href="{{ url_for("main.upvote", annotation_id=annotation.id,
-        next=request.full_path) }}" class="voted">
-        up
-    </a>
-{% else %}
-    <a href="{{ url_for("main.upvote", annotation_id=annotation.id,
-        next=request.full_path) }}" class="notvoted">
-        up
-    </a>
-{% endif -%}
+<a href="{{ url_for("main.upvote", annotation_id=annotation.id,
+    next=request.full_path) }}" class="{% if vote and vote.is_up %}voted{% else
+    %}notvoted{% endif %}">up</a>
 /
-{%- if vote and not vote.is_up %}
-    <a href="{{ url_for("main.downvote", annotation_id=annotation.id,
-        next=request.full_path) }}" class="voted">
-        down
-    </a>
-{% else %}
-    <a href="{{ url_for("main.downvote", annotation_id=annotation.id,
-        next=request.full_path) }}" class="notvoted">
-        down
-    </a>
-{% endif -%}
+<a href="{{ url_for("main.downvote", annotation_id=annotation.id,
+    next=request.full_path) }}" class="{% if vote and not vote.is_up
+    %}voted{% else %}notvoted{% endif %}">down</a>

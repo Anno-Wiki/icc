@@ -36,8 +36,9 @@
 
 <p>
     New User?
-    <a href="{{ url_for("main.register", next=request.args.get('next'))
-        }}">Click to Register!</a>
+    <a href="{{ url_for("main.register", next=request.args.get('next')) }}">
+        Click to Register!
+    </a>
 </p>
 
 {% endblock %}

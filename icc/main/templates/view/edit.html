@@ -7,35 +7,20 @@
     {% endif %}
     <h1>
         Annotation
-        <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id) }}">
-            [{{ edit.annotation.id }}]
-        </a>
-        of
-        <a href="{{ url_for("main.text", text_url=edit.edition.text.url) }}">
-            {{ edit.edition.text.title }}
-        </a>
+        <a href="{{ url_for("main.annotation", annotation_id=edit.annotation.id)
+            }}">[{{ edit.annotation.id }}]</a>
+        of <a href="{{ url_for("main.text", text_url=edit.edition.text.url)
+            }}">{{ edit.edition.text.title }}</a>
     </h1>
     <h2>Edit #{{ edit.num }}</h2>
-    <em>
-        <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">
-            version history
-        </a>
-    </em>
-    |
-    <em>
-        <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation.id,
-            num=edit.previous.num) }}">
-            previous version
-        </a>
-    </em>
-    {% if current_user.is_authenticated
-        and current_user.is_authorized("delete_edits") %}
-        |
-        <em>
-            <a href="{{ url_for("admin.delete_edit", edit_id=edit.id) }}">
-                delete
-            </a>
-        </em>
+    <em><a href="{{ url_for("main.edit_history",
+            annotation_id=edit.annotation.id) }}">version history</a></em>
+    | <em><a href="{{ url_for("main.view_edit",
+            annotation_id=edit.annotation.id, num=edit.previous.num)
+            }}">previous version</a></em>
+    {% if current_user.is_authorized("delete_edits") %}
+    | <em><a href="{{ url_for("admin.delete_edit", edit_id=edit.id)
+            }}">delete</a></em>
     {% endif %}
 
     <div class="diff">

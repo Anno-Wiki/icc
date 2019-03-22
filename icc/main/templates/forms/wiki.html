@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <form action="" method="POST" novalidate>
     {{ form.csrf_token() }}
     {{ form.wiki(cols=75, rows=30) }}<br>
@@ -16,4 +17,5 @@
     <br> <br>
     {{ form.submit }}
 </form>
+
 {% endblock %}

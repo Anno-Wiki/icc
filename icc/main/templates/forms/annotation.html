@@ -1,118 +1,114 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script src="{{ url_for("static", filename="scripts/tags.js") }}"></script>
-    <!--Header/Running Head-->
-    <div class="running_head">
-        <a href="{{ edition.url }}"> {{ edition.title }} </a>
-        {% set writers = edition.writers['author'] %}
-        by {% include "includes/_writers_list.html" %}
-    </div>
 
-    <hr>
+<script src="{{ url_for("static", filename="scripts/tags.js") }}"></script>
+<!--Header/Running Head-->
+<div class="running_head">
+    <a href="{{ edition.url }}"> {{ edition.title }} </a>
+    {% set writers = edition.writers['author'] %}
+    by {% include "includes/_writers_list.html" %}
+</div>
 
-    <!--Selection-->
-    {% if annotation %}
-        <h1>Editing Annotation [{{ annotation.id }}] on {{ edition.title }}</h1>
+<hr>
+
+<!--Selection-->
+{% if annotation %}
+    <h1>Editing Annotation [{{ annotation.id }}] on {{ edition.title }}</h1>
+{% else %}
+    <h1>Annotating {{ edition.title }}</h1>
+{% endif %}
+<div id="content">
+    {% if len(lines) > 1 %}
+        <h3>Selection: <em>ll. {{ lines[0].num }}-{{ lines[-1].num }}</em></h3>
     {% else %}
-        <h1>Annotating {{ edition.title }}</h1>
+        <h3>Selection: <em>l. {{ lines[0].num }}</em> of {{ edition.title }}</h3>
     {% endif %}
-    <div id="content">
-        {% if len(lines) > 1 %}
-            <h3>Selection: <em>ll. {{ lines[0].num }}-{{ lines[-1].num
-                    }}</em></h3>
-        {% else %}
-            <h3>Selection: <em>l. {{ lines[0].num }}</em> of {{ edition.title
-                }}</h3>
-        {% endif %}
 
-        <div class="selection">
-            <h3>Context:</h3>
-            {% for line in context %}
-                {% if line in lines %}<div class="highlight">{% endif %}
+    <div class="selection">
+        <h3>Context:</h3>
+        {% for line in context %}
+            {% if line in lines %}<div class="highlight">{% endif %}
                 <line class="{{ line.primary.enum }}" id="{{ line.num }}">
                     <span class="linenum">{{ line.num }}</span>
                     {{ line.line }}
                 </line>
-                {% if line in lines %}</div>{% endif %}
-            {% endfor %}
-        </div>
+            {% if line in lines %}</div>{% endif %}
+        {% endfor %}
     </div>
+</div>
 
-    <form action="" method="POST" novalidate>
-        {{ form.csrf_token }}
-        <span style="display:none;">
-            {{ form.first_char_idx(size=1) }}
-            {{ form.last_char_idx(size=1) }}
-        </span>
-        <table>
-            <tr>
-                <th>
-                    {{ form.first_line.label }}:
-                    {{ form.first_line(size=1) }}
-                    <br>
-                    {% for error in form.first_line.errors %}
-                        <span style="color: red;"> [{{ error }}] </span>
-                    {% endfor %}
-                </th>
-                <th>
-                    {{ form.last_line.label }}:
-                    {{ form.last_line(size=1) }}
-                    <br>
-                    {% for error in form.last_line.errors %}
-                        <span style="color: red;"> [{{ error }}] </span>
-                    {% endfor %}
-                </th>
-            </tr>
+<form action="" method="POST" novalidate>
+    {{ form.csrf_token }}
+    <span style="display:none;">
+        {{ form.first_char_idx(size=1) }}
+        {{ form.last_char_idx(size=1) }}
+    </span>
+    <table>
+        <tr>
+            <th>
+                {{ form.first_line.label }}:
+                {{ form.first_line(size=1) }}
+                <br>
+                {% for error in form.first_line.errors %}
+                    <span style="color: red;"> [{{ error }}] </span>
+                {% endfor %}
+            </th>
+            <th>
+                {{ form.last_line.label }}:
+                {{ form.last_line(size=1) }}
+                <br>
+                {% for error in form.last_line.errors %}
+                    <span style="color: red;"> [{{ error }}] </span>
+                {% endfor %}
+            </th>
+        </tr>
 
+        <tr>
+            <td colspan=5>
+                <strong>{{ form.annotation.label }}</strong>
+                <br>
+                {{ form.annotation(rows=10) }}
+                <br>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan=5>
+                <strong>{{ form.tags.label }}</strong>
+                <br>
+
+                <div id="master_div">
+                    {# tag spans is where we put the tags as they're
+                        created by the javascript #}
+                    <div id="tag_spans"></div>
+                    <div id="input">{{ form.tags }}</div>
+                </div>
+                <div id="autocomplete"></div>
+
+                {% for error in form.tags.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    <br>
+                {% endfor %}
+            </td>
+        </tr>
+
+        {% if annotation %}
             <tr>
                 <td colspan=5>
-                    <strong>{{ form.annotation.label }}</strong>
+                    <strong>{{ form.reason.label }}</strong>
                     <br>
-                    {{ form.annotation(rows=10) }}
-                    <br>
-                </td>
-            </tr>
-
-            <tr>
-                <td colspan=5>
-                    <strong>{{ form.tags.label }}</strong>
-                    <br>
-
-                    <div id="master_div">
-
-                        {# tag spans is where we put the tags as they're
-                            created by the javascript #}
-
-                        <div id="tag_spans"></div>
-                        <div id="input">{{ form.tags(size=22) }}</div>
-                    </div>
-                    <div id="autocomplete"></div>
-
-                    {% for error in form.tags.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        <br>
+                    {{ form.reason }}
+                    {% for error in form.reason.errors %}
+                        <span style="color: red;"> [{{ error }}] </span>
                     {% endfor %}
                 </td>
             </tr>
+        {% endif %}
 
-            {% if annotation %}
-                <tr>
-                    <!--the reason box-->
-                    <td colspan=5>
-                        <strong>{{ form.reason.label }}</strong>
-                        <br>
-                        {{ form.reason }}
-                        {% for error in form.reason.errors %}
-                            <span style="color: red;"> [{{ error }}] </span>
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endif %}
-
-            <tr>
-                <th colspan=5>{{ form.submit }}</th>
-            </tr>
-        </table>
-    </form>
+        <tr>
+            <th colspan=5>{{ form.submit }}</th>
+        </tr>
+    </table>
+</form>
 {% endblock %}

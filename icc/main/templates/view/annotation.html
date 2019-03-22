@@ -1,72 +1,72 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content">
-        {% set edition = annotation.edition %}
+<div id="content">
+    {% set edition = annotation.edition %}
 
-        <h1>
-            Annotation [{{ annotation.id }}]
-            {% if annotation.locked %}&#128274;{% endif %}
-            of
-            <em><a href="{% if edition.primary %}{{ edition.text.url }}{% else
-                    %}{{ edition.url }}{% endif %}">{{ edition.title }}</a></em>
-        </h1>
-        <h2>on <em>{% include "includes/_annotation_line_nums.html" %}</em></h2>
+    <h1>
+        Annotation [{{ annotation.id }}]
+        {% if annotation.locked %}&#128274;{% endif %}
+        of
+        <em><a href="{% if edition.primary %}{{ edition.text.url }}{% else
+                %}{{ edition.url }}{% endif %}">{{ edition.title }}</a></em>
+    </h1>
+    <h2>on <em>{% include "includes/_annotation_line_nums.html" %}</em></h2>
 
-        <h3>
-              {% include "includes/_annotation_weight.html" %}
-            | {% include "includes/_vote.html" %}
-            | {% include "includes/_annotation_follow.html" %}
-        </h3>
-        <h4>{% include "includes/_annotator.html" %}</h4>
+    <h3>
+        {% include "includes/_annotation_weight.html" %}
+        | {% include "includes/_vote.html" %}
+        | {% include "includes/_annotation_follow.html" %}
+    </h3>
 
-          <em><a href="{{ url_for("main.edit_history",
-                  annotation_id=annotation.id) }}">version history</a></em>
-        | <em><a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
-                num=annotation.HEAD.previous.num) }}">previous version</a></em>
-        <br>
+    <h4>{% include "includes/_annotator.html" %}</h4>
 
-        {% include "includes/_annotation_flags.html" %}
+    <em><a href="{{ url_for("main.edit_history", annotation_id=annotation.id)
+            }}">version history</a></em>
+    | <em><a href="{{ url_for("main.view_edit", annotation_id=annotation.id,
+            num=annotation.HEAD.previous.num) }}">previous version</a></em>
+    <br>
 
-        {% if current_user.is_authorized("resolve_annotation_flags") %}
-            | <a href="{{ url_for("admin.annotation_flags",
-                annotation_id=annotation.id) }}">flags</a>
-        {% endif %}
+    {% include "includes/_annotation_flags.html" %}
 
-        | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
-            next=request.full_path) }}">edit</a>
+    {% if current_user.is_authorized("resolve_annotation_flags") %}
+    | <a href="{{ url_for("admin.annotation_flags", annotation_id=annotation.id)
+        }}">flags</a>
+    {% endif %}
 
-        {% if current_user.is_authorized("delete_annotations") %}
-            | <a href="{{ url_for("admin.delete_annotation",
-                annotation_id=annotation.id) }}">delete</a>
-        {% endif %}
+    | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
+        next=request.full_path) }}">edit</a>
 
-        {% if current_user.is_authorized("deactivate_annotations") %}
-            | <a href="{{ url_for("admin.deactivate_annotation",
-            annotation_id=annotation.id) }}">{% if annotation.active
-            %}deactivate{% else %}reactivate{% endif %}</a>
-        {% endif %}
+    {% if current_user.is_authorized("delete_annotations") %}
+    | <a href="{{ url_for("admin.delete_annotation",
+        annotation_id=annotation.id) }}">delete</a>
+    {% endif %}
 
-        <br><br>
-        <div class="selection">
-            {% for line in annotation.HEAD.context %}
-                <div{% if line in annotation.HEAD.lines %} class="highlight"{%
-                    endif %}>
-                    <line class="{{ line.primary.enum }}" id="{{ line.line_num
-                        }}">
-                        {% if line in annotation.HEAD.lines
-                            %}<span class="linenum">{{ line.line_num }}</span>{%
-                            endif %}
-                        {%- if line.primary.enum == 'hr' -%}
-                            <hr class="text_separator">
-                        {%- else -%}
-                            {{ line.line|safe }}
-                        {%- endif -%}
-                    </line>
-                </div>
-            {% endfor %}
-        </div>
+    {% if current_user.is_authorized("deactivate_annotations") %}
+    | <a href="{{ url_for("admin.deactivate_annotation",
+        annotation_id=annotation.id) }}">{% if annotation.active %}deactivate{%
+        else %}reactivate{% endif %}</a>
+    {% endif %}
 
-        {% include "includes/_annotation_full.html" %}
+    <br><br>
+    <div class="selection">
+        {% for line in annotation.HEAD.context %}
+            <div{% if line in annotation.HEAD.lines %} class="highlight"{% endif
+                %}>
+                <line class="{{ line.primary.enum }}" id="{{ line.line_num }}">
+                    {% if line in annotation.HEAD.lines %}
+                        <span class="linenum">{{ line.line_num }}</span>
+                    {% endif %}
+                    {%- if line.primary.enum == 'hr' -%}
+                        <hr class="text_separator">
+                    {%- else -%}
+                        {{ line.line|safe }}
+                    {%- endif -%}
+                </line>
+            </div>
+        {% endfor %}
     </div>
+
+    {% include "includes/_annotation_full.html" %}
+</div>
 {% endblock %}

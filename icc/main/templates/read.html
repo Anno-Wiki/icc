@@ -39,8 +39,7 @@
 
 {# Text of the page #}
 <div id="content">
-    {% set can_edit_lines = current_user.is_authenticated and
-    current_user.is_authorized('edit_lines') %}
+    {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
     {%- for line in lines %}
         <line class="{{ line.primary.enum }}" id="{{ line.num }}">
             {% if line.num % 5 == 0 %}
