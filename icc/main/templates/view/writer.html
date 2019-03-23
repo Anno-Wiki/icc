@@ -35,8 +35,8 @@
                     {% set wiki = edition.wiki %}
                 {% endif %}
                 <div{% if len(wiki.current.body) >= 127 %}
-                    class="card_text_cutoff"{% endif %}>{{
-                    wiki.current.body[:127]|markdown }}</div>
+                    class="card_text_cutoff"{% endif %}>
+                    {{ wiki.current.body[:127]|markdown }}</div>
 
                 <a href="{{ edition.url }}">View More</a>
             </div>

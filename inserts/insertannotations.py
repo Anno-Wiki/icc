@@ -25,8 +25,9 @@ def get_tags(annotator):
     original_tag = Tag.query.filter_by(tag='original').first()
     annotator_tag = Tag.query.filter_by(tag=annotator).first()
     if annotator_tag is None:
-        annotator_tag = Tag(tag=annotator, description="Original annotations "
-                            f"from [[Writer:{annotator}]]", locked=True)
+        annotator_tag = Tag(tag=annotator.lower().replace(' ', '-'),
+                            description="Original annotations from "
+                            f"[[Writer:{annotator}]]", locked=True)
         db.session.add(annotator_tag)
     return [original_tag, annotator_tag]
 

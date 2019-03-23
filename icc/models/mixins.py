@@ -34,6 +34,21 @@ class Base(db.Model):
         return cls.__name__.lower()
 
 
+class LinkableMixin:
+    @classmethod
+    def link(cls, name):
+        if not cls.__linkable__:
+            raise AttributeError("Class does not have a __linkable__ "
+                                 "attribute.")
+        obj = cls.query.filter(cls.__linkable__==name).first()
+        if not obj:
+            return name
+        else:
+            if not hasattr(obj, url):
+                raise AttributeError("Object does not have a url.")
+            return f'<a href="{obj.url}">{obj.name}</a>'
+
+
 class EnumMixin:
     """Any enumerated class that has more than 4 types should be use this
     EnumMixin. LineEnum and Right seem to be the biggest examples.

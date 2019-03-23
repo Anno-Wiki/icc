@@ -19,7 +19,8 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
-from icc.models.mixins import Base, EnumMixin, SearchableMixin, FollowableMixin
+from icc.models.mixins import (Base, EnumMixin, SearchableMixin,
+                               FollowableMixin, LinkableMixin)
 from icc.models.wiki import Wiki
 
 
@@ -293,7 +294,9 @@ class Edition(Base, FollowableMixin):
                     LineAttribute.primary==True)
 
 
-class Writer(Base, FollowableMixin):
+class Writer(Base, FollowableMixin, LinkableMixin):
+    __linkable__ = 'name'
+
     """The writer model. This used to be a lot more complicated but has become
     fairly elegant. All historical contributors to the text are writers, be they
     editors, translators, authors, or whatever the heck else we end up coming up

@@ -37,4 +37,4 @@ cat $DIR/../data/texts/wap/lines.json | \
 echo "- adding annotations for War and Peace by Constance Garnett..."
 cat $DIR/../data/texts/wap/annotations.json | \
     $ICCVENV/bin/python $DIR/../inserts/insertannotations.py\
-    -t "War and Peace" -e 1 -a "constance-garnett"
+    -t "War and Peace" -e 1 -a "Constance Garnett"

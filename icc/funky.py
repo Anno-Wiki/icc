@@ -8,6 +8,7 @@ from functools import wraps
 from flask import request
 from flask_login import current_user
 from werkzeug.urls import url_parse
+from icc import classes
 
 
 def is_filled(data):
@@ -56,3 +57,21 @@ def authorize(string):
             return f(*args, **kwargs)
         return wrapper
     return inner
+
+
+def proc_links(text):
+    for i, line in enumerate(text):
+        openbracket = line.find('[[')
+        closebracket = line[openbracket:].find(']]') + 1
+        colon = line[openbracket:closebracket].find(':')
+
+        if ((openbracket == -1 or closebracket == -1 or colon == -1)
+                or not (openbracket < colon and colon < closebracket)):
+            continue
+
+        cls = line[openbracket+2:colon]
+        ident = line[colon+1:closebracket-1]
+        if cls in classes and hasattr(classes[cls], 'link'):
+            beginning = line[i][:openbracket]
+            ending = line[i][closebracket+1:]
+            line[i] = ''.join([beginning, classes[cls].link(ident), ending])
