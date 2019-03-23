@@ -40,13 +40,13 @@ class LinkableMixin:
         if not cls.__linkable__:
             raise AttributeError("Class does not have a __linkable__ "
                                  "attribute.")
-        obj = cls.query.filter(cls.__linkable__==name).first()
+        obj = cls.query.filter(getattr(cls, cls.__linkable__)==name).first()
         if not obj:
             return name
         else:
-            if not hasattr(obj, url):
+            if not hasattr(obj, 'url'):
                 raise AttributeError("Object does not have a url.")
-            return f'<a href="{obj.url}">{obj.name}</a>'
+            return f'<a href="{obj.url}">{name}</a>'
 
 
 class EnumMixin:

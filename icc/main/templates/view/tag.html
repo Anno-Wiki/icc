@@ -5,7 +5,7 @@
 <h1><tag>{{ tag.tag }}</tag></h1>
 <h4>used in {{ tag.annotations.count() }} annotations.</h4>
 
-<div id="summary">{{ proc_links(tag.wiki.current.body|markdown) }}</div>
+<div id="summary">{{ tag.wiki.current.body|proc_links|markdown }}</div>
 
 <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">annotations</a>
 | <a href="{{ url_for("user.follow_tag", tag_id=tag.id,

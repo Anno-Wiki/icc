@@ -14,12 +14,13 @@ from flask import url_for, flash, current_app as app
 
 from icc import db
 from icc.models.mixins import (Base, VoteMixin, EditMixin, FollowableMixin,
-                               FlagMixin)
+                               FlagMixin, LinkableMixin)
 from icc.models.user import ReputationEnum, ReputationChange
 from icc.models.wiki import Wiki
 
 
-class Tag(Base, FollowableMixin):
+class Tag(Base, FollowableMixin, LinkableMixin):
+    __linkable__ = 'tag'
     """A class representing tags.
 
     Attributes

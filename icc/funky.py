@@ -4,6 +4,7 @@ exist, but they will for now.
 
 The most essential two functions are generate_next and authorize.
 """
+import re
 from functools import wraps
 from flask import request
 from flask_login import current_user
@@ -59,19 +60,43 @@ def authorize(string):
     return inner
 
 
+LINKABLE = re.compile(r'\[\[[a-zA-Z]*?:.*?\]\]')
+
 def proc_links(text):
-    for i, line in enumerate(text):
-        openbracket = line.find('[[')
-        closebracket = line[openbracket:].find(']]') + 1
-        colon = line[openbracket:closebracket].find(':')
+    """Process text to turn double-bracketted icc-link expressions into actual
+    href's.
 
-        if ((openbracket == -1 or closebracket == -1 or colon == -1)
-                or not (openbracket < colon and colon < closebracket)):
-            continue
+    This method is not trivial and relies on a special attr/mixin.
+    """
+    newtext = []
+    for match in re.finditer(LINKABLE, text):
+        idx = match.span()
+        if newtext:
+            # I rather dislike this method, but, we have to first reverse find
+            # within text from the start of this match to the begginning of text
+            # the first (or rather, last) closing double brackets. We add 2
+            # because there are two brackets so that when we slice, we slice
+            # from just after the double close brackets. Then we slice the text
+            # from that point to the beginning of the current match and append
+            # it to our new text. This is only once we've had one link. The
+            # first link is in the else. It's just all the text preceding this.
+            leftoff = text[:idx[0]].rfind(']]') + 2
+            missing = text[leftoff:idx[0]]
+            newtext.append(missing)
+        else:
+            newtext.append(text[:idx[0]])
 
-        cls = line[openbracket+2:colon]
-        ident = line[colon+1:closebracket-1]
-        if cls in classes and hasattr(classes[cls], 'link'):
-            beginning = line[i][:openbracket]
-            ending = line[i][closebracket+1:]
-            line[i] = ''.join([beginning, classes[cls].link(ident), ending])
+        try:
+            unbracketted = text[idx[0]+2:idx[1]-2]
+            colon = unbracketted.index(':')
+            cls = unbracketted[:colon]
+            ident = unbracketted[colon+1:]
+            if cls in classes and hasattr(classes[cls], 'link'):
+                href = classes[cls].link(ident)
+                newtext.append(href)
+            else:
+                newtext.append(ident)
+        except:
+            newtext.append(text[idx[0]:idx[1]])
+    newtext.append(text[match.span()[1]:])
+    return ''.join(newtext)
