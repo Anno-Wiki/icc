@@ -34,7 +34,8 @@ WRITERS = ('author', 'editor', 'translator')
 WRITERS_REVERSE = {val: ind for ind, val in enumerate(WRITERS)}
 
 
-class Text(Base, FollowableMixin):
+class Text(Base, FollowableMixin, LinkableMixin):
+    __linkable__ = 'title'
     """The text-object. A text is more a categorical, or philosophical concept.
     In essence, a book can have any number of editions, ranging from different
     translations to re-edited or updated versions (which is more common with

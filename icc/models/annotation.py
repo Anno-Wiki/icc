@@ -248,8 +248,9 @@ class AnnotationFlag(Base, FlagMixin):
                                                            lazy='dynamic'))
 
 
-class Annotation(Base, FollowableMixin):
+class Annotation(Base, FollowableMixin, LinkableMixin):
     __vote__ = AnnotationVote
+    __linkable__ = 'id'
     """And now, the moment you've been waiting for, the star of the show: the
     main Annotation data class.
 
