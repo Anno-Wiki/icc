@@ -69,6 +69,7 @@ def proc_links(text):
     This method is not trivial and relies on a special attr/mixin.
     """
     newtext = []
+    match = None # we assign this so that we can query it later.
     for match in re.finditer(LINKABLE, text):
         idx = match.span()
         if newtext:
@@ -98,5 +99,8 @@ def proc_links(text):
                 newtext.append(ident)
         except:
             newtext.append(text[idx[0]:idx[1]])
-    newtext.append(text[match.span()[1]:])
-    return ''.join(newtext)
+    if not match:
+        return text
+    else:
+        newtext.append(text[match.span()[1]:])
+        return ''.join(newtext)
