@@ -35,7 +35,8 @@ class TextRequest(Base, FollowableMixin):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
-    wiki = db.relationship('Wiki', backref=backref('textrequest', uselist=False))
+    wiki = db.relationship('Wiki', backref=backref('textrequest',
+                                                   uselist=False))
 
     requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     requester = db.relationship('User', backref='text_requests')
