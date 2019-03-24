@@ -15,13 +15,12 @@
                     {{ line.text.title }}
                 </a>
                 by
-                <a href='{{ url_for('main.writer', writer_url=line.text.authors[0].url) }}'>
-                    {{ line.text.authors[0].name }}
-                </a>
+                {% set writers = line.edition.writers['author'] %}
+                {% include "includes/_writers_list.html" %}
             </h3>
             {% for l in line.context %}
                 <a href='{{ url_for('main.line_annotations',
-                    text_url=l.edition.text.url,
+                    text_url=l.edition.text.url_name,
                     edition_num=l.edition.num, line_num=l.num) }}'>
                     <line class='{{ l.primary.enum }}' id='{{ l.num }}'>
                         <div{% if l == line %} class='highlight'{% endif %}>
