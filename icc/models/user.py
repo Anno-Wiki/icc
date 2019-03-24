@@ -16,14 +16,6 @@ from sqlalchemy.orm import backref
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin, FlagMixin
 
-# We have to import the whole module in this file to avoid the circular import.
-# I would love to find a simpler fix for this, but in this case we do this for
-# access to only two classes, Vote, and EditVote. I tried to do it in the other
-# file, instead, but for some reason I was getting the same error with the call
-# to `from icc.models.annotation import Vote, EditVote` here: namely, that the
-# system couldn't find icc.models.annotation. Rather strange, imo.
-import icc.models.annotation
-
 
 @login.user_loader
 def _load_user(id):
