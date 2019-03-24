@@ -86,6 +86,19 @@ class Text(Base, FollowableMixin, LinkableMixin):
         """
         return cls.query.filter_by(title=url.replace('_', ' '))
 
+    @classmethod
+    def link(cls, name):
+        idents = name.split(':')
+        obj = cls.query.filter(
+            getattr(cls, cls.__linkable__)==idents[0]).first()
+        if not obj:
+            return name
+        else:
+            if len(idents) == 1:
+                return f'<a href="{obj.url}">{name}</a>'
+            else:
+                return obj.linkedition(idents[1:])
+
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
