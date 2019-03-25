@@ -146,47 +146,77 @@ def index():
                            annotations=annotations.items)
 
 
-@main.route('/text/<text_url>/edition/<edition_num>/'
-            'line/<line_num>/annotations')
-@main.route('/text/<text_url>/line/<line_num>/annotations',
-            methods=['GET', 'POST'], defaults={'edition_num': None})
-def line_annotations(text_url, edition_num, line_num):
-    """See all annotations for a given line. That is to say, all the annotations
-    which have this particular line within their target body.
+def string_to_tuple(string):
+    string = string.strip('l')
+    if '-' in string:
+        ls = string.split('-')
+        ints = tuple(map(int, ls))
+    else:
+        ints = tuple(int(string))
+    return ints
+
+
+@main.route('/text/<text_url>/edition/<edition_num>/<nums>')
+@main.route('/text/<text_url>/<nums>', defaults={'edition_num': None})
+def lines(text_url, edition_num, nums):
+    """See the particular lines from a particular text/edition."""
+    text = Text.get_by_url(text_url).first_or_404()
+    edition = (text.primary if not edition_num else
+               Edition.query.filter(Edition.text==text,
+                                    Edition.num==edition_num).first_or_404())
+    intnums = string_to_tuple(nums)
+    lines = edition.get_lines(intnums).all()
+    return render_template('view/lines.html', title=f'{text.title} {nums}',
+                           text=text, edition=edition, nums=nums, lines=lines)
+
+
+@main.route('/text/<text_url>/edition/<edition_num>/<nums>/annotations')
+@main.route('/text/<text_url>/<nums>/annotations', defaults={'edition_num': None})
+def line_annotations(text_url, edition_num, nums):
+    """See all annotations for given set of lines. That is to say, all the
+    annotations which have this particular line within their target body.
     """
     default = 'newest'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
-    text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
+    text = Text.get_by_url(text_url).first_or_404()
     edition = (text.primary if not edition_num else
                Edition.query.filter(Edition.text==text,
                                     Edition.num==edition_num).first_or_404())
-    line = Line.query.filter(Line.edition==edition,
-                             Line.num==line_num).first_or_404()
+
+    intnums = string_to_tuple(nums)
 
     sorts = {
-        'newest': line.annotations.order_by(Annotation.timestamp.desc()),
-        'oldest': line.annotations.order_by(Annotation.timestamp.asc()),
-        'weight': line.annotations.order_by(Annotation.weight.desc()),
-        'modified': (line.annotations.join(Edit).order_by(Edit.timestamp.desc())
+        'newest': edition.annotations.order_by(Annotation.timestamp.desc()),
+        'oldest': edition.annotations.order_by(Annotation.timestamp.asc()),
+        'weight': edition.annotations.order_by(Annotation.weight.desc()),
+        'modified': (edition.annotations.join(Edit)
+                     .order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True))
     }
 
+    # if there is a single num, then we're going to duplicate it
+    intnums = intnums*2 if len(intnums) == 1 else intnums
+
     sort = sort if sort in sorts else default
-    annotations = sorts[sort].filter(Annotation.active==True)\
+    annotations = sorts[sort]\
+        .join(Edit).filter(Edit.current==True).group_by(Annotation.id)\
+        .filter(Annotation.active==True, Edit.first_line_num>=intnums[0],
+                Edit.last_line_num<=intnums[-1])\
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+
     if not annotations.items and page > 1:
         abort(404)
 
     sorturls = {key: url_for('main.index', text_url=text_url,
-                             edition_num=edition_num, line_num=line_num,
+                             edition_num=edition_num, nums=nums,
                              sort=key) for key in sorts.keys()}
     next_page = (url_for('main.edition_annotations', text_url=text.url,
-                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         edition_num=edition.num, nums=nums, sort=sort,
                          page=annotations.next_num) if annotations.has_next else
                  None)
     prev_page = (url_for('main.edition_annotations', text_url=text_url,
-                         edition_num=edition.num, line_num=line.num, sort=sort,
+                         edition_num=edition.num, nums=nums, sort=sort,
                          page=annotations.prev_num) if annotations.has_prev else
                  None)
     return render_template('indexes/annotation_list.html',

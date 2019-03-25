@@ -294,6 +294,14 @@ class Edition(Base, FollowableMixin):
             .filter(LineAttribute.precedence==precedence,
                     LineAttribute.primary==True)
 
+    def get_lines(self, nums):
+        if len(nums) >= 2:
+             line_query = self.lines.filter(Line.num>=nums[0],
+                                            Line.num<=nums[-1])
+        else:
+             line_query = self.lines.filter(Line.num==nums[0])
+        return line_query
+
 
 class Writer(Base, FollowableMixin, LinkableMixin):
     __linkable__ = 'name'
