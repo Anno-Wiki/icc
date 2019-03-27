@@ -14,7 +14,7 @@ def edition(text_url, edition_num):
                                    Edition.num==edition_num).first_or_404()
     return render_template('view/edition.html',
                            title=f"{text.title} #{edition.num}",
-                           hierarchy=edition.toc, edition=edition)
+                           edition=edition)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/annotations')

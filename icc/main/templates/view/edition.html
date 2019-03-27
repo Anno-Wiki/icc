@@ -1,51 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
-    <h2>{{ edition.edition_title }}</h2>
+<h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
+<h2>{{ edition.edition_title }}</h2>
 
-    {% for category, writers in edition.writers.items() %}
-        <h3>{{ category.title() }}s<h3>
-        {% for writer in writers %}
-            <h4><a href="{{ writer.url }}">{{ writer.name }}</a></h4>
-        {% endfor %}
+{% for category, writers in edition.writers.items() %}
+    <h3>{{ category.title() }}s<h3>
+    {% for writer in writers %}
+        <h4><a href="{{ writer.url }}">{{ writer.name }}</a></h4>
     {% endfor %}
+{% endfor %}
 
-    <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
+<div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-    <a href="{{ url_for("main.edition_annotations",
-        text_url=edition.text.url_name, edition_num=edition.num)
-        }}">annotations</a>
-    | <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
-        next=request.full_path) }}">{% if current_user.is_authenticated and
-        edition in current_user.followed_editions %}unfollow{% else %}follow{%
-        endif %}</a>
-    | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
-        next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
-        }}">edit history</a>
+<a href="{{ url_for("main.edition_annotations", text_url=edition.text.url_name,
+    edition_num=edition.num) }}">annotations</a>
+| <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
+    next=request.full_path) }}">{% if current_user.is_authenticated and edition
+    in current_user.followed_editions %}unfollow{% else %}follow{% endif %}</a>
+| <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
+    next=request.full_path) }}">edit</a>
+| <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
+    }}">edit history</a>
 
-    {# table of contents #}
-    <table class="table_of_contents">
-        <tr class="toc_header">
-            <th align="left">Section</th>
-            <th align="center">Title</th>
-            <th align="right">Line</th>
-        </tr>
-        {% for section in hierarchy %}
-            <tr class="lvl{{ section.precedence }}">
-                <td align="left">
-                    <a href="{{ section.url }}">
-                        {{ section.primary.display }} {{section.primary.num }}
-                    </a>
-                </td>
-                <td align="center">
-                    <a href="{{ section.url }}">{{ section.line }}</a>
-                </td>
-                <td align="right">
-                    <a href="{{ section.url }}">{{ section.num }}</a>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+{# table of contents #}
+{% set hierarchy = edition.toc %}
+{% include "includes/_toc.html" %}
 {% endblock %}

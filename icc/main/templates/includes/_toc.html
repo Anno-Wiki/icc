@@ -1,0 +1,23 @@
+<h2>Table of Contents</h2>
+<table class="table_of_contents">
+    <tr class="toc_header">
+        <th align="left">Section</th>
+        <th align="center">Title</th>
+        <th align="right">Line</th>
+    </tr>
+    {% for section in hierarchy %}
+        <tr class="lvl{{ section.precedence }}">
+            <td align="left">
+                <a href="{{ section.url }}">
+                    {{ section.primary.display }} {{section.primary.num }}
+                </a>
+            </td>
+            <td align="center">
+                <a href="{{ section.url }}">{{ section.line }}</a>
+            </td>
+            <td align="right">
+                <a href="{{ section.url }}">{{ section.num }}</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
