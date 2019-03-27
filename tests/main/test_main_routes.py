@@ -75,7 +75,7 @@ def test_line_annotations(popclient):
 
     sorts = ['newest', 'oldest', 'weight', 'modified', 'thisdoesntexist']
     with app.test_request_context():
-        url = url_for('main.line_annotations', text_url='Gravity', line_num=2)
+        url = url_for('main.line_annotations', text_url='Gravity', nums='l2')
         entities = 1
         max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
 

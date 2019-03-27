@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% include "includes/_sorts.html" %}
-    {% if annotations %}
-        {% for annotation in annotations %}
-            {% include "/includes/_annotation_standalone.html" %}
-        {% endfor %}
-    {% else %}
-        <h3>There are no annotations here.</h3>
-    {% endif %}
+{% if title != 'Home' %}
+    <h1>{{ title }}</h1>
+{% endif %}
+{% include "includes/_sorts.html" %}
+{% if annotations %}
+    {% for annotation in annotations %}
+        {% include "/includes/_annotation_standalone.html" %}
+    {% endfor %}
+{% else %}
+    <h3>There are no annotations here.</h3>
+{% endif %}
 {% endblock %}

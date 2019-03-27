@@ -56,7 +56,7 @@ def edition_annotations(text_url, edition_num):
                          page=annotations.prev_num) if annotations.has_prev else
                  None)
     return render_template('indexes/annotation_list.html',
-                           title=f"{text.title} - Annotations",
+                           title=f"{str(edition)} - Annotations",
                            next_page=next_page, prev_page=prev_page,
                            sorts=sorturls, sort=sort,
                            annotations=annotations.items)

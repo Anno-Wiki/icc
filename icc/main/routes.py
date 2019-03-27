@@ -190,7 +190,8 @@ def line_annotations(text_url, edition_num, nums):
         'newest': edition.annotations.order_by(Annotation.timestamp.desc()),
         'oldest': edition.annotations.order_by(Annotation.timestamp.asc()),
         'weight': edition.annotations.order_by(Annotation.weight.desc()),
-        'modified': (edition.annotations.join(Edit)
+        'line': edition.annotations.order_by(Edit.last_line_num.asc()),
+        'modified': (edition.annotations
                      .order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True))
     }
@@ -208,19 +209,19 @@ def line_annotations(text_url, edition_num, nums):
     if not annotations.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('main.index', text_url=text_url,
-                             edition_num=edition_num, nums=nums,
-                             sort=key) for key in sorts.keys()}
+    sorturls = {key: url_for('main.line_annotations', text_url=text_url,
+                             edition_num=edition_num, nums=nums, sort=key) for
+                key in sorts.keys()}
     next_page = (url_for('main.edition_annotations', text_url=text.url,
                          edition_num=edition.num, nums=nums, sort=sort,
                          page=annotations.next_num) if annotations.has_next else
                  None)
-    prev_page = (url_for('main.edition_annotations', text_url=text_url,
+    prev_page = (url_for('main.line_annotations', text_url=text_url,
                          edition_num=edition.num, nums=nums, sort=sort,
                          page=annotations.prev_num) if annotations.has_prev else
                  None)
     return render_template('indexes/annotation_list.html',
-                           title=f"{text.title} - Annotations",
+                           title=f"{text.title} {nums} - Annotations",
                            next_page=next_page, prev_page=prev_page,
                            sorts=sorturls, sort=sort,
                            annotations=annotations.items)
