@@ -32,7 +32,7 @@
 
             <div{% if len(writer.wiki.current.body) >= 127 %}
                 class="card_text_cutoff"{% endif %}>
-                {{ writer.wiki.current.body[:127]|markdown }}
+                {{ writer.wiki.current.body[:127]|proc_links|markdown }}
             </div>
 
             <a href="{{ writer.url }}">View More</a>

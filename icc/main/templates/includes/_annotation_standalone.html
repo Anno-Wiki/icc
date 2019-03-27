@@ -12,9 +12,9 @@
 
     <div class="annotation_content">
         {%- if len(annotation.HEAD.body) < 255 -%}
-            {{ annotation.HEAD.body|markdown }}
+            {{ annotation.HEAD.body|proc_links|markdown }}
         {%- else -%}
-            <span class="cutoff">{{ annotation.HEAD.body[:255]|markdown
+            <span class="cutoff">{{ annotation.HEAD.body[:255]|proc_links|markdown
                 }}</span>
             <a href="{{ url_for("main.annotation", annotation_id=annotation.id)
                 }}">View More</a>

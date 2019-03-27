@@ -8,7 +8,7 @@
 
     <div class="annotation_content">
         {%- if len(annotation.HEAD.body) < 255 -%}
-            {{ annotation.HEAD.body|markdown }}
+            {{ annotation.HEAD.body|proc_links|markdown }}
         {%- else -%}
             <span class="cutoff">{{- annotation.HEAD.body[:255]|markdown
                 -}}</span>

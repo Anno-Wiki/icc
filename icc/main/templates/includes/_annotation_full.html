@@ -1,7 +1,7 @@
 <annotation id="a{{ annotation.id }}">
     <!--The actual body of the annotation-->
     <div class="annotation_content">
-        {{ annotation.HEAD.body|markdown }}
+        {{ annotation.HEAD.body|proc_links|markdown }}
     </div>
 
     <!--tags-->

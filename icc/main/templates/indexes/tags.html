@@ -26,7 +26,7 @@
 
             <div{% if len(tag.wiki.current.body) > 127 %}
                 class="card_text_cutoff"{% endif %}>
-                {{ tag.wiki.current.body[:127]|markdown }}
+                {{ tag.wiki.current.body[:127]|proc_links|markdown }}
             </div>
             <a href="{{ tag.url }}">View More</a>
         </div>

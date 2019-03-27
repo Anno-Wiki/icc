@@ -21,7 +21,7 @@
                 }}">{{ comment.poster.displayname }}</a>
             {{ comment.timestamp }}
             <a href="#">-</a>
-            <div class="comment_body">{{ comment.body|markdown }}</div>
+            <div class="comment_body">{{ comment.body|proc_links|markdown }}</div>
             <a href="{{ url_for("main.reply", annotation_id=annotation.id,
                 comment_id=comment.id) }}">reply</a>
             <hr>
@@ -35,7 +35,7 @@
                     {{ reply.timestamp }}
 
                     <a href="#">-</a>
-                    <div class="comment_body">{{ reply.body|markdown }}</div>
+                    <div class="comment_body">{{ reply.body|proc_links|markdown }}</div>
                         <a href="{{ url_for("main.reply",
                             annotation_id=annotation.id, comment_id=reply.id)
                             }}">reply</a>
