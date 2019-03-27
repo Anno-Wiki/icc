@@ -35,12 +35,22 @@ class Base(db.Model):
 
 
 class LinkableMixin:
+    """A mixin to be able to process double-bracket style links (e.g.,
+    [[Writer:Constance Garnett]] and produce an href or the object.
+    """
     @classmethod
-    def link(cls, name):
+    def get_object_by_link(cls, name):
+        """Get the object by the name."""
         if not cls.__linkable__:
             raise AttributeError("Class does not have a __linkable__ "
                                  "attribute.")
         obj = cls.query.filter(getattr(cls, cls.__linkable__)==name).first()
+        return obj
+
+    @classmethod
+    def link(cls, name):
+        """Produce the href given the name."""
+        obj = cls.get_object_by_link(name)
         if not obj:
             return name
         else:
