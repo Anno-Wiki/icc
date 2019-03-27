@@ -2,7 +2,8 @@
     <div class="annotation_head">
         {% set edition = annotation.edition %}
         <sup><a href="{{ annotation.url }}">[{{ annotation.id }}]</a></sup>
-        on <em>{% include "includes/_annotation_line_nums.html" %}</em>
+        on
+        <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
         of <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
         {% set writers = edition.writers['author'] %}
         by {% include "includes/_writers_list.html" %}
