@@ -50,11 +50,13 @@
                         user_id=user.id) }}">anonymize</a>
                 {% endif %}
             {% endif %}
+            | <a href="{{ url_for("user.user_annotations", user_id=user.id)
+                }}">annotations</a>
         </td>
     </tr>
 </table>
 {% if user.about_me %}
-    {{ user.about_me|markdown }}
+    {{ user.about_me|proc_links|markdown }}
 {% else %}
     <p>This user’s biography is silent.</p>
 {% endif %}

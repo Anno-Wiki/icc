@@ -68,3 +68,41 @@ def flag_user(flag_id, user_id):
     db.session.commit()
     flash(f"User {user.displayname} flagged \"{flag.enum}\"")
     return redirect(redirect_url)
+
+
+@user.route('/<user_id>/annotations')
+def user_annotations(user_id):
+    """The annotations for the edition."""
+    default = 'newest'
+    sort = request.args.get('sort', default, type=str)
+    page = request.args.get('page', 1, type=int)
+    user = User.query.get_or_404(user_id)
+
+    sorts = {
+        'newest': user.annotations.order_by(Annotation.timestamp.desc()),
+        'oldest': user.annotations.order_by(Annotation.timestamp.asc()),
+        'modified': (user.annotations.join(Edit)
+                     .filter(Edit.current==True)
+                     .order_by(Edit.timestamp.desc())),
+        'weight': user.annotations.order_by(Annotation.weight.desc()),
+    }
+
+    sort = sort if sort in sorts else default
+    annotations = sorts[sort].filter(Annotation.active==True)\
+        .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
+    if not annotations.items and page > 1:
+        abort(404)
+
+    sorturls = {key: url_for('user.user_annotations', user_id=user_id,
+                             page=page, sort=key) for key in sorts.keys()}
+    next_page = (url_for('user.user_annotations', user_id=user_id, sort=sort,
+                         page=annotations.next_num) if annotations.has_next else
+                 None)
+    prev_page = (url_for('user.user_annotations', user_id=user_id, sort=sort,
+                         page=annotations.prev_num) if annotations.has_prev else
+                 None)
+    return render_template('indexes/annotation_list.html',
+                           title=f"{user.displayname} - Annotations",
+                           next_page=next_page, prev_page=prev_page,
+                           sorts=sorturls, sort=sort,
+                           annotations=annotations.items)
