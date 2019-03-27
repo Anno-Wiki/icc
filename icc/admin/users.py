@@ -18,7 +18,7 @@ def anonymize_user(user_id):
     """Anonymize a user account (equivalent to deleting it)."""
     form = AreYouSureForm()
     user = User.query.get_or_404(user_id)
-    redirect_url = url_for('user', user_id=user.id)
+    redirect_url = url_for('user.profile', user_id=user.id)
     if form.validate_on_submit():
         user.displayname = f'x_user{user.id}'
         user.email = f'{user.id}'
@@ -40,10 +40,13 @@ def anonymize_user(user_id):
 def lock_user(user_id):
     """Lock a user account."""
     user = User.query.get_or_404(user_id)
-    redirect_url = generate_next(url_for('user', user_id=user.id))
+    redirect_url = generate_next(url_for('user.profile', user_id=user.id))
     user.locked = not user.locked
     db.session.commit()
-    flash(f"User account {user.displayname} locked.")
+    if user.locked:
+        flash(f"User account {user.displayname} locked.")
+    else:
+        flash(f"User account {user.displayname} unlocked.")
     return redirect(redirect_url)
 
 
