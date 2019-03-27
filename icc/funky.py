@@ -94,10 +94,11 @@ def proc_links(text):
             ident = unbracketted[colon+1:]
             if cls in classes and hasattr(classes[cls], 'link'):
                 href = classes[cls].link(ident)
+                print(href)
                 newtext.append(href)
             else:
                 newtext.append(ident)
-        except:
+        except AttributeError:
             newtext.append(text[idx[0]:idx[1]])
     if not match:
         return text

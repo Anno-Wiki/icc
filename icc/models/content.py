@@ -87,17 +87,46 @@ class Text(Base, FollowableMixin, LinkableMixin):
         return cls.query.filter_by(title=url.replace('_', ' '))
 
     @classmethod
+    def get_object_by_link(cls, name):
+        """Get the object by the name."""
+        if not cls.__linkable__:
+            raise AttributeError("Class does not have a __linkable__ "
+                                 "attribute.")
+        obj = cls.query.filter(getattr(cls, cls.__linkable__)==name).first()
+        return obj
+
+    @classmethod
     def link(cls, name):
+        """Override the LinkableMixin link method."""
         idents = name.split(':')
-        obj = cls.query.filter(
-            getattr(cls, cls.__linkable__)==idents[0]).first()
+        obj = cls.get_object_by_link(idents[0])
         if not obj:
             return name
         else:
             if len(idents) == 1:
                 return f'<a href="{obj.url}">{name}</a>'
             else:
-                return obj.linkedition(idents[1:])
+                try:
+                    return obj.link_edition(idents[1:])
+                except AttributeError:
+                    return name
+
+    def link_edition(self, idents):
+        """This is specifically to link other editions and line numbers."""
+        edition_num = idents[0] if idents[0].isdigit() else 1
+        edition = self.editions.filter_by(num=edition_num).first()
+        if not edition:
+            raise AttributeError("No edition.")
+        line_nums = None
+        for ident in idents:
+            if 'l' in ident:
+                line_nums = ident
+        if line_nums:
+            url = url_for('main.lines', text_url=self.url_name,
+                          edition_num=edition_num, nums=line_nums)
+            return f"<a href=\"{url}\">{str(edition)} {line_nums}</a>"
+        else:
+            return f"<a href=\"{edition.url}\">{str(edition)}</a>"
 
     title = db.Column(db.String(128), index=True)
     sort_title = db.Column(db.String(128), index=True)

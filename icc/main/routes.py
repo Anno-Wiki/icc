@@ -152,7 +152,7 @@ def string_to_tuple(string):
         ls = string.split('-')
         ints = tuple(map(int, ls))
     else:
-        ints = tuple(int(string))
+        ints = int(string),
     return ints
 
 

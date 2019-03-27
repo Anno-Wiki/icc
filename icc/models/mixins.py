@@ -50,7 +50,11 @@ class LinkableMixin:
     @classmethod
     def link(cls, name):
         """Produce the href given the name."""
-        obj = cls.get_object_by_link(name)
+        try:
+            obj = cls.get_object_by_link(name)
+        except AttributeError:
+            return name
+
         if not obj:
             return name
         else:
