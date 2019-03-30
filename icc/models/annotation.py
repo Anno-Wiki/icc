@@ -203,7 +203,7 @@ class AnnotationVote(Base, VoteMixin):
     reputationchange_id : int
         The id of the :class:`ReputationChange` object that accompanies the
         :class:`Vote`.
-    annotation : int
+    entity : :class:`Annotation`
         The :class:`Annotation` the vote has been applied to.
     repchange : :class:`ReputationChange`
         The :class:`ReputationChange`
@@ -222,7 +222,7 @@ class AnnotationVote(Base, VoteMixin):
 
     def __repr__(self):
         prefix = super().__repr__()
-        return f"{prefix}{self.annotation}"
+        return f"{prefix}{self.entity}"
 
 
 class AnnotationFlag(Base, FlagMixin):

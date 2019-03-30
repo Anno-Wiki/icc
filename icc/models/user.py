@@ -12,6 +12,7 @@ from flask import abort, url_for, current_app as app
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import backref
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db, login
 from icc.models.mixins import Base, EnumMixin, FlagMixin
@@ -104,6 +105,7 @@ class User(UserMixin, Base):
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
+    reputation_changes = db.relationship('ReputationChange', lazy='dynamic')
     rights = db.relationship('AdminRight', secondary='rights')
     annotations = db.relationship('Annotation', lazy='dynamic')
 
@@ -375,9 +377,12 @@ class ReputationChange(Base):
 
     user = db.relationship('User', backref='changes')
     enum = db.relationship('ReputationEnum')
+    type = association_proxy('enum', 'enum')
 
     def __repr__(self):
-        return f'<rep change {self.type} on {self.user.displayname}>'
+        return (f'<rep change {self.type} on {self.user.displayname} '
+                f'{self.timestamp}>')
+
 
 
 class UserFlag(Base, FlagMixin):
