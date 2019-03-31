@@ -76,19 +76,8 @@
                     </div>
                 {% endif %}
 
-                {# user profile stuff #}
-                <div class="dropdown">
-                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="dropbtn">
-                        {{ current_user.displayname }}&#x25BE;
-                    </a>
-                    <div class="dropdown-content">
-                        <a href="{{ url_for('user.profile',
-                            user_id=current_user.id) }}">
-                            profile
-                        </a>
-                        <a href="{{ url_for('user.edit_profile') }}">edit profile</a>
-                    </div>
-                </div>
+                <a href="{{ url_for('user.profile', user_id=current_user.id)
+                    }}">{{ current_user.displayname }}</a>
                 {{ current_user.readable_reputation }}
                 | <a href="{{ url_for('main.logout') }}">logout</a>
             {%- endif %}
