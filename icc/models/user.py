@@ -384,7 +384,6 @@ class ReputationChange(Base):
                 f'{self.timestamp}>')
 
 
-
 class UserFlag(Base, FlagMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     entity = db.relationship('User', foreign_keys=[user_id],

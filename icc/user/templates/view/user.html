@@ -16,42 +16,41 @@
             <p>Number of annotations: {{ user.annotations.count() }}</p>
             <p>Number of edits: {{ user.edits.count() }}</p>
 
+            {% if current_user == user %}
+                <a href="{{ url_for("user.edit_profile") }}">edit</a> |
+            {% endif %}
+
             {% if current_user.is_authorized("lock_users") %}
-                <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">
-                    {% if user.locked %}unlock{% else %}lock{% endif %}
-                </a> |
+                <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">{%
+                    if user.locked %}unlock{% else %}lock{% endif %}</a>
+            {% endif %}
+
+            {% if current_user.is_authorized("anonymize_users") %}
+                | <a href="{{ url_for("admin.anonymize_user", user_id=user.id) }}">anonymize</a>
+            {% endif %}
+
+            {% if current_user.is_authorized("resolve_user_flags") %}
+                | <a href="{{ url_for("admin.user_flags", user_id=user.id) }}">flags</a>
             {% endif %}
 
             <div class="dropdown">
-                <a class="dropbtn">flag&#x25BE;</a>
+                | <a class="dropbtn">flag&#x25BE;</a>
                 <div class="dropdown-content">
                     {% for userflag in userflags %}
-                        <a href="{{ url_for("user.flag_user", flag_id=userflag.id,
-                            user_id=user.id, next=request.full_path) }}">
-                            {{ userflag.enum }}
-                        </a>
+                        <a href="{{ url_for("user.flag_user",
+                            flag_id=userflag.id, user_id=user.id,
+                            next=request.full_path) }}">{{ userflag.enum }}</a>
                     {% endfor %}
                 </div>
             </div>
 
-            {% if current_user.is_authorized("resolve_user_flags") %}
-                | <a href="{{ url_for("admin.user_flags", user_id=user.id)
-                    }}">flags</a>
-            {% endif %}
-            {% if current_user != user %}
-                    | <a href="{{ url_for("user.follow_user", user_id=user.id,
-                        next=request.full_path) }}">{% if
-                        current_user.is_authenticated and user in
-                    current_user.followed_users %}unfollow{% else %}follow{%
-                    endif %}</a>
-
-                {% if current_user.is_authorized("anonymize_users") %}
-                    | <a href="{{ url_for("admin.anonymize_user",
-                        user_id=user.id) }}">anonymize</a>
-                {% endif %}
-            {% endif %}
-            | <a href="{{ url_for("user.user_annotations", user_id=user.id)
-                }}">annotations</a>
+            | <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
+                {% if current_user.is_authenticated and user in
+                current_user.followed_users %}unfollow{% else %}follow{% endif
+                %}
+            </a>
+            | <a href="{{ url_for("user.user_annotations", user_id=user.id) }}">annotations</a>
+            | <a href="{{ url_for("user.reputation", user_id=user.id) }}">reputation</a>
         </td>
     </tr>
 </table>
