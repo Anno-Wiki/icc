@@ -93,10 +93,6 @@ def review_wiki_edit(wiki_id, edit_id):
 def upvote_wiki_edit(wiki_id, edit_id):
     edit = WikiEdit.query.get_or_404(edit_id)
     redirect_url = generate_next(edit.wiki.entity.url)
-    if edit.approved:
-        flash("That wiki edit has already been approved.")
-    elif edit.rejected:
-        flash("That wiki edit has already been rejected.")
     edit.upvote(current_user)
     db.session.commit()
     return redirect(redirect_url)
@@ -108,10 +104,6 @@ def upvote_wiki_edit(wiki_id, edit_id):
 def downvote_wiki_edit(wiki_id, edit_id):
     edit = WikiEdit.query.get_or_404(edit_id)
     redirect_url = generate_next(edit.wiki.entity.url)
-    if edit.approved:
-        flash("That wiki edit has already been approved.")
-    elif edit.rejected:
-        flash("That wiki edit has already been rejected.")
     edit.downvote(current_user)
     db.session.commit()
     return redirect(redirect_url)

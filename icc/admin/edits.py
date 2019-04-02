@@ -112,9 +112,6 @@ def upvote_edit(annotation_id, edit_id):
     edit = Edit.query.get_or_404(edit_id)
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
-    elif edit.editor == current_user:
-        flash("You cannot approve or reject your own edits")
-        return redirect(url_for('admin.edit_review_queue'))
     edit.upvote(current_user)
     db.session.commit()
     return redirect(url_for('admin.edit_review_queue'))
@@ -128,9 +125,6 @@ def downvote_edit(annotation_id, edit_id):
     edit = Edit.query.get_or_404(edit_id)
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
-    elif edit.editor == current_user:
-        flash("You cannot approve or reject your own edits")
-        return redirect(url_for('admin.edit_review_queue'))
     edit.downvote(current_user)
     db.session.commit()
     return redirect(url_for('admin.edit_review_queue'))
