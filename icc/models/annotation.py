@@ -205,20 +205,14 @@ class AnnotationVote(Base, VoteMixin):
         :class:`Vote`.
     entity : :class:`Annotation`
         The :class:`Annotation` the vote has been applied to.
-    repchange : :class:`ReputationChange`
-        The :class:`ReputationChange`
 
     The Vote class also possesses all of the attributes of :class:`VoteMixin`.
     """
     annotation_id = db.Column(
         db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
         index=True)
-    reputationchange_id = db.Column(
-        db.Integer, db.ForeignKey('reputationchange.id', ondelete='CASCADE'))
 
     entity = db.relationship('Annotation')
-    repchange = db.relationship('ReputationChange',
-                                backref=backref('vote', uselist=False))
 
     def __repr__(self):
         prefix = super().__repr__()
@@ -498,13 +492,6 @@ class EditVote(Base, VoteMixin):
         The id of the :class:`Edit` the vote is applied to.
     edit : :class:`Edit`
         The edit object the vote was applied to.
-    reputationchange_id : int
-        The id of the :class:`ReputationChange` object associated with the edit
-        (if the edit is approved).
-    repchange : :class:`ReputationChange`
-        The reputation change object associated with the edit vote if it is an
-        approval vote (i.e., above a certain threshold of votes or applied by
-        someone with immediate edit approval rights.
 
     The EditVote class also possesses all of the attributes of
     :class:`VoteMixin`.

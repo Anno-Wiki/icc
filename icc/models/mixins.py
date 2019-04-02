@@ -325,7 +325,7 @@ class VotableMixin:
         ov = voter.get_vote(self)
         if ov:
             self.rollback(ov)
-            if ov.is_down:
+            if not ov.is_up:
                 return
         if self.__reputable__:
             repchange = getattr(self, self.__reputable__)\
