@@ -292,7 +292,8 @@ class VotableMixin:
         if hasattr(self, 'approved') and (self.approved or self.rejected):
             flash("Voting is closed.")
             return
-        if getattr(self, self.__reputable__) == voter:
+        reputable = getattr(self, self.__reputable__)
+        if reputable == voter:
             flash("You cannot vote on your own submissions.")
             return
         ov = voter.get_vote(self)
@@ -300,17 +301,13 @@ class VotableMixin:
             self.rollback(ov)
             if ov.is_up:
                 return
-        if self.__reputable__:
-            repchange = getattr(self, self.__reputable__)\
-                .repchange(f'{self.__class__.__name__}_upvote')
-        else:
-            repchange = None
+        repchange = reputable.repchange(f'{self.__class__.__name__}_upvote')
         weight = self.up_power(voter) if hasattr(self, 'up_power') else 1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
                              repchange=repchange)
         self.weight += vote.delta
         db.session.add(vote)
-        if (hasattr(self, 'approved') and
+        if (hasattr(self, '__approvable__') and
                 (self.weight >= current_app.config['VOTES_FOR_APPROVAL']
                  or voter.is_authorized(self.__approvable__))):
             self.approve()
@@ -319,7 +316,8 @@ class VotableMixin:
         if hasattr(self, 'approved') and (self.approved or self.rejected):
             flash("Voting is closed.")
             return
-        if getattr(self, self.__reputable__) == voter:
+        reputable = getattr(self, self.__reputable__)
+        if reputable == voter:
             flash("You cannot vote on your own submissions.")
             return
         ov = voter.get_vote(self)
@@ -327,11 +325,7 @@ class VotableMixin:
             self.rollback(ov)
             if not ov.is_up:
                 return
-        if self.__reputable__:
-            repchange = getattr(self, self.__reputable__)\
-                .repchange(f'{self.__class__.__name__}_downvote')
-        else:
-            repchange = None
+        repchange = reputable.repchange(f'{self.__class__.__name__}_downvote')
         weight = self.down_power(voter) if hasattr(self, 'down_power') else -1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
                              repchange=repchange)

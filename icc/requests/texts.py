@@ -64,13 +64,11 @@ def request_text():
                                    description=form.description.data,
                                    requester=current_user, weight=0)
         db.session.add(text_request)
-        text_request.upvote(current_user)
         current_user.followed_textrequests.append(text_request)
         db.session.commit()
         flash("Text request created.")
-        flash(f"You have upvoted the request for {text_request.title}.")
         flash(f"You are now following the request for {text_request.title}.")
-        return redirect(url_for('text_request.text_request_index'))
+        return redirect(url_for('requests.text_request_index'))
     return render_template('forms/text_request.html', title="Request Text",
                            form=form)
 

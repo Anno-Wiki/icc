@@ -7,7 +7,7 @@ from flask import url_for
 from sqlalchemy.orm import backref
 
 from icc import db
-from icc.models.mixins import Base, VoteMixin, FollowableMixin
+from icc.models.mixins import Base, VoteMixin, FollowableMixin, VotableMixin
 from icc.models.wiki import Wiki
 
 
@@ -23,8 +23,9 @@ class TextRequestVote(Base, VoteMixin):
         return f"{prefix}{self.text_request}"
 
 
-class TextRequest(Base, FollowableMixin):
+class TextRequest(Base, FollowableMixin, VotableMixin):
     __vote__ = TextRequestVote
+    __reputable__ = 'requester'
 
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
@@ -63,25 +64,6 @@ class TextRequest(Base, FollowableMixin):
     def __repr__(self):
         return f'<Request for {self.title}>'
 
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
-    def upvote(self, voter):
-        weight = 1
-        self.weight += weight
-        vote = self.__vote__(voter=voter, entity=self, delta=weight)
-        db.session.add(vote)
-
-    def downvote(self, voter):
-        weight = -1
-        self.weight += weight
-        vote = self.__vote__(voter=voter, entity=self, delta=weight)
-        db.session.add(vote)
-
-    def reject(self):
-        self.rejected = True
-
 
 class TagRequestVote(Base, VoteMixin):
     tag_request_id = db.Column(
@@ -95,8 +77,9 @@ class TagRequestVote(Base, VoteMixin):
         return f"{prefix}{self.tag_request}"
 
 
-class TagRequest(Base, FollowableMixin):
+class TagRequest(Base, FollowableMixin, VotableMixin):
     __vote__ = TagRequestVote
+    __reputable__ = 'requester'
 
     tag = db.Column(db.String(127), index=True)
 
@@ -132,22 +115,6 @@ class TagRequest(Base, FollowableMixin):
 
     def __repr__(self):
         return f'<Request for {self.tag}>'
-
-    def rollback(self, vote):
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
-    def upvote(self, voter):
-        weight = 1
-        self.weight += weight
-        vote = self.__vote__(voter=voter, entity=self, delta=weight)
-        db.session.add(vote)
-
-    def downvote(self, voter):
-        weight = -1
-        self.weight += weight
-        vote = self.__vote__(voter=voter, entity=self, delta=weight)
-        db.session.add(vote)
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
