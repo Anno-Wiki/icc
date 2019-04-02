@@ -34,6 +34,239 @@ class Base(db.Model):
         return cls.__name__.lower()
 
 
+class EnumMixin:
+    """Any enumerated class that has more than 4 types should be use this
+    EnumMixin. LineEnum and Right seem to be the biggest examples.
+
+    Attributes
+    ----------
+    enum : str
+        A string for holding an enumerated type.
+    """
+    enum = db.Column(db.String(128), index=True)
+
+    def __repr__(self):
+        return f"<{type(self).__name__} {self.enum}>"
+
+
+class FlagMixin:
+    """FlagMixin is a complex mixin. It defines a new class for enums for flags.
+    I *like* it.
+    """
+
+    @declared_attr
+    def enum_cls(cls):
+        """Literally a class. It is the enum class for the flags. Generally,
+        after defining a Flag class, (which may end up becoming `FlaggableMixin`
+        composable if I'm crazy enough) you should hoist the enum_cls value up
+        into the namespace by declaring (after declaring the class that inherits
+        FlagMixin) `<cls>Enum = <cls>.enum_cls`. That solves a lot of problems.
+        """
+        return type(
+            f'{cls.__name__}Enum', (Base, EnumMixin),
+            {'__repr__': lambda self: f'<{type(self).__name__} {self.enum}'}
+        )
+
+    @declared_attr
+    def enum_id(cls):
+        """The id of the enum that this particular flag is typed."""
+        return db.Column(db.Integer,
+                         db.ForeignKey(f'{cls.__name__.lower()}enum.id'),
+                         index=True)
+
+    @declared_attr
+    def enum(cls):
+        """The actual enum object that this relationship is typed to."""
+        return db.relationship(f'{cls.__name__}Enum')
+
+    @declared_attr
+    def thrower_id(cls):
+        """The id of the user who threw the flag."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    @declared_attr
+    def thrower(cls):
+        """The user who threw the flag."""
+        return db.relationship('User', foreign_keys=[cls.thrower_id])
+
+    @declared_attr
+    def resolver_id(cls):
+        """The id of the user who resolved the flag."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    @declared_attr
+    def resolver(cls):
+        """The user who resolved the flag."""
+        return db.relationship('User', foreign_keys=[cls.resolver_id])
+
+    @declared_attr
+    def time_thrown(cls):
+        """The time the flag was thrown."""
+        return db.Column(db.DateTime, default=datetime.utcnow())
+
+    @declared_attr
+    def time_resolved(cls):
+        """The time the flag was resolved."""
+        return db.Column(db.DateTime)
+
+    @classmethod
+    def flag(cls, obj, enum, thrower):
+        """A class method to flag the object (or jerk)."""
+        db.session.add(cls(entity=obj, enum=enum, thrower=thrower))
+
+    def __repr__(self):
+        """Branches representations based on resolution status."""
+        if self.resolved:
+            return (f"<X {type(self).__name__}: "
+                    f"{self.flag} at {self.time_thrown}>")
+        else:
+            return (f"<{type(self).__name__} thrown: "
+                    f"{self.flag} at {self.time_thrown}>")
+
+    def resolve(self, resolver):
+        """Resolve the flag.
+
+        Parameters
+        ----------
+        resolver : :class:`User`
+            The user that is resolving the flag.
+        """
+        self.time_resolved = datetime.utcnow()
+        self.resolver = resolver
+
+    def unresolve(self):
+        """Unresolves the flag (i.e., puts it back into play)."""
+        self.time_resolved = None
+        self.resolver = None
+
+
+class EditMixin:
+    """A mixin to store edits. This is to be used for anything that can be
+    edited so that we can have an edit history.
+
+    Notes
+    -----
+    Currently, the only methods I have implemented here are rollback and reject
+    because of the different naming strategies of the votes. THIS CAN BE
+    CORRECTED. I believe I have to investigate Meta classes or something like
+    that to make sure that something is implemented or something. But this
+    EditMixin can be tied in in such a way that those methods can be collapsed.
+    I need to do this.
+
+    Attributes
+    ----------
+    num : int
+        The number of the edit in the edit history.
+    current : bool
+        A boolean indicating withether this is the current state of the parent
+        object or not. There should only ever be one per object. There should
+        always be at least one. If there are more than or less than one for an
+        object THAT IS A PROBLEM.
+    weight : int
+        The weight of the object (basically the difference between upvotes and
+        downvotes, but a bit more complicated than that.
+    approved : bool
+        Whether the edit has been approved or not.
+    rejected : bool
+        Whether the edit has been rejected or not. `approved` and `rejected`
+        should not both be True, but they can both be False (namely, immediately
+        after being created, before it is reviewed).
+    reason : str
+        A string explaining the reason for the edit. Will probably be abused and
+        ignored. But good practice.
+    timestamp : DateTime
+        When the edit was made.
+    body : str
+        The actual body of the Edit.
+    """
+    num = db.Column(db.Integer, default=1)
+    current = db.Column(db.Boolean, index=True, default=False)
+    weight = db.Column(db.Integer, default=0)
+    approved = db.Column(db.Boolean, index=True, default=False)
+    rejected = db.Column(db.Boolean, index=True, default=False)
+    reason = db.Column(db.String(191))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
+    body = db.Column(db.Text)
+
+    @declared_attr
+    def editor_id(cls):
+        """The id of the editor."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
+                         default=1)
+
+    @declared_attr
+    def editor(cls):
+        """The actual user object of the editor. The backref is the class name
+        lowercased with an `s` appended
+        """
+        return db.relationship(
+            'User', backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
+
+    @declared_attr
+    def previous(cls):
+        """The previous edit."""
+        return db.relationship(
+            f'{cls.__name__}',
+            primaryjoin=f'and_(remote({cls.__name__}.entity_id)'
+            f'==foreign({cls.__name__}.entity_id),'
+            f'remote({cls.__name__}.num)==foreign({cls.__name__}.num-1),'
+            f'remote({cls.__name__}.rejected)==False)')
+
+    @declared_attr
+    def priors(cls):
+        """A list of all prior edits"""
+        return db.relationship(
+            f'{cls.__name__}',
+            primaryjoin=f'and_(remote({cls.__name__}.entity_id)=='
+            f'foreign({cls.__name__}.entity_id),'
+            f'remote({cls.__name__}.num)<=foreign({cls.__name__}.num-1))',
+            uselist=True)
+
+    def __repr__(self):
+        return f"<Edit {self.num} on "
+
+
+class VoteMixin:
+    """A Mixin for votes. This is useful because users can vote on more than
+    just Annotations.
+
+    Attributes
+    ----------
+    delta : int
+        The difference the vote applies to the weight of the object.
+    timestamp : DateTime
+        The timestamp of when the vote was created.
+    is_up : bool
+        A boolean that indicates whether the vote is up or down.
+    """
+    delta = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+
+    @property
+    def is_up(self):
+        """A boolean representing the vector of the vote (i.e., True for up,
+        False for down).
+        """
+        return self.delta > 0
+
+    @declared_attr
+    def voter_id(cls):
+        """The id of the voter."""
+        return db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    @declared_attr
+    def voter(cls):
+        """The voter."""
+        # the backref is the name of the class lowercased with the word
+        # `ballots` appended
+        return db.relationship(
+            'User', backref=backref(f'{cls.__name__.lower()}_ballots',
+                                    lazy='dynamic'))
+
+    def __repr__(self):
+        return f"<{self.voter.displayname} {self.delta} on "
+
+
 class VotableMixin:
     """An easy application to make an object votable. There already needs to be
     a VoteMixin application. Also, define the following attributes on the child
@@ -146,239 +379,6 @@ class LinkableMixin:
             if not hasattr(obj, 'url'):
                 raise AttributeError("Object does not have a url.")
             return f'<a href="{obj.url}">{name}</a>'
-
-
-class EnumMixin:
-    """Any enumerated class that has more than 4 types should be use this
-    EnumMixin. LineEnum and Right seem to be the biggest examples.
-
-    Attributes
-    ----------
-    enum : str
-        A string for holding an enumerated type.
-    """
-    enum = db.Column(db.String(128), index=True)
-
-    def __repr__(self):
-        return f"<{type(self).__name__} {self.enum}>"
-
-
-class FlagMixin:
-    """FlagMixin is a complex mixin. It defines a new class for enums for flags.
-    I *like* it.
-    """
-
-    @declared_attr
-    def enum_cls(cls):
-        """Literally a class. It is the enum class for the flags. Generally,
-        after defining a Flag class, (which may end up becoming `FlaggableMixin`
-        composable if I'm crazy enough) you should hoist the enum_cls value up
-        into the namespace by declaring (after declaring the class that inherits
-        FlagMixin) `<cls>Enum = <cls>.enum_cls`. That solves a lot of problems.
-        """
-        return type(
-            f'{cls.__name__}Enum', (Base, EnumMixin),
-            {'__repr__': lambda self: f'<{type(self).__name__} {self.enum}'}
-        )
-
-    @declared_attr
-    def enum_id(cls):
-        """The id of the enum that this particular flag is typed."""
-        return db.Column(db.Integer,
-                         db.ForeignKey(f'{cls.__name__.lower()}enum.id'),
-                         index=True)
-
-    @declared_attr
-    def enum(cls):
-        """The actual enum object that this relationship is typed to."""
-        return db.relationship(f'{cls.__name__}Enum')
-
-    @declared_attr
-    def thrower_id(cls):
-        """The id of the user who threw the flag."""
-        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-
-    @declared_attr
-    def thrower(cls):
-        """The user who threw the flag."""
-        return db.relationship('User', foreign_keys=[cls.thrower_id])
-
-    @declared_attr
-    def resolver_id(cls):
-        """The id of the user who resolved the flag."""
-        return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-
-    @declared_attr
-    def resolver(cls):
-        """The user who resolved the flag."""
-        return db.relationship('User', foreign_keys=[cls.resolver_id])
-
-    @declared_attr
-    def time_thrown(cls):
-        """The time the flag was thrown."""
-        return db.Column(db.DateTime, default=datetime.utcnow())
-
-    @declared_attr
-    def time_resolved(cls):
-        """The time the flag was resolved."""
-        return db.Column(db.DateTime)
-
-    @classmethod
-    def flag(cls, obj, enum, thrower):
-        """A class method to flag the object (or jerk)."""
-        db.session.add(cls(entity=obj, enum=enum, thrower=thrower))
-
-    def __repr__(self):
-        """Branches representations based on resolution status."""
-        if self.resolved:
-            return (f"<X {type(self).__name__}: "
-                    f"{self.flag} at {self.time_thrown}>")
-        else:
-            return (f"<{type(self).__name__} thrown: "
-                    f"{self.flag} at {self.time_thrown}>")
-
-    def resolve(self, resolver):
-        """Resolve the flag.
-
-        Parameters
-        ----------
-        resolver : :class:`User`
-            The user that is resolving the flag.
-        """
-        self.time_resolved = datetime.utcnow()
-        self.resolver = resolver
-
-    def unresolve(self):
-        """Unresolves the flag (i.e., puts it back into play)."""
-        self.time_resolved = None
-        self.resolver = None
-
-
-class VoteMixin:
-    """A Mixin for votes. This is useful because users can vote on more than
-    just Annotations.
-
-    Attributes
-    ----------
-    delta : int
-        The difference the vote applies to the weight of the object.
-    timestamp : DateTime
-        The timestamp of when the vote was created.
-    is_up : bool
-        A boolean that indicates whether the vote is up or down.
-    """
-    delta = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-
-    @property
-    def is_up(self):
-        """A boolean representing the vector of the vote (i.e., True for up,
-        False for down).
-        """
-        return self.delta > 0
-
-    @declared_attr
-    def voter_id(cls):
-        """The id of the voter."""
-        return db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    @declared_attr
-    def voter(cls):
-        """The voter."""
-        # the backref is the name of the class lowercased with the word
-        # `ballots` appended
-        return db.relationship(
-            'User', backref=backref(f'{cls.__name__.lower()}_ballots',
-                                    lazy='dynamic'))
-
-    def __repr__(self):
-        return f"<{self.voter.displayname} {self.delta} on "
-
-
-class EditMixin:
-    """A mixin to store edits. This is to be used for anything that can be
-    edited so that we can have an edit history.
-
-    Notes
-    -----
-    Currently, the only methods I have implemented here are rollback and reject
-    because of the different naming strategies of the votes. THIS CAN BE
-    CORRECTED. I believe I have to investigate Meta classes or something like
-    that to make sure that something is implemented or something. But this
-    EditMixin can be tied in in such a way that those methods can be collapsed.
-    I need to do this.
-
-    Attributes
-    ----------
-    num : int
-        The number of the edit in the edit history.
-    current : bool
-        A boolean indicating withether this is the current state of the parent
-        object or not. There should only ever be one per object. There should
-        always be at least one. If there are more than or less than one for an
-        object THAT IS A PROBLEM.
-    weight : int
-        The weight of the object (basically the difference between upvotes and
-        downvotes, but a bit more complicated than that.
-    approved : bool
-        Whether the edit has been approved or not.
-    rejected : bool
-        Whether the edit has been rejected or not. `approved` and `rejected`
-        should not both be True, but they can both be False (namely, immediately
-        after being created, before it is reviewed).
-    reason : str
-        A string explaining the reason for the edit. Will probably be abused and
-        ignored. But good practice.
-    timestamp : DateTime
-        When the edit was made.
-    body : str
-        The actual body of the Edit.
-    """
-    num = db.Column(db.Integer, default=1)
-    current = db.Column(db.Boolean, index=True, default=False)
-    weight = db.Column(db.Integer, default=0)
-    approved = db.Column(db.Boolean, index=True, default=False)
-    rejected = db.Column(db.Boolean, index=True, default=False)
-    reason = db.Column(db.String(191))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow(), index=True)
-    body = db.Column(db.Text)
-
-    @declared_attr
-    def editor_id(cls):
-        """The id of the editor."""
-        return db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False,
-                         default=1)
-
-    @declared_attr
-    def editor(cls):
-        """The actual user object of the editor. The backref is the class name
-        lowercased with an `s` appended
-        """
-        return db.relationship(
-            'User', backref=backref(f'{cls.__name__.lower()}s', lazy='dynamic'))
-
-    @declared_attr
-    def previous(cls):
-        """The previous edit."""
-        return db.relationship(
-            f'{cls.__name__}',
-            primaryjoin=f'and_(remote({cls.__name__}.entity_id)'
-            f'==foreign({cls.__name__}.entity_id),'
-            f'remote({cls.__name__}.num)==foreign({cls.__name__}.num-1),'
-            f'remote({cls.__name__}.rejected)==False)')
-
-    @declared_attr
-    def priors(cls):
-        """A list of all prior edits"""
-        return db.relationship(
-            f'{cls.__name__}',
-            primaryjoin=f'and_(remote({cls.__name__}.entity_id)=='
-            f'foreign({cls.__name__}.entity_id),'
-            f'remote({cls.__name__}.num)<=foreign({cls.__name__}.num-1))',
-            uselist=True)
-
-    def __repr__(self):
-        return f"<Edit {self.num} on "
 
 
 class FollowableMixin:
