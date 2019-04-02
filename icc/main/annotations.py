@@ -198,9 +198,6 @@ def downvote(annotation_id):
     vote = current_user.get_vote(annotation)
     if not annotation.active:
         flash("You cannot vote on deactivated annotations.")
-    elif current_user == annotation.annotator:
-        flash("You cannot vote on your own annotation.")
-        return redirect(redirect_url)
     elif vote:
         diff = datetime.utcnow() - vote.timestamp
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
