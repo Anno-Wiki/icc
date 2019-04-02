@@ -7,7 +7,7 @@ from flask import flash, current_app as app
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
 
-from icc.models.mixins import Base, EditMixin, VoteMixin
+from icc.models.mixins import Base, EditMixin, VoteMixin, VotableMixin
 from icc import db
 
 
@@ -78,63 +78,17 @@ class WikiEditVote(Base, VoteMixin):
         return f"{prefix}{self.edit}"
 
 
-class WikiEdit(Base, EditMixin):
+class WikiEdit(Base, EditMixin, VotableMixin):
     """A WikiEdit."""
     __vote__ = WikiEditVote
-    entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
+    __reputable__ = 'editor'
+    __approvable__ = 'immediate_wiki_edits'
 
+    entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))
 
     def __repr__(self):
         return f"<WikiEdit on {self.wiki}>"
-
-    def upvote(self, voter):
-        if self.approved or self.rejected:
-            flash("That edit is no longer pending.")
-            return
-        if self.editor == voter:
-            flash("You cannot vote on your own edits.")
-            return
-        ov = voter.get_vote(self)
-        if ov:
-            if ov.is_up():
-                self.rollback(ov)
-                return
-            else:
-                self.rollback(ov)
-        vote = self.__vote__(entity=self, delta=1, voter=voter)
-        self.weight += vote.delta
-        db.session.add(vote)
-        if self.weight >= app.config['VOTES_FOR_WIKI_EDIT_APPROVAL'] or\
-                voter.is_authorized('immediate_wiki_edits'):
-            self.approve()
-
-    def downvote(self, voter):
-        if self.approved or self.rejected:
-            flash("That edit is no longer pending.")
-            return
-        if self.editor == voter:
-            flash("You cannot vote on your own edits.")
-            return
-        ov = voter.get_vote(self)
-        if ov:
-            if not ov.is_up():
-                self.rollback(ov)
-                return
-            else:
-                self.rollback(ov)
-        vote = self.__vote__(entity=self, delta=-1, voter=voter)
-        self.weight += vote.delta
-        db.session.add(vote)
-        if self.weight <= app.config['VOTES_FOR_WIKI_EDIT_REJECTION'] or\
-                voter.is_authorized('immediate_wiki_edits'):
-            self.reject()
-
-    def approve(self):
-        self.approved = True
-        self.wiki.current.current = False
-        self.current = True
-        flash("The edit was approved.")
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

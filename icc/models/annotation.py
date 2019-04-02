@@ -249,11 +249,6 @@ class AnnotationFlag(Base, FlagMixin):
 
 
 class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
-    __vote__ = AnnotationVote
-    __reputable__ = 'annotator'
-
-    __linkable__ = 'id'
-
     """And now, the moment you've been waiting for, the star of the show: the
     main Annotation data class.
 
@@ -332,6 +327,9 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     might be prior-context and posterior-context, or something of that nature,
     instead of packing the same lines into the same list. Perhaps not. TBD.
     """
+    __vote__ = AnnotationVote
+    __reputable__ = 'annotator'
+    __linkable__ = 'id'
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     weight = db.Column(db.Integer, default=0)
@@ -516,11 +514,6 @@ class EditVote(Base, VoteMixin):
                         index=True)
     entity = db.relationship('Edit', backref=backref('ballots', lazy='dynamic',
                                                      passive_deletes=True))
-    reputationchange_id = db.Column(db.Integer,
-                                    db.ForeignKey('reputationchange.id'),
-                                    default=None)
-    repchange = db.relationship('ReputationChange',
-                                backref=backref('edit_vote', uselist=False))
 
     def __repr__(self):
         prefix = super().__repr__()
@@ -528,8 +521,6 @@ class EditVote(Base, VoteMixin):
 
 
 class Edit(Base, EditMixin, VotableMixin):
-    __vote__ = EditVote
-    __reputable__ = 'editor'
     """The Edit class, which represents the current state of an
     :class:`Annotation`. An annotation object is just a HEAD, like in git. Or,
     rather, a tag? I can't remember how git's model works, but essentially, the
@@ -589,6 +580,9 @@ class Edit(Base, EditMixin, VotableMixin):
         A list of all the lines that are the target of the edit *plus* five
         lines on either side of the first and last lines of the target lines.
     """
+    __vote__ = EditVote
+    __reputable__ = 'editor'
+    __approvable__ = 'immediate_edits'
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     entity_id = db.Column(db.Integer,
                           db.ForeignKey('annotation.id', ondelete='CASCADE'),

@@ -266,6 +266,17 @@ class VoteMixin:
     def __repr__(self):
         return f"<{self.voter.displayname} {self.delta} on "
 
+    @declared_attr
+    def reputationchange_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('reputationchange.id'),
+                         default=None)
+
+    @declared_attr
+    def repchange(cls):
+        return db.relationship('ReputationChange',
+                               backref=backref(cls.__name__.lower(),
+                                               uselist=False))
+
 
 class VotableMixin:
     """An easy application to make an object votable. There already needs to be
@@ -301,7 +312,7 @@ class VotableMixin:
         db.session.add(vote)
         if (hasattr(self, 'approved') and
                 (self.weight >= current_app.config['VOTES_FOR_APPROVAL']
-                 or voter.is_authorized('immediate_edits'))):
+                 or voter.is_authorized(self.__approvable__))):
             self.approve()
 
     def downvote(self, voter):
@@ -328,7 +339,7 @@ class VotableMixin:
         db.session.add(vote)
         if (hasattr(self, 'rejected') and
                 (self.weight >= current_app.config['VOTES_FOR_REJECTION']
-                 or voter.is_authorized('immediate_edits'))):
+                 or voter.is_authorized(self.__approvable__))):
             self.reject()
 
     def rollback(self, vote):

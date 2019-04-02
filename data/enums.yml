@@ -19,6 +19,8 @@ ReputationEnum:
     - enum: Edit_approval
       display: edit approval
       default_delta: 2
+    - enum: WikiEdit_approval
+      default_delta: 2
 AdminRight:
     - enum: anonymize_users
       min_rep: null

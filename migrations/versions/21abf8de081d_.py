@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c67492128cb8
+Revision ID: 21abf8de081d
 Revises: 
-Create Date: 2019-04-02 14:21:36.450365
+Create Date: 2019-04-02 15:16:50.920613
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c67492128cb8'
+revision = '21abf8de081d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -238,6 +238,8 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('tag_request_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['tag_request_id'], ['tagrequest.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -261,6 +263,8 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('text_request_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['text_request_id'], ['textrequest.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -272,7 +276,9 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('edit_id', sa.Integer(), nullable=False),
     sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edit_id'], ['wikiedit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -429,8 +435,8 @@ def upgrade():
     sa.Column('delta', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('edit_id', sa.Integer(), nullable=True),
-    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
