@@ -42,6 +42,13 @@ def line_check(fl, ll):
     """
     # technically none of this can happen anyway because of my Edit.__init__(),
     # but I'm doing this anyway.
+    if not fl and ll:
+        fl = ll
+    elif not ll and fl:
+        ll = fl
+    elif not fl and not ll:
+        fl = 1
+        ll = 1
     fl = 1 if fl < 1 else fl
     ll = 1 if ll < 1 else ll
     if ll < fl:
@@ -61,6 +68,7 @@ def authorize(string):
 
 
 LINKABLE = re.compile(r'\[\[[a-zA-Z]*?:.*?\]\]')
+
 
 def proc_links(text):
     """Process text to turn double-bracketted icc-link expressions into actual
