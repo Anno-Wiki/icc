@@ -179,20 +179,11 @@ def upvote(annotation_id):
     if not annotation.active:
         flash("You cannot vote on deactivated annotations.")
         return redirect(redirect_url)
-    elif current_user == annotation.annotator:
-        flash("You cannot vote on your own annotations.")
-        return redirect(redirect_url)
     elif vote:
         diff = datetime.utcnow() - vote.timestamp
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
-        elif vote.is_up:
-            annotation.rollback(vote)
-            db.session.commit()
-            return redirect(redirect_url)
-        else:
-            annotation.rollback(vote)
     annotation.upvote(current_user)
     db.session.commit()
     return redirect(redirect_url)
@@ -215,12 +206,6 @@ def downvote(annotation_id):
         if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
-        elif not vote.is_up:
-            annotation.rollback(vote)
-            db.session.commit()
-            return redirect(redirect_url)
-        else:
-            annotation.rollback(vote)
     annotation.downvote(current_user)
     db.session.commit()
     return redirect(redirect_url)

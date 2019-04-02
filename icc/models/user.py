@@ -154,15 +154,21 @@ class User(UserMixin, Base):
         self.last_seen = datetime.utcnow()
 
     def repchange(self, enumstring):
-        repchange = ReputationChange(enumstring, self)
-        if not repchange:
+        """Change a user's reputation given the enumstring."""
+        enum = ReputationEnum.query.filter_by(enum=enumstring).first()
+        if not enum:
             return
+        repchange = ReputationChange(enum=enum, user=self,
+                                     delta=enum.default_delta)
         if self.reputation + repchange.delta <= 0:
             repchange.delta = -self.reputation
         self.reputation += repchange.delta
         return repchange
 
     def rollback_repchange(self, repchange):
+        """Rollback a user's reputation given a reputationchange."""
+        if not repchange:
+            return
         if self.reputation - repchange.delta < 0:
             delta = -self.reputation
         else:
@@ -341,6 +347,7 @@ class ReputationEnum(Base, EnumMixin):
         say, the amount by which the event will change the user's reputation.
     """
     default_delta = db.Column(db.Integer, nullable=False)
+    display = db.Column(db.String(128))
 
 
 class ReputationChange(Base):
@@ -372,12 +379,6 @@ class ReputationChange(Base):
     user = db.relationship('User', backref='changes')
     enum = db.relationship('ReputationEnum')
     type = association_proxy('enum', 'enum')
-
-    def __init__(self, enumstring, user):
-        enum = ReputationEnum.query.filter_by(enum=enumstring).first()
-        self.enum = enum
-        self.user = user
-        self.delta = enum.default_delta
 
     def __repr__(self):
         return (f'<rep change {self.type} on {self.user.displayname} '

@@ -16,10 +16,8 @@ class Config:
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
 
     # vote margins
-    VOTES_FOR_EDIT_APPROVAL = 2
-    VOTES_FOR_EDIT_REJECTION = -2
-    VOTES_FOR_WIKI_EDIT_APPROVAL = 2
-    VOTES_FOR_WIKI_EDIT_REJECTION = -2
+    VOTES_FOR_APPROVAL = 2
+    VOTES_FOR_REJECTION = -2
 
     # per pages
     ANNOTATIONS_PER_SEARCH_PAGE = 5

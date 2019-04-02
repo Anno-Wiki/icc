@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ca3870f74558
+Revision ID: c67492128cb8
 Revises: 
-Create Date: 2019-03-21 11:54:17.671276
+Create Date: 2019-04-02 14:21:36.450365
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ca3870f74558'
+revision = 'c67492128cb8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,6 +42,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
     sa.Column('default_delta', sa.Integer(), nullable=False),
+    sa.Column('display', sa.String(length=128), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_reputationenum_enum'), 'reputationenum', ['enum'], unique=False)

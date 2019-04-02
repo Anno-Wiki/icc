@@ -250,7 +250,6 @@ class AnnotationFlag(Base, FlagMixin):
 
 class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     __vote__ = AnnotationVote
-    __approvable__ = False
     __reputable__ = 'annotator'
 
     __linkable__ = 'id'
@@ -528,8 +527,9 @@ class EditVote(Base, VoteMixin):
         return f"{prefix}{self.edit}"
 
 
-class Edit(Base, EditMixin):
+class Edit(Base, EditMixin, VotableMixin):
     __vote__ = EditVote
+    __reputable__ = 'editor'
     """The Edit class, which represents the current state of an
     :class:`Annotation`. An annotation object is just a HEAD, like in git. Or,
     rather, a tag? I can't remember how git's model works, but essentially, the
@@ -659,57 +659,6 @@ class Edit(Base, EditMixin):
             lines[0].line = lines[0].line[self.first_char_idx:]
             lines[-1].line = lines[-1].line[:self.last_char_idx]
         return lines
-
-    def upvote(self, voter):
-        """Upvote, and possibly approve, the edit."""
-        if self.approved or self.rejected:
-            flash("That edit is no longer pending.")
-            return
-        if self.editor == voter:
-            flash("You cannot vote on your own edits.")
-            return
-        ov = voter.get_vote(self)
-        if ov:
-            if ov.is_up:
-                self.rollback(ov)
-                return
-            else:
-                self.rollback(ov)
-        vote = self.__vote__(entity=self, delta=1, voter=voter)
-        self.weight += vote.delta
-        db.session.add(vote)
-        if self.weight >= app.config['VOTES_FOR_EDIT_APPROVAL'] or\
-                voter.is_authorized('immediate_edits'):
-            self.approve()
-
-    def downvote(self, voter):
-        """Downvote, and possibly reject, the edit."""
-        if self.approved or self.rejected:
-            flash("That edit is no longer pending.")
-            return
-        if self.editor == voter:
-            flash("You cannot vote on your own edits.")
-            return
-        ov = voter.get_vote(self)
-        if ov:
-            if not ov.is_up:
-                self.rollback(ov)
-                return
-            else:
-                self.rollback(ov)
-        vote = self.__vote__(entity=self, delta=-1, voter=voter)
-        self.weight += vote.delta
-        db.session.add(vote)
-        if self.weight <= app.config['VOTES_FOR_EDIT_REJECTION'] or\
-                voter.is_authorized('immediate_edits'):
-            self.reject()
-
-    def approve(self):
-        """Approve the edit."""
-        self.approved = True
-        self.annotation.HEAD.current = False
-        self.current = True
-        flash("The edit was approved.")
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

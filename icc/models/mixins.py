@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declared_attr
 
-from flask import flash
+from flask import flash, current_app
 from flask_login import current_user
 
 from icc import db
@@ -40,45 +40,83 @@ class VotableMixin:
     class:
 
     __vote__ = <the class of the vote>
-    __approvable__ = <bool if the class has an approve/reject mechanism (i.e. on
-                      edits)>
     __reputable__ = <string corresponding to the attribute of what user to apply
                      the reputation change to, if there is one.>
     """
+
     def upvote(self, voter):
+        if hasattr(self, 'approved') and (self.approved or self.rejected):
+            flash("Voting is closed.")
+            return
+        if getattr(self, self.__reputable__) == voter:
+            flash("You cannot vote on your own submissions.")
+            return
+        ov = voter.get_vote(self)
+        if ov:
+            self.rollback(ov)
+            if ov.is_up:
+                return
         if self.__reputable__:
             repchange = getattr(self, self.__reputable__)\
                 .repchange(f'{self.__class__.__name__}_upvote')
         else:
             repchange = None
-        if self.up_power:
-            weight = self.up_power(voter)
-        else:
-            weight = 1
+        weight = self.up_power(voter) if hasattr(self, 'up_power') else 1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
                              repchange=repchange)
         self.weight += vote.delta
         db.session.add(vote)
+        if (hasattr(self, 'approved') and
+                (self.weight >= current_app.config['VOTES_FOR_APPROVAL']
+                 or voter.is_authorized('immediate_edits'))):
+            self.approve()
 
     def downvote(self, voter):
+        if hasattr(self, 'approved') and (self.approved or self.rejected):
+            flash("Voting is closed.")
+            return
+        if getattr(self, self.__reputable__) == voter:
+            flash("You cannot vote on your own submissions.")
+            return
+        ov = voter.get_vote(self)
+        if ov:
+            self.rollback(ov)
+            if ov.is_down:
+                return
         if self.__reputable__:
             repchange = getattr(self, self.__reputable__)\
                 .repchange(f'{self.__class__.__name__}_downvote')
         else:
             repchange = None
-        if self.down_power:
-            weight = self.down_power(voter)
-        else:
-            weight = -1
+        weight = self.down_power(voter) if hasattr(self, 'down_power') else -1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
                              repchange=repchange)
         self.weight += vote.delta
         db.session.add(vote)
+        if (hasattr(self, 'rejected') and
+                (self.weight >= current_app.config['VOTES_FOR_REJECTION']
+                 or voter.is_authorized('immediate_edits'))):
+            self.reject()
 
     def rollback(self, vote):
         self.weight -= vote.delta
-        vote.repchange.user.rollback_repchange(vote.repchange)
+        if vote.repchange:
+            vote.repchange.user.rollback_repchange(vote.repchange)
         db.session.delete(vote)
+
+    def approve(self):
+        """Approve the edit."""
+        getattr(self, self.__reputable__)\
+            .repchange(f'{self.__class__.__name__}_approval')
+        self.approved = True
+        self.previous.current = False
+        self.current = True
+        flash("Edit approved.")
+
+    def reject(self):
+        """Reject the edit."""
+        self.rejected = True
+        flash("Edit rejected.")
 
 
 class LinkableMixin:
@@ -341,16 +379,6 @@ class EditMixin:
 
     def __repr__(self):
         return f"<Edit {self.num} on "
-
-    def rollback(self, vote):
-        """Roll back a user's vote on the edit because he wants to change it."""
-        self.weight -= vote.delta
-        db.session.delete(vote)
-
-    def reject(self):
-        """Reject the edit."""
-        self.rejected = True
-        flash("The edit was rejected.")
 
 
 class FollowableMixin:
