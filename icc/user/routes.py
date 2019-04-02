@@ -10,7 +10,7 @@ from icc.funky import generate_next
 from icc.user import user
 
 from icc.models.annotation import Annotation, Edit
-from icc.models.user import User, UserFlag
+from icc.models.user import User, UserFlag, ReputationChange
 
 
 @user.route('/list')
@@ -106,3 +106,23 @@ def user_annotations(user_id):
                            next_page=next_page, prev_page=prev_page,
                            sorts=sorturls, sort=sort,
                            annotations=annotations.items)
+
+
+@user.route('/<user_id>/reputation')
+def reputation(user_id):
+    user = User.query.get_or_404(user_id)
+    page = request.args.get('page', 1, type=int)
+
+    changes = user.reputation_changes \
+        .order_by(ReputationChange.timestamp.desc()) \
+        .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
+
+
+    next_page = (url_for('user.reputation', user_id=user_id,
+                         page=changes.next_num) if changes.has_next else None)
+    prev_page = (url_for('user.reputation', user_id=user_id,
+                         page=changes.prev_num) if changes.has_prev else None)
+    return render_template('indexes/reputation.html',
+                           title=f"{user.displayname} - Reputation",
+                           next_page=next_page, prev_page=prev_page,
+                           changes=changes.items)
