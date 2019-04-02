@@ -22,19 +22,21 @@
 
             {% if current_user.is_authorized("lock_users") %}
                 <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">{%
-                    if user.locked %}unlock{% else %}lock{% endif %}</a>
+                    if user.locked %}unlock{% else %}lock{% endif %}</a> |
             {% endif %}
 
             {% if current_user.is_authorized("anonymize_users") %}
-                | <a href="{{ url_for("admin.anonymize_user", user_id=user.id) }}">anonymize</a>
+                <a href="{{ url_for("admin.anonymize_user", user_id=user.id)
+                    }}">anonymize</a> |
             {% endif %}
 
             {% if current_user.is_authorized("resolve_user_flags") %}
-                | <a href="{{ url_for("admin.user_flags", user_id=user.id) }}">flags</a>
+                <a href="{{ url_for("admin.user_flags", user_id=user.id)
+                    }}">flags</a> |
             {% endif %}
 
             <div class="dropdown">
-                | <a class="dropbtn">flag&#x25BE;</a>
+                <a class="dropbtn">flag&#x25BE;</a> |
                 <div class="dropdown-content">
                     {% for userflag in userflags %}
                         <a href="{{ url_for("user.flag_user",
@@ -44,13 +46,15 @@
                 </div>
             </div>
 
-            | <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
+            <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
                 {% if current_user.is_authenticated and user in
                 current_user.followed_users %}unfollow{% else %}follow{% endif
                 %}
-            </a>
-            | <a href="{{ url_for("user.user_annotations", user_id=user.id) }}">annotations</a>
-            | <a href="{{ url_for("user.reputation", user_id=user.id) }}">reputation</a>
+            </a> |
+            <a href="{{ url_for("user.user_annotations", user_id=user.id)
+                }}">annotations</a> |
+            <a href="{{ url_for("user.reputation", user_id=user.id)
+                }}">reputation</a>
         </td>
     </tr>
 </table>
