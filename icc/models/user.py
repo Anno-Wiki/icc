@@ -6,7 +6,6 @@ import inspect
 from datetime import datetime
 from time import time
 from hashlib import md5
-from math import log10
 
 from flask import abort, url_for, current_app as app
 from flask_login import UserMixin, AnonymousUserMixin
@@ -147,34 +146,29 @@ class User(UserMixin, Base):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
-    @property
-    def up_power(self):
-        """An int that represents the user's current upvote power.
-
-        This is currently set to 10log10 of the user's reputation, floored at 1.
-        """
-        if self.reputation <= 1:
-            return 1
-        else:
-            return int(10*log10(self.reputation))
-
-    @property
-    def down_power(self):
-        """An int of the user's down power. This is simply half of the user's up
-        power, but at least one.
-        """
-        power = self.up_power
-        if power / 2 <= 1:
-            return -1
-        else:
-            return -int(power)
-
     def __repr__(self):
         return f"<User {self.displayname}>"
 
     def update_last_seen(self):
         """A method that will update the user's last seen timestamp."""
         self.last_seen = datetime.utcnow()
+
+    def repchange(self, enumstring):
+        repchange = ReputationChange(enumstring, self)
+        if not repchange:
+            return
+        if self.reputation + repchange.delta <= 0:
+            repchange.delta = -self.reputation
+        self.reputation += repchange.delta
+        return repchange
+
+    def rollback_repchange(self, repchange):
+        if self.reputation - repchange.delta < 0:
+            delta = -self.reputation
+        else:
+            delta = repchange.delta
+        self.reputation -= delta
+        db.session.delete(repchange)
 
     # Password routes
     def set_password(self, password):
@@ -378,6 +372,12 @@ class ReputationChange(Base):
     user = db.relationship('User', backref='changes')
     enum = db.relationship('ReputationEnum')
     type = association_proxy('enum', 'enum')
+
+    def __init__(self, enumstring, user):
+        enum = ReputationEnum.query.filter_by(enum=enumstring).first()
+        self.enum = enum
+        self.user = user
+        self.delta = enum.default_delta
 
     def __repr__(self):
         return (f'<rep change {self.type} on {self.user.displayname} '

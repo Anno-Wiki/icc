@@ -34,6 +34,53 @@ class Base(db.Model):
         return cls.__name__.lower()
 
 
+class VotableMixin:
+    """An easy application to make an object votable. There already needs to be
+    a VoteMixin application. Also, define the following attributes on the child
+    class:
+
+    __vote__ = <the class of the vote>
+    __approvable__ = <bool if the class has an approve/reject mechanism (i.e. on
+                      edits)>
+    __reputable__ = <string corresponding to the attribute of what user to apply
+                     the reputation change to, if there is one.>
+    """
+    def upvote(self, voter):
+        if self.__reputable__:
+            repchange = getattr(self, self.__reputable__)\
+                .repchange(f'{self.__class__.__name__}_upvote')
+        else:
+            repchange = None
+        if self.up_power:
+            weight = self.up_power(voter)
+        else:
+            weight = 1
+        vote = self.__vote__(voter=voter, entity=self, delta=weight,
+                             repchange=repchange)
+        self.weight += vote.delta
+        db.session.add(vote)
+
+    def downvote(self, voter):
+        if self.__reputable__:
+            repchange = getattr(self, self.__reputable__)\
+                .repchange(f'{self.__class__.__name__}_downvote')
+        else:
+            repchange = None
+        if self.down_power:
+            weight = self.down_power(voter)
+        else:
+            weight = -1
+        vote = self.__vote__(voter=voter, entity=self, delta=weight,
+                             repchange=repchange)
+        self.weight += vote.delta
+        db.session.add(vote)
+
+    def rollback(self, vote):
+        self.weight -= vote.delta
+        vote.repchange.user.rollback_repchange(vote.repchange)
+        db.session.delete(vote)
+
+
 class LinkableMixin:
     """A mixin to be able to process double-bracket style links (e.g.,
     [[Writer:Constance Garnett]] and produce an href or the object.

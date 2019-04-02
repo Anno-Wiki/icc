@@ -10,9 +10,9 @@ UserFlagEnum:
     - enum: spammer
     - enum: hate speech
 ReputationEnum:
-    - enum: upvote
+    - enum: Annotation_upvote
       default_delta: 5
-    - enum: downvote
+    - enum: Annotation_downvote
       default_delta: -2
 AdminRight:
     - enum: anonymize_users

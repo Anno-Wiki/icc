@@ -7,6 +7,7 @@ import sys
 import inspect
 from datetime import datetime
 from hashlib import sha1
+from math import log10
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
@@ -14,8 +15,7 @@ from flask import url_for, flash, current_app as app
 
 from icc import db
 from icc.models.mixins import (Base, VoteMixin, EditMixin, FollowableMixin,
-                               FlagMixin, LinkableMixin)
-from icc.models.user import ReputationEnum, ReputationChange
+                               FlagMixin, LinkableMixin, VotableMixin)
 from icc.models.wiki import Wiki
 
 
@@ -248,18 +248,18 @@ class AnnotationFlag(Base, FlagMixin):
                                                            lazy='dynamic'))
 
 
-class Annotation(Base, FollowableMixin, LinkableMixin):
+class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     __vote__ = AnnotationVote
+    __approvable__ = False
+    __reputable__ = 'annotator'
+
     __linkable__ = 'id'
+
     """And now, the moment you've been waiting for, the star of the show: the
     main Annotation data class.
 
     Attributes
     ----------
-    annotator_id : int
-        The id of the user who wrote the initial version of this annotation.
-    edition_id : int
-        The id of the edition upon which this annotation is annotated.
     weight : int
         The weight of the annotation in upvotes/downvotes.
     timestamp : datetime
@@ -466,51 +466,25 @@ class Annotation(Base, FollowableMixin, LinkableMixin):
         db.session.add(edit)
         return True
 
-    def upvote(self, voter):
-        """Upvote the annotation. Applies a :class:`ReputationChange` object to
-        the user who wrote the annotation.
-        """
-        reptype = ReputationEnum.query.filter_by(enum='upvote').first()
-        weight = voter.up_power
-        repchange = ReputationChange(user=self.annotator, enum=reptype,
-                                     delta=reptype.default_delta)
-        vote = AnnotationVote(voter=voter, entity=self, delta=weight,
-                              repchange=repchange)
-        self.annotator.reputation += repchange.delta
-        self.weight += vote.delta
-        db.session.add(vote)
+    def up_power(self, voter):
+        """An int that represents the user's current upvote power.
 
-    def downvote(self, voter):
-        """Downvote the annotation. Applies a :class:`ReputationChange` object
-        to the user who wrote the annotation.
+        This is currently set to 10log10 of the user's reputation, floored at 1.
         """
-        reptype = ReputationEnum.query.filter_by(enum='downvote').first()
-        weight = voter.down_power
-        if self.annotator.reputation + reptype.default_delta < 0:
-            repdelta = -self.annotator.reputation
+        if voter.reputation <= 1:
+            return 1
         else:
-            repdelta = reptype.default_delta
-        repchange = ReputationChange(user=self.annotator, enum=reptype,
-                                     delta=repdelta)
-        vote = AnnotationVote(voter=voter, entity=self, delta=weight,
-                              repchange=repchange)
-        self.weight += vote.delta
-        self.annotator.reputation += repchange.delta
-        db.session.add(vote)
+            return int(10*log10(voter.reputation))
 
-    def rollback(self, vote):
-        """Roll back an upvote or downvote. Eliminates the
-        :class:`ReputationChange` object applied to the annotator by the initial
-        vote. Deletes the vote.
+    def down_power(self, voter):
+        """An int of the user's down power. This is simply half of the user's up
+        power, but at least one.
         """
-        self.weight -= vote.delta
-        if self.annotator.reputation - vote.repchange.delta < 0:
-            delta = -self.annotator.reputation
+        power = self.up_power(voter)
+        if power / 2 <= 1:
+            return -1
         else:
-            delta = vote.repchange.delta
-        self.annotator.reputation -= delta
-        db.session.delete(vote)
-        db.session.delete(vote.repchange)
+            return -int(power)
 
 
 class EditVote(Base, VoteMixin):
@@ -538,14 +512,16 @@ class EditVote(Base, VoteMixin):
     The EditVote class also possesses all of the attributes of
     :class:`VoteMixin`.
     """
-    edit_id = db.Column(
-        db.Integer, db.ForeignKey('edit.id', ondelete='CASCADE'), index=True)
+    edit_id = db.Column(db.Integer,
+                        db.ForeignKey('edit.id', ondelete='CASCADE'),
+                        index=True)
     entity = db.relationship('Edit', backref=backref('ballots', lazy='dynamic',
                                                      passive_deletes=True))
-    reputationchange_id = db.Column(
-        db.Integer, db.ForeignKey('reputationchange.id'), default=None)
-    repchange = db.relationship(
-        'ReputationChange', backref=backref('edit_vote', uselist=False))
+    reputationchange_id = db.Column(db.Integer,
+                                    db.ForeignKey('reputationchange.id'),
+                                    default=None)
+    repchange = db.relationship('ReputationChange',
+                                backref=backref('edit_vote', uselist=False))
 
     def __repr__(self):
         prefix = super().__repr__()
