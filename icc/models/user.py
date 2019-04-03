@@ -178,43 +178,16 @@ class User(UserMixin, Base):
 
     # Password routes
     def set_password(self, password):
-        """Set the password for the user.
-
-        Parameters
-        ----------
-        password : str
-            The user's password.
-        """
+        """Set the password for the user."""
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        """Check that the password provided is the user's current password.
-
-        Parameters
-        ----------
-        password : str
-            The user's password
-
-        Returns
-        -------
-        bool
-            Whether the password is correct.
-        """
+        """Check that the password provided is the user's current password."""
         return check_password_hash(self.password_hash, password)
 
     def get_reset_password_token(self, expires_in=600):
         """Generate a reset_password token for the user's emailed link to reset
         the password.
-
-        Parameters
-        ----------
-        expires_in : int
-            The number of seconds until the token expires. Defaults to 600
-
-        Returns
-        ------
-        jwt-token
-            The token for the reset-link.
         """
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
@@ -222,17 +195,7 @@ class User(UserMixin, Base):
 
     @staticmethod
     def verify_reset_password_token(token):
-        """A static method to verify a reset password token's validity.
-
-        Parameters
-        ----------
-        token : jwt-token
-            The token to be checked.
-
-        Returns
-        :class:`User`
-            The user. If the token is valid.
-        """
+        """A static method to verify a reset password token's validity."""
         try:
             id = jwt.decode(token, app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
@@ -242,20 +205,23 @@ class User(UserMixin, Base):
 
     # admin authorization methods
     def is_authorized(self, right):
-        """Check if a user is authorized with a particular right.
-        """
+        """Check if a user is authorized with a particular right."""
         r = AdminRight.query.filter_by(enum=right).first()
         if not r:
             raise TypeError(f"The right \"{right}\" does not exist.")
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def is_auth_all(self, rights):
+        """This is like is_authorized but takes a list and only returns true if
+        the user is authorized for all the rights in the list.
+        """
         for right in rights:
             if not self.is_authorized(right):
                 return False
         return True
 
     def is_auth_any(self, rights):
+        """Tests if user is authorized for *any* of the rights in the list."""
         for right in rights:
             if self.is_authorized(right):
                 return True
@@ -263,11 +229,6 @@ class User(UserMixin, Base):
 
     def authorize(self, right):
         """Authorize a user with a right.
-
-        Parameters
-        ----------
-        right : str
-            A string corresponding to the right enum being authorized.
 
         Notes
         -----
@@ -281,28 +242,11 @@ class User(UserMixin, Base):
             abort(403)
 
     def get_vote(self, obj):
-        """Get the vote on the object. If the object does not have a
-        __vote__ attribute, it's not going to work and a TypeError will be
-        raised.
+        """Get the vote on the object. If the object does not have a __vote__
+        attribute, it's not going to work and a TypeError will be raised.
 
         This method works for every votable class and can be tested as a Falsey
         for whether or whether not the user has voted on the object.
-
-        Parameters
-        ----------
-        obj : any votable object
-            The object we're looking for the vote on.
-
-        Returns
-        -------
-        <class>Vote
-            The vote on the object.
-
-        Raises
-        ------
-        TypeError
-            If the object doesn't have a valid __vote__ attribute corresponding
-            to the object's vote class.
         """
         if not obj.__vote__:
             raise TypeError("The requested object is missing an `__vote__` "
@@ -386,6 +330,7 @@ class ReputationChange(Base):
 
 
 class UserFlag(Base, FlagMixin):
+    """A flag event on a user."""
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     entity = db.relationship('User', foreign_keys=[user_id],
                              backref=backref('flags', lazy='dynamic'))
