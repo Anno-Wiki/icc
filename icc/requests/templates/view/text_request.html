@@ -13,10 +13,14 @@
 
 <a href="{{ url_for("requests.upvote_text_request", request_id=text_request.id,
     next=request.full_path) }}" class="{% if vote and vote.is_up %}voted{% else
-    %}notevoted{% endif %}">up</a>
+    %}notvoted{% endif %}">{% if
+    current_user.is_authorized('approve_text_requests') %}approve{% else
+    %}down{% endif %}</a>
 / <a href="{{ url_for("requests.downvote_text_request", request_id=text_request.id,
     next=request.full_path) }}" class="{% if vote and not vote.is_up %}voted{%
-    else %}notvoted{% endif %}">down</a>
+    else %}notvoted{% endif %}">{% if
+    current_user.is_authorized('approve_text_requests') %}reject{% else %}down{%
+    endif %}</a>
 
 | <a href="{{ url_for("user.follow_text_request", request_id=text_request.id,
     next=request.full_path) }}">{% if current_user.is_authenticated and request

@@ -324,6 +324,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     __vote__ = AnnotationVote
     __reputable__ = 'annotator'
     __linkable__ = 'id'
+
     annotator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     weight = db.Column(db.Integer, default=0)
@@ -570,6 +571,9 @@ class Edit(Base, EditMixin, VotableMixin):
     __vote__ = EditVote
     __reputable__ = 'editor'
     __approvable__ = 'immediate_edits'
+    __margin_approvable__ = 'VOTES_FOR_APPROVAL'
+    __margin_rejectable__ = 'VOTES_FOR_REJECTION'
+
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     entity_id = db.Column(db.Integer,
                           db.ForeignKey('annotation.id', ondelete='CASCADE'),

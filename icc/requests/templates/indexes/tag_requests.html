@@ -27,15 +27,22 @@
             <div class="weight">
                 {% set entity = tag_request %}
                 {% include "includes/_weight.html" %}
+                |
                 {% set vote = current_user.get_vote(tag_request) %}
                 <a href="{{ url_for("requests.upvote_tag_request",
                     request_id=tag_request.id, next=request.full_path) }}"
                     class="{% if vote and vote.is_up %}voted{% else %}notvoted{%
-                    endif %}">up</a>
+                    endif %}">
+                    {% if current_user.is_authorized('approve_tag_requests')
+                    %}approve{% else %}up{% endif %}
+                </a>
                 / <a href="{{ url_for("requests.downvote_tag_request",
                     request_id=tag_request.id, next=request.full_path) }}"
                     class="{% if vote and not vote.is_up %}voted{% else
-                    %}notvoted{% endif %}">down</a>
+                    %}notvoted{% endif %}">
+                    {% if current_user.is_authorized('approve_tag_requests')
+                    %}reject{% else %}down{% endif %}
+                </a>
             </div>
 
             <a href="{{ url_for("user.follow_tag_request",

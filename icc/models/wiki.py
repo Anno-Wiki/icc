@@ -83,6 +83,8 @@ class WikiEdit(Base, EditMixin, VotableMixin):
     __vote__ = WikiEditVote
     __reputable__ = 'editor'
     __approvable__ = 'immediate_wiki_edits'
+    __margin_approvable__ = 'VOTES_FOR_APPROVAL'
+    __margin_rejectable__ = 'VOTES_FOR_REJECTION'
 
     entity_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     wiki = db.relationship('Wiki', backref=backref('versions', lazy='dynamic'))

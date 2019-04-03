@@ -26,6 +26,9 @@ class TextRequestVote(Base, VoteMixin):
 class TextRequest(Base, FollowableMixin, VotableMixin):
     __vote__ = TextRequestVote
     __reputable__ = 'requester'
+    __approvable__ = 'approve_text_requests'
+    __margin_approvable__ = 'VOTES_FOR_REQUEST_APPROVAL'
+    __margin_rejectable__ = 'VOTES_FOR_REQUEST_REJECTION'
 
     title = db.Column(db.String(127), index=True)
     authors = db.Column(db.String(127), index=True)
@@ -80,6 +83,9 @@ class TagRequestVote(Base, VoteMixin):
 class TagRequest(Base, FollowableMixin, VotableMixin):
     __vote__ = TagRequestVote
     __reputable__ = 'requester'
+    __approvable__ = 'approve_tag_requests'
+    __margin_approvable__ = 'VOTES_FOR_REQUEST_APPROVAL'
+    __margin_rejectable__ = 'VOTES_FOR_REQUEST_REJECTION'
 
     tag = db.Column(db.String(127), index=True)
 

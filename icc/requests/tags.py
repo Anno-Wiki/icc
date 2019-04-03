@@ -62,11 +62,9 @@ def request_tag():
                                  description=form.description.data, weight=0,
                                  requester=current_user)
         db.session.add(tag_request)
-        tag_request.upvote(current_user)
         current_user.followed_tagrequests.append(tag_request)
         db.session.commit()
         flash("Tag request created.")
-        flash(f"You have upvoted the request for {tag_request.tag}")
         flash(f"You are now follow the request for {tag_request.tag}")
         return redirect(url_for('requests.tag_request_index'))
     return render_template('forms/tag_request.html', title="Request Tag",

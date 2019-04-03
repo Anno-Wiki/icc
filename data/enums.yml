@@ -26,6 +26,10 @@ AdminRight:
       min_rep: null
     - enum: approve_edits
       min_rep: null
+    - enum: approve_text_requests
+      min_rep: null
+    - enum: approve_tag_requests
+      min_rep: null
     - enum: create_tags
       min_rep: null
     - enum: deactivate_annotations

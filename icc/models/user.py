@@ -208,7 +208,7 @@ class User(UserMixin, Base):
         """Check if a user is authorized with a particular right."""
         r = AdminRight.query.filter_by(enum=right).first()
         if not r:
-            raise TypeError(f"The right \"{right}\" does not exist.")
+            return False
         return r in self.rights or (r.min_rep and self.reputation >= r.min_rep)
 
     def is_auth_all(self, rights):

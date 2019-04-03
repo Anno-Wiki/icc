@@ -308,7 +308,7 @@ class VotableMixin:
         self.weight += vote.delta
         db.session.add(vote)
         if (hasattr(self, '__approvable__') and
-                (self.weight >= current_app.config['VOTES_FOR_APPROVAL']
+                (self.weight >= current_app.config[self.__margin_approvable__]
                  or voter.is_authorized(self.__approvable__))):
             self.approve()
 
@@ -332,7 +332,7 @@ class VotableMixin:
         self.weight += vote.delta
         db.session.add(vote)
         if (hasattr(self, 'rejected') and
-                (self.weight >= current_app.config['VOTES_FOR_REJECTION']
+                (self.weight <= current_app.config[self.__margin_rejectable__]
                  or voter.is_authorized(self.__approvable__))):
             self.reject()
 
