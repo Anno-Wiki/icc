@@ -40,3 +40,8 @@ app.db
 icc.log*
 
 mysqlpw.py
+
+# sass
+**/.sass-cache
+**/.sass-cache/*
+*.map
