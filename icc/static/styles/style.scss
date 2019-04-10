@@ -1,0 +1,150 @@
+$sans: "Helvetica", "Arial", sans-serif;
+$serifs: "EB Garamond", "Cormorant Garmond", "Georgia", serif;
+$display: "Playfair Display", "Georgia", serif;
+
+// Solarized Colorscheme
+$base03:    #002b36;
+$base02:    #073642;
+$base01:    #586e75; // optional emphasized content
+$base00:    #657b83; // body text / default code / primary content
+$base0:     #839496;
+$base1:     #93a1a1; // comments / secondary content
+$base2:     #eee8d5; // background highlights
+$base3:     #fdf6e3; // background
+$yellow:    #b58900;
+$orange:    #cb4b16;
+$red:       #dc322f;
+$magenta:   #d33682;
+$violet:    #6c71c4;
+$blue:      #268bd2;
+$cyan:      #2aa198;
+$green:     #859900;
+
+$accent:    $yellow;
+$base20:    #e7e1ce; // background highlights 2
+$base21:    #e1dbc8; // background highlights 3
+
+body {
+    margin: 0 auto;
+    max-width: 75em;
+    line-height: 1.5;
+    padding: 1em 1em 1em 1em;
+    color: $base00;
+    font: {
+        family: $serifs;
+        size: 1.15em;
+    }
+}
+
+h1, h2, h3 {
+    margin-top: 1em;
+    padding-top: 1em;
+    font-family: $display;
+    color: $base01;
+}
+
+strong {
+    color: $base01;
+}
+
+a {
+    color: $accent;
+}
+
+nav {
+    padding: 0 0.5em 0 0.5em;
+    background-color: $base2;
+    text-align: center;
+    font-family: $display;
+
+    /* The divs within the nav bar should display inline greater than 1020px,
+     * then drop to block in a 3 tiered display, then go back to inline when we
+     * switch to using a hamburger */
+    .left, .center, .right {
+        display: inline-block;
+        @media only screen and (max-width: 1020px) { display: block; }
+        @media only screen and (max-width: 435px) { display: inline-block; }
+    }
+    .search {
+        display: inline-block;
+        input {
+            width: 25em;
+            font: {
+                family: $display;
+                size: 1em;
+            }
+            @media only screen and (max-width: 1235px) { width: 20em; }
+            @media only screen and (max-width: 1110px) { width: 15em; }
+            @media only screen and (max-width: 1020px) { width: 25em; }
+            @media only screen and (max-width: 550px) { width: 20em; }
+            @media only screen and (max-width: 455px) { width: 15em; }
+        }
+    }
+    &.web {
+        @media only screen and (max-width: 435px) { display: none }
+
+        & * { padding: 0 0.25em 0 0.25em; }
+
+        .active {
+            background-color: $base21;
+            border-bottom: 1px solid $accent;
+        }
+        a {
+            text-decoration: none;
+            &:hover { border-bottom: 1px solid $accent; }
+        }
+        & img {
+            width: 1.5em;
+            height: 1em;
+            margin: 0;
+            padding: 0;
+        }
+    }
+    &.mobile {
+        @media only screen and (min-width: 435px) { display: none }
+    }
+}
+
+#container {
+    background-color: $base3;
+    padding: 1em;
+}
+
+#footer {
+    padding: 1em;
+    background-color: $base2;
+}
+
+
+/****************************
+* Style The Dropdown Button *
+*****************************/
+
+.dropbtn {
+    border: none;
+    cursor: pointer;
+    font-family: $serifs;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    font-family: $display;
+
+    &-content {
+        display: none;
+        position: absolute;
+        background-color: $base2;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        a {
+            color: $accent;
+            text-decoration: none;
+            display: block;
+            &:hover { background-color: $base20; }
+        }
+    }
+
+    &:hover &-content { display: block; }
+    &:hover .dropbtn { background-color: $base20; }
+}

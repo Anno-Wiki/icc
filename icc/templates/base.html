@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <meta charset="utf-8" />
@@ -12,36 +12,37 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,400i,700,700i">
+        <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond" rel="stylesheet">
     </head>
 
     <body>
-        <div class="header">
-            <div class="logo{% if active_page == 'index' %} active{% endif %}">
-                <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/n2.png')}}"></a>
-                <a href="{{ url_for('main.index') }}">anno.wiki</a>
-            </div>
+        <nav class="web">
+            <div class="left">
+                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/n.png') }}">
+                    anno.wiki
+                </a>
 
-            {% set navigation_bar = [
-                (url_for('main.writer_index'), 'writers', 'Writers'),
-                (url_for('main.text_index'), 'texts', 'Texts'),
-                (url_for('main.tag_index'), 'tags', 'Tags'),
-                (url_for('user.index'), 'users', 'Users')]
-            %}
-            <nav>
+                {% set navigation_bar = [
+                    (url_for('main.writer_index'), 'writers', 'Writers'),
+                    (url_for('main.text_index'), 'texts', 'Texts'),
+                    (url_for('main.tag_index'), 'tags', 'Tags'),
+                    (url_for('user.index'), 'users', 'Users')]
+                %}
                 {% for href, id, caption in navigation_bar %}
                     <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
                 {% endfor %}
+            </div>
 
-            {% if g.search_form %}
-                <form method="get" action="{{ url_for('main.search') }}" class="search">
-                    {{ g.search_form.q(size=20, placeholder=g.search_form.q.label.text) }}
-                </form>
-            {% endif %}
+            <div class="center">
+                {% if g.search_form %}
+                    <form method="get" action="{{ url_for('main.search') }}" class="search">
+                        {{ g.search_form.q(placeholder="Search lines...") }}
+                    </form>
+                {% endif %}
+            </div>
 
-            </nav>
-
-            <div class="user_info">
-
+            <div class="right">
                 {% set adminrights = [
                     'view_deactivated_annotations',
                     'review_edits',
@@ -55,8 +56,6 @@
                     ('user flags', url_for('admin.all_user_flags')),
                     ('annotation flags', url_for('admin.all_annotation_flags')),
                     ]%}
-
-
 
                 {%- if current_user.is_anonymous -%}
                     <a href="{{ url_for('main.register') }}">register</a>
@@ -76,13 +75,30 @@
                         </div>
                     {% endif %}
 
-                    <a href="{{ url_for('user.profile', user_id=current_user.id)
-                        }}">{{ current_user.displayname }}</a>
-                    {{ current_user.readable_reputation }}
-                    | <a href="{{ url_for('main.logout') }}">logout</a>
+                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
+                    <a href="{{ url_for('main.logout') }}">logout</a>
                 {%- endif %}
             </div>
-        </div>
+        </nav>
+        <nav class="mobile">
+            <div class="dropdown">
+                <a class="dropbtn"><img src="{{ url_for('static', filename='images/hamburger.png') }}"></a>
+                <div class="dropdown-content">
+                    {% for right, link in zip(adminrights, adminlinks) %}
+                        {% if current_user.is_authorized(right) %}
+                            <a href="{{ link[1] }}">{{ link[0] }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="center">
+                {% if g.search_form %}
+                    <form method="get" action="{{ url_for('main.search') }}" class="search">
+                        {{ g.search_form.q(placeholder="Search lines...") }}
+                    </form>
+                {% endif %}
+            </div>
+        </nav>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}

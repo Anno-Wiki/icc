@@ -1,677 +1,118 @@
-:root {
-    --base03:       #445e69; /* links not visited */
-    --base02:       #073642; /* flash background */
-    --base01:       #586e75; /* optional emphasized content, flash text */
-    --base011:      #405060; /* tag text color */
-    --base00:       #657b83; /* body text/primary content */
-    --base0:        #839496; /* annotation head links, weight nil */
-    --base1:        #93a1a1; /* comments/secondary content (linenums) */
-    --base2:        #eee8d5; /* background highlights */
-    --base21:       #d0d0c0; /* navbar header background color */
-    --base22:       #ccc6b3; /* tag */
-    --base23:       #bbb5a2; /* tag background fade */
-    --base3:        #fdf6e3; /* background */
-    --black:        #000000; /* header links visited and not */
-    --blue:         #268bd2;
-    --cyan:         #2aa198;
-    --green:        #859900; /* voted and positive weight */
-    --magenta:      #d33682;
-    --orange:       #cb4b16;
-    --red:          #dc322f;
-    --violet:       #6c71c4;
-    --yellow:       #b58900;
-}
-
-.active {
-    padding: 5px;
-    background-color: var(--base23);
-}
-
-/******************************************************************************/
-
-#discussion {
-}
-.comment {
-    border: 2px solid var(--base1);
-    padding: 10px;
-    margin: 15px 0 0 0;
-}
-.reply {
-    padding: 5px;
-    border-left: 1px solid black;
-    margin: 20px 0 5px 15px;
-}
-
-/* general body styles */
 body {
-    font-family: "EB Garamond", serif;
-    font-size: 18px;
-    margin: 5px 50px 0 50px;
-}
-body a {
-    text-decoration: none;
-    color: var(--base03);
-}
-/*body a:visited {
-    color: var(--base1);
-}*/
-body h1, h2, h3, h4, h5, h6 {
-    font-family: "Playfair Display", serif;
-}
-table h1, h2 {
-    margin: 0;
-}
-body li {
-    font-size: 20px;
-    margin: 10px 0 0 0;
-}
+  margin: 0 auto;
+  max-width: 75em;
+  line-height: 1.5;
+  padding: 1em 1em 1em 1em;
+  color: #657b83;
+  font-family: "EB Garamond", "Cormorant Garmond", "Georgia", serif;
+  font-size: 1.15em; }
 
-/******************************************************************************/
+h1, h2, h3 {
+  margin-top: 1em;
+  padding-top: 1em;
+  font-family: "Playfair Display", "Georgia", serif;
+  color: #586e75; }
 
-/* styles associated with the nav bar header */
+strong {
+  color: #586e75; }
 
-/* full header */
-.header {
-    background-color: var(--base21);
-    padding: 5px 0 5px 0;
-}
-.header a, .header a:visited{
-    color: var(--black);
-}
+a {
+  color: #b58900; }
 
-/* logo block in nav bar */
-.logo {
-    display: inline;
-    margin: 0 0 0 10px;
-    font-size: 26px;
-    font-family: "Playfair Display", serif;
-    font-weight: bold;
-}
-.logo img {
-    height: 15px;
-    padding: 5px 0 0 0;
-    vertical-align: top;
-}
-
-/* nav bar */
 nav {
-    display: inline;
-    margin: 0 0 0 20px;
-    font-family: "Playfair Display", serif;
-    font-size: 20px;
-}
-nav a {
-    margin: 10px;
-}
-nav a:hover {
-    border-bottom: 1px solid var(--base1);
-}
-
-/* user info links at right of header*/
-.user_info {
-    float: right;
-    vertical-align: middle;
-    margin: 5px 5px 0 0;
-}
-.user_info a:hover {
-    border-bottom: 1px solid var(--base1);
-}
-
-/******************************************************************************/
-
-/* general content styles */
-
-/* content */
-#container {
-    background-color: var(--base3);
-    margin: 0px;
-    padding: 30px 50px 50px 50px;
-}
-
-/* flashed messages */
-.flash {
-    margin: 0px;
-    padding: 10px;
-    background-color: var(--base3);
-}
-.flash li {
-    list-style-type: none;
-
-    width: 600px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: var(--base02);
-
-    color: var(--base01);
-    text-align: center;
-    font-family: "Playfair Display", serif;
-    font-size: 30px;
-}
-
-/******************************************************************************/
-
-/* annotation styles */
-annotation {
-    width: 800px;
-    display: block;
-    margin: 10px 0 30px 0;
-    padding: 10px;
-    background-color: var(--base2);
-
-    color: var(--base01);
-    font-family: Playfair Display, serif;
-    font-size: 16px;
-}
-annotation sup {
-    font-size: 15px;
-}
-
-/* annotation header (the dark bar) */
-.annotation_head {
-    background-color: var(--base02);
-    padding: 10px;
-    border-radius: 5px;
-}
-.annotation_head a {
-    color: var(--base0);
-}
-.annotation_head a:visited {
-    color: var(--base0);
-}
-weight {
-    margin: 0 0 0 10px;
-    font-size: 20px;
-    font-weight: bold;
-}
-weight.up {
-    color: var(--green);
-}
-weight.nil {
-    color: var(--base0);
-}
-weight.down {
-    color: var(--red);
-}
-
-/* the actual content of the annotation */
-.annotation_content {
-    margin: 10px 0 10px 5px;
-    padding: 10px;
-}
-
-/* up/down vote links */
-a.notvoted, a:visited.notvoted {
-    color: var(--base03);
-}
-a.voted, a:visited.voted{
-    color: var(--green);
-}
-
-/* selection */
-.selection {
-    margin: 0 0 40px 5px;
-}
-
-/******************************************************************************/
-
-/* tags */
-
-tags {
-    display: block;
-}
-tag {
-    display: inline-block;
-    margin: 10px 15px 5px 5px;
-    padding: 3px 10px 3px 10px;
-    background-color: var(--base22);
-    color: var(--base011);
-    font-family: "Playfair Display", serif;
-    border-radius: 3px;
-    transition: all .15s ease-in;
-    cursor: pointer;
-}
-tag a {
-}
-tag:hover {
-    background-color: var(--base23);
-    color: var(--base011);
-}
-
-/******************************************************************************/
-
-/* Book page stuff */
-
-/* summary */
-#summary {
-    /* to be designed later */
-}
-/* table of contents */
-.table_of_contents {
-    width: 600px;
-    font-size: 30px;
-}
-.table_of_contents tr {
-    margin: 40px 0 0 0;
-}
-.lvl1_contents {
-    font-size: 20px;
-}
-.lvl2_contents {
-    text-indent: 6px;
-    font-size: 18px;
-}
-.lvl3_contents {
-    text-indent: 10px;
-    font-size: 16px;
-}
-.lvl4_contents {
-    text-indent: 14px;
-    font-size: 12px;
-}
-
-/******************************************************************************/
-
-/* the header section to a read page */
-
-/* running head */
-.running_head {
-    margin: 0 0 20px 0;
-    font-size: 30px;
-    font-family: 'Playfair Display', serif;
-}
-
-.running_head h5 {
-    margin: 0 0 0 20px;
-}
-
-.tag_limit {
-    margin: 20px 0 20px 0;
-}
-
-hr {
-    max-width: 50%;
-    margin: 30px 0 20px 0;
-}
-
-/******************************************************************************/
-
-/* the actual page */
-
-#content {
-    width: 700px;
-}
-hr.book_separator {
-    border: 0;
-    height: 70px;
-}
-line {
-    font-size: 18px;
-    font-family: 'EB Garamond', serif;
-    color: var(--base00);
-    display: block;
-    width: 100%;
-}
-line:hover {
-    background-color: var(--base2);
-}
-line p {
-    display: inline;
-}
-
-
-/* turn off the hover highlight on the actual       *
- * annotation page for the selection and make       *
- * the highlight of the actual selection constant.  */
-
-.selection line:hover {
-    background-color: var(--base3);
-}
-.highlight {
-    background-color: var(--base2);
-}
-.highlight line:hover {
-    background-color: var(--base2);
-}
-
-
-/* main tags */
-.fl {
-    margin: 20px 0 0 0;
-}
-.sl {
-    margin: 20px 0 20px 0;
-}
-.ll {
-    margin: 0 0 20px 0;
-}
-.ch, .pt, .bk, .stg {
-    font-family: "Playfair Display", serif;
-    color: var(--base01);
-}
-.ch {
-    font-size: 26px;
-}
-.pt {
-    font-size: 30px;
-}
-.bk {
-    font-size: 34px;
-}
-.stg {
-    font-size: 12px;
-}
-#content sup {
-    font-size: 12px;
-}
-.linenum {
-    margin: 0 0 0 -5em;
-    width: 4em;
-    line-height: 2;
-    float: left;
-    text-align: right;
-    font-family: "Playfair Display", serif;
-    font-size: 0.7em;
-    font-weight: 600;
-    color: var(--base1);
-    -webkit-touch-callout: none;    /* iOS Safari */
-    -webkit-user-select: none;      /* Safari */
-    -khtml-user-select: none;       /* Konqueror HTML */
-    -moz-user-select: none;         /* Firefox */
-    -ms-user-select: none;          /* Internet Explorer/Edge */
-    user-select: none;              /* Non-prefixed version, currently
-                                        supported by Chrome and Opera */
-}
-.hidden_linenum {
-    display: none;
-    margin: 0 0 0 -5em;
-    width: 4em;
-    line-height: 2;
-    float: left;
-    text-align: right;
-    font-family: "Playfair Display", serif;
-    font-size: 0.7em;
-    font-weight: 600;
-    color: var(--base1);
-    -webkit-touch-callout: none;    /* iOS Safari */
-    -webkit-user-select: none;      /* Safari */
-    -khtml-user-select: none;       /* Konqueror HTML */
-    -moz-user-select: none;         /* Firefox */
-    -ms-user-select: none;          /* Internet Explorer/Edge */
-    user-select: none;              /* Non-prefixed version, currently
-                                        supported by Chrome and Opera */
-}
-line:hover .hidden_linenum, line:hover .edit_line {
-    display: unset;
-}
-
-.body_annotation {
-    line-height 2;
-    float: right;
-    font-family: "Playfair Display", serif;
-    font-size: 16px;
-    -webkit-touch-callout: none;    /* iOS Safari */
-    -webkit-user-select: none;      /* Safari */
-    -khtml-user-select: none;       /* Konqueror HTML */
-    -moz-user-select: none;         /* Firefox */
-    -ms-user-select: none;          /* Internet Explorer/Edge */
-    user-select: none;              /* Non-prefixed version, currently
-                                        supported by Chrome and Opera */
-}
-
-.edit_line {
-    display: none;
-    line-height 2;
-    float: right;
-    font-family: "Playfair Display", serif;
-    font-size: 16px;
-    -webkit-touch-callout: none;    /* iOS Safari */
-    -webkit-user-select: none;      /* Safari */
-    -khtml-user-select: none;       /* Konqueror HTML */
-    -moz-user-select: none;         /* Firefox */
-    -ms-user-select: none;          /* Internet Explorer/Edge */
-    user-select: none;              /* Non-prefixed version, currently
-                                        supported by Chrome and Opera */
-}
-
-
-/******************************************************************************/
-
-/* input, buttons, etc.*/
-input {
-    font-family: "EB Garamond", serif;
-    font-size: 18px;
-}
-textarea {
-    font-family: "EB Garamond", serif;
-    font-size: 18px;
-}
-
-/******************************************************************************/
-
-/* Indexes */
-.index {
-    display: flex;
-    flex-wrap: wrap;
-}
-.card {
-    display: inline-block;
-    width: 250px;
-    height: 175px;
-    margin: 15px;
-    padding: 10px;
-}
-.card .life_years {
-    margin-left: 30px;
-    margin: -3px 0 5px 5px;
-    font-family: Playfair Display, serif;
-    color: var(--base01); 
-    font-weight: normal;
-    font-size: 20px;
-}
-.card .count {
-    margin: 0 0 0 3px;
-}
-.card p {
-    font-size: 16px;
-    margin: 5px;
-    color: var(--base00);
-    display: inline-block;
-}
-.card .card_text_cutoff p:after {
-    content: "...";
-}
-.card h1, .card h2, .card h3, .card h4, .card h5 {
-    color: var(--base00);
+  padding: 0 0.5em 0 0.5em;
+  background-color: #eee8d5;
+  text-align: center;
+  font-family: "Playfair Display", "Georgia", serif;
+  /* The divs within the nav bar should display inline greater than 1020px,
+   * then drop to block in a 3 tiered display, then go back to inline when we
+   * switch to using a hamburger */ }
+  nav .left, nav .center, nav .right {
+    display: inline-block; }
+    @media only screen and (max-width: 1020px) {
+      nav .left, nav .center, nav .right {
+        display: block; } }
+    @media only screen and (max-width: 435px) {
+      nav .left, nav .center, nav .right {
+        display: inline-block; } }
+  nav .search {
+    display: inline-block; }
+    nav .search input {
+      width: 25em;
+      font-family: "Playfair Display", "Georgia", serif;
+      font-size: 1em; }
+      @media only screen and (max-width: 1235px) {
+        nav .search input {
+          width: 20em; } }
+      @media only screen and (max-width: 1110px) {
+        nav .search input {
+          width: 15em; } }
+      @media only screen and (max-width: 1020px) {
+        nav .search input {
+          width: 25em; } }
+      @media only screen and (max-width: 550px) {
+        nav .search input {
+          width: 20em; } }
+      @media only screen and (max-width: 455px) {
+        nav .search input {
+          width: 15em; } }
+  @media only screen and (max-width: 435px) {
+    nav.web {
+      display: none; } }
+  nav.web * {
+    padding: 0 0.25em 0 0.25em; }
+  nav.web .active {
+    background-color: #e1dbc8;
+    border-bottom: 1px solid #b58900; }
+  nav.web a {
+    text-decoration: none; }
+    nav.web a:hover {
+      border-bottom: 1px solid #b58900; }
+  nav.web img {
+    width: 1.5em;
+    height: 1em;
     margin: 0;
-}
-.card h1 {
-    font-size: 20px;
-}
-.card h2 {
-    font-size: 18px;
-    margin: 0 0 0 2px;
-}
-.card h3 {
-    font-size: 16px;
-    margin: 0 0 0 4px;
-}
-.card .externals {
-    font-size: 12px;
-}
-.card .weight {
-    font-size: 20px;
-}
+    padding: 0; }
+  @media only screen and (min-width: 435px) {
+    nav.mobile {
+      display: none; } }
 
-.tag_card {
-    display: inline-block;
-    width: 250px;
-    height: 200px;
-    margin: 10px;
-}
-.tag_card p {
-    font-size: 16px;
-    color: var(--base00);
-    margin: 5px;
-    display: inline-block;
-}
-.tag_card .card_text_cutoff p:after {
-    content: "...";
-}
-.tag_card tag {
-    margin-left: 0px;
-}
-.tag_card h2 {
-    margin: 0 0 3px 0;
-    font-size: 20px;
-    color: var(--base00);
-}
-.tag_card .externals {
-    font-size: 12px;
-}
-.tag_card .weight {
-    font-size: 20px;
-}
+#container {
+  background-color: #fdf6e3;
+  padding: 1em; }
 
-/******************************************************************************/
+#footer {
+  padding: 1em;
+  background-color: #eee8d5; }
 
-/* Style The Dropdown Button */
+/****************************
+* Style The Dropdown Button *
+*****************************/
 .dropbtn {
-    border: none;
-    cursor: pointer;
-}
+  border: none;
+  cursor: pointer;
+  font-family: "EB Garamond", "Cormorant Garmond", "Georgia", serif; }
 
-/* The container <div> - needed to position the dropdown content */
 .dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  font-family: "Playfair Display", "Georgia", serif; }
+  .dropdown-content {
     display: none;
     position: absolute;
-    min-width: 140px;
-    background-color: var(--base22);
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
+    background-color: #eee8d5;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1; }
+    .dropdown-content a {
+      color: #b58900;
+      text-decoration: none;
+      display: block; }
+      .dropdown-content a:hover {
+        background-color: #e7e1ce; }
+  .dropdown:hover .dropdown-content {
+    display: block; }
+  .dropdown:hover .dropbtn {
+    background-color: #e7e1ce; }
 
-/* Links inside the dropdown */
-.dropdown-content a {
-    color: black;
-    text-decoration: none;
-    display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {
-    background-color: var(--base23);
-}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-    background-color: var(--base22);
-}
-
-/* Inbox table */
-.inbox {
-    width: 100%;
-}
-.inbox a {
-    text-decoration: none;
-}
-.inbox .header {
-    font-family: "Playfair Display", serif;
-}
-.inbox .unread a {
-    color: var(--red);
-    font-weight: bold;
-}
-.inbox .read a {
-    color: var(--base0);
-}
-.read:hover, .unread:hover {
-    background-color: var(--base2);
-}
-.new_messages {
-    color: var(--red)!important;
-    font-weight: bold;
-}
-#master_div {
-    border: 1px solid black;
-    background: white;
-    width: 100%;
-}
-#master_div input {
-    border: 0;
-}
-#tag_spans, #input {
-    display: inline;
-}
-#tag_spans tag {
-    cursor: pointer;
-    margin: 3px;
-}
-#footer {
-    background-color: var(--base21);
-    padding: 5px 0 5px 0;
-}
-
-.delta {
-    background-color: var(--red);
-}
-.plus {
-    background-color: var(--green);
-}
-.diff {
-    color: var(--black);
-}
-.diff line.delta::before {
-    content: "- ";
-}
-.diff line.plus::before {
-    content: "+ ";
-}
-.diff line.delta {
-    color: var(--black);
-}
-.diff line.plus {
-    color: var(--black);
-}
-
-.diff .delta p::before {
-    content: "- ";
-}
-.diff .plus p::before {
-        content: "+ ";
-}
-tag.plus {
-    background-color: var(--green);
-}
-tag.delta {
-    background-color: var(--red);
-}
-.rejected {
-    color: var(--red);
-}
-.aboutme {
-    margin: 5px;
-}
-.silent_aboutme {
-    margin: 5px;
-}
-#autocomplete {
-    background-color: white;
-    z-index: 1;
-    position: absolute;
-    width: 600px;
-}
-
-.search {
-    display: inline;
-}
+/*# sourceMappingURL=style.css.map */

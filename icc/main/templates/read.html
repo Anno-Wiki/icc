@@ -41,7 +41,7 @@
 <div id="content">
     {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
     {%- for line in lines %}
-        <line class="{{ line.primary.enum }}" id="{{ line.num }}">
+        <div class="{{ line.primary.enum }}" id="{{ line.num }}">
             {% if line.num % 5 == 0 %}
                 {# Line number #}
                 <span class="linenum">{{ line.num }}</span>
