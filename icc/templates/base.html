@@ -80,17 +80,29 @@
                 {%- endif %}
             </div>
         </nav>
+
         <nav class="mobile">
+            <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                <img src="{{ url_for('static', filename='images/n.png') }}">
+            </a>
+
             <div class="dropdown">
                 <a class="dropbtn"><img src="{{ url_for('static', filename='images/hamburger.png') }}"></a>
                 <div class="dropdown-content">
-                    {% for right, link in zip(adminrights, adminlinks) %}
-                        {% if current_user.is_authorized(right) %}
-                            <a href="{{ link[1] }}">{{ link[0] }}</a>
-                        {% endif %}
+                    {% for href, id, caption in navigation_bar %}
+                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
                     {% endfor %}
+                    <hr>
+                    {%- if current_user.is_anonymous -%}
+                        <a href="{{ url_for('main.register') }}">register</a>
+                        <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
+                    {% else %}
+                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">profile</a>
+                        <a href="{{ url_for('main.logout') }}">logout</a>
+                {%- endif %}
                 </div>
             </div>
+
             <div class="center">
                 {% if g.search_form %}
                     <form method="get" action="{{ url_for('main.search') }}" class="search">
