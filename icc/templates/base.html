@@ -82,10 +82,6 @@
         </nav>
 
         <nav class="mobile">
-            <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                <img src="{{ url_for('static', filename='images/n.png') }}">
-            </a>
-
             <div class="dropdown">
                 <a class="dropbtn"><img src="{{ url_for('static', filename='images/hamburger.png') }}"></a>
                 <div class="dropdown-content">
@@ -102,7 +98,7 @@
                 {%- endif %}
                 </div>
             </div>
-
+            <br>
             <div class="center">
                 {% if g.search_form %}
                     <form method="get" action="{{ url_for('main.search') }}" class="search">
@@ -110,6 +106,11 @@
                     </form>
                 {% endif %}
             </div>
+            <br>
+            <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                <img src="{{ url_for('static', filename='images/n.png') }}">
+                anno.wiki
+            </a>
         </nav>
 
         {% with messages = get_flashed_messages() %}

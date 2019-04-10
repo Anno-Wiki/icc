@@ -8,8 +8,6 @@ body {
   font-size: 1.15em; }
 
 h1, h2, h3 {
-  margin-top: 1em;
-  padding-top: 1em;
   font-family: "Playfair Display", "Georgia", serif;
   color: #586e75; }
 
@@ -27,6 +25,11 @@ nav {
   /* The divs within the nav bar should display inline greater than 1020px,
    * then drop to block in a 3 tiered display, then go back to inline when we
    * switch to using a hamburger */ }
+  nav img {
+    width: 1.5em;
+    height: 1em;
+    margin: 0;
+    padding: 0; }
   nav .left, nav .center, nav .right {
     display: inline-block; }
     @media only screen and (max-width: 1020px) {
@@ -56,6 +59,8 @@ nav {
       @media only screen and (max-width: 455px) {
         nav .search input {
           width: 15em; } }
+  nav a {
+    text-decoration: none; }
   @media only screen and (max-width: 435px) {
     nav.web {
       display: none; } }
@@ -64,15 +69,8 @@ nav {
   nav.web .active {
     background-color: #e1dbc8;
     border-bottom: 1px solid #b58900; }
-  nav.web a {
-    text-decoration: none; }
-    nav.web a:hover {
-      border-bottom: 1px solid #b58900; }
-  nav.web img {
-    width: 1.5em;
-    height: 1em;
-    margin: 0;
-    padding: 0; }
+  nav.web a:hover {
+    border-bottom: 1px solid #b58900; }
   @media only screen and (min-width: 435px) {
     nav.mobile {
       display: none; } }
@@ -105,6 +103,7 @@ nav {
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1; }
     .dropdown-content a {
+      padding: 0 0.5em 0 0.5em;
       color: #b58900;
       text-decoration: none;
       display: block; }
