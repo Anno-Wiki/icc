@@ -7,7 +7,7 @@ body {
   font-family: "EB Garamond", "Cormorant Garmond", "Georgia", serif;
   font-size: 1.15em; }
 
-h1, h2, h3 {
+h1, h2, h3, h4, h5, h6 {
   font-family: "Playfair Display", "Georgia", serif;
   color: #586e75; }
 
@@ -18,16 +18,22 @@ a {
   color: #b58900; }
 
 nav {
-  padding: 0 0.5em 0 0.5em;
-  background-color: #eee8d5;
+  padding: 0.01em 0.5em 0 0.5em;
+  background-color: #002b36;
+  border-radius: 6px;
   text-align: center;
   font-family: "Playfair Display", "Georgia", serif;
   /* The divs within the nav bar should display inline greater than 1020px,
    * then drop to block in a 3 tiered display, then go back to inline when we
    * switch to using a hamburger */ }
+  nav .logo {
+    color: #b58900; }
+  nav a {
+    text-decoration: none; }
   nav img {
+    display: inline-block;
     width: 1.5em;
-    height: 1em;
+    height: 1.5em;
     margin: 0;
     padding: 0; }
   nav .left, nav .center, nav .right {
@@ -59,18 +65,19 @@ nav {
       @media only screen and (max-width: 455px) {
         nav .search input {
           width: 15em; } }
-  nav a {
-    text-decoration: none; }
   @media only screen and (max-width: 435px) {
     nav.web {
       display: none; } }
   nav.web * {
-    padding: 0 0.25em 0 0.25em; }
+    padding: 0.1em 0.25em 0.1em 0.25em; }
   nav.web .active {
-    background-color: #e1dbc8;
+    border-radius: 3px;
+    background-color: #073642;
     border-bottom: 1px solid #b58900; }
-  nav.web a:hover {
-    border-bottom: 1px solid #b58900; }
+  nav.web a {
+    color: #93a1a1; }
+    nav.web a:hover {
+      border-bottom: 1px solid #b58900; }
   @media only screen and (min-width: 435px) {
     nav.mobile {
       display: none; } }
