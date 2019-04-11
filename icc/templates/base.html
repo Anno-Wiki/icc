@@ -80,7 +80,7 @@
             </div>
         </nav>
 
-        <nav class="mobile" style="clear: both;">
+        <nav class="mobile">
             <div class="left">
                 <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
                     <img src="{{ url_for('static', filename='images/n.png') }}">
@@ -97,10 +97,20 @@
                 <script>
                     function xout(x) {
                         x.classList.toggle("change");
+                        document.getElementsByClassName("mainmenu")[0].classList.toggle("show");
                     }
                 </script>
             </div>
         </nav>
+        <div class="mainmenu">
+            <ul>
+                {% for href, id, caption in navigation_bar %}
+                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
+                        <li>{{ caption }}</li>
+                    </a>
+                {% endfor %}
+            </ul>
+        </div>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
