@@ -26,7 +26,7 @@ $base21:    #e1dbc8; // background highlights 3
 
 body {
     margin: 0 auto;
-    max-width: 75em;
+    max-width: 60em;
     line-height: 1.5;
     padding: 1em 1em 1em 1em;
     color: $base00;
@@ -72,12 +72,12 @@ nav {
         display: inline-block;
         margin: 0.5em;
         @media only screen and (max-width: 1020px) { display: block; }
-        @media only screen and (max-width: 435px) { display: inline-block; }
+        @media only screen and (max-width: 471px) { display: inline-block; }
     }
     .search {
         display: inline-block;
         input {
-            width: 25em;
+            width: 20em;
             background-color: $base02;
             border-color: $base01;
             border-radius: 5px;
@@ -86,7 +86,6 @@ nav {
                 family: $display;
                 size: 1em;
             }
-            @media only screen and (max-width: 1235px) { width: 20em; }
             @media only screen and (max-width: 1110px) { width: 15em; }
             @media only screen and (max-width: 1020px) { width: 25em; }
             @media only screen and (max-width: 550px) { width: 20em; }
@@ -94,7 +93,7 @@ nav {
         }
     }
     &.web {
-        @media only screen and (max-width: 460px) { display: none }
+        @media only screen and (max-width: 470px) { display: none }
 
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
 
@@ -102,6 +101,7 @@ nav {
             border-radius: 3px;
             background-color: $base02;
             color: $yellow;
+            padding: 0.5em;
         }
         a {
             color: $base1;
@@ -109,7 +109,7 @@ nav {
         }
     }
     &.mobile {
-        @media only screen and (min-width: 461px) { display: none }
+        @media only screen and (min-width: 471px) { display: none }
         .hamburger {
             display: inline-block;
             vertical-align: middle;
@@ -119,7 +119,7 @@ nav {
             &1, &2, &3 {
                 width: 35px;
                 height: 5px;
-                background-color: $base01;
+                background-color: $base00;
                 margin: 6px 0;
                 transition: 0.4s;
             }
@@ -129,17 +129,18 @@ nav {
                 &1 {
                     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
                     transform: rotate(-45deg) translate(-9px, 6px);
+                    background-color: $yellow;
                 }
                 &2 { opacity: 0; }
                 &3 {
                     -webkit-transform: rotate(45deg) translate(-8px, -8px);
                     transform: rotate(45deg) translate(-8px, -8px);
+                    background-color: $yellow;
                 }
             }
         }
     }
 }
-
 
 #container {
     background-color: $base3;

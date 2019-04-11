@@ -1,6 +1,6 @@
 body {
   margin: 0 auto;
-  max-width: 75em;
+  max-width: 60em;
   line-height: 1.5;
   padding: 1em 1em 1em 1em;
   color: #657b83;
@@ -43,22 +43,19 @@ nav {
     @media only screen and (max-width: 1020px) {
       nav .left, nav .center, nav .right {
         display: block; } }
-    @media only screen and (max-width: 435px) {
+    @media only screen and (max-width: 471px) {
       nav .left, nav .center, nav .right {
         display: inline-block; } }
   nav .search {
     display: inline-block; }
     nav .search input {
-      width: 25em;
+      width: 20em;
       background-color: #073642;
       border-color: #586e75;
       border-radius: 5px;
       color: #586e75;
       font-family: "Playfair Display", "Georgia", serif;
       font-size: 1em; }
-      @media only screen and (max-width: 1235px) {
-        nav .search input {
-          width: 20em; } }
       @media only screen and (max-width: 1110px) {
         nav .search input {
           width: 15em; } }
@@ -71,7 +68,7 @@ nav {
       @media only screen and (max-width: 455px) {
         nav .search input {
           width: 15em; } }
-  @media only screen and (max-width: 460px) {
+  @media only screen and (max-width: 470px) {
     nav.web {
       display: none; } }
   nav.web * {
@@ -79,12 +76,13 @@ nav {
   nav.web .active {
     border-radius: 3px;
     background-color: #073642;
-    color: #b58900; }
+    color: #b58900;
+    padding: 0.5em; }
   nav.web a {
     color: #93a1a1; }
     nav.web a:hover {
       border-bottom: 1px solid #b58900; }
-  @media only screen and (min-width: 461px) {
+  @media only screen and (min-width: 471px) {
     nav.mobile {
       display: none; } }
   nav.mobile .hamburger {
@@ -94,17 +92,19 @@ nav {
   nav.mobile .bar1, nav.mobile .bar2, nav.mobile .bar3 {
     width: 35px;
     height: 5px;
-    background-color: #586e75;
+    background-color: #657b83;
     margin: 6px 0;
     transition: 0.4s; }
   nav.mobile .change .bar1 {
     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-    transform: rotate(-45deg) translate(-9px, 6px); }
+    transform: rotate(-45deg) translate(-9px, 6px);
+    background-color: #b58900; }
   nav.mobile .change .bar2 {
     opacity: 0; }
   nav.mobile .change .bar3 {
     -webkit-transform: rotate(45deg) translate(-8px, -8px);
-    transform: rotate(45deg) translate(-8px, -8px); }
+    transform: rotate(45deg) translate(-8px, -8px);
+    background-color: #b58900; }
 
 #container {
   background-color: #fdf6e3;
