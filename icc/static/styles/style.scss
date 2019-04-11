@@ -50,7 +50,7 @@ a {
 }
 
 nav {
-    padding: 0.01em 0.5em 0 0.5em;
+    padding: 0.1em 0.5em 0.1em 0.5em;
     background-color: $base03;
     border-radius: 6px;
     text-align: center;
@@ -59,6 +59,7 @@ nav {
     a { text-decoration: none; }
     & img {
         display: inline-block;
+        vertical-align: middle;
         width: 1.5em;
         height: 1.5em;
         margin: 0;
@@ -76,6 +77,10 @@ nav {
         display: inline-block;
         input {
             width: 25em;
+            background-color: $base02;
+            border-color: $base01;
+            border-radius: 5px;
+            color: $base01;
             font: {
                 family: $display;
                 size: 1em;
@@ -88,14 +93,14 @@ nav {
         }
     }
     &.web {
-        @media only screen and (max-width: 435px) { display: none }
+        @media only screen and (max-width: 445px) { display: none }
 
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
 
         .active {
             border-radius: 3px;
             background-color: $base02;
-            border-bottom: 1px solid $accent;
+            color: $yellow;
         }
         a {
             color: $base1;
@@ -103,7 +108,7 @@ nav {
         }
     }
     &.mobile {
-        @media only screen and (min-width: 435px) { display: none }
+        @media only screen and (min-width: 445px) { display: none }
     }
 }
 
