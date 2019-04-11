@@ -22,7 +22,6 @@
                     <img src="{{ url_for('static', filename='images/n.png') }}">
                     anno.wiki
                 </a>
-
                 {% set navigation_bar = [
                     (url_for('main.writer_index'), 'writers', 'Writers'),
                     (url_for('main.text_index'), 'texts', 'Texts'),
@@ -81,36 +80,26 @@
             </div>
         </nav>
 
-        <nav class="mobile">
-            <div class="dropdown">
-                <a class="dropbtn"><img src="{{ url_for('static', filename='images/hamburger.png') }}"></a>
-                <div class="dropdown-content">
-                    {% for href, id, caption in navigation_bar %}
-                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
-                    {% endfor %}
-                    <hr>
-                    {%- if current_user.is_anonymous -%}
-                        <a href="{{ url_for('main.register') }}">register</a>
-                        <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
-                    {% else %}
-                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">profile</a>
-                        <a href="{{ url_for('main.logout') }}">logout</a>
-                {%- endif %}
+        <nav class="mobile" style="clear: both;">
+            <div class="left">
+                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/n.png') }}">
+                    anno.wiki
+                </a>
+            </div>
+
+            <div class="right">
+                <div class="hamburger" onclick="xout(this)">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
                 </div>
+                <script>
+                    function xout(x) {
+                        x.classList.toggle("change");
+                    }
+                </script>
             </div>
-            <br>
-            <div class="center">
-                {% if g.search_form %}
-                    <form method="get" action="{{ url_for('main.search') }}" class="search">
-                        {{ g.search_form.q(placeholder="Search lines...") }}
-                    </form>
-                {% endif %}
-            </div>
-            <br>
-            <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                <img src="{{ url_for('static', filename='images/n.png') }}">
-                anno.wiki
-            </a>
         </nav>
 
         {% with messages = get_flashed_messages() %}

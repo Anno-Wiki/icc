@@ -70,6 +70,7 @@ nav {
      * switch to using a hamburger */
     .left, .center, .right {
         display: inline-block;
+        margin: 0.5em;
         @media only screen and (max-width: 1020px) { display: block; }
         @media only screen and (max-width: 435px) { display: inline-block; }
     }
@@ -93,7 +94,7 @@ nav {
         }
     }
     &.web {
-        @media only screen and (max-width: 445px) { display: none }
+        @media only screen and (max-width: 460px) { display: none }
 
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
 
@@ -108,9 +109,37 @@ nav {
         }
     }
     &.mobile {
-        @media only screen and (min-width: 445px) { display: none }
+        @media only screen and (min-width: 461px) { display: none }
+        .hamburger {
+            display: inline-block;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .bar {
+            &1, &2, &3 {
+                width: 35px;
+                height: 5px;
+                background-color: $base01;
+                margin: 6px 0;
+                transition: 0.4s;
+            }
+        }
+        .change {
+            .bar {
+                &1 {
+                    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+                    transform: rotate(-45deg) translate(-9px, 6px);
+                }
+                &2 { opacity: 0; }
+                &3 {
+                    -webkit-transform: rotate(45deg) translate(-8px, -8px);
+                    transform: rotate(45deg) translate(-8px, -8px);
+                }
+            }
+        }
     }
 }
+
 
 #container {
     background-color: $base3;
