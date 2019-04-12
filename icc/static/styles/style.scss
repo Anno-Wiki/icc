@@ -69,24 +69,6 @@ nav {
         @media only screen and (max-width: 1020px) { display: block; }
         @media only screen and (max-width: 471px) { display: inline-block; }
     }
-    .search {
-        display: inline-block;
-        input {
-            width: 20em;
-            background-color: $base02;
-            border-color: $base01;
-            border-radius: 5px;
-            color: $base01;
-            font: {
-                family: $display;
-                size: 1em;
-            }
-            @media only screen and (max-width: 1110px) { width: 15em; }
-            @media only screen and (max-width: 1020px) { width: 25em; }
-            @media only screen and (max-width: 550px) { width: 20em; }
-            @media only screen and (max-width: 455px) { width: 15em; }
-        }
-    }
     &.web {
         @media only screen and (max-width: 470px) { display: none }
 
@@ -136,24 +118,22 @@ nav {
         }
     }
 }
-#mainmenu {
-    background-color: $base02;
-    height: 100%;
-    width: 100%;
-
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    opacity: 0;
-    position: absolute;
-    z-index: 5;
-    border-radius: 10px;
-    transition: 0.4s;
-    visibility: hidden;
-    &.show {
-        visibility: visible;
-        opacity: 1;
+.search {
+    text-align: center;
+    input {
+        width: 20em;
+        background-color: $base02;
+        color: $base01;
+        @media only screen and (max-width: 440px) { width: 15em; }
+        @media only screen and (max-width: 350px) { width: 13em; }
+        border: {
+            color: $yellow;
+            radius: 5px;
+        }
+        font: {
+            family: $display;
+            size: 1em;
+        }
     }
 }
 
@@ -161,6 +141,49 @@ nav {
     position: relative;
     background-color: $base3;
     padding: 1em;
+    #mainmenu {
+        padding: 0 0 1em 0;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        position: absolute;
+        z-index: 5;
+
+        background-color: $base02;
+        opacity: 0;
+        transition: 0.4s;
+        visibility: hidden;
+
+        border-radius: 10px;
+        &.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        a {
+            font: {
+                family: $display;
+                size: 2em;
+            }
+            display: block;
+            text: {
+                align: center;
+                decoration: none;
+            }
+            color: $base00;
+            transition: 0.7s;
+            &:hover {
+                color: $yellow;
+            }
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, $base02, $yellow, $base02)
+        }
+    }
 }
 
 #footer {

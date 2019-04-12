@@ -46,28 +46,6 @@ nav {
     @media only screen and (max-width: 471px) {
       nav .left, nav .center, nav .right {
         display: inline-block; } }
-  nav .search {
-    display: inline-block; }
-    nav .search input {
-      width: 20em;
-      background-color: #073642;
-      border-color: #586e75;
-      border-radius: 5px;
-      color: #586e75;
-      font-family: "Playfair Display", "Georgia", serif;
-      font-size: 1em; }
-      @media only screen and (max-width: 1110px) {
-        nav .search input {
-          width: 15em; } }
-      @media only screen and (max-width: 1020px) {
-        nav .search input {
-          width: 25em; } }
-      @media only screen and (max-width: 550px) {
-        nav .search input {
-          width: 20em; } }
-      @media only screen and (max-width: 455px) {
-        nav .search input {
-          width: 15em; } }
   @media only screen and (max-width: 470px) {
     nav.web {
       display: none; } }
@@ -106,28 +84,59 @@ nav {
     transform: rotate(45deg) translate(-8px, -8px);
     background-color: #b58900; }
 
-#mainmenu {
-  background-color: #073642;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  opacity: 0;
-  position: absolute;
-  z-index: 5;
-  border-radius: 10px;
-  transition: 0.4s;
-  visibility: hidden; }
-  #mainmenu.show {
-    visibility: visible;
-    opacity: 1; }
+.search {
+  text-align: center; }
+  .search input {
+    width: 20em;
+    background-color: #073642;
+    color: #586e75;
+    border-color: #b58900;
+    border-radius: 5px;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 1em; }
+    @media only screen and (max-width: 440px) {
+      .search input {
+        width: 15em; } }
+    @media only screen and (max-width: 350px) {
+      .search input {
+        width: 13em; } }
 
 #container {
   position: relative;
   background-color: #fdf6e3;
   padding: 1em; }
+  #container #mainmenu {
+    padding: 0 0 1em 0;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: 5;
+    background-color: #073642;
+    opacity: 0;
+    transition: 0.4s;
+    visibility: hidden;
+    border-radius: 10px; }
+    #container #mainmenu.show {
+      visibility: visible;
+      opacity: 1; }
+    #container #mainmenu a {
+      font-family: "Playfair Display", "Georgia", serif;
+      font-size: 2em;
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      color: #657b83;
+      transition: 0.7s; }
+      #container #mainmenu a:hover {
+        color: #b58900; }
+    #container #mainmenu hr {
+      border: 0;
+      height: 1px;
+      background-image: linear-gradient(to right, #073642, #b58900, #073642); }
 
 #footer {
   padding: 1em;

@@ -116,13 +116,38 @@
         <div id="container">
 
             <div id="mainmenu">
-                <ul>
-                    {% for href, id, caption in navigation_bar %}
-                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
-                            <li>{{ caption }}</li>
-                        </a>
-                    {% endfor %}
-                </ul>
+                {% for href, id, caption in navigation_bar %}
+                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
+                        {{ caption }}
+                    </a>
+                {% endfor %}
+
+                <hr>
+
+                {% if g.search_form %}
+                    <form method="get" action="{{ url_for('main.search') }}" class="search">
+                        {{ g.search_form.q(placeholder="Search lines...") }}
+                    </form>
+                {% endif %}
+
+                <hr>
+
+                {%- if current_user.is_anonymous -%}
+                    <a href="{{ url_for('main.register') }}">register</a>
+                    <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
+                {% else %}
+                    {# admin #}
+                    {%- if current_user.is_auth_any(adminrights) %}
+                        {% for right, link in zip(adminrights, adminlinks) %}
+                            {% if current_user.is_authorized(right) %}
+                                <a href="{{ link[1] }}">{{ link[0] }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <hr>
+                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a>
+                    <a href="{{ url_for('main.logout') }}">logout</a>
+                {%- endif %}
             </div>
 
             {% block content %} {% endblock %}
