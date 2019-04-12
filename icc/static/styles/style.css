@@ -7,25 +7,30 @@ body {
   font-family: "EB Garamond", "Georgia", serif;
   font-size: 1.15em; }
 
+.body {
+  background-color: #fdf6e3; }
+
 h1, h2, h3, h4, h5, h6 {
+  color: #586e75;
   font-family: "Playfair Display", "Georgia", serif;
-  color: #586e75; }
+  font-weight: normal; }
 
 strong {
   color: #586e75; }
 
 a {
-  color: #b58900; }
+  color: #586e75;
+  text-decoration: none;
+  transition: 0.3s; }
+  a:hover {
+    color: #b58900; }
 
 nav {
   padding: 0.1em 0.5em 0.1em 0.5em;
   background-color: #002b36;
-  border-radius: 6px;
+  border-radius: 10px;
   text-align: center;
-  font-family: "EB Garamond", "Georgia", serif;
-  /* The divs within the nav bar should display inline greater than 1020px,
-   * then drop to block in a 3 tiered display, then go back to inline when we
-   * switch to using a hamburger */ }
+  font-family: "EB Garamond", "Georgia", serif; }
   nav .logo {
     color: #b58900; }
   nav a {
@@ -40,7 +45,7 @@ nav {
   nav .left, nav .center, nav .right {
     display: inline-block;
     margin: 0.5em; }
-    @media only screen and (max-width: 1060px) {
+    @media only screen and (max-width: 1120px) {
       nav .left, nav .center, nav .right {
         display: block; } }
     @media only screen and (max-width: 471px) {
@@ -52,16 +57,20 @@ nav {
   nav.web * {
     padding: 0.1em 0.25em 0.1em 0.25em; }
   nav.web .active {
-    border-radius: 3px;
+    border-radius: 10px;
     background-color: #073642;
     color: #b58900;
     padding: 0.5em;
     border-bottom: 1px solid #b58900; }
   nav.web a {
     color: #93a1a1;
-    transition: 0.7s; }
+    transition: 0.5s; }
     nav.web a:hover {
       color: #b58900; }
+  nav.web .dropdown-content {
+    background-color: #002b36; }
+    nav.web .dropdown-content a:hover {
+      background-color: #073642; }
   @media only screen and (min-width: 471px) {
     nav.mobile {
       display: none; } }
@@ -74,7 +83,7 @@ nav {
     height: 5px;
     background-color: #657b83;
     margin: 6px 0;
-    transition: 0.4s; }
+    transition: 0.3s; }
   nav.mobile .change .bar1 {
     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
     transform: rotate(-45deg) translate(-9px, 6px);
@@ -93,7 +102,7 @@ nav {
     background-color: #073642;
     color: #586e75;
     border-color: #b58900;
-    border-radius: 5px;
+    border-radius: 10px;
     font-family: "Playfair Display", "Georgia", serif;
     font-size: 1em; }
     @media only screen and (max-width: 440px) {
@@ -105,36 +114,39 @@ nav {
 
 #container {
   position: relative;
-  background-color: #fdf6e3;
   padding: 1em; }
   #container #mainmenu {
     padding: 0 0 1em 0;
+    position: absolute;
+    z-index: 5;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    position: absolute;
-    z-index: 5;
     background-color: #073642;
     opacity: 0;
-    transition: 0.4s;
+    border-radius: 10px;
     visibility: hidden;
-    border-radius: 10px; }
+    transition: 0.3s; }
     #container #mainmenu.show {
       visibility: visible;
       opacity: 1; }
     #container #mainmenu a {
+      display: block;
+      margin: 0 auto;
+      transition: 0.5s;
+      border-radius: 10px;
+      width: 75%;
+      color: #657b83;
       font-family: "Playfair Display", "Georgia", serif;
       font-size: 2em;
-      display: block;
       text-align: center;
-      text-decoration: none;
-      color: #657b83;
-      transition: 0.7s; }
+      text-decoration: none; }
       #container #mainmenu a:hover {
-        color: #b58900; }
+        color: #b58900;
+        background-color: #002b36; }
     #container #mainmenu hr {
       border: 0;
       height: 1px;
@@ -147,32 +159,35 @@ nav {
 /****************************
 * Style The Dropdown Button *
 *****************************/
-.dropbtn {
-  border: none;
-  cursor: pointer;
-  font-family: "EB Garamond", "Georgia", serif; }
-
 .dropdown {
   position: relative;
   display: inline-block;
-  text-align: center;
   font-family: "Playfair Display", "Georgia", serif; }
+  .dropdown .dropbtn {
+    cursor: pointer;
+    font-family: "EB Garamond", "Georgia", serif; }
   .dropdown-content {
-    display: none;
     position: absolute;
-    background-color: #eee8d5;
+    margin: 0 auto;
+    z-index: 1;
+    border-radius: 10px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1; }
+    opacity: 0;
+    visibility: hidden;
+    background-color: #fdf6e3;
+    transition: 0.3s; }
     .dropdown-content a {
+      border-radius: 10px;
       padding: 0 0.5em 0 0.5em;
-      color: #b58900;
+      color: #586e75;
       text-decoration: none;
-      display: block; }
+      display: block;
+      transition: 0.5s; }
       .dropdown-content a:hover {
-        background-color: #e7e1ce; }
+        color: #b58900;
+        background-color: #eee8d5; }
   .dropdown:hover .dropdown-content {
-    display: block; }
-  .dropdown:hover .dropbtn {
-    background-color: #e7e1ce; }
+    visibility: visible;
+    opacity: 1; }
 
 /*# sourceMappingURL=style.css.map */

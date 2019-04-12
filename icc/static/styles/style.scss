@@ -1,5 +1,15 @@
+// font families
 $serifs: "EB Garamond", "Georgia", serif;
 $display: "Playfair Display", "Georgia", serif;
+
+// constants
+$bevel: 10px;
+
+// time delays
+$shortdelay: 0.3s;
+$middelay: 0.5s;
+$longdelay: 0.7s;
+
 
 // Solarized Colorscheme
 $base03:    #002b36;
@@ -10,18 +20,20 @@ $base0:     #839496;
 $base1:     #93a1a1; // comments / secondary content
 $base2:     #eee8d5; // background highlights
 $base3:     #fdf6e3; // background
+
 $yellow:    #b58900;
 $orange:    #cb4b16;
 $red:       #dc322f;
+
 $magenta:   #d33682;
 $violet:    #6c71c4;
 $blue:      #268bd2;
+
 $cyan:      #2aa198;
 $green:     #859900;
 
+// keywords
 $accent:    $yellow;
-$base20:    #e7e1ce; // background highlights 2
-$base21:    #e1dbc8; // background highlights 3
 
 body {
     margin: 0 auto;
@@ -35,23 +47,31 @@ body {
     }
 }
 
+.body { background-color: $base3; }
+
 h1, h2, h3, h4, h5, h6 {
-    font-family: $display;
     color: $base01;
+    font: {
+        family: $display;
+        weight: normal;
+    }
 }
 
 strong { color: $base01; }
 
-a { color: $accent; }
+a {
+    color: $base01;
+    text-decoration: none;
+    transition: $shortdelay;
+    &:hover { color: $accent; }
+}
 
 nav {
     padding: 0.1em 0.5em 0.1em 0.5em;
     background-color: $base03;
-    border-radius: 6px;
+    border-radius: $bevel;
     text-align: center;
-    font: {
-        family: $serifs;
-    }
+    font-family: $serifs;
     .logo { color: $accent; }
     a { text-decoration: none; }
     & img {
@@ -62,35 +82,37 @@ nav {
         margin: 0;
         padding: 0;
     }
-    /* The divs within the nav bar should display inline greater than 1020px,
-     * then drop to block in a 3 tiered display, then go back to inline when we
-     * switch to using a hamburger */
+    // The divs within the nav bar should display inline greater than 1020px,
+    // then drop to block in a 3 tiered display, then go back to inline when we
+    // switch to using a hamburger
     .left, .center, .right {
         display: inline-block;
         margin: 0.5em;
-        @media only screen and (max-width: 1060px) { display: block; }
+        @media only screen and (max-width: 1120px) { display: block; }
         @media only screen and (max-width: 471px) { display: inline-block; }
     }
     &.web {
         @media only screen and (max-width: 470px) { display: none }
-
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
 
         .active {
-            border-radius: 3px;
+            border-radius: $bevel;
             background-color: $base02;
             color: $accent;
             padding: 0.5em;
-                border-bottom: 1px solid $accent;
+            border-bottom: 1px solid $accent;
         }
         a {
             color: $base1;
-            transition: 0.7s;
-            &:hover {
-                color: $accent;
-            }
+            transition: $middelay;
+            &:hover { color: $accent; }
+        }
+        .dropdown-content {
+            background-color: $base03;
+            a:hover { background-color: $base02; }
         }
     }
+
     &.mobile {
         @media only screen and (min-width: 471px) { display: none }
         .hamburger {
@@ -104,7 +126,7 @@ nav {
                 height: 5px;
                 background-color: $base00;
                 margin: 6px 0;
-                transition: 0.4s;
+                transition: $shortdelay;
             }
         }
         .change {
@@ -134,7 +156,7 @@ nav {
         @media only screen and (max-width: 350px) { width: 13em; }
         border: {
             color: $accent;
-            radius: 5px;
+            radius: $bevel;
         }
         font: {
             family: $display;
@@ -145,43 +167,50 @@ nav {
 
 #container {
     position: relative;
-    background-color: $base3;
     padding: 1em;
     #mainmenu {
         padding: 0 0 1em 0;
+
+        position: absolute;
+        z-index: 5;
+
         height: 100%;
         width: 100%;
+
         top: 0;
         left: 0;
         bottom: 0;
         right: 0;
-        position: absolute;
-        z-index: 5;
 
         background-color: $base02;
         opacity: 0;
-        transition: 0.4s;
+        border-radius: $bevel;
         visibility: hidden;
+        transition: $shortdelay;
 
-        border-radius: 10px;
         &.show {
             visibility: visible;
             opacity: 1;
         }
+
         a {
+            display: block;
+            margin: 0 auto;
+            transition: $middelay;
+            border-radius: $bevel;
+            width: 75%;
+            color: $base00;
             font: {
                 family: $display;
                 size: 2em;
             }
-            display: block;
             text: {
                 align: center;
                 decoration: none;
             }
-            color: $base00;
-            transition: 0.7s;
             &:hover {
                 color: $accent;
+                background-color: $base03;
             }
         }
         hr {
@@ -201,33 +230,43 @@ nav {
 /****************************
 * Style The Dropdown Button *
 *****************************/
-
-.dropbtn {
-    border: none;
-    cursor: pointer;
-    font-family: $serifs;
-}
 .dropdown {
     position: relative;
     display: inline-block;
-    text-align: center;
     font-family: $display;
 
+    .dropbtn {
+        cursor: pointer;
+        font-family: $serifs;
+    }
     &-content {
-        display: none;
         position: absolute;
-        background-color: $base2;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        margin: 0 auto;
         z-index: 1;
+
+        border-radius: $bevel;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+        opacity: 0;
+        visibility: hidden;
+        background-color: $base3;
+        transition: $shortdelay;
         a {
+            border-radius: $bevel;
             padding: 0 0.5em 0 0.5em;
-            color: $accent;
+            color: $base01;
             text-decoration: none;
             display: block;
-            &:hover { background-color: $base20; }
+            transition: $middelay;
+            &:hover {
+                color: $accent;
+                background-color: $base2;
+            }
         }
     }
 
-    &:hover &-content { display: block; }
-    &:hover .dropbtn { background-color: $base20; }
+    &:hover &-content {
+        visibility: visible;
+        opacity: 1;
+    }
 }

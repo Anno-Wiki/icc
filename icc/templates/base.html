@@ -11,165 +11,171 @@
         {% endif %}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3">
-        <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,700" rel="stylesheet">
     </head>
 
     <body>
-        <nav class="web">
-            <div class="left">
-                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                    <img src="{{ url_for('static', filename='images/n.png') }}">
-                    anno.wiki
-                </a>
-                {% set navigation_bar = [
-                    (url_for('main.writer_index'), 'writers', 'Writers'),
-                    (url_for('main.text_index'), 'texts', 'Texts'),
-                    (url_for('main.tag_index'), 'tags', 'Tags'),
-                    (url_for('user.index'), 'users', 'Users')]
-                %}
-                {% for href, id, caption in navigation_bar %}
-                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
-                {% endfor %}
-            </div>
-
-            <div class="center">
-                {% if g.search_form %}
-                    <form method="get" action="{{ url_for('main.search') }}" class="search">
-                        {{ g.search_form.q(placeholder="Search lines...") }}
-                    </form>
-                {% endif %}
-            </div>
-
-            <div class="right">
-                {% set adminrights = [
-                    'view_deactivated_annotations',
-                    'review_edits',
-                    'resolve_user_flags',
-                    'resolve_annotation_flags',
-                    ]%}
-                {% set adminlinks = [
-                    ('deactivated', url_for('admin.view_deactivated_annotations')),
-                    ('edits', url_for('admin.edit_review_queue')),
-                    ('wiki edits', url_for('admin.wiki_edit_review_queue')),
-                    ('user flags', url_for('admin.all_user_flags')),
-                    ('annotation flags', url_for('admin.all_annotation_flags')),
-                    ]%}
-
-                {%- if current_user.is_anonymous -%}
-                    <a href="{{ url_for('main.register') }}">register</a>
-                    <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
-                {% else %}
-                    {# admin #}
-                    {%- if current_user.is_auth_any(adminrights) %}
-                        <div class="dropdown">
-                            <a class="dropbtn">admin&#x25BE;</a> |
-                            <div class="dropdown-content">
-                                {% for right, link in zip(adminrights, adminlinks) %}
-                                    {% if current_user.is_authorized(right) %}
-                                        <a href="{{ link[1] }}">{{ link[0] }}</a>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
-                    <a href="{{ url_for('main.logout') }}">logout</a>
-                {%- endif %}
-            </div>
-        </nav>
-
-        <nav class="mobile">
-            <div class="left">
-                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                    <img src="{{ url_for('static', filename='images/n.png') }}">
-                    anno.wiki
-                </a>
-            </div>
-
-            <div class="right">
-                <div class="hamburger" onclick="xout(this)">
-                    <div class="bar1"></div>
-                    <div class="bar2"></div>
-                    <div class="bar3"></div>
-                </div>
-                <script>
-                    function xout(x) {
-                        x.classList.toggle("change");
-                        document.getElementById("mainmenu").classList.toggle("show");
-                    }
-                </script>
-            </div>
-        </nav>
-
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flash">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
-        <div id="container">
-
-            <div id="mainmenu">
-                {% for href, id, caption in navigation_bar %}
-                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
-                        {{ caption }}
+        <div class="body">
+            <nav class="web">
+                <div class="left">
+                    <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                        <img src="{{ url_for('static', filename='images/n.png') }}">
+                        anno.wiki
                     </a>
-                {% endfor %}
+                    {% set navigation_bar = [
+                        (url_for('main.writer_index'), 'writers', 'Writers'),
+                        (url_for('main.text_index'), 'texts', 'Texts'),
+                        (url_for('main.tag_index'), 'tags', 'Tags'),
+                        (url_for('user.index'), 'users', 'Users')]
+                    %}
+                    {% for href, id, caption in navigation_bar %}
+                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
+                    {% endfor %}
+                </div>
 
-                <hr>
-
-                {% if g.search_form %}
-                    <form method="get" action="{{ url_for('main.search') }}" class="search">
-                        {{ g.search_form.q(placeholder="Search lines...") }}
-                    </form>
-                {% endif %}
-
-                <hr>
-
-                {%- if current_user.is_anonymous -%}
-                    <a href="{{ url_for('main.register') }}">register</a>
-                    <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
-                {% else %}
-                    {# admin #}
-                    {%- if current_user.is_auth_any(adminrights) %}
-                        {% for right, link in zip(adminrights, adminlinks) %}
-                            {% if current_user.is_authorized(right) %}
-                                <a href="{{ link[1] }}">{{ link[0] }}</a>
-                            {% endif %}
-                        {% endfor %}
+                <div class="center">
+                    {% if g.search_form %}
+                        <form method="get" action="{{ url_for('main.search') }}" class="search">
+                            {{ g.search_form.q(placeholder="Search lines...") }}
+                        </form>
                     {% endif %}
+                </div>
+
+                <div class="right">
+                    {% set adminrights = [
+                        'view_deactivated_annotations',
+                        'review_edits',
+                        'resolve_user_flags',
+                        'resolve_annotation_flags',
+                        ]%}
+                    {% set adminlinks = [
+                        ('deactivated', url_for('admin.view_deactivated_annotations')),
+                        ('edits', url_for('admin.edit_review_queue')),
+                        ('wiki edits', url_for('admin.wiki_edit_review_queue')),
+                        ('user flags', url_for('admin.all_user_flags')),
+                        ('annotation flags', url_for('admin.all_annotation_flags')),
+                        ]%}
+
+                    {%- if current_user.is_anonymous -%}
+                        <a href="{{ url_for('main.register') }}">register</a>
+                        <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
+                    {% else %}
+                        {# admin #}
+                        {%- if current_user.is_auth_any(adminrights) %}
+                            <div class="dropdown">
+                                <a class="dropbtn">admin&#x25BE;</a> |
+                                <div class="dropdown-content">
+                                    {% for right, link in zip(adminrights, adminlinks) %}
+                                        {% if current_user.is_authorized(right) %}
+                                            <a href="{{ link[1] }}">{{ link[0] }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
+                        <a href="{{ url_for('main.logout') }}">logout</a>
+                    {%- endif %}
+                </div>
+            </nav>
+
+            <nav class="mobile">
+                <div class="left">
+                    <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                        <img src="{{ url_for('static', filename='images/n.png') }}">
+                        anno.wiki
+                    </a>
+                </div>
+
+                <div class="right">
+                    <div class="hamburger" onclick="xout(this)">
+                        <div class="bar1"></div>
+                        <div class="bar2"></div>
+                        <div class="bar3"></div>
+                    </div>
+                    <script>
+                        function xout(x) {
+                            x.classList.toggle("change");
+                            document.getElementById("mainmenu").classList.toggle("show");
+                        }
+                    </script>
+                </div>
+            </nav>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class="flash">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <div id="container">
+
+                <div id="mainmenu">
                     <hr>
-                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a>
-                    <a href="{{ url_for('main.logout') }}">logout</a>
-                {%- endif %}
+
+                    {% for href, id, caption in navigation_bar %}
+                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
+                            {{ caption }}
+                        </a>
+                    {% endfor %}
+
+                    <hr>
+
+                    {% if g.search_form %}
+                        <form method="get" action="{{ url_for('main.search') }}" class="search">
+                            {{ g.search_form.q(placeholder="Search lines...") }}
+                        </form>
+                    {% endif %}
+
+                    <hr>
+
+                    {%- if current_user.is_anonymous -%}
+                        <a href="{{ url_for('main.register') }}">register</a>
+                        <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
+                    {% else %}
+                        {# admin #}
+                        {%- if current_user.is_auth_any(adminrights) %}
+                            {% for right, link in zip(adminrights, adminlinks) %}
+                                {% if current_user.is_authorized(right) %}
+                                    <a href="{{ link[1] }}">{{ link[0] }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <hr>
+                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a>
+                        <a href="{{ url_for('main.logout') }}">logout</a>
+                    {%- endif %}
+
+                    <hr>
+                </div>
+
+                {% block content %} {% endblock %}
+
+                {% if prev_page %}
+                    <a href="{{ prev_page }}">&lt;&lt; Previous</a>
+                {% endif %}
+                {% if next_page and prev_page %}
+                    |
+                {% endif %}
+                {% if next_page %}
+                    <a href="{{ next_page }}">Next &gt;&gt;</a>
+                {% endif %}
             </div>
 
-            {% block content %} {% endblock %}
-
-            {% if prev_page %}
-                <a href="{{ prev_page }}">&lt;&lt; Previous</a>
-            {% endif %}
-            {% if next_page and prev_page %}
-                |
-            {% endif %}
-            {% if next_page %}
-                <a href="{{ next_page }}">Next &gt;&gt;</a>
-            {% endif %}
-        </div>
-
-        <div id="footer">
-            <a href="#">About</a>
-            <a href="#">News</a>
-            <a href="#">Privacy</a>
-            <a href="#">FAQ</a>
-            <a href="#">Help</a>
-            <a href="#">Contact</a>
-            <a href="#">Terms</a>
+            <div id="footer">
+                <a href="#">About</a>
+                <a href="#">News</a>
+                <a href="#">Privacy</a>
+                <a href="#">FAQ</a>
+                <a href="#">Help</a>
+                <a href="#">Contact</a>
+                <a href="#">Terms</a>
+            </div>
         </div>
     </body>
 </html>
