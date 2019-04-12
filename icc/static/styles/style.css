@@ -190,4 +190,14 @@ nav {
     visibility: visible;
     opacity: 1; }
 
+.sorts {
+  margin: 0.5em;
+  margin-bottom: 1em; }
+  .sorts a {
+    margin: 0.25em;
+    padding: 0.1em 0.5em 0.1em 0.5em; }
+    .sorts a.active, .sorts a:hover {
+      background-color: #eee8d5;
+      border-radius: 10px; }
+
 /*# sourceMappingURL=style.css.map */

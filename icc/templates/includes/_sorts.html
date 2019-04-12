@@ -1,5 +1,8 @@
-sort by:
-{% for type, url in sorts.items() %}
-    <a href="{{ url }}"{% if type == sort %} class="active"{% endif %}>{{ type
-        }}</a>
-{% endfor %}
+<div class="sorts">
+    sort by:
+    {% for type, url in sorts.items() %}
+        <a href="{{ url }}"{% if type == sort %} class="active"{% endif %}>
+            {{ type }}
+        </a>
+    {% endfor %}
+</div>

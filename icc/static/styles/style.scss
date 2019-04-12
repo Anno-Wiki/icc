@@ -270,3 +270,16 @@ nav {
         opacity: 1;
     }
 }
+
+.sorts {
+    margin: 0.5em;
+    margin-bottom: 1em;
+    a {
+        margin: 0.25em;
+        padding: 0.1em 0.5em 0.1em 0.5em;
+        &.active, &:hover {
+            background-color: $base2;
+            border-radius: $bevel;
+        }
+    }
+}
