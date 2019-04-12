@@ -97,20 +97,11 @@
                 <script>
                     function xout(x) {
                         x.classList.toggle("change");
-                        document.getElementsByClassName("mainmenu")[0].classList.toggle("show");
+                        document.getElementById("mainmenu").classList.toggle("show");
                     }
                 </script>
             </div>
         </nav>
-        <div class="mainmenu">
-            <ul>
-                {% for href, id, caption in navigation_bar %}
-                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
-                        <li>{{ caption }}</li>
-                    </a>
-                {% endfor %}
-            </ul>
-        </div>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -123,6 +114,16 @@
         {% endwith %}
 
         <div id="container">
+
+            <div id="mainmenu">
+                <ul>
+                    {% for href, id, caption in navigation_bar %}
+                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
+                            <li>{{ caption }}</li>
+                        </a>
+                    {% endfor %}
+                </ul>
+            </div>
 
             {% block content %} {% endblock %}
 
