@@ -1,4 +1,4 @@
-$serifs: "EB Garamond", "Cormorant Garmond", "Georgia", serif;
+$serifs: "EB Garamond", "Georgia", serif;
 $display: "Playfair Display", "Georgia", serif;
 
 // Solarized Colorscheme
@@ -49,8 +49,10 @@ nav {
     background-color: $base03;
     border-radius: 6px;
     text-align: center;
-    font-family: $display;
-    .logo { color: $yellow; }
+    font: {
+        family: $serifs;
+    }
+    .logo { color: $accent; }
     a { text-decoration: none; }
     & img {
         display: inline-block;
@@ -66,7 +68,7 @@ nav {
     .left, .center, .right {
         display: inline-block;
         margin: 0.5em;
-        @media only screen and (max-width: 1020px) { display: block; }
+        @media only screen and (max-width: 1060px) { display: block; }
         @media only screen and (max-width: 471px) { display: inline-block; }
     }
     &.web {
@@ -77,12 +79,16 @@ nav {
         .active {
             border-radius: 3px;
             background-color: $base02;
-            color: $yellow;
+            color: $accent;
             padding: 0.5em;
+                border-bottom: 1px solid $accent;
         }
         a {
             color: $base1;
-            &:hover { border-bottom: 1px solid $accent; }
+            transition: 0.7s;
+            &:hover {
+                color: $accent;
+            }
         }
     }
     &.mobile {
@@ -106,13 +112,13 @@ nav {
                 &1 {
                     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
                     transform: rotate(-45deg) translate(-9px, 6px);
-                    background-color: $yellow;
+                    background-color: $accent;
                 }
                 &2 { opacity: 0; }
                 &3 {
                     -webkit-transform: rotate(45deg) translate(-8px, -8px);
                     transform: rotate(45deg) translate(-8px, -8px);
-                    background-color: $yellow;
+                    background-color: $accent;
                 }
             }
         }
@@ -127,7 +133,7 @@ nav {
         @media only screen and (max-width: 440px) { width: 15em; }
         @media only screen and (max-width: 350px) { width: 13em; }
         border: {
-            color: $yellow;
+            color: $accent;
             radius: 5px;
         }
         font: {
@@ -175,13 +181,13 @@ nav {
             color: $base00;
             transition: 0.7s;
             &:hover {
-                color: $yellow;
+                color: $accent;
             }
         }
         hr {
             border: 0;
             height: 1px;
-            background-image: linear-gradient(to right, $base02, $yellow, $base02)
+            background-image: linear-gradient(to right, $base02, $accent, $base02)
         }
     }
 }

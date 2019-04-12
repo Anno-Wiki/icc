@@ -4,7 +4,7 @@ body {
   line-height: 1.5;
   padding: 1em 1em 1em 1em;
   color: #657b83;
-  font-family: "EB Garamond", "Cormorant Garmond", "Georgia", serif;
+  font-family: "EB Garamond", "Georgia", serif;
   font-size: 1.15em; }
 
 h1, h2, h3, h4, h5, h6 {
@@ -22,7 +22,7 @@ nav {
   background-color: #002b36;
   border-radius: 6px;
   text-align: center;
-  font-family: "Playfair Display", "Georgia", serif;
+  font-family: "EB Garamond", "Georgia", serif;
   /* The divs within the nav bar should display inline greater than 1020px,
    * then drop to block in a 3 tiered display, then go back to inline when we
    * switch to using a hamburger */ }
@@ -40,7 +40,7 @@ nav {
   nav .left, nav .center, nav .right {
     display: inline-block;
     margin: 0.5em; }
-    @media only screen and (max-width: 1020px) {
+    @media only screen and (max-width: 1060px) {
       nav .left, nav .center, nav .right {
         display: block; } }
     @media only screen and (max-width: 471px) {
@@ -55,11 +55,13 @@ nav {
     border-radius: 3px;
     background-color: #073642;
     color: #b58900;
-    padding: 0.5em; }
+    padding: 0.5em;
+    border-bottom: 1px solid #b58900; }
   nav.web a {
-    color: #93a1a1; }
+    color: #93a1a1;
+    transition: 0.7s; }
     nav.web a:hover {
-      border-bottom: 1px solid #b58900; }
+      color: #b58900; }
   @media only screen and (min-width: 471px) {
     nav.mobile {
       display: none; } }
@@ -148,7 +150,7 @@ nav {
 .dropbtn {
   border: none;
   cursor: pointer;
-  font-family: "EB Garamond", "Cormorant Garmond", "Georgia", serif; }
+  font-family: "EB Garamond", "Georgia", serif; }
 
 .dropdown {
   position: relative;
