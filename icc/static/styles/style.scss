@@ -169,17 +169,14 @@ nav {
     position: relative;
     padding: 1em;
     #mainmenu {
-        padding: 0 0 1em 0;
+        padding: 1em 0 1em 0;
 
         position: absolute;
         z-index: 5;
 
-        height: 100%;
-        width: 100%;
 
         top: 0;
         left: 0;
-        bottom: 0;
         right: 0;
 
         background-color: $base02;
@@ -187,6 +184,9 @@ nav {
         border-radius: $bevel;
         visibility: hidden;
         transition: $shortdelay;
+        input {
+            margin: 1em 0 1em 0;
+        }
 
         &.show {
             visibility: visible;
@@ -241,8 +241,8 @@ nav {
     }
     &-content {
         position: absolute;
-        margin: 0 auto;
         z-index: 1;
+        left: -30%;
 
         border-radius: $bevel;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
