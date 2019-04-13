@@ -19,7 +19,7 @@
             <nav class="web">
                 <div class="left">
                     <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                        <img src="{{ url_for('static', filename='images/n.png') }}">
+                        <span class="footnote">[n]</span>
                         anno.wiki
                     </a>
                     {% set navigation_bar = [

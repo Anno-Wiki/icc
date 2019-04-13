@@ -76,7 +76,13 @@ nav {
     border-radius: $bevel;
     text-align: center;
     font-family: $serifs;
-    .logo { color: $accent; }
+    .logo {
+        .footnote {
+            color: $accent;
+            border: 1px solid;
+            padding: 0 0.1em 0.1em 0.1em;
+        }
+    }
     & img {
         display: inline-block;
         vertical-align: middle;
@@ -296,6 +302,11 @@ nav {
         right-radius: $bevel;
     }
 
+    &-head, &-body, .tags, &-footer {
+        padding-left: 0.5em;
+    }
+
+
     &-head {
         padding: 0.5em;
         border-radius: $bevel;
@@ -306,19 +317,14 @@ nav {
             &:hover { color: $yellow; }
             &.footnote {
                 color: $yellow;
-                border: 1px solid;
                 vertical-align: text-bottom;
-                padding: 0.1em 0.2em 0.3em 0.2em;
-                font: {
-                    family: $display;
-                    size: 0.85em;
-                }
+                padding: 0.25em;
+                border-radius: $bevel;
                 &:hover { background-color: $base02; }
             }
         }
     }
     &-body {
-        padding-left: 0.5em;
         .cutoff {
             p:last-of-type::after {
                 content: "..."
@@ -326,10 +332,8 @@ nav {
         }
     }
     .tags {
-        padding-left: 0.5em;
     }
     &-footer {
-        padding-left: 0.5em;
         padding-bottom: 0.5em;
     }
 }

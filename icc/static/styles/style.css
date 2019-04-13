@@ -32,8 +32,10 @@ nav {
   border-radius: 10px;
   text-align: center;
   font-family: "EB Garamond", "Georgia", serif; }
-  nav .logo {
-    color: #b58900; }
+  nav .logo .footnote {
+    color: #b58900;
+    border: 1px solid;
+    padding: 0 0.1em 0.1em 0.1em; }
   nav img {
     display: inline-block;
     vertical-align: middle;
@@ -204,6 +206,8 @@ nav {
   box-shadow: 0 16px 32px 0 #073642;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px; }
+  .annotation-head, .annotation-body, .annotation .tags, .annotation-footer {
+    padding-left: 0.5em; }
   .annotation-head {
     padding: 0.5em;
     border-radius: 10px;
@@ -214,22 +218,15 @@ nav {
       .annotation-head a:hover {
         color: #b58900; }
       .annotation-head a.footnote {
-        font-family: "Playfair Display", "Georgia", serif;
-        font-size: 0.85em;
         color: #b58900;
-        border: 1px solid;
         vertical-align: text-bottom;
-        padding: 0.1em 0.2em 0.3em 0.2em; }
+        padding: 0.25em;
+        border-radius: 10px; }
         .annotation-head a.footnote:hover {
           background-color: #073642; }
-  .annotation-body {
-    padding-left: 0.5em; }
-    .annotation-body .cutoff p:last-of-type::after {
-      content: "..."; }
-  .annotation .tags {
-    padding-left: 0.5em; }
+  .annotation-body .cutoff p:last-of-type::after {
+    content: "..."; }
   .annotation-footer {
-    padding-left: 0.5em;
     padding-bottom: 0.5em; }
 
 /*# sourceMappingURL=style.css.map */
