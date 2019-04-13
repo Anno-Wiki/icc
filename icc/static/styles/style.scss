@@ -64,7 +64,7 @@ h1, h2, h3, h4, h5, h6 {
 strong { color: $base01; }
 
 a {
-    color: $base01;
+    color: $base1;
     text-decoration: none;
     transition: $shortdelay;
     &:hover { color: $accent; }
@@ -300,10 +300,21 @@ nav {
         padding: 0.5em;
         border-radius: $bevel;
         background-color: $base03;
-        color: $base0;
+        color: $base01;
         a {
-            color: $base1;
+            color: $base0;
             &:hover { color: $yellow; }
+            &.footnote {
+                color: $yellow;
+                border: 1px solid;
+                vertical-align: text-bottom;
+                padding: 0.1em 0.2em 0.3em 0.2em;
+                font: {
+                    family: $display;
+                    size: 0.85em;
+                }
+                &:hover { background-color: $base02; }
+            }
         }
     }
     &-body {

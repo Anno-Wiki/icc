@@ -20,7 +20,7 @@ strong {
   color: #586e75; }
 
 a {
-  color: #586e75;
+  color: #93a1a1;
   text-decoration: none;
   transition: 0.3s; }
   a:hover {
@@ -208,11 +208,20 @@ nav {
     padding: 0.5em;
     border-radius: 10px;
     background-color: #002b36;
-    color: #839496; }
+    color: #586e75; }
     .annotation-head a {
-      color: #93a1a1; }
+      color: #839496; }
       .annotation-head a:hover {
         color: #b58900; }
+      .annotation-head a.footnote {
+        font-family: "Playfair Display", "Georgia", serif;
+        font-size: 0.85em;
+        color: #b58900;
+        border: 1px solid;
+        vertical-align: text-bottom;
+        padding: 0.1em 0.2em 0.3em 0.2em; }
+        .annotation-head a.footnote:hover {
+          background-color: #073642; }
   .annotation-body {
     padding-left: 0.5em; }
     .annotation-body .cutoff p:last-of-type::after {

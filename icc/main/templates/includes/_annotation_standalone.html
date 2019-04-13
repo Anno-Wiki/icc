@@ -1,7 +1,7 @@
 <div class="annotation" id="a{{ annotation.id }}">
     <div class="annotation-head">
         {% set edition = annotation.edition %}
-        <sup><a href="{{ annotation.url }}">[{{ annotation.id }}]</a></sup>
+        <a href="{{ annotation.url }}" class="footnote">[{{ annotation.id }}]</a>
         on
         <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
         of <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
@@ -26,7 +26,7 @@
         {% for tag in annotation.HEAD.tags %}
             <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
         {% endfor %}
-    </div> 
+    </div>
 
     <div class="annotation-footer">
 
