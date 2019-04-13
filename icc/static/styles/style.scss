@@ -235,7 +235,7 @@ nav {
 .dropdown {
     position: relative;
     display: inline-block;
-    font-family: $display;
+    font-family: $serifs;
 
     .dropbtn {
         cursor: pointer;
@@ -247,11 +247,11 @@ nav {
         left: -30%;
 
         border-radius: $bevel;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 8px 16px 0px $base02;
 
         opacity: 0;
         visibility: hidden;
-        background-color: $base3;
+        background-color: $base2;
         transition: $shortdelay;
         a {
             border-radius: $bevel;
@@ -262,7 +262,7 @@ nav {
             transition: $middelay;
             &:hover {
                 color: $accent;
-                background-color: $base2;
+                background-color: $base3;
             }
         }
     }
@@ -282,5 +282,43 @@ nav {
             background-color: $base2;
             border-radius: $bevel;
         }
+    }
+}
+
+.annotation {
+    display: block;
+    background-color: $base2;
+    margin: 2em;
+    max-width: 50em;
+    box-shadow: 0 16px 32px 0 $base02;
+    border-top: {
+        left-radius: $bevel;
+        right-radius: $bevel;
+    }
+
+    &-head {
+        padding: 0.5em;
+        border-radius: $bevel;
+        background-color: $base03;
+        color: $base0;
+        a {
+            color: $base1;
+            &:hover { color: $yellow; }
+        }
+    }
+    &-body {
+        padding-left: 0.5em;
+        .cutoff {
+            p:last-of-type::after {
+                content: "..."
+            }
+        }
+    }
+    .tags {
+        padding-left: 0.5em;
+    }
+    &-footer {
+        padding-left: 0.5em;
+        padding-bottom: 0.5em;
     }
 }

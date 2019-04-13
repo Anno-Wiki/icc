@@ -1,5 +1,5 @@
-<annotation id="a{{ annotation.id }}">
-    <div class="annotation_head">
+<div class="annotation" id="a{{ annotation.id }}">
+    <div class="annotation-head">
         {% set edition = annotation.edition %}
         <sup><a href="{{ annotation.url }}">[{{ annotation.id }}]</a></sup>
         on
@@ -11,38 +11,34 @@
         {% if annotation.locked %}&#128274;{% endif %}
     </div>
 
-    <div class="annotation_content">
+    <div class="annotation-body">
         {%- if len(annotation.HEAD.body) < 255 -%}
             {{ annotation.HEAD.body|proc_links|markdown }}
         {%- else -%}
-            <span class="cutoff">{{ annotation.HEAD.body[:255]|proc_links|markdown
+            <span class="cutoff">{{ annotation.HEAD.body[:512]|proc_links|markdown
                 }}</span>
             <a href="{{ url_for("main.annotation", annotation_id=annotation.id)
                 }}">View More</a>
         {%- endif -%}
     </div>
 
-    <tags>
+    <div class="tags">
         {% for tag in annotation.HEAD.tags %}
             <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
         {% endfor %}
-    </tags>
+    </div> 
 
-    <br>
+    <div class="annotation-footer">
 
-    {% include "includes/_annotator.html" %}
-
-    | {% include "includes/_vote.html" %}
-
-    {% if current_user != annotation.annotator %}
-    | {% include "includes/_annotation_follow.html" %}
-    {% endif %}
-
-    | {% include "includes/_annotation_flags.html" %}
-
-    | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
-        next=request.full_path) }}">edit</a>
-
-    | <a href="{{ url_for("main.comments", annotation_id=annotation.id)
-        }}">comments</a>
-</annotation>
+        {% include "includes/_annotator.html" %}
+        | {% include "includes/_vote.html" %}
+        {% if current_user != annotation.annotator %}
+        | {% include "includes/_annotation_follow.html" %}
+        {% endif %}
+        | {% include "includes/_annotation_flags.html" %}
+        | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
+            next=request.full_path) }}">edit</a>
+        | <a href="{{ url_for("main.comments", annotation_id=annotation.id)
+            }}">comments</a>
+    </div>
+</div>

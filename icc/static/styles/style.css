@@ -158,7 +158,7 @@ nav {
 .dropdown {
   position: relative;
   display: inline-block;
-  font-family: "Playfair Display", "Georgia", serif; }
+  font-family: "EB Garamond", "Georgia", serif; }
   .dropdown .dropbtn {
     cursor: pointer;
     font-family: "EB Garamond", "Georgia", serif; }
@@ -167,10 +167,10 @@ nav {
     z-index: 1;
     left: -30%;
     border-radius: 10px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 8px 16px 0px #073642;
     opacity: 0;
     visibility: hidden;
-    background-color: #fdf6e3;
+    background-color: #eee8d5;
     transition: 0.3s; }
     .dropdown-content a {
       border-radius: 10px;
@@ -181,7 +181,7 @@ nav {
       transition: 0.5s; }
       .dropdown-content a:hover {
         color: #b58900;
-        background-color: #eee8d5; }
+        background-color: #fdf6e3; }
   .dropdown:hover .dropdown-content {
     visibility: visible;
     opacity: 1; }
@@ -195,5 +195,32 @@ nav {
     .sorts a.active, .sorts a:hover {
       background-color: #eee8d5;
       border-radius: 10px; }
+
+.annotation {
+  display: block;
+  background-color: #eee8d5;
+  margin: 2em;
+  max-width: 50em;
+  box-shadow: 0 16px 32px 0 #073642;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px; }
+  .annotation-head {
+    padding: 0.5em;
+    border-radius: 10px;
+    background-color: #002b36;
+    color: #839496; }
+    .annotation-head a {
+      color: #93a1a1; }
+      .annotation-head a:hover {
+        color: #b58900; }
+  .annotation-body {
+    padding-left: 0.5em; }
+    .annotation-body .cutoff p:last-of-type::after {
+      content: "..."; }
+  .annotation .tags {
+    padding-left: 0.5em; }
+  .annotation-footer {
+    padding-left: 0.5em;
+    padding-bottom: 0.5em; }
 
 /*# sourceMappingURL=style.css.map */
