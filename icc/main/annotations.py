@@ -181,7 +181,7 @@ def upvote(annotation_id):
         return redirect(redirect_url)
     elif vote:
         diff = datetime.utcnow() - vote.timestamp
-        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
+        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
     annotation.upvote(current_user)
@@ -200,7 +200,7 @@ def downvote(annotation_id):
         flash("You cannot vote on deactivated annotations.")
     elif vote:
         diff = datetime.utcnow() - vote.timestamp
-        if diff.days > 0 and annotation.HEAD.modified < vote.timestamp:
+        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
             flash("Your vote is locked until the annotation is modified.")
             return redirect(redirect_url)
     annotation.downvote(current_user)

@@ -208,28 +208,45 @@ nav {
   box-shadow: 0 16px 32px 0 #073642;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px; }
+  @media only screen and (max-width: 940px) {
+    .annotation .disappear-1 {
+      display: none; } }
+  @media only screen and (max-width: 880px) {
+    .annotation .disappear-2 {
+      display: none; } }
+  @media only screen and (max-width: 750px) {
+    .annotation .disappear-3 {
+      display: none; } }
   .annotation-head {
     padding: 0.5em;
     border-radius: 10px;
     background-color: #002b36;
-    color: #586e75; }
+    color: #586e75;
+    overflow: auto;
+    /* ^ Absolutely imperative for overflowing when rendering to the right
+     * and left */ }
     .annotation-head a {
       color: #839496; }
       .annotation-head a:hover {
         color: #b58900; }
       .annotation-head a.footnote {
         color: #b58900;
-        vertical-align: text-bottom;
-        padding: 0.25em;
-        border-radius: 10px; }
-        .annotation-head a.footnote:hover {
-          box-shadow: 0 0 4px 2px #073642;
-          background-color: #073642; }
+        padding: 0.25em; }
     .annotation-head .right {
       float: right;
       text-align: right; }
-    .annotation-head .weight, .annotation-head .collapse {
+    .annotation-head .weight, .annotation-head .collapse, .annotation-head .arrows {
       margin: 0 0.5em 0 0.5em; }
+    .annotation-head .arrows {
+      display: inline-block;
+      font-size: 0.85em;
+      vertical-align: text-top; }
+      .annotation-head .arrows div {
+        margin: -0.5em 0 -0.5em 0; }
+        .annotation-head .arrows div .up {
+          color: #b58900; }
+        .annotation-head .arrows div .down {
+          color: #dc322f; }
     .annotation-head .weight {
       border: 1px solid;
       padding: 0 0em 0.1em 0.2em; }
@@ -257,13 +274,23 @@ nav {
       border-radius: 10px;
       transition: 0.3s;
       padding: 0.25em 1em 0.25em 1em;
-      margin: 0 0.25em 0.25em 0.25em;
+      margin: 0.25em;
       font-family: "Playfair Display", "Georgia", serif;
       font-size: 0.85em; }
       .annotation .tags .tag:hover {
         background-color: #073642;
-        box-shadow: 0px 4px 8px 0px #073642; }
+        box-shadow: 0 0 4px 8px #002b36 inset; }
   .annotation-footer {
     padding-bottom: 0.5em; }
+    .annotation-footer .web {
+      display: none; }
+      @media only screen and (min-width: 501px) {
+        .annotation-footer .web {
+          display: inline; } }
+    .annotation-footer .mobile {
+      display: none; }
+      @media only screen and (max-width: 500px) {
+        .annotation-footer .mobile {
+          display: inline; } }
 
 /*# sourceMappingURL=style.css.map */

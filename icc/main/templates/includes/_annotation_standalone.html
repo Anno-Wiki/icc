@@ -3,15 +3,18 @@
         {% set edition = annotation.edition %}
         <a href="{{ annotation.url }}" class="footnote">[{{ annotation.id }}]</a>
         on
-        <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
-        of <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
+        <span class="disappear-1">
+            <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em> of
+        </span>
+        <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
         {% set writers = edition.writers['author'] %}
-        by {% include "includes/_writers_list.html" %}
+        <span class="disappear-2">by {% include "includes/_writers_list.html" %}</span>
         {% if annotation.locked %}&#128274;{% endif %}
         <span class="right">
             {% include "includes/_annotation_weight.html" %}
+            {% set vote = current_user.get_vote(annotation) %}
+            {% include "includes/_vote.html" %}
             <a class="collapse" onclick="collapse(this);">[ - ]</a>
-            {% include "includes/_collapse_script.js" %}
         </span>
     </div>
 
@@ -34,17 +37,19 @@
         </div>
 
         <div class="annotation-footer">
+            <span class="web">
+                {% include "includes/_annotator.html" %}
+            </span>
+            <span class="mobile">
+                by <a href="{{ url_for('user.profile', user_id=annotation.annotator.id ) }}">{{ annotation.annotator.displayname }}</a>
+            </span>
 
-            {% include "includes/_annotator.html" %}
-            | {% include "includes/_vote.html" %}
             {% if current_user != annotation.annotator %}
-            | {% include "includes/_annotation_follow.html" %}
+                <span class="disappear-3">| {% include "includes/_annotation_follow.html" %}</span>
             {% endif %}
-            | {% include "includes/_annotation_flags.html" %}
-            | <a href="{{ url_for("main.edit", annotation_id=annotation.id,
-                next=request.full_path) }}">edit</a>
-            | <a href="{{ url_for("main.comments", annotation_id=annotation.id)
-                }}">comments</a>
+            <span class="disappear-3">| {% include "includes/_annotation_flags.html" %}</span>
+            | <a href="{{ url_for("main.edit", annotation_id=annotation.id, next=request.full_path) }}">edit</a>
+            | <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">comments</a>
         </div>
     </div>
 </div>

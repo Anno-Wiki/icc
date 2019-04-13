@@ -310,33 +310,47 @@ nav {
         left-radius: $bevel;
         right-radius: $bevel;
     }
-
+    .disappear {
+        &-1 { @media only screen and (max-width: 940px) { display: none; } }
+        &-2 { @media only screen and (max-width: 880px) { display: none; } }
+        &-3 { @media only screen and (max-width: 750px) { display: none; } }
+    }
     &-head {
         padding: 0.5em;
         border-radius: $bevel;
         background-color: $darkbg;
         color: $base01;
+        overflow: auto;
+        /* ^ Absolutely imperative for overflowing when rendering to the right
+         * and left */
         a {
             color: $base0;
             &:hover { color: $yellow; }
             &.footnote {
                 color: $yellow;
-                vertical-align: text-bottom;
                 padding: 0.25em;
-                border-radius: $bevel;
-                &:hover {
-                    box-shadow: 0 0 4px 2px $darkbghl;
-                    background-color: $darkbghl;
-                }
             }
         }
         .right {
             float: right;
             text-align: right;
         }
-
-        .weight, .collapse {
+        .weight, .collapse, .arrows {
             margin: 0 0.5em 0 0.5em;
+        }
+        .arrows {
+            display: inline-block;
+            font-size: 0.85em;
+			vertical-align: text-top;
+            div {
+                margin: -0.5em 0 -0.5em 0; // squish them together
+                .up {
+                    color: $accent;
+                }
+                .down {
+                    color: $red;
+                }
+            }
         }
         .weight {
             border: 1px solid;
@@ -377,18 +391,26 @@ nav {
             border-radius: $bevel;
             transition: $shortdelay;
             padding: 0.25em 1em 0.25em 1em;
-            margin: 0 0.25em 0.25em 0.25em;
+            margin: 0.25em;
             font: {
                 family: $display;
                 size: 0.85em;
             }
             &:hover {
                 background-color: $darkbghl;
-                box-shadow: 0px 4px 8px 0px $darkbghl;
+                box-shadow: 0 0 4px 8px $darkbg inset;
             }
         }
     }
     &-footer {
         padding-bottom: 0.5em;
+        .web {
+            display: none;
+            @media only screen and (min-width: 501px) { display: inline; }
+        }
+        .mobile {
+            display: none;
+            @media only screen and (max-width: 500px) { display: inline; }
+        }
     }
 }
