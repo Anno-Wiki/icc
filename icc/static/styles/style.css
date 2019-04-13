@@ -203,13 +203,11 @@ nav {
 .annotation {
   display: block;
   background-color: #eee8d5;
-  margin: 2em;
+  margin: 2em auto;
   max-width: 50em;
   box-shadow: 0 16px 32px 0 #073642;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px; }
-  .annotation-head, .annotation-body, .annotation .tags, .annotation-footer {
-    padding-left: 0.5em; }
   .annotation-head {
     padding: 0.5em;
     border-radius: 10px;
@@ -227,20 +225,44 @@ nav {
         .annotation-head a.footnote:hover {
           box-shadow: 0 0 4px 2px #073642;
           background-color: #073642; }
+    .annotation-head .right {
+      float: right;
+      text-align: right; }
+    .annotation-head .weight, .annotation-head .collapse {
+      margin: 0 0.5em 0 0.5em; }
+    .annotation-head .weight {
+      border: 1px solid;
+      padding: 0 0em 0.1em 0.2em; }
+      .annotation-head .weight.up {
+        color: #b58900;
+        border-color: #b58900; }
+      .annotation-head .weight.down {
+        color: #dc322f;
+        border-color: #dc322f; }
+    .annotation-head .collapse {
+      font-family: "Playfair Display", "Georgia", serif;
+      cursor: pointer; }
+  .annotation-collapsible {
+    padding: 0.5em; }
   .annotation-body .cutoff p:last-of-type::after {
     content: "..."; }
-  .annotation .tags .tag {
-    display: inline-block;
-    background-color: #002b36;
-    font-family: "Playfair Display", "Georgia", serif;
-    font-size: 0.85em;
-    border-radius: 10px;
-    transition: 0.3s;
-    padding: 0.25em 1em 0.25em 1em;
-    margin: 0 0.25em 0.1em 0.25em; }
-    .annotation .tags .tag:hover {
-      background-color: #073642;
-      box-shadow: 0px 4px 8px 0px #073642; }
+  .annotation-body .cutoff a:last-of-type {
+    display: block;
+    margin: 1em; }
+  .annotation .tags {
+    margin: 0.5em; }
+    .annotation .tags .tag {
+      display: inline-block;
+      background-color: #002b36;
+      border-radius: 10px;
+      transition: 0.3s;
+      padding: 0.25em 1em 0.25em 1em;
+      margin: 0 0.25em 0.25em 0.25em;
+      font-family: "Playfair Display", "Georgia", serif;
+      font-size: 0.85em; }
+      .annotation .tags .tag:hover {
+        background-color: #073642;
+        box-shadow: 0px 4px 8px 0px #073642; }
   .annotation-footer {
     padding-bottom: 0.5em; }
 
