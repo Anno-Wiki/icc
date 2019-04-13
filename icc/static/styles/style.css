@@ -8,7 +8,8 @@ body {
   font-size: 1.15em; }
 
 .body {
-  background-color: #fdf6e3; }
+  background-color: #fdf6e3;
+  border-radius: 10px; }
 
 h1, h2, h3, h4, h5, h6 {
   color: #586e75;
@@ -33,15 +34,11 @@ nav {
   font-family: "EB Garamond", "Georgia", serif; }
   nav .logo {
     color: #b58900; }
-  nav a {
-    text-decoration: none; }
   nav img {
     display: inline-block;
     vertical-align: middle;
     width: 1.5em;
-    height: 1.5em;
-    margin: 0;
-    padding: 0; }
+    height: 1.5em; }
   nav .left, nav .center, nav .right {
     display: inline-block;
     margin: 0.5em; }
@@ -60,8 +57,8 @@ nav {
     border-radius: 10px;
     background-color: #073642;
     color: #b58900;
-    padding: 0.5em;
-    border-bottom: 1px solid #b58900; }
+    border-bottom: 1px solid #b58900;
+    padding: 0.5em; }
   nav.web a {
     color: #93a1a1;
     transition: 0.5s; }
@@ -78,12 +75,12 @@ nav {
     display: inline-block;
     vertical-align: middle;
     cursor: pointer; }
-  nav.mobile .bar1, nav.mobile .bar2, nav.mobile .bar3 {
-    width: 35px;
-    height: 5px;
-    background-color: #657b83;
-    margin: 6px 0;
-    transition: 0.3s; }
+    nav.mobile .hamburger .bar1, nav.mobile .hamburger .bar2, nav.mobile .hamburger .bar3 {
+      width: 35px;
+      height: 5px;
+      background-color: #657b83;
+      margin: 6px 0;
+      transition: 0.3s; }
   nav.mobile .change .bar1 {
     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
     transform: rotate(-45deg) translate(-9px, 6px);

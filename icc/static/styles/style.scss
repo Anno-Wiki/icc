@@ -47,13 +47,17 @@ body {
     }
 }
 
-.body { background-color: $base3; }
+// This exists solely to make everything set against a $base03 background
+.body {
+    background-color: $base3;
+    border-radius: $bevel; // To prevent the corners sticking up past the navbar
+}
 
 h1, h2, h3, h4, h5, h6 {
     color: $base01;
     font: {
         family: $display;
-        weight: normal;
+        weight: normal; // The font difference is sufficient, no bold=less font
     }
 }
 
@@ -73,14 +77,11 @@ nav {
     text-align: center;
     font-family: $serifs;
     .logo { color: $accent; }
-    a { text-decoration: none; }
     & img {
         display: inline-block;
         vertical-align: middle;
         width: 1.5em;
         height: 1.5em;
-        margin: 0;
-        padding: 0;
     }
     // The divs within the nav bar should display inline greater than 1020px,
     // then drop to block in a 3 tiered display, then go back to inline when we
@@ -92,15 +93,16 @@ nav {
         @media only screen and (max-width: 471px) { display: inline-block; }
     }
     &.web {
+        // turn off smaller than 470
         @media only screen and (max-width: 470px) { display: none }
-        & * { padding: 0.1em 0.25em 0.1em 0.25em; }
 
+        & * { padding: 0.1em 0.25em 0.1em 0.25em; }
         .active {
             border-radius: $bevel;
             background-color: $base02;
             color: $accent;
-            padding: 0.5em;
             border-bottom: 1px solid $accent;
+            padding: 0.5em;
         }
         a {
             color: $base1;
@@ -114,19 +116,20 @@ nav {
     }
 
     &.mobile {
+        // only display under 471
         @media only screen and (min-width: 471px) { display: none }
         .hamburger {
             display: inline-block;
             vertical-align: middle;
             cursor: pointer;
-        }
-        .bar {
-            &1, &2, &3 {
-                width: 35px;
-                height: 5px;
-                background-color: $base00;
-                margin: 6px 0;
-                transition: $shortdelay;
+            .bar {
+                &1, &2, &3 {
+                    width: 35px;
+                    height: 5px;
+                    background-color: $base00;
+                    margin: 6px 0;
+                    transition: $shortdelay;
+                }
             }
         }
         .change {
@@ -173,7 +176,6 @@ nav {
 
         position: absolute;
         z-index: 5;
-
 
         top: 0;
         left: 0;
@@ -264,7 +266,6 @@ nav {
             }
         }
     }
-
     &:hover &-content {
         visibility: visible;
         opacity: 1;
