@@ -34,6 +34,11 @@ $green:     #859900;
 
 // keywords
 $accent:    $yellow;
+$darkbg:    $base03;
+$darkbghl:  $base02;
+$lightbg:   $base3;
+$lightbghl: $base2;
+
 
 body {
     margin: 0 auto;
@@ -49,7 +54,7 @@ body {
 
 // This exists solely to make everything set against a $base03 background
 .body {
-    background-color: $base3;
+    background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
 }
 
@@ -72,7 +77,7 @@ a {
 
 nav {
     padding: 0.1em 0.5em 0.1em 0.5em;
-    background-color: $base03;
+    background-color: $darkbg;
     border-radius: $bevel;
     text-align: center;
     font-family: $serifs;
@@ -105,7 +110,7 @@ nav {
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
         .active {
             border-radius: $bevel;
-            background-color: $base02;
+            background-color: $darkbghl;
             color: $accent;
             border-bottom: 1px solid $accent;
             padding: 0.5em;
@@ -116,8 +121,11 @@ nav {
             &:hover { color: $accent; }
         }
         .dropdown-content {
-            background-color: $base03;
-            a:hover { background-color: $base02; }
+            background-color: $darkbg;
+            a:hover {
+                background-color: $darkbghl;
+                box-shadow: 0 0 4px 8px $darkbghl;
+            }
         }
     }
 
@@ -159,7 +167,7 @@ nav {
     text-align: center;
     input {
         width: 20em;
-        background-color: $base02;
+        background-color: $darkbghl;
         color: $base01;
         @media only screen and (max-width: 440px) { width: 15em; }
         @media only screen and (max-width: 350px) { width: 13em; }
@@ -187,13 +195,15 @@ nav {
         left: 0;
         right: 0;
 
-        background-color: $base02;
+        background-color: $darkbghl;
         opacity: 0;
         border-radius: $bevel;
         visibility: hidden;
         transition: $shortdelay;
         input {
             margin: 1em 0 1em 0;
+            background-color: $darkbg;
+            padding: 0.1em;
         }
 
         &.show {
@@ -218,20 +228,19 @@ nav {
             }
             &:hover {
                 color: $accent;
-                background-color: $base03;
             }
         }
         hr {
             border: 0;
             height: 1px;
-            background-image: linear-gradient(to right, $base02, $accent, $base02)
+            background-image: linear-gradient(to right, $darkbghl, $accent, $darkbghl)
         }
     }
 }
 
 #footer {
     padding: 1em;
-    background-color: $base2;
+    background-color: $lightbghl;
 }
 
 
@@ -253,11 +262,11 @@ nav {
         left: -30%;
 
         border-radius: $bevel;
-        box-shadow: 0px 8px 16px 0px $base02;
+        box-shadow: 0px 8px 16px 0px $darkbg;
 
         opacity: 0;
         visibility: hidden;
-        background-color: $base2;
+        background-color: $lightbghl;
         transition: $shortdelay;
         a {
             border-radius: $bevel;
@@ -268,7 +277,7 @@ nav {
             transition: $middelay;
             &:hover {
                 color: $accent;
-                background-color: $base3;
+                background-color: $lightbg;
             }
         }
     }
@@ -285,7 +294,7 @@ nav {
         margin: 0.25em;
         padding: 0.1em 0.5em 0.1em 0.5em;
         &.active, &:hover {
-            background-color: $base2;
+            background-color: $lightbghl;
             border-radius: $bevel;
         }
     }
@@ -293,10 +302,10 @@ nav {
 
 .annotation {
     display: block;
-    background-color: $base2;
+    background-color: $lightbghl;
     margin: 2em;
     max-width: 50em;
-    box-shadow: 0 16px 32px 0 $base02;
+    box-shadow: 0 16px 32px 0 $darkbghl;
     border-top: {
         left-radius: $bevel;
         right-radius: $bevel;
@@ -310,7 +319,7 @@ nav {
     &-head {
         padding: 0.5em;
         border-radius: $bevel;
-        background-color: $base03;
+        background-color: $darkbg;
         color: $base01;
         a {
             color: $base0;
@@ -320,7 +329,10 @@ nav {
                 vertical-align: text-bottom;
                 padding: 0.25em;
                 border-radius: $bevel;
-                &:hover { background-color: $base02; }
+                &:hover {
+                    box-shadow: 0 0 4px 2px $darkbghl;
+                    background-color: $darkbghl;
+                }
             }
         }
     }
@@ -332,6 +344,20 @@ nav {
         }
     }
     .tags {
+        .tag {
+            display: inline-block;
+            background-color: $darkbg;
+            font-family: $display;
+            font-size: 0.85em;
+            border-radius: $bevel;
+            transition: $shortdelay;
+            padding: 0.25em 1em 0.25em 1em;
+            margin: 0 0.25em 0.1em 0.25em;
+            &:hover {
+                background-color: $darkbghl;
+                box-shadow: 0px 4px 8px 0px $darkbghl;
+            }
+        }
     }
     &-footer {
         padding-bottom: 0.5em;

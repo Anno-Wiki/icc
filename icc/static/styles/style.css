@@ -69,7 +69,8 @@ nav {
   nav.web .dropdown-content {
     background-color: #002b36; }
     nav.web .dropdown-content a:hover {
-      background-color: #073642; }
+      background-color: #073642;
+      box-shadow: 0 0 4px 8px #073642; }
   @media only screen and (min-width: 471px) {
     nav.mobile {
       display: none; } }
@@ -127,7 +128,9 @@ nav {
     visibility: hidden;
     transition: 0.3s; }
     #container #mainmenu input {
-      margin: 1em 0 1em 0; }
+      margin: 1em 0 1em 0;
+      background-color: #002b36;
+      padding: 0.1em; }
     #container #mainmenu.show {
       visibility: visible;
       opacity: 1; }
@@ -143,8 +146,7 @@ nav {
       text-align: center;
       text-decoration: none; }
       #container #mainmenu a:hover {
-        color: #b58900;
-        background-color: #002b36; }
+        color: #b58900; }
     #container #mainmenu hr {
       border: 0;
       height: 1px;
@@ -169,7 +171,7 @@ nav {
     z-index: 1;
     left: -30%;
     border-radius: 10px;
-    box-shadow: 0px 8px 16px 0px #073642;
+    box-shadow: 0px 8px 16px 0px #002b36;
     opacity: 0;
     visibility: hidden;
     background-color: #eee8d5;
@@ -223,9 +225,22 @@ nav {
         padding: 0.25em;
         border-radius: 10px; }
         .annotation-head a.footnote:hover {
+          box-shadow: 0 0 4px 2px #073642;
           background-color: #073642; }
   .annotation-body .cutoff p:last-of-type::after {
     content: "..."; }
+  .annotation .tags .tag {
+    display: inline-block;
+    background-color: #002b36;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 0.85em;
+    border-radius: 10px;
+    transition: 0.3s;
+    padding: 0.25em 1em 0.25em 1em;
+    margin: 0 0.25em 0.1em 0.25em; }
+    .annotation .tags .tag:hover {
+      background-color: #073642;
+      box-shadow: 0px 4px 8px 0px #073642; }
   .annotation-footer {
     padding-bottom: 0.5em; }
 
