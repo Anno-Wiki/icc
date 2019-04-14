@@ -299,6 +299,18 @@ nav {
         }
     }
 }
+$break1:    940px;
+$break2:    880px;
+$break3:    750px;
+$break4:    500px;
+$break5:    450px;
+.disappear {
+    &-1 { @media only screen and (max-width: $break1) { display: none; } }
+    &-2 { @media only screen and (max-width: $break2) { display: none; } }
+    &-3 { @media only screen and (max-width: $break3) { display: none; } }
+    &-4 { @media only screen and (max-width: $break4) { display: none; } }
+    &-5 { @media only screen and (max-width: $break5) { display: none; } }
+}
 
 .annotation {
     display: block;
@@ -310,13 +322,9 @@ nav {
         left-radius: $bevel;
         right-radius: $bevel;
     }
-    .disappear {
-        &-1 { @media only screen and (max-width: 940px) { display: none; } }
-        &-2 { @media only screen and (max-width: 880px) { display: none; } }
-        &-3 { @media only screen and (max-width: 750px) { display: none; } }
-    }
     &-head {
         padding: 0.5em;
+        //@media only screen and (max-width: 500px) { margin: 0.1em; }
         border-radius: $bevel;
         background-color: $darkbg;
         color: $base01;
@@ -326,15 +334,50 @@ nav {
         a {
             color: $base0;
             &:hover { color: $yellow; }
-            &.footnote {
+        }
+
+        .footnote {
+            a {
                 color: $yellow;
                 padding: 0.25em;
             }
         }
+
+        .left {
+            display: inline-block;
+            font-size: 2em;
+            margin: 0;
+            vertical-align: middle;
+            .arrows {
+                margin: 0;
+            }
+            @media only screen and (min-width: $break4+1) { display: none; }
+            display: inline-block;
+
+        }
+        .center {
+            display: inline-block;
+
+            @media only screen and (max-width: $break4) {
+                vertical-align: middle;
+                margin: 0 auto;
+            }
+            .footnote, .title {
+                @media only screen and (max-width: $break4) {
+                    display: block;
+                }
+            }
+            .collapse {
+                margin: 0;
+                @media only screen and (min-width: $break5+1) { display: none; }
+            }
+        }
+
         .right {
             float: right;
             text-align: right;
         }
+
         .weight, .collapse, .arrows {
             margin: 0 0.5em 0 0.5em;
         }

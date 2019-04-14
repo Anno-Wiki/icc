@@ -200,6 +200,22 @@ nav {
       background-color: #eee8d5;
       border-radius: 10px; }
 
+@media only screen and (max-width: 940px) {
+  .disappear-1 {
+    display: none; } }
+@media only screen and (max-width: 880px) {
+  .disappear-2 {
+    display: none; } }
+@media only screen and (max-width: 750px) {
+  .disappear-3 {
+    display: none; } }
+@media only screen and (max-width: 500px) {
+  .disappear-4 {
+    display: none; } }
+@media only screen and (max-width: 450px) {
+  .disappear-5 {
+    display: none; } }
+
 .annotation {
   display: block;
   background-color: #eee8d5;
@@ -208,15 +224,6 @@ nav {
   box-shadow: 0 16px 32px 0 #073642;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px; }
-  @media only screen and (max-width: 940px) {
-    .annotation .disappear-1 {
-      display: none; } }
-  @media only screen and (max-width: 880px) {
-    .annotation .disappear-2 {
-      display: none; } }
-  @media only screen and (max-width: 750px) {
-    .annotation .disappear-3 {
-      display: none; } }
   .annotation-head {
     padding: 0.5em;
     border-radius: 10px;
@@ -229,9 +236,34 @@ nav {
       color: #839496; }
       .annotation-head a:hover {
         color: #b58900; }
-      .annotation-head a.footnote {
-        color: #b58900;
-        padding: 0.25em; }
+    .annotation-head .footnote a {
+      color: #b58900;
+      padding: 0.25em; }
+    .annotation-head .left {
+      display: inline-block;
+      font-size: 2em;
+      margin: 0;
+      vertical-align: middle;
+      display: inline-block; }
+      .annotation-head .left .arrows {
+        margin: 0; }
+      @media only screen and (min-width: 501px) {
+        .annotation-head .left {
+          display: none; } }
+    .annotation-head .center {
+      display: inline-block; }
+      @media only screen and (max-width: 500px) {
+        .annotation-head .center {
+          vertical-align: middle;
+          margin: 0 auto; } }
+      @media only screen and (max-width: 500px) {
+        .annotation-head .center .footnote, .annotation-head .center .title {
+          display: block; } }
+      .annotation-head .center .collapse {
+        margin: 0; }
+        @media only screen and (min-width: 451px) {
+          .annotation-head .center .collapse {
+            display: none; } }
     .annotation-head .right {
       float: right;
       text-align: right; }
