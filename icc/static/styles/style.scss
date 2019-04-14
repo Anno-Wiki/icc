@@ -39,6 +39,25 @@ $darkbghl:  $base02;
 $lightbg:   $base3;
 $lightbghl: $base2;
 
+// breaks and disappear classes
+$break1:   1120px;
+$break2:    940px;
+$break3:    880px;
+$break4:    750px;
+$break5:    500px;
+$break6:    470px;
+$break7:    450px;
+$break8:    440px;
+$break9:    350px;
+
+
+.disappear {
+    &-1 { @media only screen and (max-width: $break2) { display: none; } }
+    &-2 { @media only screen and (max-width: $break3) { display: none; } }
+    &-3 { @media only screen and (max-width: $break4) { display: none; } }
+    &-4 { @media only screen and (max-width: $break5) { display: none; } }
+    &-5 { @media only screen and (max-width: $break7) { display: none; } }
+}
 
 body {
     margin: 0 auto;
@@ -100,12 +119,12 @@ nav {
     .left, .center, .right {
         display: inline-block;
         margin: 0.5em;
-        @media only screen and (max-width: 1120px) { display: block; }
-        @media only screen and (max-width: 471px) { display: inline-block; }
+        @media only screen and (max-width: $break1) { display: block; }
+        @media only screen and (max-width: $break6) { display: inline-block; }
     }
     &.web {
         // turn off smaller than 470
-        @media only screen and (max-width: 470px) { display: none }
+        @media only screen and (max-width: $break6) { display: none }
 
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
         .active {
@@ -131,7 +150,7 @@ nav {
 
     &.mobile {
         // only display under 471
-        @media only screen and (min-width: 471px) { display: none }
+        @media only screen and (min-width: $break6+1) { display: none }
         .hamburger {
             display: inline-block;
             vertical-align: middle;
@@ -169,8 +188,8 @@ nav {
         width: 20em;
         background-color: $darkbghl;
         color: $base01;
-        @media only screen and (max-width: 440px) { width: 15em; }
-        @media only screen and (max-width: 350px) { width: 13em; }
+        @media only screen and (max-width: $break8) { width: 15em; }
+        @media only screen and (max-width: $break9) { width: 13em; }
         border: {
             color: $accent;
             radius: $bevel;
@@ -299,18 +318,6 @@ nav {
         }
     }
 }
-$break1:    940px;
-$break2:    880px;
-$break3:    750px;
-$break4:    500px;
-$break5:    450px;
-.disappear {
-    &-1 { @media only screen and (max-width: $break1) { display: none; } }
-    &-2 { @media only screen and (max-width: $break2) { display: none; } }
-    &-3 { @media only screen and (max-width: $break3) { display: none; } }
-    &-4 { @media only screen and (max-width: $break4) { display: none; } }
-    &-5 { @media only screen and (max-width: $break5) { display: none; } }
-}
 
 .annotation {
     display: block;
@@ -324,7 +331,6 @@ $break5:    450px;
     }
     &-head {
         padding: 0.5em;
-        //@media only screen and (max-width: 500px) { margin: 0.1em; }
         border-radius: $bevel;
         background-color: $darkbg;
         color: $base01;
@@ -351,25 +357,25 @@ $break5:    450px;
             .arrows {
                 margin: 0;
             }
-            @media only screen and (min-width: $break4+1) { display: none; }
+            @media only screen and (min-width: $break5+1) { display: none; }
             display: inline-block;
 
         }
         .center {
             display: inline-block;
 
-            @media only screen and (max-width: $break4) {
+            @media only screen and (max-width: $break5) {
                 vertical-align: middle;
                 margin: 0 auto;
             }
             .footnote, .title {
-                @media only screen and (max-width: $break4) {
+                @media only screen and (max-width: $break5) {
                     display: block;
                 }
             }
             .collapse {
                 margin: 0;
-                @media only screen and (min-width: $break5+1) { display: none; }
+                @media only screen and (min-width: $break7+1) { display: none; }
             }
         }
 
@@ -449,11 +455,11 @@ $break5:    450px;
         padding-bottom: 0.5em;
         .web {
             display: none;
-            @media only screen and (min-width: 501px) { display: inline; }
+            @media only screen and (min-width: $break5+1) { display: inline; }
         }
         .mobile {
             display: none;
-            @media only screen and (max-width: 500px) { display: inline; }
+            @media only screen and (max-width: $break5) { display: inline; }
         }
     }
 }

@@ -1,3 +1,19 @@
+@media only screen and (max-width: 940px) {
+  .disappear-1 {
+    display: none; } }
+@media only screen and (max-width: 880px) {
+  .disappear-2 {
+    display: none; } }
+@media only screen and (max-width: 750px) {
+  .disappear-3 {
+    display: none; } }
+@media only screen and (max-width: 500px) {
+  .disappear-4 {
+    display: none; } }
+@media only screen and (max-width: 450px) {
+  .disappear-5 {
+    display: none; } }
+
 body {
   margin: 0 auto;
   max-width: 60em;
@@ -47,7 +63,7 @@ nav {
     @media only screen and (max-width: 1120px) {
       nav .left, nav .center, nav .right {
         display: block; } }
-    @media only screen and (max-width: 471px) {
+    @media only screen and (max-width: 470px) {
       nav .left, nav .center, nav .right {
         display: inline-block; } }
   @media only screen and (max-width: 470px) {
@@ -199,22 +215,6 @@ nav {
     .sorts a.active, .sorts a:hover {
       background-color: #eee8d5;
       border-radius: 10px; }
-
-@media only screen and (max-width: 940px) {
-  .disappear-1 {
-    display: none; } }
-@media only screen and (max-width: 880px) {
-  .disappear-2 {
-    display: none; } }
-@media only screen and (max-width: 750px) {
-  .disappear-3 {
-    display: none; } }
-@media only screen and (max-width: 500px) {
-  .disappear-4 {
-    display: none; } }
-@media only screen and (max-width: 450px) {
-  .disappear-5 {
-    display: none; } }
 
 .annotation {
   display: block;
