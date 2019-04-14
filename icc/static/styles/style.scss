@@ -50,6 +50,8 @@ $break7:    450px;
 $break8:    440px;
 $break9:    350px;
 
+$bodywidth: 60em;
+$annotationwidth: 50em;
 
 .disappear {
     &-1 { @media only screen and (max-width: $break2) { display: none; } }
@@ -61,7 +63,7 @@ $break9:    350px;
 
 body {
     margin: 0 auto;
-    max-width: 60em;
+    max-width: $bodywidth;
     line-height: 1.5;
     padding: 1em 1em 1em 1em;
     color: $base00;
@@ -139,13 +141,6 @@ nav {
             transition: $middelay;
             &:hover { color: $accent; }
         }
-        .dropdown-content {
-            background-color: $darkbg;
-            a:hover {
-                background-color: $darkbghl;
-                box-shadow: 0 0 4px 8px $darkbghl;
-            }
-        }
     }
 
     &.mobile {
@@ -182,6 +177,14 @@ nav {
         }
     }
 }
+.dark .dropdown-content {
+    background-color: $darkbg;
+    a:hover {
+        background-color: $darkbghl;
+        box-shadow: 0 0 2px 4px $darkbghl;
+    }
+}
+
 .search {
     text-align: center;
     input {
@@ -323,7 +326,7 @@ nav {
     display: block;
     background-color: $lightbghl;
     margin: 2em auto;
-    max-width: 50em;
+    max-width: $annotationwidth;
     box-shadow: 0 16px 32px 0 $darkbghl;
     border-top: {
         left-radius: $bevel;
@@ -461,5 +464,20 @@ nav {
             display: none;
             @media only screen and (max-width: $break5) { display: inline; }
         }
+    }
+}
+
+.toolbar {
+    display: flex;
+    .tools {
+        background-color: $darkbg;
+        border-radius: $bevel+10px;
+        margin: 0 auto;
+        a {
+            font-family: $display;
+            padding: 0.5em;
+            &.dropbtn { font-family: $display; }
+        }
+        padding: 0.25em;
     }
 }

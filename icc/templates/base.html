@@ -62,16 +62,18 @@
                     {% else %}
                         {# admin #}
                         {%- if current_user.is_auth_any(adminrights) %}
-                            <div class="dropdown">
-                                <a class="dropbtn">admin&#x25BE;</a> |
-                                <div class="dropdown-content">
-                                    {% for right, link in zip(adminrights, adminlinks) %}
-                                        {% if current_user.is_authorized(right) %}
-                                            <a href="{{ link[1] }}">{{ link[0] }}</a>
-                                        {% endif %}
-                                    {% endfor %}
+                            <span class="dark">
+                                <div class="dropdown">
+                                    <a class="dropbtn">admin&#x25BE;</a> |
+                                    <div class="dropdown-content">
+                                        {% for right, link in zip(adminrights, adminlinks) %}
+                                            {% if current_user.is_authorized(right) %}
+                                                <a href="{{ link[1] }}">{{ link[0] }}</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                            </div>
+                            </span>
                         {% endif %}
 
                         <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
