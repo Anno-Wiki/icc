@@ -2,33 +2,39 @@
 {% set active_page = "texts" %}
 
 {% block content %}
-<h1>Texts</h1>
-<h4>
-    Don’t see what you’re looking for? Upvote it among our
-    <a href="{{ url_for("requests.text_request_index") }}">text requests</a>.
-</h4>
+    <h1>Texts</h1>
+    <h4>
+        Don’t see what you’re looking for? Upvote it among our
+        <a href="{{ url_for("requests.text_request_index") }}">text requests</a>.
+    </h4>
 
-{% include "includes/_sorts.html" %}
+    {% include "includes/_sorts.html" %}
 
-<div class="index">
-    {% for text in texts %}
-        <div class="card">
-            <h2><a href="{{ text.url }}">{{ text.title }}</a></h2>
-            &times; {{ text.editions.count() }} editions
-            <br>
+    <div class="index">
+        {% for text in texts %}
+            <div class="card">
+                <h3 class="title">
+                    <a href="{{ text.url }}">
+                        {{ text.title }}
+                    </a>
+                </h3>
+                &times; {{ text.editions.count() }} editions
 
-            {# follow the text #}
-            <a href="{{ url_for("user.follow_text", text_id=text.id,
-                next=request.full_path) }}">{% if current_user.is_authenticated
-                and text in current_user.followed_texts %}unfollow{% else
-            %}follow{% endif %}</a>
+                {# follow the text #}
+                <br>
+                <a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
+                    {% if current_user.is_authenticated and text in current_user.followed_texts %}unfollow{% else %}follow{% endif %}
+                </a>
 
-            <div{% if len(text.wiki.current.body) >= 127 %}
-                class="card_text_cutoff"{%endif%}>{{
-                text.wiki.current.body[:127]|proc_links|markdown }}</div>
+                <div{% if len(text.wiki.current.body) >= 127 %} class="card-cutoff"{%endif%}>
+                    {{ text.wiki.current.body[:127]|proc_links|markdown }}
+                </div>
 
-            <a href="{{ text.url }}">View More</a>
-        </div>
-    {% endfor %}
-</div>
+                <div class="viewmore">
+                    <a href="{{ text.url }}">View More</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
 {% endblock %}

@@ -4,26 +4,6 @@
     <div id="content">
         {% set edition = annotation.edition %}
 
-
-
-        <div class="selection">
-            {% for line in annotation.HEAD.context %}
-                <div{% if line in annotation.HEAD.lines %} class="highlight"{% endif
-                    %}>
-                    <line class="{{ line.primary.enum }}" id="{{ line.num }}">
-                        {% if line in annotation.HEAD.lines %}
-                            <span class="linenum">{{ line.num }}</span>
-                        {% endif %}
-                        {%- if line.primary.enum == 'hr' -%}
-                            <hr class="text_separator">
-                        {%- else -%}
-                            {{ line.line|safe }}
-                        {%- endif -%}
-                    </line>
-                </div>
-            {% endfor %}
-        </div>
-
         <div class="toolbar">
             <div class="tools">
                 <a href="{{ url_for("main.edit_history", annotation_id=annotation.id) }}">version history</a>
@@ -42,6 +22,24 @@
                     <a href="{{ url_for("admin.deactivate_annotation", annotation_id=annotation.id) }}">{% if annotation.active %}deactivate{% else %}reactivate{% endif %}</a>
                 {% endif %}
             </div>
+        </div>
+
+        <div class="selection">
+            {% for line in annotation.HEAD.context %}
+                <div{% if line in annotation.HEAD.lines %} class="highlight"{% endif
+                    %}>
+                    <line class="{{ line.primary.enum }}" id="{{ line.num }}">
+                        {% if line in annotation.HEAD.lines %}
+                            <span class="linenum">{{ line.num }}</span>
+                        {% endif %}
+                        {%- if line.primary.enum == 'hr' -%}
+                            <hr class="text_separator">
+                        {%- else -%}
+                            {{ line.line|safe }}
+                        {%- endif -%}
+                    </line>
+                </div>
+            {% endfor %}
         </div>
 
         {% include "includes/_collapse_script.js" %}

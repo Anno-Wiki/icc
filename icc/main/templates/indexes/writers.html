@@ -4,44 +4,46 @@
 {% block content %}
     <h1>Writers</h1>
     {% include "includes/_sorts.html" %}
+
     <div class="index">
         {% if len(writers) <= 0 %}
-            <h4>
+            <h2>
                 There are no writers for this category.
-            </h4>
+            </h2>
         {% endif %}
+
         {% for writer in writers %}
             <div class="card">
-                <h2>
+                <h3 class="title">
                     <a href="{{ writer.url }}">
                         {{ writer.name }}
                     </a>
-                    {% if writer.birth_date.year %}
-                        <div class="life_years">
-                            {{ writer.birth_date.year }}-{{
-                                writer.death_date.year }}
-                        </div>
-                    {% endif %}
-                </h2>
+                </h3>
+                {% if writer.birth_date.year %}
+                    <div class="life_years">
+                        {{ writer.birth_date.year }}-{{ writer.death_date.year }}
+                    </div>
+                {% endif %}
 
                 {% for category, works in writer.works.items() %}
                     {{ category.title() }} &times; {{ len(writer.works) }}
                 {% endfor %}
+
+                {# follow #}
                 <br>
-                <a href="{{ url_for("user.follow_writer", writer_id=writer.id,
-                    next=request.full_path) }}">
-                    {%- if current_user.is_authenticated and writer in
-                        current_user.followed_writers -%}unfollow{%- else
-                        -%}follow{%- endif -%}
+                <a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
+                    {%- if current_user.is_authenticated and writer in current_user.followed_writers -%}unfollow{%- else -%}follow{%- endif -%}
                 </a>
 
-                <div{% if len(writer.wiki.current.body) >= 127 %}
-                    class="card_text_cutoff"{% endif %}>
+                <div{% if len(writer.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
                     {{ writer.wiki.current.body[:127]|proc_links|markdown }}
                 </div>
 
-                <a href="{{ writer.url }}">View More</a>
+                <div class="viewmore">
+                    <a href="{{ writer.url }}">View More</a>
+                </div>
             </div>
         {% endfor %}
     </div>
+
 {% endblock %}

@@ -496,3 +496,42 @@ nav {
         padding: 0.25em;
     }
 }
+
+// styling for card indexes
+.index {
+    display: flex;
+    flex-wrap: wrap;
+    .card {
+        position: relative;
+        margin: 0.5em;
+        height: 15em;
+        width: 17em;
+
+        @media only screen and (max-width: $break1) { width: 16em; }
+
+        @media only screen and (max-width: $break8) {
+            height: 17em;
+            width: 15em;
+        }
+
+        @media only screen and (max-width: $break9) { height: 20em; }
+
+        padding: 0.25em;
+        border: 2px dashed $lightbghl;
+
+        h3.title { margin: 0; }
+        .tag {
+            margin: 0.25em;
+            font-size: 1.01em;
+        }
+
+        &-cutoff { p:last-of-type::after { content: "..." } }
+        .viewmore {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    }
+}
+

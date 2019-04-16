@@ -2,35 +2,43 @@
 {% set active_page = "tags" %}
 
 {% block content %}
-<h1>Tags</h1>
-<h4>
-    Don't see what you're looking for? Upvote it among our
-    <a href="{{ url_for("requests.tag_request_index") }}">
-        tag requests.
-    </a>
-</h4>
 
-{% include "includes/_sorts.html" %}
+    <h1>Tags</h1>
+    <h4>
+        Don't see what you're looking for? Upvote it among our
+        <a href="{{ url_for("requests.tag_request_index") }}">
+            tag requests.
+        </a>
+    </h4>
 
-<div class="index">
-    {% for tag in tags %}
-        <div class="card">
-            <a href="{{ tag.url }}"><tag>{{ tag.tag }}</tag></a>
-            <br>
-            &times; {{ tag.annotations.count() }}
-            <br>
-            <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-                next=request.full_path) }}">{% if current_user.is_authenticated
-                and tag in current_user.followed_tags %}unfollow{% else
-            %}follow{% endif %}</a>
+    {% include "includes/_sorts.html" %}
 
-            <div{% if len(tag.wiki.current.body) > 127 %}
-                class="card_text_cutoff"{% endif %}>
-                {{ tag.wiki.current.body[:127]|proc_links|markdown }}
+    <div class="index">
+        {% for tag in tags %}
+            <div class="card">
+                <div class="title">
+                    <a href="{{ tag.url }}">
+                        <div class="tag">
+                            {{ tag.tag }}
+                        </div>
+                    </a>
+                &times; {{ tag.annotations.count() }}
+                </div>
+                <br>
+                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
+                    next=request.full_path) }}">
+                    {% if current_user.is_authenticated and tag in current_user.followed_tags %}unfollow{% else %}follow{% endif %}
+                </a>
+
+                <div{% if len(tag.wiki.current.body) > 127 %}
+                    class="card_text_cutoff"{% endif %}>
+                    {{ tag.wiki.current.body[:127]|proc_links|markdown }}
+                </div>
+                <div class="viewmore">
+                    <a href="{{ tag.url }}">View More</a>
+                </div>
             </div>
-            <a href="{{ tag.url }}">View More</a>
-        </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 
 {% endblock %}

@@ -351,12 +351,43 @@ nav {
     border-radius: 20px;
     margin: 0 auto;
     padding: 0.25em; }
-    .toolbar .tools .dropbox-content a {
-      margin: 0; }
     .toolbar .tools a {
       font-family: "Playfair Display", "Georgia", serif;
       padding: 0.5em; }
       .toolbar .tools a.dropbtn {
         font-family: "Playfair Display", "Georgia", serif; }
+
+.index {
+  display: flex;
+  flex-wrap: wrap; }
+  .index .card {
+    position: relative;
+    margin: 0.5em;
+    height: 15em;
+    width: 17em;
+    padding: 0.25em;
+    border: 2px dashed #eee8d5; }
+    @media only screen and (max-width: 1120px) {
+      .index .card {
+        width: 16em; } }
+    @media only screen and (max-width: 440px) {
+      .index .card {
+        height: 17em;
+        width: 15em; } }
+    @media only screen and (max-width: 350px) {
+      .index .card {
+        height: 20em; } }
+    .index .card h3.title {
+      margin: 0; }
+    .index .card .tag {
+      margin: 0.25em;
+      font-size: 1.01em; }
+    .index .card-cutoff p:last-of-type::after {
+      content: "..."; }
+    .index .card .viewmore {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%; }
 
 /*# sourceMappingURL=style.css.map */
