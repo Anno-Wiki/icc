@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
-<h2>{{ edition.edition_title }}</h2>
+    <h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
+    <h3>{{ edition.edition_title }}</h3>
 
-{% for category, writers in edition.writers.items() %}
-    <h3>{{ category.title() }}s<h3>
-    {% for writer in writers %}
-        <h4><a href="{{ writer.url }}">{{ writer.name }}</a></h4>
+    {% for category, writers in edition.writers.items() %}
+        <h4>{{ category.title() }}s<h4>
+        {% for writer in writers %}
+            <h5><a href="{{ writer.url }}">{{ writer.name }}</a></h5>
+        {% endfor %}
     {% endfor %}
-{% endfor %}
 
-<div id="summary">{{ edition.wiki.current.body|markdown }}</div>
+    <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-<a href="{{ url_for("main.edition_annotations", text_url=edition.text.url_name,
-    edition_num=edition.num) }}">annotations</a>
-| <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
-    next=request.full_path) }}">{% if current_user.is_authenticated and edition
-    in current_user.followed_editions %}unfollow{% else %}follow{% endif %}</a>
-| <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
-    next=request.full_path) }}">edit</a>
-| <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
-    }}">edit history</a>
+    <a href="{{ url_for("main.edition_annotations", text_url=edition.text.url_name,
+        edition_num=edition.num) }}">annotations</a>
+    | <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
+        next=request.full_path) }}">{% if current_user.is_authenticated and edition
+        in current_user.followed_editions %}unfollow{% else %}follow{% endif %}</a>
+    | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
+        next=request.full_path) }}">edit</a>
+    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
+        }}">edit history</a>
 
-{# table of contents #}
-{% set hierarchy = edition.toc %}
-{% include "includes/_toc.html" %}
+    {# table of contents #}
+    {% set hierarchy = edition.toc %}
+    {% include "includes/_toc.html" %}
 {% endblock %}

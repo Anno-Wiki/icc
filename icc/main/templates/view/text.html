@@ -1,42 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1>{{ text.title }}</h1>
-{% set writers = text.primary.writers['author'] %}
-<h2>{% include "includes/_writers_list.html" %}</h2>
-
-<div id="summary">{{ text.wiki.current.body|markdown }}</div>
-
-<a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">
-    annotations
-</a>
-
-| <a href="{{ url_for("user.follow_text", text_id=text.id,
-    next=request.full_path) }}">{% if current_user.is_authenticated and text
-    in current_user.followed_texts %}unfollow{% else %}follow{% endif %}</a>
-| <a href="{{ url_for("main.edit_wiki", wiki_id=text.wiki.id,
-    next=request.full_path) }}">edit</a>
-| <a href="{{ url_for("main.wiki_edit_history", wiki_id=text.wiki.id) }}">
-    edit history
-</a>
-
-<div class="index">
-    {% for edition in text.editions %}
-        <div class="card">
-            <h2><a href="{{ edition.url }}">{{ edition.edition_title }}</a></h2>
-            <div class="count">&times; {{ edition.lines.count() }} lines</div>
-
-            <div{% if len(edition.wiki.current.body) >= 127 %}
-                class="card_text_cutoff"{% endif %}>{{
-                edition.wiki.current.body[:127]|markdown }}</div>
-
-            <a href="{{ edition.url }}">View More</a>
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">
+                view annotations
+            </a>
+            <a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
+                {% if current_user.is_authenticated and text in current_user.followed_texts %}unfollow{% else %}follow{% endif %}
+            </a>
+            <a href="{{ url_for("main.edit_wiki", wiki_id=text.wiki.id,
+                next=request.full_path) }}">
+                edit wiki
+            </a>
+            <a href="{{ url_for("main.wiki_edit_history", wiki_id=text.wiki.id) }}">
+                wiki edit history
+            </a>
         </div>
-    {% endfor %}
-</div>
+    </div>
 
-{% set hierarchy = text.primary.toc %}
-{% include "includes/_toc.html" %}
+    <h1>{{ text.title }}</h1>
+    {% set writers = text.primary.writers['author'] %}
+    <h3>by {% include "includes/_all_writers_list.html" %}</h3>
+
+    <div id="summary">{{ text.wiki.current.body|markdown }}</div>
+
+    <h2>Editions</h2>
+    <div class="index">
+        {% for edition in text.editions %}
+            <div class="card">
+                <h3 class="title">
+                    <a href="{{ edition.url }}">
+                        {{ edition.edition_title }}
+                    </a>
+                </h3>
+                <div class="count">
+                    &times; <em>{{ edition.lines.count() }} ll.</em>
+                </div>
+
+                <div{% if len(edition.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
+                    {{ edition.wiki.current.body[:127]|markdown }}
+                </div>
+
+                <div class="viewmore">
+                    <a href="{{ edition.url }}">View More</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% set hierarchy = text.primary.toc %}
+    {% include "includes/_toc.html" %}
 
 {% endblock %}

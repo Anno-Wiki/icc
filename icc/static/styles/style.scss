@@ -479,7 +479,14 @@ nav {
         background-color: $lightbg;
         box-shadow: 0 0 4px 8px $lightbghl inset;
     }
+    &.heading {
+        cursor: pointer;
+        border-radius: $bevel+10px;
+        font-size: 1.25em;
+        margin: 1em;
+    }
 }
+
 
 // styling for toolbars on view pages
 .toolbar {
@@ -534,4 +541,3 @@ nav {
         }
     }
 }
-

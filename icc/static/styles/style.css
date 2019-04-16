@@ -343,6 +343,11 @@ nav {
   .tag:hover {
     background-color: #fdf6e3;
     box-shadow: 0 0 4px 8px #eee8d5 inset; }
+  .tag.heading {
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 1.25em;
+    margin: 1em; }
 
 .toolbar {
   display: flex; }
