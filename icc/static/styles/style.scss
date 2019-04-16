@@ -60,6 +60,13 @@ $annotationwidth: 50em;
     &-4 { @media only screen and (max-width: $break5) { display: none; } }
     &-5 { @media only screen and (max-width: $break7) { display: none; } }
 }
+.appear {
+    &-1 { @media only screen and (min-width: $break2+1) { display: none; } }
+    &-2 { @media only screen and (min-width: $break3+1) { display: none; } }
+    &-3 { @media only screen and (min-width: $break4+1) { display: none; } }
+    &-4 { @media only screen and (min-width: $break5+1) { display: none; } }
+    &-5 { @media only screen and (min-width: $break7+1) { display: none; } }
+}
 
 body {
     margin: 0 auto;
@@ -125,7 +132,6 @@ nav {
         @media only screen and (max-width: $break6) { display: inline-block; }
     }
     &.web {
-        // turn off smaller than 470
         @media only screen and (max-width: $break6) { display: none }
 
         & * { padding: 0.1em 0.25em 0.1em 0.25em; }
@@ -177,6 +183,7 @@ nav {
         }
     }
 }
+
 .dark .dropdown-content {
     background-color: $darkbg;
     a:hover {
@@ -309,6 +316,7 @@ nav {
     }
 }
 
+// Style the sorts blob at the top
 .sorts {
     margin: 0.5em;
     margin-bottom: 1em;
@@ -322,6 +330,7 @@ nav {
     }
 }
 
+// Style the annotation blocks
 .annotation {
     display: block;
     background-color: $lightbghl;
@@ -378,7 +387,7 @@ nav {
             }
             .collapse {
                 margin: 0;
-                @media only screen and (min-width: $break7+1) { display: none; }
+                @media only screen and (min-width: $break5+1) { display: none; }
             }
         }
 
@@ -389,6 +398,18 @@ nav {
 
         .weight, .collapse, .arrows {
             margin: 0 0.5em 0 0.5em;
+        }
+        .weight {
+            border: 1px solid;
+            padding: 0 0em 0.1em 0.2em;
+            &.up {
+                color: $accent;
+                border-color: $accent;
+            }
+            &.down {
+                color: $red;
+                border-color: $red;
+            }
         }
         .arrows {
             display: inline-block;
@@ -402,18 +423,6 @@ nav {
                 .down {
                     color: $red;
                 }
-            }
-        }
-        .weight {
-            border: 1px solid;
-            padding: 0 0em 0.1em 0.2em;
-            &.up {
-                color: $accent;
-                border-color: $accent;
-            }
-            &.down {
-                color: $red;
-                border-color: $red;
             }
         }
         .collapse {
@@ -438,21 +447,9 @@ nav {
     .tags {
         margin: 0.5em;
         .tag {
-            display: inline-block;
-            background-color: $darkbg;
-            border-radius: $bevel;
-            transition: $shortdelay;
-            padding: 0.25em 1em 0.25em 1em;
             margin: 0.25em;
-            font: {
-                family: $display;
-                size: 0.85em;
-            }
-            &:hover {
-                background-color: $darkbghl;
-                box-shadow: 0 0 4px 8px $darkbg inset;
-            }
         }
+
     }
     &-footer {
         padding-bottom: 0.5em;
@@ -467,6 +464,24 @@ nav {
     }
 }
 
+// styling for tags
+.tag {
+    display: inline-block;
+    background-color: $darkbg;
+    border-radius: $bevel;
+    transition: $longdelay;
+    padding: 0.25em 1em 0.25em 1em;
+    font: {
+        family: $display;
+        size: 0.85em;
+    }
+    &:hover {
+        background-color: $lightbg;
+        box-shadow: 0 0 4px 8px $lightbghl inset;
+    }
+}
+
+// styling for toolbars on view pages
 .toolbar {
     display: flex;
     .tools {

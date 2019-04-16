@@ -14,6 +14,22 @@
   .disappear-5 {
     display: none; } }
 
+@media only screen and (min-width: 941px) {
+  .appear-1 {
+    display: none; } }
+@media only screen and (min-width: 881px) {
+  .appear-2 {
+    display: none; } }
+@media only screen and (min-width: 751px) {
+  .appear-3 {
+    display: none; } }
+@media only screen and (min-width: 501px) {
+  .appear-4 {
+    display: none; } }
+@media only screen and (min-width: 451px) {
+  .appear-5 {
+    display: none; } }
+
 body {
   margin: 0 auto;
   max-width: 60em;
@@ -262,7 +278,7 @@ nav {
           display: block; } }
       .annotation-head .center .collapse {
         margin: 0; }
-        @media only screen and (min-width: 451px) {
+        @media only screen and (min-width: 501px) {
           .annotation-head .center .collapse {
             display: none; } }
     .annotation-head .right {
@@ -270,6 +286,15 @@ nav {
       text-align: right; }
     .annotation-head .weight, .annotation-head .collapse, .annotation-head .arrows {
       margin: 0 0.5em 0 0.5em; }
+    .annotation-head .weight {
+      border: 1px solid;
+      padding: 0 0em 0.1em 0.2em; }
+      .annotation-head .weight.up {
+        color: #b58900;
+        border-color: #b58900; }
+      .annotation-head .weight.down {
+        color: #dc322f;
+        border-color: #dc322f; }
     .annotation-head .arrows {
       display: inline-block;
       font-size: 0.85em;
@@ -280,15 +305,6 @@ nav {
           color: #b58900; }
         .annotation-head .arrows div .down {
           color: #dc322f; }
-    .annotation-head .weight {
-      border: 1px solid;
-      padding: 0 0em 0.1em 0.2em; }
-      .annotation-head .weight.up {
-        color: #b58900;
-        border-color: #b58900; }
-      .annotation-head .weight.down {
-        color: #dc322f;
-        border-color: #dc322f; }
     .annotation-head .collapse {
       font-family: "Playfair Display", "Georgia", serif;
       cursor: pointer; }
@@ -302,17 +318,7 @@ nav {
   .annotation .tags {
     margin: 0.5em; }
     .annotation .tags .tag {
-      display: inline-block;
-      background-color: #002b36;
-      border-radius: 10px;
-      transition: 0.3s;
-      padding: 0.25em 1em 0.25em 1em;
-      margin: 0.25em;
-      font-family: "Playfair Display", "Georgia", serif;
-      font-size: 0.85em; }
-      .annotation .tags .tag:hover {
-        background-color: #073642;
-        box-shadow: 0 0 4px 8px #002b36 inset; }
+      margin: 0.25em; }
   .annotation-footer {
     padding-bottom: 0.5em; }
     .annotation-footer .web {
@@ -325,6 +331,18 @@ nav {
       @media only screen and (max-width: 500px) {
         .annotation-footer .mobile {
           display: inline; } }
+
+.tag {
+  display: inline-block;
+  background-color: #002b36;
+  border-radius: 10px;
+  transition: 0.7s;
+  padding: 0.25em 1em 0.25em 1em;
+  font-family: "Playfair Display", "Georgia", serif;
+  font-size: 0.85em; }
+  .tag:hover {
+    background-color: #fdf6e3;
+    box-shadow: 0 0 4px 8px #eee8d5 inset; }
 
 .toolbar {
   display: flex; }
