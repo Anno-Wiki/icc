@@ -5,13 +5,13 @@
         if (collapsible.style.display == "none") {
             collapsible.style.display = "block";
             annotation.style.borderRadius = "0";
-            annotation.style.borderTopLeftRadius = "10px";
-            annotation.style.borderTopRightRadius = "10px";
+            annotation.style.borderTopLeftRadius = "20px";
+            annotation.style.borderTopRightRadius = "20px";
             x.innerHTML = "[ - ]";
         } else {
             x.innerHTML = "[ + ]";
             collapsible.style.display = "none";
-            annotation.style.borderRadius = "10px";
+            annotation.style.borderRadius = "20px";
         }
     }
 </script>

@@ -45,6 +45,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: #586e75;
+  margin-top: 0;
   font-family: "Playfair Display", "Georgia", serif;
   font-weight: normal; }
 
@@ -394,21 +395,22 @@ nav {
       width: 100%; }
 
 ul.flash {
-  padding: 1em; }
+  padding: 0 0.5em 0 0.5em; }
   ul.flash li {
     background-color: #002b36;
     border-radius: 30px;
     border: 1px solid #002b36;
     list-style-type: none;
     padding: 1em;
-    margin: 0 auto;
+    margin: 0.5em auto;
     color: #93a1a1;
     box-shadow: 0 8px 8px 0px #073642;
     font-family: "Playfair Display", "Georgia", serif;
     font-size: 1.15em; }
 
 .usercard .avatar {
-  text-align: center; }
+  text-align: center;
+  background-color: #eee8d5; }
 .usercard td {
   padding: 1em; }
   .usercard td h1.username {
@@ -418,5 +420,8 @@ ul.flash {
     display: inline-block; }
   .usercard td h5.label {
     vertical-align: middle; }
+
+.toc {
+  margin: 0 auto; }
 
 /*# sourceMappingURL=style.css.map */

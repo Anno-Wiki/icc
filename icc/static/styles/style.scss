@@ -88,6 +88,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     color: $base01;
+    margin-top: 0;
     font: {
         family: $display;
         weight: normal; // The font difference is sufficient, no bold=less font
@@ -536,14 +537,14 @@ nav {
 
 // styling for flash messages
 ul.flash {
-    padding: 1em;
+    padding: 0 0.5em 0 0.5em;
     li {
         background-color: $darkbg;
         border-radius: $bevel+10px;
         border: 1px solid $darkbg;
         list-style-type: none;
         padding: 1em;
-        margin: 0 auto;
+        margin: 0.5em auto;
         color: $base1;
         box-shadow: 0 8px 8px 0px $darkbghl;
         font: {
@@ -558,6 +559,7 @@ ul.flash {
 .usercard {
     .avatar {
         text-align: center;
+        background-color: $lightbghl;
     }
     td {
         padding: 1em;
@@ -572,4 +574,7 @@ ul.flash {
             vertical-align: middle;
         }
     }
+}
+.toc {
+    margin: 0 auto;
 }
