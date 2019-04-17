@@ -72,7 +72,7 @@ body {
     margin: 0 auto;
     max-width: $bodywidth;
     line-height: 1.5;
-    padding: 1em 1em 1em 1em;
+    padding: 1em;
     color: $base00;
     font: {
         family: $serifs;
@@ -539,5 +539,24 @@ nav {
             bottom: 0;
             width: 100%;
         }
+    }
+}
+
+ul.flash {
+    padding: 1em;
+    li {
+        background-color: $darkbg;
+        border-radius: $bevel+10px;
+        border: 1px solid $darkbg;
+        list-style-type: none;
+        padding: 1em;
+        margin: 0 auto;
+        color: $base1;
+        box-shadow: 0 8px 8px 0px $darkbghl;
+        font: {
+            family: $display;
+            size: 1.15em;
+        }
+
     }
 }

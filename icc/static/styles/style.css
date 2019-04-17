@@ -34,7 +34,7 @@ body {
   margin: 0 auto;
   max-width: 60em;
   line-height: 1.5;
-  padding: 1em 1em 1em 1em;
+  padding: 1em;
   color: #657b83;
   font-family: "EB Garamond", "Georgia", serif;
   font-size: 1.15em; }
@@ -394,5 +394,19 @@ nav {
       left: 0;
       bottom: 0;
       width: 100%; }
+
+ul.flash {
+  padding: 1em; }
+  ul.flash li {
+    background-color: #002b36;
+    border-radius: 20px;
+    border: 1px solid #002b36;
+    list-style-type: none;
+    padding: 1em;
+    margin: 0 auto;
+    color: #93a1a1;
+    box-shadow: 0 8px 8px 0px #073642;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 1.15em; }
 
 /*# sourceMappingURL=style.css.map */
