@@ -273,9 +273,7 @@ nav {
 }
 
 
-/****************************
-* Style The Dropdown Button *
-*****************************/
+// style The Dropdown Button
 .dropdown {
     position: relative;
     display: inline-block;
@@ -487,7 +485,6 @@ nav {
     }
 }
 
-
 // styling for toolbars on view pages
 .toolbar {
     display: flex;
@@ -511,24 +508,18 @@ nav {
     .card {
         position: relative;
         margin: 0.5em;
-        height: 15em;
-        width: 17em;
-
-        @media only screen and (max-width: $break1) { width: 16em; }
-
-        @media only screen and (max-width: $break8) {
-            height: 17em;
-            width: 15em;
-        }
-
-        @media only screen and (max-width: $break9) { height: 20em; }
-
         padding: 0.25em;
         border: 2px dashed $lightbghl;
 
+        height: 15em;
+        width: 17em;
+        @media only screen and (max-width: $break1) { width: 16em; }
+        @media only screen and (max-width: $break8) { height: 17em; width: 15em; }
+        @media only screen and (max-width: $break9) { height: 20em; }
+
         h3.title { margin: 0; }
         .tag {
-            margin: 0.25em;
+            margin: 0.25em auto;
             font-size: 1.01em;
         }
 
@@ -536,12 +527,14 @@ nav {
         .viewmore {
             position: absolute;
             left: 0;
+            margin: 0.5em;
             bottom: 0;
             width: 100%;
         }
     }
 }
 
+// styling for flash messages
 ul.flash {
     padding: 1em;
     li {
@@ -561,6 +554,7 @@ ul.flash {
     }
 }
 
+// styling for user page
 .usercard {
     .avatar {
         text-align: center;

@@ -18,13 +18,14 @@
                         {{ text.title }}
                     </a>
                 </h3>
-                &times; {{ text.editions.count() }} editions
 
-                {# follow the text #}
-                <br>
                 <a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
                     {% if current_user.is_authenticated and text in current_user.followed_texts %}unfollow{% else %}follow{% endif %}
                 </a>
+                <br>
+
+                editions &times; {{ text.editions.count() }}
+
 
                 <div{% if len(text.wiki.current.body) >= 127 %} class="card-cutoff"{%endif%}>
                     {{ text.wiki.current.body[:127]|proc_links|markdown }}
@@ -36,5 +37,4 @@
             </div>
         {% endfor %}
     </div>
-
 {% endblock %}

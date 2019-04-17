@@ -189,9 +189,6 @@ nav {
   padding: 1em;
   background-color: #eee8d5; }
 
-/****************************
-* Style The Dropdown Button *
-*****************************/
 .dropdown {
   position: relative;
   display: inline-block;
@@ -368,10 +365,10 @@ nav {
   .index .card {
     position: relative;
     margin: 0.5em;
-    height: 15em;
-    width: 17em;
     padding: 0.25em;
-    border: 2px dashed #eee8d5; }
+    border: 2px dashed #eee8d5;
+    height: 15em;
+    width: 17em; }
     @media only screen and (max-width: 1120px) {
       .index .card {
         width: 16em; } }
@@ -385,13 +382,14 @@ nav {
     .index .card h3.title {
       margin: 0; }
     .index .card .tag {
-      margin: 0.25em;
+      margin: 0.25em auto;
       font-size: 1.01em; }
     .index .card-cutoff p:last-of-type::after {
       content: "..."; }
     .index .card .viewmore {
       position: absolute;
       left: 0;
+      margin: 0.5em;
       bottom: 0;
       width: 100%; }
 

@@ -35,7 +35,7 @@
                     </a>
                 </h3>
                 <div class="count">
-                    &times; <em>{{ edition.lines.count() }} ll.</em>
+                    <em>ll.</em> &times; {{ edition.lines.count() }}
                 </div>
 
                 <div{% if len(edition.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
@@ -51,5 +51,4 @@
 
     {% set hierarchy = text.primary.toc %}
     {% include "includes/_toc.html" %}
-
 {% endblock %}

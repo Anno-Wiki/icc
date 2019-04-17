@@ -25,15 +25,13 @@
                     </div>
                 {% endif %}
 
-                {% for category, works in writer.works.items() %}
-                    {{ category.title() }} &times; {{ len(writer.works) }}
-                {% endfor %}
-
-                {# follow #}
-                <br>
                 <a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
                     {%- if current_user.is_authenticated and writer in current_user.followed_writers -%}unfollow{%- else -%}follow{%- endif -%}
                 </a>
+                <br>
+                <em>author</em>     &times; {% if 'author' in writer.works %}{{ len(writer.works['author']) }}{% else %}0{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;
+                <em>editor</em>     &times; {% if 'editor' in writer.works %}{{ len(writer.works['editor']) }}{% else %}0{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;
+                <em>translator</em> &times; {% if 'translator' in writer.works %}{{ len(writer.works['translator']) }}{% else %}0{% endif %}
 
                 <div{% if len(writer.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
                     {{ writer.wiki.current.body[:127]|proc_links|markdown }}
@@ -45,5 +43,4 @@
             </div>
         {% endfor %}
     </div>
-
 {% endblock %}

@@ -2,7 +2,6 @@
 {% set active_page = "tags" %}
 
 {% block content %}
-
     <h1>Tags</h1>
     <h4>
         Don't see what you're looking for? Upvote it among our
@@ -22,13 +21,12 @@
                             {{ tag.tag }}
                         </div>
                     </a>
-                &times; {{ tag.annotations.count() }}
                 </div>
-                <br>
-                <a href="{{ url_for("user.follow_tag", tag_id=tag.id,
-                    next=request.full_path) }}">
+                <a href="{{ url_for("user.follow_tag", tag_id=tag.id, next=request.full_path) }}">
                     {% if current_user.is_authenticated and tag in current_user.followed_tags %}unfollow{% else %}follow{% endif %}
                 </a>
+                <br>
+                [n] &times; {{ tag.annotations.count() }}
 
                 <div{% if len(tag.wiki.current.body) > 127 %}
                     class="card_text_cutoff"{% endif %}>
@@ -40,5 +38,4 @@
             </div>
         {% endfor %}
     </div>
-
 {% endblock %}
