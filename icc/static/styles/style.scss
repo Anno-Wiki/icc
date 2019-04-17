@@ -3,7 +3,7 @@ $serifs: "EB Garamond", "Georgia", serif;
 $display: "Playfair Display", "Georgia", serif;
 
 // constants
-$bevel: 10px;
+$bevel: 20px;
 
 // time delays
 $shortdelay: 0.3s;
@@ -558,5 +558,24 @@ ul.flash {
             size: 1.15em;
         }
 
+    }
+}
+
+.usercard {
+    .avatar {
+        text-align: center;
+    }
+    td {
+        padding: 1em;
+        h1.username {
+            margin: 0;
+        }
+        h1, h2, h3, h4, h5 {
+            margin: 0;
+            display: inline-block;
+        }
+        h5.label {
+            vertical-align: middle;
+        }
     }
 }

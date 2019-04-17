@@ -57,7 +57,7 @@
                         ]%}
 
                     {%- if current_user.is_anonymous -%}
-                        <a href="{{ url_for('main.register') }}">register</a>
+                        <a href="{{ url_for('main.register', next=request.full_path) }}">register</a>
                         <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
                     {% else %}
                         {# admin #}
@@ -77,7 +77,7 @@
                         {% endif %}
 
                         <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
-                        <a href="{{ url_for('main.logout') }}">logout</a>
+                        <a href="{{ url_for('main.logout', next=request.full_path) }}">logout</a>
                     {%- endif %}
                 </div>
             </nav>

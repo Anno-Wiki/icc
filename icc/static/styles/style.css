@@ -41,7 +41,7 @@ body {
 
 .body {
   background-color: #fdf6e3;
-  border-radius: 10px; }
+  border-radius: 20px; }
 
 h1, h2, h3, h4, h5, h6 {
   color: #586e75;
@@ -61,7 +61,7 @@ a {
 nav {
   padding: 0.1em 0.5em 0.1em 0.5em;
   background-color: #002b36;
-  border-radius: 10px;
+  border-radius: 20px;
   text-align: center;
   font-family: "EB Garamond", "Georgia", serif; }
   nav .logo .footnote {
@@ -88,7 +88,7 @@ nav {
   nav.web * {
     padding: 0.1em 0.25em 0.1em 0.25em; }
   nav.web .active {
-    border-radius: 10px;
+    border-radius: 20px;
     background-color: #073642;
     color: #b58900;
     border-bottom: 1px solid #b58900;
@@ -135,7 +135,7 @@ nav {
     background-color: #073642;
     color: #586e75;
     border-color: #b58900;
-    border-radius: 10px;
+    border-radius: 20px;
     font-family: "Playfair Display", "Georgia", serif;
     font-size: 1em; }
     @media only screen and (max-width: 440px) {
@@ -157,7 +157,7 @@ nav {
     right: 0;
     background-color: #073642;
     opacity: 0;
-    border-radius: 10px;
+    border-radius: 20px;
     visibility: hidden;
     transition: 0.3s; }
     #container #mainmenu input {
@@ -171,7 +171,7 @@ nav {
       display: block;
       margin: 0 auto;
       transition: 0.5s;
-      border-radius: 10px;
+      border-radius: 20px;
       width: 75%;
       color: #657b83;
       font-family: "Playfair Display", "Georgia", serif;
@@ -203,14 +203,14 @@ nav {
     position: absolute;
     z-index: 1;
     left: -30%;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0px 8px 16px 0px #002b36;
     opacity: 0;
     visibility: hidden;
     background-color: #eee8d5;
     transition: 0.3s; }
     .dropdown-content a {
-      border-radius: 10px;
+      border-radius: 20px;
       padding: 0 0.5em 0 0.5em;
       color: #586e75;
       text-decoration: none;
@@ -231,7 +231,7 @@ nav {
     padding: 0.1em 0.5em 0.1em 0.5em; }
     .sorts a.active, .sorts a:hover {
       background-color: #eee8d5;
-      border-radius: 10px; }
+      border-radius: 20px; }
 
 .annotation {
   display: block;
@@ -239,11 +239,11 @@ nav {
   margin: 2em auto;
   max-width: 50em;
   box-shadow: 0 16px 32px 0 #073642;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px; }
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px; }
   .annotation-head {
     padding: 0.5em;
-    border-radius: 10px;
+    border-radius: 20px;
     background-color: #002b36;
     color: #586e75;
     overflow: auto;
@@ -335,7 +335,7 @@ nav {
 .tag {
   display: inline-block;
   background-color: #002b36;
-  border-radius: 10px;
+  border-radius: 20px;
   transition: 0.7s;
   padding: 0.25em 1em 0.25em 1em;
   font-family: "Playfair Display", "Georgia", serif;
@@ -345,7 +345,7 @@ nav {
     box-shadow: 0 0 4px 8px #eee8d5 inset; }
   .tag.heading {
     cursor: pointer;
-    border-radius: 20px;
+    border-radius: 30px;
     font-size: 1.25em;
     margin: 1em; }
 
@@ -353,7 +353,7 @@ nav {
   display: flex; }
   .toolbar .tools {
     background-color: #002b36;
-    border-radius: 20px;
+    border-radius: 30px;
     margin: 0 auto;
     padding: 0.25em; }
     .toolbar .tools a {
@@ -399,7 +399,7 @@ ul.flash {
   padding: 1em; }
   ul.flash li {
     background-color: #002b36;
-    border-radius: 20px;
+    border-radius: 30px;
     border: 1px solid #002b36;
     list-style-type: none;
     padding: 1em;
@@ -408,5 +408,17 @@ ul.flash {
     box-shadow: 0 8px 8px 0px #073642;
     font-family: "Playfair Display", "Georgia", serif;
     font-size: 1.15em; }
+
+.usercard .avatar {
+  text-align: center; }
+.usercard td {
+  padding: 1em; }
+  .usercard td h1.username {
+    margin: 0; }
+  .usercard td h1, .usercard td h2, .usercard td h3, .usercard td h4, .usercard td h5 {
+    margin: 0;
+    display: inline-block; }
+  .usercard td h5.label {
+    vertical-align: middle; }
 
 /*# sourceMappingURL=style.css.map */

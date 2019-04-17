@@ -17,9 +17,8 @@
                 <a class="collapse" onclick="collapse(this);">[ - ]</a>
             </span>
             <span class="disappear-4">on</span>
-            <span class="disappear-1">
-                <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em> of
-            </span>
+            <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
+            <span class="disappear-4">of</span>
             <span class="disappear-4">
                 <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
             </span>
@@ -69,7 +68,6 @@
             {% if current_user != annotation.annotator %}
                 <span class="disappear-3">| {% include "includes/_annotation_follow.html" %}</span>
             {% endif %}
-            <span class="disappear-3">| {% include "includes/_annotation_flags.html" %}</span>
             | <a href="{{ url_for("main.edit", annotation_id=annotation.id, next=request.full_path) }}">edit</a>
             | <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">comments</a>
         </div>

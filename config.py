@@ -29,7 +29,7 @@ class Config:
     LINES_PER_SEARCH_PAGE = 10
     NOTIFICATIONS_PER_PAGE = 15
 
-    USER_PAGE_AVATAR_SIZE = 255
+    USER_PAGE_AVATAR_SIZE = 128
     TIME = '%I:%M %p %m/%d/%y (UTC)'
 
     # technicals

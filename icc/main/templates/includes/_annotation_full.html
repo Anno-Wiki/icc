@@ -1,15 +1,69 @@
-<annotation id="a{{ annotation.id }}">
-    <!--The actual body of the annotation-->
-    <div class="annotation_content">
-        {{ annotation.HEAD.body|proc_links|markdown }}
+<div class="annotation" id="a{{ annotation.id }}">
+    <div class="annotation-head">
+        <div class="left">
+            {% include "includes/_annotation_weight.html" %}
+            {% set vote = current_user.get_vote(annotation) %}
+            {% include "includes/_vote.html" %}
+        </div>
+
+        <div class="center">
+            {% set edition = annotation.edition %}
+            <span class="title appear-4">
+                <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
+            </span>
+            <span class="footnote">
+                <a href="{{ annotation.url }}">[{{ annotation.id }}]</a>
+                {% if annotation.locked %}&#128274;{% endif %}
+                <a class="collapse" onclick="collapse(this);">[ - ]</a>
+            </span>
+            <span class="disappear-4">on</span>
+            <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
+            <span class="disappear-4">of</span>
+            <span class="disappear-4">
+                <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
+            </span>
+
+            {% set writers = edition.writers['author'] %}
+            <span class="disappear-2">by {% include "includes/_writers_list.html" %}</span>
+        </div>
+
+        <span class="right">
+            <span class="disappear-4">
+                {% include "includes/_annotation_weight.html" %}
+                {% set vote = current_user.get_vote(annotation) %}
+                {% include "includes/_vote.html" %}
+            </span>
+            <span class="disappear-4">
+                <a class="collapse" onclick="collapse(this);">[ - ]</a>
+            </span>
+        </span>
     </div>
 
-    <!--tags-->
-    <tags>
-        {% for t in annotation.HEAD.tags %}
-            <a href="{{ url_for("main.tag", tag=t.tag) }}">
-                <tag>{{ t.tag }}</tag>
-            </a>
-        {% endfor %}
-    </tags>
-</annotation>
+    <div class="annotation-collapsible">
+        <div class="annotation-body">
+            {{ annotation.HEAD.body|proc_links|markdown }}
+        </div>
+
+        <div class="tags">
+            {% for tag in annotation.HEAD.tags %}
+                <a href="{{ tag.url }}"><div class="tag">{{ tag.tag }}</div></a>
+            {% endfor %}
+        </div>
+
+        <div class="annotation-footer">
+            <span class="web">
+                {% include "includes/_annotator.html" %} |
+            </span>
+            <span class="mobile">
+                by <a href="{{ url_for('user.profile',
+                    user_id=annotation.annotator.id ) }}">{{ annotation.annotator.displayname }}</a> |
+            </span>
+
+            {% if current_user != annotation.annotator %}
+                <span class="disappear-3">{% include "includes/_annotation_follow.html" %}</span> |
+            {% endif %}
+            <a href="{{ url_for("main.edit", annotation_id=annotation.id, next=request.full_path) }}">edit</a> |
+            <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">comments</a>
+        </div>
+    </div>
+</div>

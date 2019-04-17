@@ -1,68 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
-<table>
-    <tr valign="top">
-        <td><img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}"></td>
-        <td>
-            <h1>
-                User: {{ user.displayname }} {{ user.readable_reputation }}
-            </h1>
+    <table class="usercard">
+        <tr>
+            <td class="avatar">
+                <img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}">
+                <br>
+                <h2>{{ user.readable_reputation }}</h2> <h5 class="label">REPUTATION</h5>
+            </td>
+            <td>
+                <h1 class="username">
+                    {{ user.displayname }}
+                </h1>
+                {% if user.last_seen %}
+                    <p>Last seen on: {{ user.last_seen }}</p>
+                {% endif %}
 
-            {% if user.last_seen %}
-                <p>Last seen on: {{ user.last_seen }}</p>
-            {% endif %}
+                [n] &times; {{ user.annotations.count() }}
+                <br>
+                edits &times; {{ user.edits.count() }}
+            </td>
+        </tr>
+    </table>
 
-            <p>Number of annotations: {{ user.annotations.count() }}</p>
-            <p>Number of edits: {{ user.edits.count() }}</p>
+    {% set rights = ['lock_users', 'anonymize_users', 'resolve_user_flags'] %}
 
-            {% if current_user == user %}
-                <a href="{{ url_for("user.edit_profile") }}">edit</a> |
-            {% endif %}
+    {% if current_user.is_auth_any(rights) %}
+        <div class="toolbar">
+            <div class="tools">
+                {% if current_user.is_authorized("lock_users") %}
+                    <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">
+                        {% if user.locked %}unlock{% else %}lock{% endif %} user
+                    </a>
+                {% endif %}
 
-            {% if current_user.is_authorized("lock_users") %}
-                <a href="{{ url_for("admin.lock_user", user_id=user.id) }}">{%
-                    if user.locked %}unlock{% else %}lock{% endif %}</a> |
-            {% endif %}
+                {% if current_user.is_authorized("anonymize_users") %}
+                    <a href="{{ url_for("admin.anonymize_user", user_id=user.id) }}">
+                        anonymize user
+                    </a>
+                {% endif %}
 
-            {% if current_user.is_authorized("anonymize_users") %}
-                <a href="{{ url_for("admin.anonymize_user", user_id=user.id)
-                    }}">anonymize</a> |
-            {% endif %}
-
-            {% if current_user.is_authorized("resolve_user_flags") %}
-                <a href="{{ url_for("admin.user_flags", user_id=user.id)
-                    }}">flags</a> |
-            {% endif %}
-
-            <div class="dropdown">
-                <a class="dropbtn">flag&#x25BE;</a> |
-                <div class="dropdown-content">
-                    {% for userflag in userflags %}
-                        <a href="{{ url_for("user.flag_user",
-                            flag_id=userflag.id, user_id=user.id,
-                            next=request.full_path) }}">{{ userflag.enum }}</a>
-                    {% endfor %}
-                </div>
+                {% if current_user.is_authorized("resolve_user_flags") %}
+                    <a href="{{ url_for("admin.user_flags", user_id=user.id) }}">
+                        active flags
+                    </a>
+                {% endif %}
             </div>
+        </div>
+    {% endif %}
 
+    <div class="toolbar">
+        <div class="tools">
+            {% if current_user == user %}
+                <a href="{{ url_for("user.edit_profile") }}">
+                    edit profile
+                </a>
+            {% endif %}
+            <span class="dark">
+                <div class="dropdown">
+                    <a class="dropbtn">flag&#x25BE;</a>
+                    <div class="dropdown-content">
+                        {% for userflag in userflags %}
+                            <a href="{{ url_for("user.flag_user", flag_id=userflag.id, user_id=user.id, next=request.full_path) }}">
+                                {{ userflag.enum }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </span>
             <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
-                {% if current_user.is_authenticated and user in
-                current_user.followed_users %}unfollow{% else %}follow{% endif
-                %}
-            </a> |
-            <a href="{{ url_for("user.user_annotations", user_id=user.id)
-                }}">annotations</a> |
-            <a href="{{ url_for("user.reputation", user_id=user.id)
-                }}">reputation</a>
-        </td>
-    </tr>
-</table>
-{% if user.about_me %}
-    {{ user.about_me|proc_links|markdown }}
-{% else %}
-    <p>This user’s biography is silent.</p>
-{% endif %}
+                {% if current_user.is_authenticated and user in current_user.followed_users %}unfollow{% else %}follow{% endif %}
+            </a>
+            <a href="{{ url_for("user.user_annotations", user_id=user.id) }}">
+                view annotations
+            </a>
+            <a href="{{ url_for("user.reputation", user_id=user.id) }}">
+                reputation history
+            </a>
+        </div>
+    </div>
+    {% if user.about_me %}
+        {{ user.about_me|proc_links|markdown }}
+    {% else %}
+        <p>This user’s biography is silent.</p>
+    {% endif %}
 
 {% endblock %}
 
