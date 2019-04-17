@@ -9,6 +9,7 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
+from flask_moment import Moment
 
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -19,6 +20,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'main.login'
 mail = Mail()
+moment = Moment()
 
 
 def create_app(config_class=Config):
@@ -30,6 +32,7 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
     app.md = Markdown(app)
+    moment.init_app(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 

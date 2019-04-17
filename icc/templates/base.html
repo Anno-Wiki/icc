@@ -12,6 +12,8 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3">
         <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,700" rel="stylesheet">
+        {{ moment.include_jquery() }}
+        {{ moment.include_moment() }}
     </head>
 
     <body>

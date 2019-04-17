@@ -1,30 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table class="usercard">
-        <tr>
-            <td class="avatar">
-                <img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}">
-                <br>
-                <h2>{{ user.readable_reputation }}</h2> <h5 class="label">REPUTATION</h5>
-            </td>
-            <td>
-                <h1 class="username">
-                    {{ user.displayname }}
-                </h1>
-                {% if user.last_seen %}
-                    <p>Last seen on: {{ user.last_seen }}</p>
-                {% endif %}
-
-                [n] &times; {{ user.annotations.count() }}
-                <br>
-                edits &times; {{ user.edits.count() }}
-            </td>
-        </tr>
-    </table>
-
     {% set rights = ['lock_users', 'anonymize_users', 'resolve_user_flags'] %}
-
     {% if current_user.is_auth_any(rights) %}
         <div class="toolbar">
             <div class="tools">
@@ -48,7 +25,6 @@
             </div>
         </div>
     {% endif %}
-
     <div class="toolbar">
         <div class="tools">
             {% if current_user == user %}
@@ -79,11 +55,36 @@
             </a>
         </div>
     </div>
+
+    <table class="usercard">
+        <tr>
+            <td class="avatar">
+                <img src="{{ user.avatar(vars["USER_PAGE_AVATAR_SIZE"]) }}">
+                <br>
+                <h2>{{ user.readable_reputation }}</h2> <h5 class="label">REPUTATION</h5>
+            </td>
+            <td>
+                <h1 class="username">
+                    {{ user.displayname }}
+                </h1>
+                <p>
+                    {% if user.last_seen %}
+                        Last seen {{ moment(user.last_seen).fromNow() }}
+                    {% endif %}
+                    <br>
+                    {% set annotationcount = user.annotations.count() %}
+                    [n] &times; {{ annotationcount }}
+                    <br>
+                    edits &times; {{ user.edits.count() - annotationcount }}
+                </p>
+            </td>
+        </tr>
+    </table>
+
+
     {% if user.about_me %}
         {{ user.about_me|proc_links|markdown }}
     {% else %}
         <p>This user’s biography is silent.</p>
     {% endif %}
-
 {% endblock %}
-
