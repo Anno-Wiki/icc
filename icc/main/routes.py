@@ -60,21 +60,21 @@ def register():
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    redirect_url = generate_next(url_for('main.index'))
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(redirect_url)
     form = LoginForm()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.locked:
             flash("That account is locked.")
-            return redirect(url_for('main.login'))
+            return redirect(url_for('main.login'), next=redirect_url)
         elif user is None or not user.check_password(form.password.data):
             flash("Invalid email or password")
-            return redirect(url_for('main.login'))
+            return redirect(url_for('main.login'), next=redirect_url)
         login_user(user, remember=form.remember_me.data)
 
-        redirect_url = generate_next(url_for('main.index'))
         return redirect(redirect_url)
 
     return render_template('forms/login.html', title="Sign In", form=form)
@@ -82,8 +82,9 @@ def login():
 
 @main.route('/logout')
 def logout():
+    redirect_url = generate_next(url_for('main.index'))
     logout_user()
-    return redirect(url_for('main.index'))
+    return redirect(redirect_url)
 
 
 @main.route('/search')
