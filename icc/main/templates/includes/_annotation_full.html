@@ -55,8 +55,10 @@
                 {% include "includes/_annotator.html" %} |
             </span>
             <span class="mobile">
-                by <a href="{{ url_for('user.profile',
-                    user_id=annotation.annotator.id ) }}">{{ annotation.annotator.displayname }}</a> |
+                by
+                <a href="{{ url_for('user.profile', user_id=annotation.annotator.id ) }}">
+                    {{ annotation.annotator.displayname }}
+                </a> |
             </span>
 
             {% if current_user != annotation.annotator %}
