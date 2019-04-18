@@ -1,4 +1,5 @@
 <h2>Table of Contents</h2>
+
 {% include "includes/_toc_toggle.js" %}
 <table class="toc">
     <thead>
@@ -10,7 +11,7 @@
     </thead>
     <tbody>
         {% for section in hierarchy %}
-            <tr class="lvl{{ section.primary.precedence }}">
+            <tr class="lvl{{ section.primary.precedence }} {% for attr in section.attrs.values() %}{{ attr.precedence }}-{{ attr.num }} {% endfor %}">
                 <td align="left">
                     <a href="{{ section.url }}">
                         {{ section.primary.display }} {{section.primary.num }}
@@ -22,9 +23,11 @@
                 <td align="right">
                     <a href="{{ section.url }}">{{ section.num }}</a>
                 </td>
-                <td>
-                    <a class="collapse" onclick="toggle(this)">[ - ]</a>
-                </td>
+                {% if section.primary.precedence < deepest %}
+                    <td>
+                        <a class="collapse" onclick="toggle(this);">[ + ]</a>
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
     </tbody>

@@ -55,7 +55,7 @@ function autocomplete(event) {
                 var text = last.innerHTML;
                 var input = $("#tags");
                 if (text) {
-                    text = text.slice(0, -2); 
+                    text = text.slice(0, -2);
                     input.value = text;
                 }
                 spans.removeChild(last);

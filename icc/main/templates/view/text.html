@@ -50,5 +50,6 @@
     </div>
 
     {% set hierarchy = text.primary.toc %}
+    {% set deepest = text.primary.deepest_precedence %}
     {% include "includes/_toc.html" %}
 {% endblock %}

@@ -81,6 +81,7 @@ def create_app(config_class=Config):
     app.jinja_env.globals['vars'] = app.config
     app.jinja_env.globals['len'] = len
     app.jinja_env.globals['zip'] = zip
+    app.jinja_env.globals['enumerate'] = enumerate
     from icc.funky import proc_links
     app.jinja_env.filters['proc_links'] = proc_links
 

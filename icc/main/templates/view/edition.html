@@ -25,5 +25,6 @@
 
     {# table of contents #}
     {% set hierarchy = edition.toc %}
+    {% set deepest = edition.deepest_precedence %}
     {% include "includes/_toc.html" %}
 {% endblock %}
