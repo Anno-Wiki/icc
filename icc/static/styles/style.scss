@@ -574,7 +574,7 @@ ul.flash {
 }
 
 .toc {
-    margin: 0 auto;
+    margin: 1em auto;
     font-family: $display;
     width: 75%;
     border-top: 2px solid $base1;
@@ -582,6 +582,7 @@ ul.flash {
     td {
         background-color: $lightbghl;
         margin: 0.25em;
+        padding: 0.5em;
     }
     tr {
         cursor: pointer;
@@ -589,7 +590,12 @@ ul.flash {
     }
     .lvl {
         &2, &3, &4, &5 { display: none; }
-        &2 td:first-of-type { text-indent: 1em; }
+        &2 td:first-of-type {
+            span {
+                background-color: $lightbg;
+                width: 1em;
+            }
+        }
         &3 td:first-of-type { text-indent: 2em; }
         &4 td:first-of-type { text-indent: 3em; }
         &5 td:first-of-type { text-indent: 4em; }

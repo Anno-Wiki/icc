@@ -420,22 +420,24 @@ ul.flash {
     vertical-align: middle; }
 
 .toc {
-  margin: 0 auto;
+  margin: 1em auto;
   font-family: "Playfair Display", "Georgia", serif;
   width: 75%;
   border-top: 2px solid #93a1a1;
   border-spacing: 0px 5px; }
   .toc td {
     background-color: #eee8d5;
-    margin: 0.25em; }
+    margin: 0.25em;
+    padding: 0.5em; }
   .toc tr {
     cursor: pointer; }
     .toc tr td:first-of-type {
       min-width: 8em; }
   .toc .lvl2, .toc .lvl3, .toc .lvl4, .toc .lvl5 {
     display: none; }
-  .toc .lvl2 td:first-of-type {
-    text-indent: 1em; }
+  .toc .lvl2 td:first-of-type span {
+    background-color: #fdf6e3;
+    width: 1em; }
   .toc .lvl3 td:first-of-type {
     text-indent: 2em; }
   .toc .lvl4 td:first-of-type {
