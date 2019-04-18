@@ -1,5 +1,3 @@
-<h2>Table of Contents</h2>
-
 {% include "includes/_toc_toggle.js" %}
 <table class="toc">
     <thead>
@@ -11,22 +9,29 @@
     </thead>
     <tbody>
         {% for section in hierarchy %}
-            <tr class="lvl{{ section.primary.precedence }} {% for attr in section.attrs.values() %}{{ attr.precedence }}-{{ attr.num }} {% endfor %}">
-                <td align="left">
-                    <a href="{{ section.url }}">
-                        {{ section.primary.display }} {{section.primary.num }}
-                    </a>
+            <tr class="lvl{{ section.primary.precedence }} {% for attr in
+                section.attrs.values() %}{{ attr.precedence }}-{{ attr.num }} {% endfor %}">
+                <td align="left" onclick="location.href='{{ section.url }}';">
+                    <div>
+                        <a href="{{ section.url }}">
+                            {{ section.primary.display }} {{ section.primary.num }}
+                        </a>
+                    </div>
                 </td>
-                <td align="center">
-                    <a href="{{ section.url }}">{{ section.line }}</a>
+                <td align="center" onclick="location.href='{{ section.url }}';">
+                    <div>
+                        <a href="{{ section.url }}">{{ section.line }}</a>
+                    </div>
                 </td>
                 <td align="right">
-                    <a href="{{ section.url }}">{{ section.num }}</a>
+                    <div>
+                        <a href="{{ section.url }}">{{ section.num }}</a>
+                    </div>
                 </td>
                 {% if section.primary.precedence < deepest %}
-                    <td>
-                        <a class="collapse" onclick="toggle(this);">[ + ]</a>
-                    </td>
+                <td align="right" class="collapse-tr">
+                    <a class="collapse" onclick="toggle(this);">[ + ]</a>
+                </td>
                 {% endif %}
             </tr>
         {% endfor %}

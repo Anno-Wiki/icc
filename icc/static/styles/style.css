@@ -359,7 +359,8 @@ nav {
 
 .index {
   display: flex;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+  margin: 0.5em; }
   .index .card {
     position: relative;
     margin: 0.5em;
@@ -421,14 +422,34 @@ ul.flash {
 .toc {
   margin: 0 auto;
   font-family: "Playfair Display", "Georgia", serif;
-  width: 75%; }
-  .toc td, .toc th {
-    padding: 1em; }
+  width: 75%;
+  border-top: 2px solid #93a1a1;
+  border-spacing: 0px 5px; }
+  .toc td {
+    background-color: #eee8d5;
+    margin: 0.25em; }
+  .toc tr {
+    cursor: pointer; }
+    .toc tr td:first-of-type {
+      min-width: 8em; }
   .toc .lvl2, .toc .lvl3, .toc .lvl4, .toc .lvl5 {
     display: none; }
-  .toc .lvl2 {
-    font-size: 0.90em;
-    text-indent: 0.5em; }
+  .toc .lvl2 td:first-of-type {
+    text-indent: 1em; }
+  .toc .lvl3 td:first-of-type {
+    text-indent: 2em; }
+  .toc .lvl4 td:first-of-type {
+    text-indent: 3em; }
+  .toc .lvl5 td:first-of-type {
+    text-indent: 4em; }
+  .toc .lvl2 td {
+    background-color: #ded8c5; }
+  .toc .lvl3 td {
+    background-color: #cec8b5; }
+  .toc .lvl4 td {
+    background-color: #beb8a5; }
+  .toc .collapse-tr {
+    background-color: #fdf6e3; }
 
 .collapse {
   font-family: "Playfair Display", "Georgia", serif;
