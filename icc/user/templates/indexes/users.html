@@ -2,7 +2,6 @@
 {% set active_page="users" %}
 
 {% block content %}
-
     <h1>Users</h1>
     {% include "includes/_sorts.html" %}
 
@@ -13,11 +12,11 @@
                     <a href="{{ user.url }}">{{ user.displayname }}</a>
                     {{ user.readable_reputation }}
                 </h3>
-                <a href="{{ url_for("user.follow_user", user_id=user.id,
-                    next=request.full_path) }}">{% if
-                    current_user.is_authenticated and user in
-                current_user.follow_users %}unfollow{% else %}follow{% endif
-                %}</a>
+                <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
+                    {% if current_user.is_authenticated and user in current_user.follow_users %}unfollow{% else %}follow{% endif %}
+                </a>
+                <br>
+                [n] &times; {{ user.annotations.count() }}
 
                 {% set long = (user.about_me and len(user.about_me) > 127) %}
                 <div{% if long %} class="card-cutoff"{% endif %}>
@@ -34,5 +33,4 @@
             </div>
         {% endfor %}
     </div>
-
 {% endblock %}
