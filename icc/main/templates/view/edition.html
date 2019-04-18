@@ -1,27 +1,69 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1><a href="{{ edition.text.url }}">{{ edition.text.title }}</a></h1>
-    <h3>{{ edition.edition_title }}</h3>
-
-    {% for category, writers in edition.writers.items() %}
-        <h4>{{ category.title() }}s<h4>
-        {% for writer in writers %}
-            <h5><a href="{{ writer.url }}">{{ writer.name }}</a></h5>
-        {% endfor %}
-    {% endfor %}
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.edition_annotations", text_url=edition.text.url_name, edition_num=edition.num) }}">
+                view annotations
+            </a>
+            <a href="{{ url_for("user.follow_edition", edition_id=edition.id, next=request.full_path) }}">
+                {% if current_user.is_authenticated and edition in current_user.followed_editions %}unfollow{% else %}follow{% endif %}
+            </a>
+            <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id, next=request.full_path) }}">
+                edit wiki
+            </a>
+            <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id) }}">
+                wiki edit history
+            </a>
+        </div>
+    </div>
+    <h1>
+        <a href="{{ edition.text.url }}">{{ edition.text.title }}</a>
+        {{ edition.edition_title }}
+    </h1>
 
     <div id="summary">{{ edition.wiki.current.body|markdown }}</div>
 
-    <a href="{{ url_for("main.edition_annotations", text_url=edition.text.url_name,
-        edition_num=edition.num) }}">annotations</a>
-    | <a href="{{ url_for("user.follow_edition", edition_id=edition.id,
-        next=request.full_path) }}">{% if current_user.is_authenticated and edition
-        in current_user.followed_editions %}unfollow{% else %}follow{% endif %}</a>
-    | <a href="{{ url_for("main.edit_wiki", wiki_id=edition.wiki.id,
-        next=request.full_path) }}">edit</a>
-    | <a href="{{ url_for("main.wiki_edit_history", wiki_id=edition.wiki.id)
-        }}">edit history</a>
+    <h3>Writers</h3>
+    <div class="index">
+        {% for category, writers in edition.writers.items() %}
+                {% if len(writers) <= 0 %}
+                    <h2>
+                        There are no writers for this category.
+                    </h2>
+                {% endif %}
+
+                {% for writer in writers %}
+                    <div class="card">
+                        <h3 class="title">
+                            <a href="{{ writer.url }}">
+                                {{ writer.name }}
+                                ({{ category }})
+                            </a>
+                        </h3>
+                        {% if writer.birth_date.year %}
+                            <div class="life_years">
+                                {{ writer.birth_date.year }}-{{ writer.death_date.year }}
+                            </div>
+                        {% endif %}
+
+                        <a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
+                            {%- if current_user.is_authenticated and writer in current_user.followed_writers -%}unfollow{%- else -%}follow{%- endif -%}
+                        </a>
+                        <br>
+
+                        <div{% if len(writer.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
+                            {{ writer.wiki.current.body[:127]|proc_links|markdown }}
+                        </div>
+
+                        <div class="viewmore">
+                            <a href="{{ writer.url }}">View More</a>
+                        </div>
+                    </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
 
     {# table of contents #}
     {% set hierarchy = edition.toc %}
