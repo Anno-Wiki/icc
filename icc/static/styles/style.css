@@ -424,34 +424,38 @@ ul.flash {
   font-family: "Playfair Display", "Georgia", serif;
   width: 75%;
   border-top: 2px solid #93a1a1;
-  border-spacing: 0px 5px; }
-  .toc td {
-    background-color: #eee8d5;
+  border-collapse: collapse; }
+  .toc tr td {
     margin: 0.25em;
     padding: 0.5em; }
-  .toc tr {
-    cursor: pointer; }
     .toc tr td:first-of-type {
       min-width: 8em; }
-  .toc .lvl2, .toc .lvl3, .toc .lvl4, .toc .lvl5 {
+  .toc tr.lvl1, .toc tr.lvl2, .toc tr.lvl3, .toc tr.lvl4, .toc tr.lvl5 {
+    cursor: pointer; }
+  .toc tr.lvl1:hover, .toc tr.lvl2:hover, .toc tr.lvl3:hover .toc tr.lvl4:hover .toc tr.lvl5:hover {
+    border: 1px solid #b58900; }
+  .toc tr.lvl2, .toc tr.lvl3, .toc tr.lvl4, .toc tr.lvl5 {
     display: none; }
-  .toc .lvl2 td:first-of-type span {
-    background-color: #fdf6e3;
-    width: 1em; }
-  .toc .lvl3 td:first-of-type {
-    text-indent: 2em; }
-  .toc .lvl4 td:first-of-type {
-    text-indent: 3em; }
-  .toc .lvl5 td:first-of-type {
-    text-indent: 4em; }
-  .toc .lvl2 td {
-    background-color: #ded8c5; }
-  .toc .lvl3 td {
-    background-color: #cec8b5; }
-  .toc .lvl4 td {
-    background-color: #beb8a5; }
-  .toc .collapse-tr {
-    background-color: #fdf6e3; }
+  .toc tr.lvl2 td {
+    font-size: 0.9em;
+    padding: 0.3em; }
+    .toc tr.lvl2 td:first-of-type {
+      text-indent: 1em; }
+  .toc tr.lvl3 td {
+    font-size: 0.8em;
+    padding: 0.15em; }
+    .toc tr.lvl3 td:first-of-type {
+      text-indent: 2em; }
+  .toc tr.lvl4 td {
+    font-size: 0.7em;
+    padding: 0.05em; }
+    .toc tr.lvl4 td:first-of-type {
+      text-indent: 3em; }
+  .toc tr.lvl5 td {
+    font-size: 0.6em;
+    padding: 0; }
+    .toc tr.lvl5 td:first-of-type {
+      text-indent: 4em; }
 
 .collapse {
   font-family: "Playfair Display", "Georgia", serif;
