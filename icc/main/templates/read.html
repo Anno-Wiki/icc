@@ -2,97 +2,71 @@
 
 {% block content %}
 
-{# Header/Running Head #}
-<div class="running_head">
-    <a href="{{ edition.url }}">{{ edition.title }}</a>
+    {# Header/Running Head #}
     {% set writers = edition.writers['author'] %}
-    by {% include "includes/_writers_list.html" %} &#167; {{ section }}
+    <h1>
+        <a href="{{ edition.url }}">{{ edition.title }}</a>
+        by {% include "includes/_writers_list.html" %} &#167; {{ section }}
+    </h1>
 
-    {% if edition.writers['translator'] %}
-        <br>
-        {% set writers = edition.writers['translator'] %}
-        translated by {% include "includes/_writers_list.html" %}
+    {# Pagination #}
+    {% if prev_page %}
+        <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
     {% endif %}
-</div>
 
-{# Pagination #}
-{% if prev_page %}
-    <a href="{{ prev_page }}">&lt;&lt; Previous Page</a>
-{% endif %}
+    {% if prev_page and next_page %}|{% endif %}
 
-{% if prev_page and next_page %}|{% endif %}
-
-{% if next_page %}
-    <a href="{{ next_page }}">Next Page &gt;&gt;</a>
-{% endif %}
+    {% if next_page %}
+        <a href="{{ next_page }}">Next Page &gt;&gt;</a>
+    {% endif %}
 
 
-{# Line number entry for annotation form #}
-<form action="" method="POST">
-    {{ form.hidden_tag() }}
-    {{ form.first_line(size=4) }}
-    {{ form.last_line(size=4) }}
-    {{ form.submit() }}
-</form>
+    {# Line number entry for annotation form #}
+    <form class="line-form" action="" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.first_line(size=4) }}
+        {{ form.last_line(size=4) }}
+        {{ form.submit() }}
+    </form>
+    {# hide the line number form from javascript users. #}
+    <script>
+        document.getElementsByClassName('line-form')[0].style.display = "none";
+    </script>
 
-<hr>
-
-{# Text of the page #}
-<div id="content">
-    {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
-    {%- for line in lines %}
-        <div class="{{ line.primary.enum }}" id="{{ line.num }}">
-            {% if line.num % 5 == 0 %}
-                {# Line number #}
-                <span class="linenum">{{ line.num }}</span>
-            {% else %}
-                <span class="hidden_linenum">{{ line.num }}</span>
-            {% endif %}
-
-            {# Actual line (not modularizing because speed) #}
-            {%- if line.primary.enum == 'hr' -%}
-                <hr class="text_separator">
-            {%- else -%}
-                {{ line.line|safe }}
-            {%- endif -%}
+    <hr>
 
 
-            {% if line.num in annotations_idx %}
-                {# Footnote marker #}
-                <span class="body_annotation">
-                    {% for a in annotations_idx[line.num] %}
-                        <a href="#a{{ a.id }}">[{{ a.id }}]</a>
-                    {% endfor %}
-                </span>
-            {% endif %}
+    {# Text of the page #}
+    <div id="text-content">
+        {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
+        {%- for line in lines %}
+            <div class="line {{ line.primary.enum }}" id="{{ line.num }}">
+                <span class="line-num{% if line.num % 5 != 0 %} hidden{% endif %}">{{ line.num }}</span>
+                {%- if line.primary.enum == 'hr' -%}
+                    <hr>
+                {%- else -%}
+                    <span class="text">{{ line.line|safe }}</span>
+                {%- endif -%}
+                {% if line.num in annotations_idx %}
+                    <span class="line-annotations">
+                        {% for a in annotations_idx[line.num] %}
+                            <a href="#a{{ a.id }}">[{{ a.id }}]</a>
+                        {% endfor %}
+                    </span>
+                {% endif %}
 
-            {% if can_edit_lines %}
-                <span class="edit_line">
-                    <a href="{{ url_for("admin.edit_line", line_id=line.id,
-                        next=request.path) }}">edit</a>
-                </span>
-            {% endif %}
-        </line>
-    {% endfor %}
-</div>
+            </div>
+        {% endfor %}
+    </div>
 
-{% if annotations_idx %}
-    {% for i in range(lines[0].num, lines[-1].num) %}
-            {% for annotation in annotations_idx[i] %}
-                {% include "includes/_annotation.html" %}
-            {% endfor %}
-    {% endfor %}
-{% else %}
-    <h4>There are no annotations for this section.</h4>
-{% endif %}
-
-<hr>
-
-{# Contrary to class name, running foot #}
-<div class="running_head">
-    <a href="{{ edition.url }}">{{ edition.title }}</a>
-    {% set writers = edition.writers['author'] %}
-    {% include "includes/_writers_list.html" %} &#167; {{ section }}
-</div>
+    {% if annotations_idx %}
+        {% for i in range(lines[0].num, lines[-1].num) %}
+                {% for annotation in annotations_idx[i] %}
+                    {% include "includes/_annotation.html" %}
+                {% endfor %}
+        {% endfor %}
+    {% else %}
+        <h4>There are no annotations for this section.</h4>
+    {% endif %}
 
 {% endblock %}
