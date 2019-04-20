@@ -84,6 +84,8 @@ def create_app(config_class=Config):
     app.jinja_env.globals['enumerate'] = enumerate
     from icc.funky import proc_links
     app.jinja_env.filters['proc_links'] = proc_links
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
 
     return app
 
