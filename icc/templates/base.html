@@ -17,6 +17,28 @@
     </head>
 
     <body>
+        <nav class="mobile">
+            <div class="left">
+                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/n.png') }}">
+                    anno.wiki
+                </a>
+            </div>
+
+            <div class="right">
+                <div class="hamburger" onclick="xout(this)">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+                <script>
+                    function xout(x) {
+                        x.classList.toggle("change");
+                        document.getElementById("mainmenu").classList.toggle("show");
+                    }
+                </script>
+            </div>
+        </nav>
         <div class="body">
             <nav class="web">
                 <div class="left">
@@ -84,28 +106,6 @@
                 </div>
             </nav>
 
-            <nav class="mobile">
-                <div class="left">
-                    <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                        <img src="{{ url_for('static', filename='images/n.png') }}">
-                        anno.wiki
-                    </a>
-                </div>
-
-                <div class="right">
-                    <div class="hamburger" onclick="xout(this)">
-                        <div class="bar1"></div>
-                        <div class="bar2"></div>
-                        <div class="bar3"></div>
-                    </div>
-                    <script>
-                        function xout(x) {
-                            x.classList.toggle("change");
-                            document.getElementById("mainmenu").classList.toggle("show");
-                        }
-                    </script>
-                </div>
-            </nav>
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -158,17 +158,19 @@
                     <hr>
                 </div>
 
-                {% block content %} {% endblock %}
+                <div id="container-content">
+                    {% block content %} {% endblock %}
 
-                {% if prev_page %}
-                    <a href="{{ prev_page }}">&lt;&lt; Previous</a>
-                {% endif %}
-                {% if next_page and prev_page %}
-                    |
-                {% endif %}
-                {% if next_page %}
-                    <a href="{{ next_page }}">Next &gt;&gt;</a>
-                {% endif %}
+                    {% if prev_page %}
+                        <a href="{{ prev_page }}">&lt;&lt; Previous</a>
+                    {% endif %}
+                    {% if next_page and prev_page %}
+                        |
+                    {% endif %}
+                    {% if next_page %}
+                        <a href="{{ next_page }}">Next &gt;&gt;</a>
+                    {% endif %}
+                </div>
             </div>
 
             <div id="footer">

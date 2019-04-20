@@ -38,6 +38,9 @@ body {
   color: #657b83;
   font-family: "EB Garamond", "Georgia", serif;
   font-size: 1.15em; }
+  @media only screen and (max-width: 471px) {
+    body {
+      padding: 3.25em 0 0 0; } }
 
 .body {
   background-color: #fdf6e3;
@@ -99,29 +102,36 @@ nav {
     transition: 0.5s; }
     nav.web a:hover {
       color: #b58900; }
-  @media only screen and (min-width: 471px) {
-    nav.mobile {
-      display: none; } }
-  nav.mobile .hamburger {
-    display: inline-block;
-    vertical-align: middle;
-    cursor: pointer; }
-    nav.mobile .hamburger .bar1, nav.mobile .hamburger .bar2, nav.mobile .hamburger .bar3 {
-      width: 35px;
-      height: 5px;
-      background-color: #657b83;
-      margin: 6px 0;
-      transition: 0.3s; }
-  nav.mobile .change .bar1 {
-    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-    transform: rotate(-45deg) translate(-9px, 6px);
-    background-color: #b58900; }
-  nav.mobile .change .bar2 {
-    opacity: 0; }
-  nav.mobile .change .bar3 {
-    -webkit-transform: rotate(45deg) translate(-8px, -8px);
-    transform: rotate(45deg) translate(-8px, -8px);
-    background-color: #b58900; }
+  nav.mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 0;
+    z-index: 1; }
+    @media only screen and (min-width: 471px) {
+      nav.mobile {
+        display: none; } }
+    nav.mobile .hamburger {
+      display: inline-block;
+      vertical-align: middle;
+      cursor: pointer; }
+      nav.mobile .hamburger .bar1, nav.mobile .hamburger .bar2, nav.mobile .hamburger .bar3 {
+        width: 35px;
+        height: 5px;
+        background-color: #657b83;
+        margin: 6px 0;
+        transition: 0.3s; }
+    nav.mobile .change .bar1 {
+      -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+      transform: rotate(-45deg) translate(-9px, 6px);
+      background-color: #b58900; }
+    nav.mobile .change .bar2 {
+      opacity: 0; }
+    nav.mobile .change .bar3 {
+      -webkit-transform: rotate(45deg) translate(-8px, -8px);
+      transform: rotate(45deg) translate(-8px, -8px);
+      background-color: #b58900; }
 
 .dark .dropdown-content {
   background-color: #002b36; }
@@ -151,9 +161,10 @@ nav {
   padding: 1em; }
   #container #mainmenu {
     padding: 1em 0 1em 0;
-    position: absolute;
+    position: fixed;
+    margin: 0 0.5em 0 0.5em;
     z-index: 5;
-    top: 0;
+    top: 3.3em;
     left: 0;
     right: 0;
     background-color: #073642;

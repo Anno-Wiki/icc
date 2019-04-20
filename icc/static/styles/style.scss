@@ -73,6 +73,7 @@ body {
     max-width: $bodywidth;
     line-height: 1.5;
     padding: 1em;
+    @media only screen and (max-width: $break6+1) { padding: 3.25em 0 0 0; }
     color: $base00;
     font: {
         family: $serifs;
@@ -152,7 +153,13 @@ nav {
 
     &.mobile {
         // only display under 471
-        @media only screen and (min-width: $break6+1) { display: none }
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 0;
+        z-index: 1;
+        @media only screen and (min-width: $break6+1) { display: none; }
         .hamburger {
             display: inline-block;
             vertical-align: middle;
@@ -215,13 +222,16 @@ nav {
 #container {
     position: relative;
     padding: 1em;
+    &-content {
+    }
     #mainmenu {
         padding: 1em 0 1em 0;
 
-        position: absolute;
+        position: fixed;
+        margin: 0 0.5em 0 0.5em;
         z-index: 5;
 
-        top: 0;
+        top: 3.3em;
         left: 0;
         right: 0;
 
