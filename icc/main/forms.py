@@ -16,7 +16,12 @@ class LineNumberForm(FlaskForm):
                               validators=[Optional()])
     last_line = IntegerField("Last Line", render_kw={'placeholder': "To"},
                              validators=[Optional()])
-    submit = SubmitField("Annotate")
+    first_char = IntegerField("First Character",
+                              render_kw={'placeholder': "From"},
+                             validators=[Optional()])
+    last_char = IntegerField("Last Character", render_kw={'placeholder': "To"},
+                             validators=[Optional()])
+    submit = SubmitField("annotate")
 
 
 class CommentForm(FlaskForm):

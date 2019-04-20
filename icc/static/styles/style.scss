@@ -222,8 +222,6 @@ nav {
 #container {
     position: relative;
     padding: 1em;
-    &-content {
-    }
     #mainmenu {
         padding: 1em 0 1em 0;
 
@@ -629,32 +627,72 @@ ul.flash {
     cursor: pointer;
 }
 
-
 #text-content {
     margin: 0 auto;
+    max-width: 50em;
+    ::selection {
+        background-color: $base2;
+        color: $yellow;
+    }
+    ::-moz-selection {
+        background-color: $base2;
+        color: $yellow;
+    }
     .line {
         .line-num {
             font-size: 0.75em;
-            margin-right: 0.5em;
+            position: absolute;
+            z-index: 0;
+            text-align: right;
+            left: 1em;
+            &.hidden { visibility: hidden; }
+
             -webkit-touch-callout: none; // iOS Safari
             -webkit-user-select: none; // Safari
             -khtml-user-select: none; // Konqueror HTML
             -moz-user-select: none; // Firefox
             -ms-user-select: none; // Internet Explorer/Edge
             user-select: none; // Non-prefixed version, currently supported by Chrome and Opera
-            width: 2.5em;
-            display: inline-block;
-            &.hidden { visibility: hidden; }
+        }
+        &.fl {
+            margin-top: 1em;
         }
         &.lvl {
             &1, &2, &3, &4, &5 {
-                span.text { font-family: $display; }
+                margin-top: 1em;
+                span.line-num { visibility: hidden; }
+                span.text {
+                    font-family: $display;
+                    margin-left: 1rem;
+                }
             }
-            &5 span.text { font-size: 1em; }
+            &5 span.text { font-size: 1.0em; }
             &4 span.text { font-size: 1.1em; }
             &3 span.text { font-size: 1.2em; }
             &2 span.text { font-size: 1.3em; }
-            &1 span.text { font-size: 2em; }
+            &1 span.text { font-size: 2.0em; }
+        }
+    }
+}
+
+.hidden { display: none; }
+#line-form-submit {
+    position: absolute;
+    input {
+        background-color: $darkbg;
+        border-radius: $bevel + 10px;
+        color: $base1;
+        font-family: $display;
+        font-size: 1.5em;
+        padding: 0.35em 0.5em 0.5em 0.5em;
+        transition: $shortdelay;
+        vertical-align: middle;
+        border: none;
+        z-index: 8;
+        margin: 0 auto;
+        &:hover {
+            background-color: $darkbghl;
+            color: $accent;
         }
     }
 }

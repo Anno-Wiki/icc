@@ -473,24 +473,39 @@ ul.flash {
   cursor: pointer; }
 
 #text-content {
-  margin: 0 auto; }
+  margin: 0 auto;
+  max-width: 50em; }
+  #text-content ::selection {
+    background-color: #eee8d5;
+    color: #b58900; }
+  #text-content ::-moz-selection {
+    background-color: #eee8d5;
+    color: #b58900; }
   #text-content .line .line-num {
     font-size: 0.75em;
-    margin-right: 0.5em;
+    position: absolute;
+    z-index: 0;
+    text-align: right;
+    left: 1em;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;
-    width: 2.5em;
-    display: inline-block; }
+    user-select: none; }
     #text-content .line .line-num.hidden {
       visibility: hidden; }
-  #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
-    font-family: "Playfair Display", "Georgia", serif; }
+  #text-content .line.fl {
+    margin-top: 1em; }
+  #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
+    margin-top: 1em; }
+    #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
+      visibility: hidden; }
+    #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
+      font-family: "Playfair Display", "Georgia", serif;
+      margin-left: 1rem; }
   #text-content .line.lvl5 span.text {
-    font-size: 1em; }
+    font-size: 1.0em; }
   #text-content .line.lvl4 span.text {
     font-size: 1.1em; }
   #text-content .line.lvl3 span.text {
@@ -498,6 +513,27 @@ ul.flash {
   #text-content .line.lvl2 span.text {
     font-size: 1.3em; }
   #text-content .line.lvl1 span.text {
-    font-size: 2em; }
+    font-size: 2.0em; }
+
+.hidden {
+  display: none; }
+
+#line-form-submit {
+  position: absolute; }
+  #line-form-submit input {
+    background-color: #002b36;
+    border-radius: 30px;
+    color: #93a1a1;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 1.5em;
+    padding: 0.35em 0.5em 0.5em 0.5em;
+    transition: 0.3s;
+    vertical-align: middle;
+    border: none;
+    z-index: 8;
+    margin: 0 auto; }
+    #line-form-submit input:hover {
+      background-color: #073642;
+      color: #b58900; }
 
 /*# sourceMappingURL=style.css.map */

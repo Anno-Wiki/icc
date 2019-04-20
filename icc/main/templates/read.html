@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     {# Header/Running Head #}
     {% set writers = edition.writers['author'] %}
     <h1>
@@ -22,21 +21,30 @@
 
 
     {# Line number entry for annotation form #}
-    <form class="line-form" action="" method="POST">
+    <form id="line-form" action="" method="POST">
         {{ form.hidden_tag() }}
-        {{ form.first_line(size=4) }}
-        {{ form.last_line(size=4) }}
-        {{ form.submit() }}
+        {{ form.first_line(size=4, class_="hideme") }}
+        {{ form.last_line(size=4, class_="hideme") }}
+        {{ form.first_char(size=4, class_="hidden") }}
+        {{ form.last_char(size=4, class_="hidden") }}
+        {{ form.submit(class_="hideme") }}
+        <div id="line-form-submit">
+            {{ form.submit() }}
+        </div>
     </form>
     {# hide the line number form from javascript users. #}
     <script>
-        document.getElementsByClassName('line-form')[0].style.display = "none";
+        var form = document.getElementsByClassName('hideme');
+        for (i = 0; i < form.length; i++) {
+            form[i].style.display = "none";
+        }
     </script>
 
     <hr>
 
 
     {# Text of the page #}
+    {% include "includes/_highlight.js" %}
     <div id="text-content">
         {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
         {%- for line in lines %}
@@ -54,7 +62,6 @@
                         {% endfor %}
                     </span>
                 {% endif %}
-
             </div>
         {% endfor %}
     </div>
@@ -68,5 +75,4 @@
     {% else %}
         <h4>There are no annotations for this section.</h4>
     {% endif %}
-
 {% endblock %}
