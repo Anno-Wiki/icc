@@ -291,9 +291,9 @@ def readout(lines, matches):
                     self.prevline = enum
                     break
             if not triggered:
-                normal_line =  {'enum': 'line', 'display': 'Text Line',
+                normal_line =  {'enum': 'l', 'display': 'Text Line',
                                 'num': self.num, 'precedence': 0, 'primary': True}
-                first_line = {'enum': 'fline',
+                first_line = {'enum': 'fl',
                               'display': 'First Text Line of Paragraph',
                               'num': self.num, 'precedence': 0, 'primary': True}
                 classification = first_line if self.prevline == 'blank' else \
@@ -331,7 +331,7 @@ if __name__ == '__main__':
         else open(args.input, 'rt', encoding='utf-8-sig')
     FOUT = sys.stdout if not args.output else open(args.output, 'wt',
                                                    encoding='UTF-8-SIG')
-    MATCHES = yaml.load(open(args.matches, 'rt'))
+    MATCHES = yaml.load(open(args.matches, 'rt'), Loader=yaml.FullLoader)
 
     linesin = readin(FIN, MATCHES)
     linesout = readout(linesin, MATCHES)
