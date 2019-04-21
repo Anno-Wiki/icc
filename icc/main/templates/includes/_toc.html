@@ -3,15 +3,15 @@
 <table class="toc">
     <thead>
         <tr>
-            <th>Section</th>
-            <th>Title</th>
-            <th>Line</th>
+            <th align="left" class="section disappear-3">Section</th>
+            <th class="content">Title</th>
+            <th align="right" class="disappear-1">Line</th>
         </tr>
     </thead>
     <tbody>
         {% for section in hierarchy %}
             <tr class="lvl{{ section.primary.precedence }} {% for attr in section.attrs.values() %}{{ attr.precedence }}-{{ attr.num }} {% endfor %}">
-                <td align="left" class="section" onclick="location.href='{{ section.url }}';">
+                <td align="left" class="disappear-3 section" onclick="location.href='{{ section.url }}';">
                     <a href="{{ section.url }}">
                         {{ section.primary.display }} {{ section.primary.num }}
                     </a>
@@ -19,7 +19,7 @@
                 <td align="center" class="content" onclick="location.href='{{ section.url }}';">
                     <a href="{{ section.url }}">{{ section.line }}</a>
                 </td>
-                <td align="right" class="lineno" onclick="location.href='{{ section.url }}';">
+                <td align="right" class="lineno disappear-1" onclick="location.href='{{ section.url }}';">
                     <a href="{{ section.url }}">{{ section.num }}</a>
                 </td>
                 {% if section.primary.precedence < deepest %}

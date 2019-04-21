@@ -591,7 +591,16 @@ ul.flash {
         td {
             margin: 0.25em;
             padding: 0.5em;
-            &:first-of-type { min-width: 8em; }
+            &:first-of-type {
+                min-width: 8em;
+                @media only screen and (max-width: $break2) { min-width: 0; }
+            }
+        }
+        .collapse-td {
+            min-width: 2em;
+        }
+        .content {
+            @media only screen and (max-width: $break4) { text-align: left; }
         }
         &.lvl {
             &1, &2, &3, &4, &5 { cursor: pointer; }
@@ -639,12 +648,14 @@ ul.flash {
         color: $yellow;
     }
     .line {
+        overflow: hidden;
         .line-num {
             font-size: 0.75em;
-            position: absolute;
-            z-index: 0;
-            text-align: right;
-            left: 1em;
+            display: block;
+            float: left;
+            margin-left: -6em;
+            margin-top: 0.25em;
+
             &.hidden { visibility: hidden; }
 
             -webkit-touch-callout: none; // iOS Safari
@@ -676,6 +687,7 @@ ul.flash {
 }
 
 .hidden { display: none; }
+
 #line-form {
     &.js {
         // This class is appended to the form to transform it for javascript
