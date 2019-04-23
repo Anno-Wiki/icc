@@ -23,21 +23,26 @@
     {# Line number entry for annotation form #}
     <form id="line-form" action="" method="POST">
         {{ form.hidden_tag() }}
-        {{ form.first_line(size=4, class_="hideme") }}
-        {{ form.last_line(size=4, class_="hideme") }}
+        {{ form.first_line(size=4) }}
+        {{ form.last_line(size=4) }}
         {{ form.first_char(size=4, class_="hidden") }}
         {{ form.last_char(size=4, class_="hidden") }}
-        {{ form.submit(class_="hideme") }}
-        <div id="line-form-submit">
+        {{ form.submit() }}
+    </form>
+    <form id="line-form-js" action="" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.first_line(size=4, class_="hidden") }}
+        {{ form.last_line(size=4, class_="hidden") }}
+        {{ form.first_char(size=4, class_="hidden") }}
+        {{ form.last_char(size=4, class_="hidden") }}
+        <div id="line-form-js-submit">
             {{ form.submit() }}
         </div>
     </form>
     {# hide the line number form from javascript users. #}
     <script>
-        var form = document.getElementsByClassName('hideme');
-        for (i = 0; i < form.length; i++) {
-            form[i].style.display = "none";
-        }
+        var hideform = document.getElementById('line-form');
+        hideform.style.display = "none";
     </script>
 
     <hr>

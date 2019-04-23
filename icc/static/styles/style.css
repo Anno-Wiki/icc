@@ -518,21 +518,23 @@ ul.flash {
 .hidden {
   display: none; }
 
-#line-form-submit {
-  position: absolute; }
-  #line-form-submit input {
-    background-color: #002b36;
+#line-form-js {
+  display: none;
+  float: right;
+  position: sticky;
+  top: 2em; }
+  #line-form-js-submit input {
     border-radius: 30px;
-    color: #93a1a1;
-    font-family: "Playfair Display", "Georgia", serif;
-    font-size: 1.5em;
     padding: 0.35em 0.5em 0.5em 0.5em;
+    background-color: #002b36;
+    color: #93a1a1;
     transition: 0.3s;
-    vertical-align: middle;
     border: none;
     z-index: 8;
-    margin: 0 auto; }
-    #line-form-submit input:hover {
+    margin: 0 auto;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 1.5em; }
+    #line-form-js-submit input:hover {
       background-color: #073642;
       color: #b58900; }
 

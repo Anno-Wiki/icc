@@ -1,34 +1,47 @@
 <script>
-    function select() {
-        var userSelection = window.getSelection();
-        var rangeObject = userSelection.getRangeAt(0);
+    function select(event) {
+        var btn = document.getElementById("line-form-js");
+        var sel = window.getSelection();
 
-        // The first and last containers
-        var topel = rangeObject.startContainer.parentNode
-        console.log(topel);
-        var firstl = topel.parentNode.id;
-        var lastl = rangeObject.endContainer.parentNode.parentNode.id;
+        if (sel.toString() == "") {
+            // Nothing is highlighted, abandon ship.
+            btn.style.display = "";
+            return;
+        }
+
+        var ranges = [];
+        for (let i = 0; i < sel.rangeCount; i++) {
+            ranges[i] = sel.getRangeAt(i);
+        }
+
+        // first and last lines
+        var firstl = ranges[0].startContainer.parentNode.parentNode.id;
+        var lastl = ranges[ranges.length-1].endContainer.parentNode.parentNode.id;
 
         // The offets of the first and last chars
         // These numbers are (inclusive, exclusive)
-        var firstc = rangeObject.startOffset;
-        var lastc = rangeObject.endOffset;
+        var firstc = ranges[0].startOffset;
+        var lastc = ranges[ranges.length-1].endOffset;
 
-        var pos = topel.getBoundingClientRect();
-        var btn = document.getElementById('line-form-submit')
+        // Populate the form
+        var form = document.getElementById("line-form-js");
+        var firstLField = form.querySelector("#first_line");
+        firstLField.value = firstl;
+        var lastLField = form.querySelector("#last_line");
+        lastLField.value = lastl;
+        var firstCField = form.querySelector("#first_char");
+        firstCField.value = firstc;
+        var lastCField = form.querySelector("#last_char");
+        lastCField.value = lastc;
 
-        var posTop = pos.top + document.documentElement.scrollTop;
-        btn.style.top = posTop + "px";
-        console.log(btn.style.bottom);
-        var length = pos.right - pos.left;
-        var half = length / 2;
-        var left = pos.left + half;
-        btn.style.left = pos.left + "px";
+        // It's showtime.
+        btn.style.display = "block";
     }
     function init() {
-        document.addEventListener('onmouseup', select);
-        document.addEventListener('onmousedown', select);
-        document.addEventListener('onselectionchange', select);
-    };
-    document.addEventListener('DOMContentLoaded', init, false);
+        var theblock = document.getElementById("text-content");
+        theblock.addEventListener("mousedown", select);
+        theblock.addEventListener("mouseup", select);
+        theblock.addEventListener("dblclick", select);
+    }
+    document.addEventListener("DOMContentLoaded", init);
 </script>
