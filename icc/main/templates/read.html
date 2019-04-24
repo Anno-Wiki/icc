@@ -62,6 +62,7 @@
         {% endfor %}
     </div>
 
+    {% include "includes/_collapse_script.js" %}
     {% if annotations_idx %}
         {% for i in range(lines[0].num, lines[-1].num) %}
                 {% for annotation in annotations_idx[i] %}
