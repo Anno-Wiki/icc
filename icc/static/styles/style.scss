@@ -677,31 +677,34 @@ ul.flash {
 
 .hidden { display: none; }
 #line-form {
-    &-js {
+    &.js {
+        // This class is appended to the form to transform it for javascript
+        // enabled users. This way there's no bullshit fiddling with line forms.
         display: none;
         float: right;
+
         position: sticky;
         top: 2em;
-        &-submit {
-            input {
-                border-radius: $bevel + 10px;
-                padding: 0.35em 0.5em 0.5em 0.5em;
 
-                background-color: $darkbg;
-                color: $base1;
-                transition: $shortdelay;
-                border: none;
-                z-index: 8;
-                margin: 0 auto;
+        .hideme { display: none; }
+        input#submit {
+            border-radius: $bevel + 10px;
+            padding: 0.35em 0.5em 0.5em 0.5em;
+            margin: 0 auto;
 
-                font: {
-                    family: $display;
-                    size: 1.5em;
-                }
-                &:hover {
-                    background-color: $darkbghl;
-                    color: $accent;
-                }
+            transition: $shortdelay;
+            border: none;
+            z-index: 8;
+
+            background-color: $darkbg;
+            color: $base1;
+            font: {
+                family: $display;
+                size: 1.5em;
+            }
+            &:hover {
+                background-color: $darkbghl;
+                color: $accent;
             }
         }
     }

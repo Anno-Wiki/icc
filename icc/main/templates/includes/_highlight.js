@@ -1,6 +1,6 @@
 <script>
-    function select(event) {
-        var btn = document.getElementById("line-form-js");
+    function select() {
+        var btn = document.getElementById("line-form");
         var sel = window.getSelection();
 
         if (sel.toString() == "") {
@@ -24,7 +24,7 @@
         var lastc = ranges[ranges.length-1].endOffset;
 
         // Populate the form
-        var form = document.getElementById("line-form-js");
+        var form = document.getElementById("line-form");
         var firstLField = form.querySelector("#first_line");
         firstLField.value = firstl;
         var lastLField = form.querySelector("#last_line");
