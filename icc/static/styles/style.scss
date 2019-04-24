@@ -648,13 +648,14 @@ ul.flash {
         color: $yellow;
     }
     .line {
-        overflow: hidden;
         .line-num {
             font-size: 0.75em;
             display: block;
             float: left;
-            margin-left: -6em;
+            width: 4em;
+            margin-left: -1em;
             margin-top: 0.25em;
+            line-height: 2;
 
             &.hidden { visibility: hidden; }
 
