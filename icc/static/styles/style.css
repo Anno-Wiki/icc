@@ -480,54 +480,8 @@ ul.flash {
   font-family: "Playfair Display", "Georgia", serif;
   cursor: pointer; }
 
-#text-content {
-  margin: 0 auto;
-  max-width: 50em; }
-  #text-content ::selection {
-    background-color: #eee8d5;
-    color: #b58900; }
-  #text-content ::-moz-selection {
-    background-color: #eee8d5;
-    color: #b58900; }
-  #text-content .line .line-num {
-    font-size: 0.75em;
-    display: block;
-    float: left;
-    width: 4em;
-    margin-left: -1em;
-    margin-top: 0.25em;
-    line-height: 2;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none; }
-    #text-content .line .line-num.hidden {
-      visibility: hidden; }
-  #text-content .line.fl {
-    margin-top: 1em; }
-  #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
-    margin-top: 1em; }
-    #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
-      visibility: hidden; }
-    #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
-      font-family: "Playfair Display", "Georgia", serif;
-      margin-left: 1rem; }
-  #text-content .line.lvl5 span.text {
-    font-size: 1.0em; }
-  #text-content .line.lvl4 span.text {
-    font-size: 1.1em; }
-  #text-content .line.lvl3 span.text {
-    font-size: 1.2em; }
-  #text-content .line.lvl2 span.text {
-    font-size: 1.3em; }
-  #text-content .line.lvl1 span.text {
-    font-size: 2.0em; }
-
-.hidden {
+#line-form .hidden {
   display: none; }
-
 #line-form.js {
   display: none;
   float: right;
@@ -549,5 +503,65 @@ ul.flash {
     #line-form.js input#submit:hover {
       background-color: #073642;
       color: #b58900; }
+
+#text-content {
+  margin: 0 auto;
+  max-width: 50em; }
+  #text-content ::selection {
+    background-color: #eee8d5;
+    color: #b58900; }
+  #text-content ::-moz-selection {
+    background-color: #eee8d5;
+    color: #b58900; }
+  #text-content .break {
+    display: none;
+    height: 1em; }
+    @media only screen and (max-width: 800px) {
+      #text-content .break {
+        display: block; } }
+  #text-content .line {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start; }
+    #text-content .line .line-num {
+      font-size: 0.75em;
+      min-width: 3em;
+      margin-right: 1em;
+      text-align: right;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+      @media only screen and (max-width: 800px) {
+        #text-content .line .line-num {
+          display: none; } }
+      #text-content .line .line-num.hidden {
+        visibility: hidden; }
+    #text-content .line.fl {
+      margin-top: 1em; }
+    @media only screen and (max-width: 800px) {
+      #text-content .line.fl, #text-content .line.l {
+        display: inline; } }
+    #text-content .line.lvl {
+      display: block !important; }
+      #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
+        margin-top: 1em; }
+        #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
+          visibility: hidden; }
+        #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
+          font-family: "Playfair Display", "Georgia", serif;
+          margin-left: 1rem; }
+      #text-content .line.lvl5 span.text {
+        font-size: 1.0em; }
+      #text-content .line.lvl4 span.text {
+        font-size: 1.1em; }
+      #text-content .line.lvl3 span.text {
+        font-size: 1.2em; }
+      #text-content .line.lvl2 span.text {
+        font-size: 1.3em; }
+      #text-content .line.lvl1 span.text {
+        font-size: 2.0em; }
 
 /*# sourceMappingURL=style.css.map */

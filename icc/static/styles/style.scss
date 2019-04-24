@@ -43,6 +43,7 @@ $lightbghl: $base2;
 $break1:   1120px;
 $break2:    940px;
 $break3:    880px;
+$break3-1:  800px;
 $break4:    750px;
 $break5:    500px;
 $break6:    470px;
@@ -581,6 +582,7 @@ ul.flash {
     }
 }
 
+// The styling for the table of contents (toc)
 .toc {
     margin: 1em auto;
     font-family: $display;
@@ -631,65 +633,15 @@ ul.flash {
     }
 }
 
+// basic styling for collapse buttons
 .collapse {
     font-family: $display;
     cursor: pointer;
 }
 
-#text-content {
-    margin: 0 auto;
-    max-width: 50em;
-    ::selection {
-        background-color: $base2;
-        color: $yellow;
-    }
-    ::-moz-selection {
-        background-color: $base2;
-        color: $yellow;
-    }
-    .line {
-        .line-num {
-            font-size: 0.75em;
-            display: block;
-            float: left;
-            width: 4em;
-            margin-left: -1em;
-            margin-top: 0.25em;
-            line-height: 2;
-
-            &.hidden { visibility: hidden; }
-
-            -webkit-touch-callout: none; // iOS Safari
-            -webkit-user-select: none; // Safari
-            -khtml-user-select: none; // Konqueror HTML
-            -moz-user-select: none; // Firefox
-            -ms-user-select: none; // Internet Explorer/Edge
-            user-select: none; // Non-prefixed version, currently supported by Chrome and Opera
-        }
-        &.fl {
-            margin-top: 1em;
-        }
-        &.lvl {
-            &1, &2, &3, &4, &5 {
-                margin-top: 1em;
-                span.line-num { visibility: hidden; }
-                span.text {
-                    font-family: $display;
-                    margin-left: 1rem;
-                }
-            }
-            &5 span.text { font-size: 1.0em; }
-            &4 span.text { font-size: 1.1em; }
-            &3 span.text { font-size: 1.2em; }
-            &2 span.text { font-size: 1.3em; }
-            &1 span.text { font-size: 2.0em; }
-        }
-    }
-}
-
-.hidden { display: none; }
-
+// The interactive line form for annotating.
 #line-form {
+    .hidden { display: none; }
     &.js {
         // This class is appended to the form to transform it for javascript
         // enabled users. This way there's no bullshit fiddling with line forms.
@@ -719,6 +671,67 @@ ul.flash {
                 background-color: $darkbghl;
                 color: $accent;
             }
+        }
+    }
+}
+
+// Styling the read page (also any time text appears)
+#text-content {
+    margin: 0 auto;
+    max-width: 50em;
+    ::selection {
+        background-color: $base2;
+        color: $yellow;
+    }
+    ::-moz-selection {
+        background-color: $base2;
+        color: $yellow;
+    }
+    .break {
+        display: none;
+        height: 1em;
+        @media only screen and (max-width: $break3-1) { display: block; }
+    }
+    .line {
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-start;
+        .line-num {
+            @media only screen and (max-width: $break3-1) { display: none; }
+            &.hidden { visibility: hidden; }
+
+            font-size: 0.75em;
+            min-width: 3em;
+            margin-right: 1em;
+            text-align: right;
+
+            -webkit-touch-callout: none; // iOS Safari
+            -webkit-user-select: none; // Safari
+            -khtml-user-select: none; // Konqueror HTML
+            -moz-user-select: none; // Firefox
+            -ms-user-select: none; // Internet Explorer/Edge
+            user-select: none; // Non-prefixed version, currently supported by Chrome and Opera
+        }
+
+        &.fl { margin-top: 1em; }
+        &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } }
+
+
+        &.lvl {
+            display: block !important;
+            &1, &2, &3, &4, &5 {
+                margin-top: 1em;
+                span.line-num { visibility: hidden; }
+                span.text {
+                    font-family: $display;
+                    margin-left: 1rem;
+                }
+            }
+            &5 span.text { font-size: 1.0em; }
+            &4 span.text { font-size: 1.1em; }
+            &3 span.text { font-size: 1.2em; }
+            &2 span.text { font-size: 1.3em; }
+            &1 span.text { font-size: 2.0em; }
         }
     }
 }

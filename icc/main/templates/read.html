@@ -38,12 +38,13 @@
 
     <hr>
 
-
     {# Text of the page #}
     {% include "includes/_highlight.js" %}
+
     <div id="text-content">
-        {% set can_edit_lines = current_user.is_authorized('edit_lines') %}
         {%- for line in lines %}
+            {% if line.primary.enum == "fl" %}<div class="break"></div>{% endif %}
+
             <div class="line {{ line.primary.enum }}" id="{{ line.num }}">
                 <span class="line-num{% if line.num % 5 != 0 %} hidden{% endif %}">{{ line.num }}</span>
                 {%- if line.primary.enum == 'hr' -%}
@@ -58,7 +59,9 @@
                         {% endfor %}
                     </span>
                 {% endif %}
+
             </div>
+
         {% endfor %}
     </div>
 
