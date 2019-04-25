@@ -64,7 +64,7 @@ def test_index(popclient):
         max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
 
 
-    tests = ['<annotation']
+    tests = ['class="annotation"']
     looptest(url=url, max_pages=max_pages, tests=tests, client=client,
              sorts=sorts)
 
@@ -81,11 +81,11 @@ def test_line_annotations(popclient):
 
     rv = client.get(url)
     assert rv.status_code == 200
-    assert b'<annotation' in rv.data
+    assert b'class="annotation"' in rv.data
     assert (b"Cygnus X-1 is a real black hole, but Cygnus, for the record, is "
             b"Latin for swan." in rv.data)
 
-    tests = ['<annotation']
+    tests = ['class="annotation"']
     looptest(url=url, max_pages=max_pages, tests=tests, client=client,
              sorts=sorts)
 

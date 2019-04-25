@@ -52,7 +52,7 @@ def test_deactivated_list(popclient):
     max_pages = int(math.ceil(entities/app.config['ANNOTATIONS_PER_PAGE']))
     sorts = ['added', 'weight']
 
-    tests = ['<annotation']
+    tests = ['class="annotation"']
     looptest(sorts=sorts, url=url, max_pages=max_pages, client=client,
              tests=tests)
 

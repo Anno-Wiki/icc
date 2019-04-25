@@ -29,7 +29,7 @@ def test_tag(popclient):
             url = url_for('main.tag', tag=tag.tag)
             rv = client.get(url)
             assert rv.status_code == 200
-            assert bytes(str(tag), 'utf-8') in rv.data
+            assert bytes(f'<div class="tag', 'utf-8') in rv.data
 
 
 def test_tag_annotations(popclient):
@@ -48,6 +48,6 @@ def test_tag_annotations(popclient):
             max_pages = int(math.ceil(
                     entities/app.config['ANNOTATIONS_PER_PAGE']))
 
-            tests = ['<annotation']
+            tests = ['class="annotation"']
             looptest(client=client, max_pages=max_pages, url=url, sorts=sorts,
                      tests=tests)

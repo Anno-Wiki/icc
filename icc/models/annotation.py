@@ -134,7 +134,7 @@ class Tag(Base, FollowableMixin, LinkableMixin):
         return f'<Tag {self.id}: {self.tag}>'
 
     def __str__(self):
-        return f'<tag>{self.tag}</tag>'
+        return f'<div class="tag">{self.tag}</div>'
 
 
 class Comment(Base):
