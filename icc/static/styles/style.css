@@ -539,6 +539,8 @@ ul.flash {
           display: none; } }
       #text-content .line .line-num.hidden {
         visibility: hidden; }
+    #text-content .line-annotations a {
+      color: #b58900; }
     #text-content .line.fl {
       margin-top: 1em; }
     @media only screen and (max-width: 800px) {
