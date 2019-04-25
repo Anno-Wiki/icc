@@ -1,5 +1,5 @@
 <script>
-    function show() {
+    function show_annotate_button() {
         var btn = document.getElementById("annotate-button");
         var sel = window.getSelection();
 
@@ -35,22 +35,21 @@
     }
 
 
-    function init() {
+    document.addEventListener("DOMContentLoaded", function () {
         var theblock = document.getElementById("text-content");
-        theblock.addEventListener("mousedown", show);
-        theblock.addEventListener("mouseup", show);
-        theblock.addEventListener("dblclick", show);
+        theblock.addEventListener("mousedown", show_annotate_button);
+        theblock.addEventListener("mouseup", show_annotate_button);
+        theblock.addEventListener("dblclick", show_annotate_button);
 
-        theblock.addEventListener("touchcancel", show);
-        theblock.addEventListener("touchend", show);
-        theblock.addEventListener("touchenter", show);
-        theblock.addEventListener("touchleave", show);
-        theblock.addEventListener("touchmove", show);
-        theblock.addEventListener("touchstart", show);
+        theblock.addEventListener("touchcancel", show_annotate_button);
+        theblock.addEventListener("touchend", show_annotate_button);
+        theblock.addEventListener("touchenter", show_annotate_button);
+        theblock.addEventListener("touchleave", show_annotate_button);
+        theblock.addEventListener("touchmove", show_annotate_button);
+        theblock.addEventListener("touchstart", show_annotate_button);
 
         var btn = document.getElementById("annotate-button");
         btn.addEventListener("pointerenter", proc_selection);
         btn.addEventListener("pointerover", proc_selection);
-    }
-    document.addEventListener("DOMContentLoaded", init);
+    });
 </script>
