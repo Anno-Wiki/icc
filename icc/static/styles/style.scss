@@ -642,38 +642,35 @@ ul.flash {
 // The interactive line form for annotating.
 #line-form {
     .hidden { display: none; }
-    &.js {
-        // This class is appended to the form to transform it for javascript
-        // enabled users. This way there's no bullshit fiddling with line forms.
-        display: none;
-        float: right;
+    &.js { display: none; }
+}
 
-        position: sticky;
-        top: 2em;
+#annotate-button {
+    display: none;
+    float: right;
+    position: sticky;
+    top: 2em;
+    border-radius: $bevel + 10px;
+    padding: 0.35em 0.5em 0.5em 0.5em;
+    margin: 0 auto;
 
-        .hideme { display: none; }
-        input#submit {
-            border-radius: $bevel + 10px;
-            padding: 0.35em 0.5em 0.5em 0.5em;
-            margin: 0 auto;
+    transition: $shortdelay;
+    border: none;
+    z-index: 8;
 
-            transition: $shortdelay;
-            border: none;
-            z-index: 8;
-
-            background-color: $darkbg;
-            color: $base1;
-            font: {
-                family: $display;
-                size: 1.5em;
-            }
-            &:hover {
-                background-color: $darkbghl;
-                color: $accent;
-            }
-        }
+    background-color: $darkbg;
+    color: $base1;
+    cursor: pointer;
+    font: {
+        family: $display;
+        size: 1.5em;
+    }
+    &:hover {
+        background-color: $darkbghl;
+        color: $accent;
     }
 }
+
 
 // Styling the read page (also any time text appears)
 #text-content {

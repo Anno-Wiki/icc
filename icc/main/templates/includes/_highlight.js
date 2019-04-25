@@ -1,6 +1,6 @@
 <script>
-    function select() {
-        var btn = document.getElementById("line-form");
+    function show() {
+        var btn = document.getElementById("annotate-button");
         var sel = window.getSelection();
 
         if (sel.toString() == "") {
@@ -9,39 +9,48 @@
             return;
         }
 
+        // It's showtime.
+        btn.style.display = "block";
+    }
+
+    function proc_selection() {
+        var sel = window.getSelection();
+
         var ranges = [];
         for (let i = 0; i < sel.rangeCount; i++) {
+            // get all the ranges (weird model)
             ranges[i] = sel.getRangeAt(i);
         }
 
         // first and last lines
-        var firstl = ranges[0].startContainer.parentNode.parentNode.id;
-        var lastl = ranges[ranges.length-1].endContainer.parentNode.parentNode.id;
-
-        // The offets of the first and last chars
-        // These numbers are (inclusive, exclusive)
-        var firstc = ranges[0].startOffset;
-        var lastc = ranges[ranges.length-1].endOffset;
-
-        // Populate the form
-        var form = document.getElementById("line-form");
-        var firstLField = form.querySelector("#first_line");
-        firstLField.value = firstl;
-        var lastLField = form.querySelector("#last_line");
-        lastLField.value = lastl;
-        var firstCField = form.querySelector("#first_char");
-        firstCField.value = firstc;
-        var lastCField = form.querySelector("#last_char");
-        lastCField.value = lastc;
-
-        // It's showtime.
-        btn.style.display = "block";
+        firstl = get_parent_id(ranges[0].startContainer);
+        lastl = get_parent_id(ranges[ranges.length-1].endContainer);
+        // first and last characters
+        firstc = ranges[0].startOffset;
+        lastc = ranges[ranges.length-1].endOffset;
     }
+    function submit() {
+        var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", firstl, "/", lastl, "?fc=", firstc, "&lc=", lastc];
+        location.href = url.join("");
+    }
+
+
     function init() {
         var theblock = document.getElementById("text-content");
-        theblock.addEventListener("mousedown", select);
-        theblock.addEventListener("mouseup", select);
-        theblock.addEventListener("dblclick", select);
+        theblock.addEventListener("mousedown", show);
+        theblock.addEventListener("mouseup", show);
+        theblock.addEventListener("dblclick", show);
+
+        theblock.addEventListener("touchcancel", show);
+        theblock.addEventListener("touchend", show);
+        theblock.addEventListener("touchenter", show);
+        theblock.addEventListener("touchleave", show);
+        theblock.addEventListener("touchmove", show);
+        theblock.addEventListener("touchstart", show);
+
+        var btn = document.getElementById("annotate-button");
+        btn.addEventListener("pointerenter", proc_selection);
+        btn.addEventListener("pointerover", proc_selection);
     }
     document.addEventListener("DOMContentLoaded", init);
 </script>

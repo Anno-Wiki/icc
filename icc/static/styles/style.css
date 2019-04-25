@@ -483,26 +483,27 @@ ul.flash {
 #line-form .hidden {
   display: none; }
 #line-form.js {
+  display: none; }
+
+#annotate-button {
   display: none;
   float: right;
   position: sticky;
-  top: 2em; }
-  #line-form.js .hideme {
-    display: none; }
-  #line-form.js input#submit {
-    border-radius: 30px;
-    padding: 0.35em 0.5em 0.5em 0.5em;
-    margin: 0 auto;
-    transition: 0.3s;
-    border: none;
-    z-index: 8;
-    background-color: #002b36;
-    color: #93a1a1;
-    font-family: "Playfair Display", "Georgia", serif;
-    font-size: 1.5em; }
-    #line-form.js input#submit:hover {
-      background-color: #073642;
-      color: #b58900; }
+  top: 2em;
+  border-radius: 30px;
+  padding: 0.35em 0.5em 0.5em 0.5em;
+  margin: 0 auto;
+  transition: 0.3s;
+  border: none;
+  z-index: 8;
+  background-color: #002b36;
+  color: #93a1a1;
+  cursor: pointer;
+  font-family: "Playfair Display", "Georgia", serif;
+  font-size: 1.5em; }
+  #annotate-button:hover {
+    background-color: #073642;
+    color: #b58900; }
 
 #text-content {
   margin: 0 auto;
