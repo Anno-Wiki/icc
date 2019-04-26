@@ -109,9 +109,7 @@ nav {
   nav.web .active {
     border-radius: 20px;
     background-color: #073642;
-    color: #b58900;
-    border-bottom: 1px solid #b58900;
-    padding: 0.5em; }
+    color: #b58900; }
   nav.web a {
     color: #93a1a1;
     transition: 0.5s; }
