@@ -528,8 +528,13 @@ ul.flash {
     left: 2em;
     position: absolute;
     z-index: 100;
-    width: inherit;
-    margin: 0 auto; }
+    width: inherit; }
+    #text-content .annotation a.collapse {
+      font-family: "Helvetica", "Arial", sans-serif;
+      font-weight: bold;
+      font-size: 1.5em; }
+      #text-content .annotation a.collapse:hover, #text-content .annotation a.collapse:focus {
+        color: #586e75; }
   #text-content .break {
     display: none;
     height: 1em; }

@@ -1,5 +1,6 @@
 // font families
 $serifs: "EB Garamond", "Georgia", serif;
+$sans: "Helvetica", "Arial", sans-serif;
 $display: "Playfair Display", "Georgia", serif;
 
 // constants
@@ -682,7 +683,14 @@ ul.flash {
         position: absolute;
         z-index: 100;
         width: inherit;
-        margin: 0 auto;
+        a.collapse {
+            font-family: $sans;
+            font-weight: bold;
+            font-size: 1.5em;
+            &:hover, &:focus {
+                color: $base01;
+            }
+        }
     }
     .break {
         display: none;
