@@ -484,6 +484,15 @@ ul.flash {
   display: none; }
 #line-form.js {
   display: none; }
+#line-form input {
+  border-radius: 3px;
+  border: 1px solid #b58900;
+  font-family: "Playfair Display", "Georgia", serif;
+  padding: 0.25em; }
+  #line-form input[type=submit] {
+    background-color: #eee8d5;
+    color: #657b83;
+    cursor: pointer; }
 
 #annotate-button {
   display: none;

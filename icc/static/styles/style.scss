@@ -629,6 +629,18 @@ ul.flash {
 #line-form {
     .hidden { display: none; }
     &.js { display: none; }
+    input {
+        border-radius: 3px;
+        border: 1px solid $accent;
+        font-family: $display;
+        padding: 0.25em;
+        &[type=submit] {
+            background-color: $lightbghl;
+            color: $base00;
+            cursor: pointer;
+        }
+
+    }
 }
 
 #annotate-button {
