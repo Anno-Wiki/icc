@@ -389,9 +389,7 @@ nav {
                 margin: 0 auto;
             }
             .footnote, .title {
-                @media only screen and (max-width: $break5) {
-                    display: block;
-                }
+                @media only screen and (max-width: $break5) { display: block; }
             }
             .collapse {
                 margin: 0;
@@ -404,9 +402,7 @@ nav {
             text-align: right;
         }
 
-        .weight, .collapse, .arrows {
-            margin: 0 0.5em 0 0.5em;
-        }
+        .weight, .collapse, .arrows { margin: 0 0.5em 0 0.5em; }
         .weight {
             border: 1px solid;
             padding: 0 0em 0.1em 0.2em;
@@ -425,23 +421,15 @@ nav {
 			vertical-align: text-top;
             div {
                 margin: -0.5em 0 -0.5em 0; // squish them together
-                .up {
-                    color: $accent;
-                }
-                .down {
-                    color: $red;
-                }
+                .up { color: $accent; }
+                .down { color: $red; }
             }
         }
     }
-    &-collapsible {
-        padding: 0.5em;
-    }
+    &-collapsible { padding: 0.5em; }
     &-body {
         .cutoff {
-            p:last-of-type::after {
-                content: "..."
-            }
+            p:last-of-type::after { content: "..." }
             a:last-of-type {
                 display: block;
                 margin: 1em;
@@ -450,9 +438,7 @@ nav {
     }
     .tags {
         margin: 0.5em;
-        .tag {
-            margin: 0.25em;
-        }
+        .tag { margin: 0.25em; }
 
     }
     &-footer {
@@ -465,13 +451,6 @@ nav {
             display: none;
             @media only screen and (max-width: $break5) { display: inline; }
         }
-    }
-    &.js-show {
-        position: fixed;
-        display: block;
-        top: 50%;
-        left: 50%;
-        z-index: 100;
     }
 }
 
@@ -683,13 +662,15 @@ ul.flash {
 #text-content {
     margin: 0 auto;
     max-width: 50em;
-    ::selection {
-        background-color: $base2;
-        color: $yellow;
-    }
-    ::-moz-selection {
-        background-color: $base2;
-        color: $yellow;
+    ::selection { background-color: $base2; color: $yellow; }
+    ::-moz-selection { background-color: $base2; color: $yellow; }
+    .annotation {
+        right: 2em;
+        left: 2em;
+        position: absolute;
+        z-index: 100;
+        width: inherit;
+        margin: 0 auto;
     }
     .break {
         display: none;

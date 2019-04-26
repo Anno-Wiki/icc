@@ -337,12 +337,6 @@ nav {
       @media only screen and (max-width: 500px) {
         .annotation-footer .mobile {
           display: inline; } }
-  .annotation.js-show {
-    position: fixed;
-    display: block;
-    top: 50%;
-    left: 50%;
-    z-index: 100; }
 
 .tag {
   display: inline-block;
@@ -520,6 +514,13 @@ ul.flash {
   #text-content ::-moz-selection {
     background-color: #eee8d5;
     color: #b58900; }
+  #text-content .annotation {
+    right: 2em;
+    left: 2em;
+    position: absolute;
+    z-index: 100;
+    width: inherit;
+    margin: 0 auto; }
   #text-content .break {
     display: none;
     height: 1em; }
