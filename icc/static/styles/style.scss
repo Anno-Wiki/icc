@@ -1,59 +1,61 @@
 // font families
-$serifs: "EB Garamond", "Georgia", serif;
-$sans: "Helvetica", "Arial", sans-serif;
-$display: "Playfair Display", "Georgia", serif;
+$serifs:            "EB Garamond", "Georgia", serif;
+$sans:              "Helvetica", "Arial", sans-serif;
+$display:           "Playfair Display", "Georgia", serif;
 
 // constants
-$bevel: 20px;
+$bevel:             20px;
 
 // time delays
-$shortdelay: 0.3s;
-$middelay: 0.5s;
-$longdelay: 0.7s;
+$shortdelay:        0.3s;
+$middelay:          0.5s;
+$longdelay:         0.7s;
 
 
 // Solarized Colorscheme
-$base03:    #002b36;
-$base02:    #073642;
-$base01:    #586e75; // optional emphasized content
-$base00:    #657b83; // body text / default code / primary content
-$base0:     #839496;
-$base1:     #93a1a1; // comments / secondary content
-$base2:     #eee8d5; // background highlights
-$base3:     #fdf6e3; // background
+$base03:            #002b36;
+$base02:            #073642;
+$base01:            #586e75; // optional emphasized content
+$base00:            #657b83; // body text / default code / primary content
+$base0:             #839496;
+$base1:             #93a1a1; // comments / secondary content
+$base2:             #eee8d5; // background highlights
+$base3:             #fdf6e3; // background
 
-$yellow:    #b58900;
-$orange:    #cb4b16;
-$red:       #dc322f;
+$yellow:            #b58900;
+$orange:            #cb4b16;
+$red:               #dc322f;
 
-$magenta:   #d33682;
-$violet:    #6c71c4;
-$blue:      #268bd2;
+$magenta:           #d33682;
+$violet:            #6c71c4;
+$blue:              #268bd2;
 
-$cyan:      #2aa198;
-$green:     #859900;
+$cyan:              #2aa198;
+$green:             #859900;
 
 // keywords
-$accent:    $yellow;
-$darkbg:    $base03;
-$darkbghl:  $base02;
-$lightbg:   $base3;
-$lightbghl: $base2;
+$accent:            $yellow;
+$accent-dark:       #997301;
+$accent-light:      #cc9900;
+$darkbg:            $base03;
+$darkbghl:          $base02;
+$lightbg:           $base3;
+$lightbghl:         $base2;
 
 // breaks and disappear classes
-$break1:   1120px;
-$break2:    940px;
-$break3:    880px;
-$break3-1:  800px;
-$break4:    750px;
-$break5:    500px;
-$break6:    470px;
-$break7:    450px;
-$break8:    440px;
-$break9:    350px;
+$break1:           1120px;
+$break2:            940px;
+$break3:            880px;
+$break3-1:          800px;
+$break4:            750px;
+$break5:            500px;
+$break6:            470px;
+$break7:            450px;
+$break8:            440px;
+$break9:            350px;
 
-$bodywidth: 60em;
-$annotationwidth: 50em;
+$bodywidth:         60em;
+$annotationwidth:   50em;
 
 .disappear {
     &-1 { @media only screen and (max-width: $break2) { display: none; } }
@@ -87,6 +89,25 @@ body {
 .body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
+    &-form {
+        font-family: $display;
+        input {
+            border-radius: 3px;
+            border: 1px solid $accent;
+            font-family: $display;
+            padding: 0.25em;
+            margin: 0.25em;
+            &:focus, &:hover {
+                box-shadow: 0px 0px 2px 2px $accent-light;
+            }
+            &[type=submit] {
+                background-color: $lightbghl;
+                color: $base00;
+                cursor: pointer;
+                font-size: 1em;
+            }
+        }
+    }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -211,6 +232,8 @@ nav {
         @media only screen and (max-width: $break8) { width: 15em; }
         @media only screen and (max-width: $break9) { width: 13em; }
         border: {
+            width: auto;
+            style: auto;
             color: $accent;
             radius: $bevel;
         }
@@ -628,21 +651,11 @@ ul.flash {
 
 // The interactive line form for annotating.
 #line-form {
+    @media only screen and (max-width: $break3-1) { display: none; }
     .hidden { display: none; }
     &.js { display: none; }
-    input {
-        border-radius: 3px;
-        border: 1px solid $accent;
-        font-family: $display;
-        padding: 0.25em;
-        &[type=submit] {
-            background-color: $lightbghl;
-            color: $base00;
-            cursor: pointer;
-        }
-
-    }
 }
+
 
 #annotate-button {
     display: none;
