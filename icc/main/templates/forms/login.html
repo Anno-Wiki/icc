@@ -2,43 +2,40 @@
 
 {% block content %}
 
-<h1>Sign In</h1>
+    <form class="body-form" action="" method="post" novalidate>
+        <h1>Sign In</h1>
+        {{ form.hidden_tag() }}
 
-<form class="body-form" action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
+        <p>
+            {{ form.email.label }} <br> {{ form.email(size=32) }} <br>
+            {% for error in form.email.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
 
-    <p>
-        {{ form.email.label }} <br> {{ form.email(size=32) }} <br>
-        {% for error in form.email.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
+        <p>
+            {{ form.password.label }} <br> {{ form.password(size=32) }} <br>
+            {% for error in form.password.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
 
-    <p>
-        {{ form.password.label }} <br> {{ form.password(size=32) }} <br>
-        {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
+        <p>
+            Forgot your password?
+            <a href="{{ url_for("user.reset_password_request") }}">
+                Click to reset it
+            </a>
+        </p>
+        <p>
+            New User?
+            <a href="{{ url_for("main.register", next=request.args.get('next')) }}">
+                Click to Register!
+            </a>
+        </p>
 
-    <p>
-        Forgot your password?
-        <a href="{{ url_for("user.reset_password_request") }}">
-            Click to reset it
-        </a>
-    </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
 
-    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-
-    <p>{{ form.submit() }}</p>
-
-</form>
-
-<p>
-    New User?
-    <a href="{{ url_for("main.register", next=request.args.get('next')) }}">
-        Click to Register!
-    </a>
-</p>
+        <p>{{ form.submit() }}</p>
+    </form>
 
 {% endblock %}
