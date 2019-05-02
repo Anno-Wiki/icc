@@ -46,16 +46,25 @@ body {
   background-color: #fdf6e3;
   border-radius: 20px; }
   .body-form {
+    margin: 0 auto;
+    text-align: center;
     font-family: "Playfair Display", "Georgia", serif; }
+    .body-form table {
+      margin: 0 auto; }
     .body-form input {
+      font-family: "Playfair Display", "Georgia", serif;
+      font-size: 0.9em; }
+    .body-form textarea {
+      font-family: "EB Garamond", "Georgia", serif;
+      height: 10em; }
+    .body-form textarea, .body-form input {
       border-radius: 3px;
       border: 1px solid #b58900;
-      font-family: "Playfair Display", "Georgia", serif;
       padding: 0.25em;
       margin: 0.25em; }
-      .body-form input:focus, .body-form input:hover {
+      .body-form textarea:focus, .body-form textarea:hover, .body-form input:focus, .body-form input:hover {
         box-shadow: 0px 0px 2px 2px #cc9900; }
-      .body-form input[type=submit] {
+      .body-form textarea[type=submit], .body-form input[type=submit] {
         background-color: #eee8d5;
         color: #657b83;
         cursor: pointer;

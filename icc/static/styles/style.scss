@@ -90,11 +90,23 @@ body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
     &-form {
+        margin: 0 auto;
+        text-align: center;
         font-family: $display;
+        table { margin: 0 auto; }
         input {
+            font: {
+                family: $display;
+                size: 0.9em;
+            }
+        }
+        textarea {
+            font-family: $serifs;
+            height: 10em;
+        }
+        textarea, input {
             border-radius: 3px;
             border: 1px solid $accent;
-            font-family: $display;
             padding: 0.25em;
             margin: 0.25em;
             &:focus, &:hover {
