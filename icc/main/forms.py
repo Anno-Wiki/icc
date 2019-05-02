@@ -40,7 +40,7 @@ class AnnotationForm(FlaskForm):
 
     annotation = TextAreaField(
         "Annotation", render_kw={'placeholder': "Type your annotation here.",
-                                 'style': 'width: 700px;', 'maxlength': 60000},
+                                 'maxlength': 60000},
         validators=[InputRequired(), Length(min=0, max=60000)])
 
     tags = StringField(
@@ -53,7 +53,7 @@ class AnnotationForm(FlaskForm):
         "Reason",
         render_kw={
             'placeholder': "e.g. \"Edited grammar\", \"Expanded tags\", etc.",
-            'style': 'width: 100%;', 'maxlength': 191},
+            'maxlength': 191},
         validators=[Optional(), Length(min=0, max=191)])
     submit = SubmitField("Annotate")
 
