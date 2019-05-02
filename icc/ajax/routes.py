@@ -1,5 +1,7 @@
 """The ajax routes."""
-from flask import request, jsonify
+import time
+
+from flask import request, jsonify, current_app
 from icc.models.annotation import Tag
 from icc.ajax import ajax
 
@@ -23,3 +25,15 @@ def ajax_tags():
 
     return jsonify({'success': True, 'tags': tag_list,
                     'descriptions': descriptions})
+
+server_start_time = time.time()
+
+@ajax.route('/heartbeat', methods=['GET'])
+def heartbeat():
+    """This route provides a json object that includes the last server restart
+    time. This is to refresh the app.
+    """
+    if current_app.config["DEBUG"]:
+        return jsonify({'start_time': server_start_time})
+    else:
+        return jsonify({'start_time': "No way, José."})

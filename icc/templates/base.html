@@ -18,6 +18,9 @@
     </head>
 
     <body>
+        {% if vars["DEBUG"] %}
+            {% include "includes/_reload_heartbeat.js" %}
+        {% endif %}
         <nav class="mobile">
             <div class="left">
                 <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
