@@ -23,10 +23,10 @@
     {# Line number entry for annotation form #}
     <form class="body-form" id="line-form" action="" method="POST">
         {{ form.hidden_tag() }}
-        {{ form.first_line(size=4, class_="hideme") }}
-        {{ form.last_line(size=4, class_="hideme") }}
-        {{ form.first_char(size=4, class_="hidden") }}
-        {{ form.last_char(size=4, class_="hidden") }}
+        {{ form.first_line(class_="hideme") }}
+        {{ form.last_line(class_="hideme") }}
+        {{ form.first_char(class_="hidden") }}
+        {{ form.last_char(class_="hidden") }}
         {{ form.submit() }}
     </form>
     <div onclick="submit();" id="annotate-button">annotate</div>
