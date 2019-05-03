@@ -15,5 +15,5 @@
             });
     }
 
-    setInterval(checkTime, 1000);
+    setInterval(checkTime, 500);
 </script>

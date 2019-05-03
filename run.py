@@ -3,7 +3,7 @@ import os
 
 app = create_app()
 
-extra_dirs = ['icc/static',]
+extra_dirs = ['icc/static', 'icc/main/templates']
 extra_files = extra_dirs[:]
 for extra_dir in extra_dirs:
     for dirname, dirs, files in os.walk(extra_dir):
