@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -n Password:
+echo -n Default User Password:
 read -s password
 printf '\n'
 
