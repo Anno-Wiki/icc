@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-    <script src="{{ url_for("static", filename="scripts/tags.js") }}"></script>
     <!--Header/Running Head-->
     <div class="running_head">
         <a href="{{ edition.url }}"> {{ edition.title }} </a>
@@ -32,78 +30,69 @@
         {% endfor %}
     </div>
 
-    <br><br>
-    <form class="body-form" action="" method="POST" novalidate>
+    <hr>
+    <form class="body-form body-form-annotation" action="" method="POST" novalidate>
         {{ form.csrf_token }}
         <span style="display:none;">
             {{ form.first_char_idx }}
             {{ form.last_char_idx }}
         </span>
-        <table>
-            <tr>
-                <th>
-                    {{ form.first_line.label }}:
-                    {{ form.first_line }}
-                    <br>
-                    {% for error in form.first_line.errors %}
-                        <span style="color: red;"> [{{ error }}] </span>
-                    {% endfor %}
-                </th>
-                <th>
-                    {{ form.last_line.label }}:
-                    {{ form.last_line }}
-                    <br>
-                    {% for error in form.last_line.errors %}
-                        <span style="color: red;"> [{{ error }}] </span>
-                    {% endfor %}
-                </th>
-            </tr>
+        <div class="body-form-line-nums">
+            <span>
+                {{ form.first_line.label }}:
+                {{ form.first_line }}
+                <br>
+                {% for error in form.first_line.errors %}
+                    <span style="color: red;"> [{{ error }}] </span>
+                {% endfor %}
+            </span>
+            <span>
+                {{ form.last_line.label }}:
+                {{ form.last_line }}
+                <br>
+                {% for error in form.last_line.errors %}
+                    <span style="color: red;"> [{{ error }}] </span>
+                {% endfor %}
+            </span>
+        </div>
 
-            <tr>
-                <td colspan=5>
-                    <strong>{{ form.annotation.label }}</strong>
-                    <br>
-                    {{ form.annotation }}
-                    <br>
-                </td>
-            </tr>
+        <div class="body-form-annotation">
+            <strong>{{ form.annotation.label }}</strong>
+            <br>
+            {{ form.annotation }}
+        </div>
 
-            <tr>
-                <td colspan=5>
-                    <strong>{{ form.tags.label }}</strong>
-                    <br>
+        <div class="tags">
+            {% include "includes/_tags_autocomplete.js" %}
+            <strong>{{ form.tags.label }}</strong>
+            <br>
+            <div id="master_div">
+                {# tag spans is where we put the tags as they're
+                    created by the javascript #}
+                <div id="tag_spans"></div>
+                <div id="input">{{ form.tags(onfocus="focusDiv(this);", onblur="blurDiv(this);") }}</div>
+            </div>
+            <div id="autocomplete"></div>
 
-                    <div id="master_div">
-                        {# tag spans is where we put the tags as they're
-                            created by the javascript #}
-                        <div id="tag_spans"></div>
-                        <div id="input">{{ form.tags }}</div>
-                    </div>
-                    <div id="autocomplete"></div>
+            {% for error in form.tags.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                <br>
+            {% endfor %}
+        </div>
 
-                    {% for error in form.tags.errors %}
-                        <span style="color: red;">[{{ error }}]</span>
-                        <br>
-                    {% endfor %}
-                </td>
-            </tr>
+        {% if annotation %}
+            <div class="body-form-reason">
+                <strong>{{ form.reason.label }}</strong>
+                <br>
+                {{ form.reason }}
+                {% for error in form.reason.errors %}
+                    <span style="color: red;"> [{{ error }}] </span>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-            {% if annotation %}
-                <tr>
-                    <td colspan=5>
-                        <strong>{{ form.reason.label }}</strong>
-                        <br>
-                        {{ form.reason }}
-                        {% for error in form.reason.errors %}
-                            <span style="color: red;"> [{{ error }}] </span>
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endif %}
-
-            <tr>
-                <th colspan=5>{{ form.submit }}</th>
-            </tr>
-        </table>
+        <div class="body-form-submit">
+            {{ form.submit }}
+        </div>
     </form>
 {% endblock %}

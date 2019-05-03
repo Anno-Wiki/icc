@@ -76,7 +76,8 @@ function autocomplete(event) {
                     var tag = document.createElement("tag");
                     tag.innerHTML = data.tags[i];
                     tag.onclick = function() {
-                        new_tag = document.createElement("tag");
+                        new_tag = document.createElement("div");
+                        new_tag.className = "tag"
                         new_tag.innerHTML = this.innerHTML + " &times;";
                         new_tag.onclick = function() {
                             $("#tag_spans").removeChild(this)

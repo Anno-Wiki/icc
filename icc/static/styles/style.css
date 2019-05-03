@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @media only screen and (max-width: 940px) {
   .disappear-1 {
     display: none; } }
@@ -49,8 +50,70 @@ body {
     margin: 0 auto;
     text-align: center;
     font-family: "Playfair Display", "Georgia", serif; }
-    .body-form table {
-      margin: 0 auto; }
+    .body-form-annotation {
+      margin-top: 1em;
+      max-width: 50em; }
+      .body-form-annotation textarea, .body-form-annotation input {
+        width: 95%; }
+        .body-form-annotation textarea[type=submit], .body-form-annotation input[type=submit] {
+          max-width: 10em; }
+      .body-form-annotation .tags {
+        margin: 0 auto;
+        width: 100%; }
+        .body-form-annotation .tags #master_div {
+          background: white;
+          display: flex;
+          justify-items: space-around;
+          align-items: center;
+          transition: 0.3s;
+          border: 1px solid #b58900;
+          border-radius: 3px;
+          overflow: hidden; }
+          .body-form-annotation .tags #master_div:hover, .body-form-annotation .tags #master_div.focus {
+            box-shadow: 0px 0px 2px 2px #cc9900; }
+          .body-form-annotation .tags #master_div #tag_spans {
+            display: flex;
+            flex-wrap: no-wrap; }
+            .body-form-annotation .tags #master_div #tag_spans .tag {
+              width: max-content;
+              cursor: pointer;
+              margin: 3px;
+              font-size: 0.75em; }
+              .body-form-annotation .tags #master_div #tag_spans .tag:hover {
+                color: #b58900; }
+          .body-form-annotation .tags #master_div #input input {
+            border: 0;
+            min-width: 20em; }
+            .body-form-annotation .tags #master_div #input input:hover, .body-form-annotation .tags #master_div #input input:focus {
+              box-shadow: none; }
+        .body-form-annotation .tags #autocomplete {
+          background-color: white;
+          display: none;
+          justify-items: space-around;
+          align-items: stretch;
+          border: 1px solid #b58900;
+          border-radius: 3px;
+          padding: 1em; }
+          .body-form-annotation .tags #autocomplete .card {
+            margin: 0.25em;
+            width: 15em;
+            border: 1px dashed #eee8d5;
+            padding: 0.25em;
+            cursor: pointer; }
+            .body-form-annotation .tags #autocomplete .card .description {
+              text-align: left;
+              margin-top: 0.5em;
+              font-size: 12px;
+              font-family: "EB Garamond", "Georgia", serif; }
+              .body-form-annotation .tags #autocomplete .card .description.ellipsis::after {
+                content: "..."; }
+    .body-form-line-nums {
+      display: flex;
+      justify-content: space-around; }
+      .body-form-line-nums input {
+        width: auto;
+        display: inline-block;
+        text-align: center; }
     .body-form input {
       font-family: "Playfair Display", "Georgia", serif;
       font-size: 0.9em; }
@@ -61,7 +124,8 @@ body {
       border-radius: 3px;
       border: 1px solid #b58900;
       padding: 0.25em;
-      margin: 0.25em; }
+      margin: 0.25em;
+      transition: 0.3s; }
       .body-form textarea:focus, .body-form textarea:hover, .body-form input:focus, .body-form input:hover {
         box-shadow: 0px 0px 2px 2px #cc9900; }
       .body-form textarea[type=submit], .body-form input[type=submit] {
@@ -364,15 +428,14 @@ nav {
 
 .tag {
   display: inline-block;
-  background-color: #002b36;
+  background-color: #ddd7c4;
   border-radius: 20px;
-  transition: 0.7s;
+  transition: 0.5s;
   padding: 0.25em 1em 0.25em 1em;
   font-family: "Playfair Display", "Georgia", serif;
   font-size: 0.85em; }
   .tag:hover {
-    background-color: #fdf6e3;
-    box-shadow: 0 0 4px 8px #eee8d5 inset; }
+    background-color: #073642; }
   .tag.heading {
     cursor: pointer;
     border-radius: 30px;
@@ -395,13 +458,13 @@ nav {
 .index {
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
   margin: 0.5em; }
   .index .card {
     position: relative;
     margin: 0.5em;
     padding: 0.25em;
     border: 2px dashed #eee8d5;
-    height: 15em;
     width: 17em; }
     @media only screen and (max-width: 1120px) {
       .index .card {
@@ -421,9 +484,8 @@ nav {
     .index .card-cutoff p:last-of-type::after {
       content: "..."; }
     .index .card .viewmore {
-      position: absolute;
-      left: 0;
       margin: 0.5em;
+      left: 0;
       bottom: 0;
       width: 100%; }
 
@@ -535,6 +597,22 @@ ul.flash {
 #text-content {
   margin: 0 auto;
   max-width: 50em; }
+  #text-content hr {
+    overflow: visible;
+    /* For IE */
+    padding: 0;
+    border: none;
+    border-top: medium double #333;
+    color: #333;
+    text-align: center; }
+    #text-content hr:after {
+      content: "§";
+      display: inline-block;
+      position: relative;
+      top: -0.7em;
+      font-size: 1.5em;
+      padding: 0 0.25em;
+      background: #fdf6e3; }
   #text-content ::selection {
     background-color: #eee8d5;
     color: #b58900; }

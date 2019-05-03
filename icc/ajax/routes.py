@@ -7,7 +7,7 @@ from icc.ajax import ajax
 
 
 @ajax.route('/autocomplete/tags/', methods=['POST'])
-def ajax_tags():
+def tags():
     """This route provides json to populate an autocomplete tag entry similar to
     stackoverflow (which still needs work).
     """
@@ -21,10 +21,14 @@ def ajax_tags():
     descriptions = []
     for t in results:
         tag_list.append(t.tag)
-        descriptions.append(t.wiki.current.body)
+        if len(t.wiki.current.body) > 500:
+            descriptions.append(t.wiki.current.body[:500])
+        else:
+            descriptions.append(t.wiki.current.body)
 
     return jsonify({'success': True, 'tags': tag_list,
                     'descriptions': descriptions})
+
 
 server_start_time = time.time()
 

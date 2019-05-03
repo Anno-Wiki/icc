@@ -20,6 +20,7 @@ $base00:            #657b83; // body text / default code / primary content
 $base0:             #839496;
 $base1:             #93a1a1; // comments / secondary content
 $base2:             #eee8d5; // background highlights
+$base2-1:           #ddd7c4; // background highlights
 $base3:             #fdf6e3; // background
 
 $yellow:            #b58900;
@@ -57,6 +58,7 @@ $break9:            350px;
 $bodywidth:         60em;
 $annotationwidth:   50em;
 
+$formborder: 1px solid $accent;
 .disappear {
     &-1 { @media only screen and (max-width: $break2) { display: none; } }
     &-2 { @media only screen and (max-width: $break3) { display: none; } }
@@ -89,11 +91,97 @@ body {
 .body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
+
     &-form {
         margin: 0 auto;
         text-align: center;
         font-family: $display;
-        table { margin: 0 auto; }
+
+        &-annotation {
+            margin-top: 1em;
+            max-width: 50em;
+            textarea, input {
+                width: 95%;
+                &[type=submit] {
+                    max-width: 10em;
+                }
+            }
+            .tags {
+                margin: 0 auto;
+                width: 100%;
+                #master_div {
+                    background: white;
+
+                    display: flex;
+                    justify-items: space-around;
+                    align-items: center;
+                    transition: $shortdelay;
+
+                    border: $formborder;
+                    border-radius: 3px;
+                    overflow: hidden;
+
+                    &:hover, &.focus { box-shadow: 0px 0px 2px 2px $accent-light; }
+
+                    #tag_spans {
+                        display: flex;
+                        flex-wrap: no-wrap;
+                        .tag {
+                            width: max-content;
+                            cursor: pointer;
+                            margin: 3px;
+                            font-size: 0.75em;
+                            &:hover { color: $accent; }
+                        }
+                    }
+                    #input {
+                        // the input needs to not style at all
+                        input {
+                            border: 0;
+                            min-width: 20em;
+                            &:hover, &:focus { box-shadow: none; }
+
+                        }
+                    }
+                }
+                #autocomplete {
+                    background-color: white;
+                    display: none;
+                    justify-items: space-around;
+                    align-items: stretch;
+                    border: 1px solid $accent;
+                    border-radius: 3px;
+                    padding: 1em;
+                    .card {
+                        margin: 0.25em;
+                        width: 15em;
+                        border: 1px dashed $lightbghl;
+                        padding: 0.25em;
+                        cursor: pointer;
+                        .description {
+                            text-align: left;
+                            margin-top: 0.5em;
+                            &.ellipsis::after {
+                                content: "..."
+                            }
+                            font: {
+                                size: 12px;
+                                family: $serifs;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        &-line-nums {
+            display: flex;
+            justify-content: space-around;
+            input {
+                width: auto;
+                display: inline-block;
+                text-align: center;
+            }
+        }
         input {
             font: {
                 family: $display;
@@ -106,9 +194,10 @@ body {
         }
         textarea, input {
             border-radius: 3px;
-            border: 1px solid $accent;
+            border: $formborder;
             padding: 0.25em;
             margin: 0.25em;
+            transition: $shortdelay;
             &:focus, &:hover {
                 box-shadow: 0px 0px 2px 2px $accent-light;
             }
@@ -491,17 +580,17 @@ nav {
 // styling for tags
 .tag {
     display: inline-block;
-    background-color: $darkbg;
+    background-color: $base2-1;
     border-radius: $bevel;
-    transition: $longdelay;
+    transition: $middelay;
     padding: 0.25em 1em 0.25em 1em;
     font: {
         family: $display;
         size: 0.85em;
     }
     &:hover {
-        background-color: $lightbg;
-        box-shadow: 0 0 4px 8px $lightbghl inset;
+        background-color: $base02;
+        //box-shadow: 0 0 4px 8px $lightbghl inset;
     }
     &.heading {
         cursor: pointer;
@@ -531,6 +620,7 @@ nav {
 .index {
     display: flex;
     flex-wrap: wrap;
+    align-items: stretch;
     margin: 0.5em;
     .card {
         position: relative;
@@ -538,7 +628,6 @@ nav {
         padding: 0.25em;
         border: 2px dashed $lightbghl;
 
-        height: 15em;
         width: 17em;
         @media only screen and (max-width: $break1) { width: 16em; }
         @media only screen and (max-width: $break8) { height: 17em; width: 15em; }
@@ -552,9 +641,8 @@ nav {
 
         &-cutoff { p:last-of-type::after { content: "..." } }
         .viewmore {
-            position: absolute;
-            left: 0;
             margin: 0.5em;
+            left: 0;
             bottom: 0;
             width: 100%;
         }
@@ -696,6 +784,23 @@ ul.flash {
 
 // Styling the read page (also any time text appears)
 #text-content {
+    hr {
+        overflow: visible; /* For IE */
+        padding: 0;
+        border: none;
+        border-top: medium double #333;
+        color: #333;
+        text-align: center;
+        &:after {
+            content: "§";
+            display: inline-block;
+            position: relative;
+            top: -0.7em;
+            font-size: 1.5em;
+            padding: 0 0.25em;
+            background: $lightbg;
+        }
+    }
     margin: 0 auto;
     max-width: 50em;
     ::selection { background-color: $base2; color: $yellow; }
