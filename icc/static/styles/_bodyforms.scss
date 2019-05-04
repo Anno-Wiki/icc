@@ -1,0 +1,47 @@
+&-form {
+    margin: 0 auto;
+    text-align: center;
+    font-family: $display;
+
+    &-annotation {
+        // the annotation form
+        margin-top: 1em;
+        max-width: 50em;
+        textarea, input {
+            width: 95%;
+            &[type=submit] {
+                max-width: 10em;
+            }
+        }
+        @import 'tagforms';
+    }
+    &-line-nums {
+        display: flex;
+        justify-content: space-around;
+        input {
+            width: auto;
+            display: inline-block;
+            text-align: center;
+        }
+    }
+    input {
+        font: {
+            family: $display;
+            size: 0.9em;
+        }
+    }
+    textarea {
+        font-family: $serifs;
+        height: 10em;
+    }
+    textarea, input {
+        @include formstyle;
+
+        &[type=submit] {
+            background-color: $lightbghl;
+            color: $base00;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    }
+}

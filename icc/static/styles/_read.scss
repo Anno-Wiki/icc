@@ -1,0 +1,88 @@
+// Styling the read page (also any time text appears)
+#text-content {
+    hr {
+        overflow: visible; /* For IE */
+        padding: 0;
+        border: none;
+        border-top: medium double #333;
+        color: #333;
+        text-align: center;
+        &:after {
+            content: "§";
+            display: inline-block;
+            position: relative;
+            top: -0.7em;
+            font-size: 1.5em;
+            padding: 0 0.25em;
+            background: $lightbg;
+        }
+    }
+    margin: 0 auto;
+    max-width: 50em;
+    ::selection { background-color: $base2; color: $yellow; }
+    ::-moz-selection { background-color: $base2; color: $yellow; }
+    .annotation {
+        right: 2em;
+        left: 2em;
+        position: absolute;
+        z-index: 100;
+        width: inherit;
+        a.collapse {
+            font-family: $sans;
+            font-weight: bold;
+            font-size: 1.5em;
+            &:hover, &:focus {
+                color: $base01;
+            }
+        }
+    }
+    .break {
+        display: none;
+        height: 1em;
+        @media only screen and (max-width: $break3-1) { display: block; }
+    }
+    .line {
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-start;
+        .line-num {
+            @media only screen and (max-width: $break3-1) { display: none; }
+            &.hidden { visibility: hidden; }
+
+            font-size: 0.75em;
+            min-width: 3em;
+            margin-right: 1em;
+            text-align: right;
+
+            -webkit-touch-callout: none; // iOS Safari
+            -webkit-user-select: none; // Safari
+            -khtml-user-select: none; // Konqueror HTML
+            -moz-user-select: none; // Firefox
+            -ms-user-select: none; // Internet Explorer/Edge
+            user-select: none; // Non-prefixed version, currently supported by Chrome and Opera
+        }
+
+        &-annotations { a { color: $yellow; } }
+
+        &.fl { margin-top: 1em; }
+        &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } }
+
+
+        &.lvl {
+            display: block !important;
+            &1, &2, &3, &4, &5 {
+                margin-top: 1em;
+                span.line-num { visibility: hidden; }
+                span.text {
+                    font-family: $display;
+                    margin-left: 1rem;
+                }
+            }
+            &5 span.text { font-size: 1.0em; }
+            &4 span.text { font-size: 1.1em; }
+            &3 span.text { font-size: 1.2em; }
+            &2 span.text { font-size: 1.3em; }
+            &1 span.text { font-size: 2.0em; }
+        }
+    }
+}

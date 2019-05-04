@@ -1,0 +1,115 @@
+// Style the annotation blocks
+.annotation {
+    display: block;
+    background-color: $lightbghl;
+    margin: 2em auto;
+    max-width: $annotationwidth;
+    box-shadow: 0 16px 32px 0 $darkbghl;
+    border-top: {
+        left-radius: $bevel;
+        right-radius: $bevel;
+    }
+    &-head {
+        padding: 0.5em;
+        border-radius: $bevel;
+        background-color: $darkbg;
+        color: $base01;
+        overflow: auto;
+        /* ^ Absolutely imperative for overflowing when rendering to the right
+         * and left */
+        a {
+            color: $base0;
+            &:hover { color: $yellow; }
+        }
+
+        .footnote {
+            a {
+                color: $yellow;
+                padding: 0.25em;
+            }
+        }
+
+        .left {
+            display: inline-block;
+            font-size: 2em;
+            margin: 0;
+            vertical-align: middle;
+            .arrows {
+                margin: 0;
+            }
+            @media only screen and (min-width: $break5+1) { display: none; }
+            display: inline-block;
+
+        }
+        .center {
+            display: inline-block;
+
+            @media only screen and (max-width: $break5) {
+                vertical-align: middle;
+                margin: 0 auto;
+            }
+            .footnote, .title {
+                @media only screen and (max-width: $break5) { display: block; }
+            }
+            .collapse {
+                margin: 0;
+                @media only screen and (min-width: $break5+1) { display: none; }
+            }
+        }
+
+        .right {
+            float: right;
+            text-align: right;
+        }
+
+        .weight, .collapse, .arrows { margin: 0 0.5em 0 0.5em; }
+        .weight {
+            border: 1px solid;
+            padding: 0 0em 0.1em 0.2em;
+            &.up {
+                color: $accent;
+                border-color: $accent;
+            }
+            &.down {
+                color: $red;
+                border-color: $red;
+            }
+        }
+        .arrows {
+            display: inline-block;
+            font-size: 0.85em;
+			vertical-align: text-top;
+            div {
+                margin: -0.5em 0 -0.5em 0; // squish them together
+                .up { color: $accent; }
+                .down { color: $red; }
+            }
+        }
+    }
+    &-collapsible { padding: 0.5em; }
+    &-body {
+        .cutoff {
+            p:last-of-type::after { content: "..." }
+            a:last-of-type {
+                display: block;
+                margin: 1em;
+            }
+        }
+    }
+    .tags {
+        margin: 0.5em;
+        .tag { margin: 0.25em; }
+
+    }
+    &-footer {
+        padding-bottom: 0.5em;
+        .web {
+            display: none;
+            @media only screen and (min-width: $break5+1) { display: inline; }
+        }
+        .mobile {
+            display: none;
+            @media only screen and (max-width: $break5) { display: inline; }
+        }
+    }
+}

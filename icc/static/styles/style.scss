@@ -58,7 +58,26 @@ $break9:            350px;
 $bodywidth:         60em;
 $annotationwidth:   50em;
 
-$formborder: 1px solid $accent;
+@mixin formshadow { box-shadow: 0px 0px 2px 2px $accent-light; }
+@mixin formborder {
+    border: 1px solid $accent;
+    border-radius: 3px;
+}
+@mixin formstyle {
+    @include formborder;
+    padding: 0.25em;
+    margin: 0.25em;
+    transition: $shortdelay;
+    &:focus, &:hover { @include formshadow; }
+}
+
+@import 'annotation';
+@import 'tag';
+@import 'toc';
+@import 'nav';
+@import 'search';
+@import 'read';
+
 .disappear {
     &-1 { @media only screen and (max-width: $break2) { display: none; } }
     &-2 { @media only screen and (max-width: $break3) { display: none; } }
@@ -91,124 +110,7 @@ body {
 .body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
-
-    &-form {
-        margin: 0 auto;
-        text-align: center;
-        font-family: $display;
-
-        &-annotation {
-            margin-top: 1em;
-            max-width: 50em;
-            textarea, input {
-                width: 95%;
-                &[type=submit] {
-                    max-width: 10em;
-                }
-            }
-            .tags {
-                margin: 0 auto;
-                width: 100%;
-                #master_div {
-                    background: white;
-
-                    display: flex;
-                    justify-items: space-around;
-                    align-items: center;
-                    transition: $shortdelay;
-
-                    border: $formborder;
-                    border-radius: 3px;
-                    overflow: hidden;
-
-                    &:hover, &.focus { box-shadow: 0px 0px 2px 2px $accent-light; }
-
-                    #tag_spans {
-                        display: flex;
-                        flex-wrap: no-wrap;
-                        .tag {
-                            width: max-content;
-                            cursor: pointer;
-                            margin: 3px;
-                            font-size: 0.75em;
-                            &:hover { color: $accent; }
-                        }
-                    }
-                    #input {
-                        // the input needs to not style at all
-                        input {
-                            border: 0;
-                            min-width: 20em;
-                            &:hover, &:focus { box-shadow: none; }
-
-                        }
-                    }
-                }
-                #autocomplete {
-                    background-color: white;
-                    display: none;
-                    justify-items: space-around;
-                    align-items: stretch;
-                    border: 1px solid $accent;
-                    border-radius: 3px;
-                    padding: 1em;
-                    .card {
-                        margin: 0.25em;
-                        width: 15em;
-                        border: 1px dashed $lightbghl;
-                        padding: 0.25em;
-                        cursor: pointer;
-                        .description {
-                            text-align: left;
-                            margin-top: 0.5em;
-                            &.ellipsis::after {
-                                content: "..."
-                            }
-                            font: {
-                                size: 12px;
-                                family: $serifs;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        &-line-nums {
-            display: flex;
-            justify-content: space-around;
-            input {
-                width: auto;
-                display: inline-block;
-                text-align: center;
-            }
-        }
-        input {
-            font: {
-                family: $display;
-                size: 0.9em;
-            }
-        }
-        textarea {
-            font-family: $serifs;
-            height: 10em;
-        }
-        textarea, input {
-            border-radius: 3px;
-            border: $formborder;
-            padding: 0.25em;
-            margin: 0.25em;
-            transition: $shortdelay;
-            &:focus, &:hover {
-                box-shadow: 0px 0px 2px 2px $accent-light;
-            }
-            &[type=submit] {
-                background-color: $lightbghl;
-                color: $base00;
-                cursor: pointer;
-                font-size: 1em;
-            }
-        }
-    }
+    @import 'bodyforms'; // the general stylin gof forms in the body
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -229,90 +131,6 @@ a {
     &:hover { color: $accent; }
 }
 
-nav {
-    padding: 0.1em 0.5em 0.1em 0.5em;
-    background-color: $darkbg;
-    border-radius: $bevel;
-    text-align: center;
-    font-family: $serifs;
-    .logo {
-        .footnote {
-            color: $accent;
-            border: 1px solid;
-            padding: 0 0.1em 0.1em 0.1em;
-        }
-    }
-    & img {
-        display: inline-block;
-        vertical-align: middle;
-        width: 1.5em;
-        height: 1.5em;
-    }
-    // The divs within the nav bar should display inline greater than 1020px,
-    // then drop to block in a 3 tiered display, then go back to inline when we
-    // switch to using a hamburger
-    .left, .center, .right {
-        display: inline-block;
-        margin: 0.5em;
-        @media only screen and (max-width: $break1) { display: block; }
-        @media only screen and (max-width: $break6) { display: inline-block; }
-    }
-    &.web {
-        @media only screen and (max-width: $break6) { display: none }
-
-        & * { padding: 0.1em 0.25em 0.1em 0.25em; }
-        .active {
-            border-radius: $bevel;
-            background-color: $darkbghl;
-            color: $accent;
-        }
-        a {
-            color: $base1;
-            transition: $middelay;
-            &:hover { color: $accent; }
-        }
-    }
-
-    &.mobile {
-        // only display under 471
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        border-radius: 0;
-        z-index: 1;
-        @media only screen and (min-width: $break6+1) { display: none; }
-        .hamburger {
-            display: inline-block;
-            vertical-align: middle;
-            cursor: pointer;
-            .bar {
-                &1, &2, &3 {
-                    width: 35px;
-                    height: 5px;
-                    background-color: $base00;
-                    margin: 6px 0;
-                    transition: $shortdelay;
-                }
-            }
-        }
-        .change {
-            .bar {
-                &1 {
-                    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-                    transform: rotate(-45deg) translate(-9px, 6px);
-                    background-color: $accent;
-                }
-                &2 { opacity: 0; }
-                &3 {
-                    -webkit-transform: rotate(45deg) translate(-8px, -8px);
-                    transform: rotate(45deg) translate(-8px, -8px);
-                    background-color: $accent;
-                }
-            }
-        }
-    }
-}
 
 .dark .dropdown-content {
     background-color: $darkbg;
@@ -322,82 +140,11 @@ nav {
     }
 }
 
-.search {
-    text-align: center;
-    input {
-        width: 20em;
-        background-color: $darkbghl;
-        color: $base01;
-        @media only screen and (max-width: $break8) { width: 15em; }
-        @media only screen and (max-width: $break9) { width: 13em; }
-        border: {
-            width: auto;
-            style: auto;
-            color: $accent;
-            radius: $bevel;
-        }
-        font: {
-            family: $display;
-            size: 1em;
-        }
-    }
-}
 
 #container {
     position: relative;
     padding: 1em;
-    #mainmenu {
-        padding: 1em 0 1em 0;
-
-        position: fixed;
-        margin: 0 0.5em 0 0.5em;
-        z-index: 5;
-
-        top: 3.3em;
-        left: 0;
-        right: 0;
-
-        background-color: $darkbghl;
-        opacity: 0;
-        border-radius: $bevel;
-        visibility: hidden;
-        transition: $shortdelay;
-        input {
-            margin: 1em 0 1em 0;
-            background-color: $darkbg;
-            padding: 0.1em;
-        }
-
-        &.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        a {
-            display: block;
-            margin: 0 auto;
-            transition: $middelay;
-            border-radius: $bevel;
-            width: 75%;
-            color: $base00;
-            font: {
-                family: $display;
-                size: 2em;
-            }
-            text: {
-                align: center;
-                decoration: none;
-            }
-            &:hover {
-                color: $accent;
-            }
-        }
-        hr {
-            border: 0;
-            height: 1px;
-            background-image: linear-gradient(to right, $darkbghl, $accent, $darkbghl)
-        }
-    }
+    @import 'mobilemenu'
 }
 
 #footer {
@@ -461,144 +208,7 @@ nav {
     }
 }
 
-// Style the annotation blocks
-.annotation {
-    display: block;
-    background-color: $lightbghl;
-    margin: 2em auto;
-    max-width: $annotationwidth;
-    box-shadow: 0 16px 32px 0 $darkbghl;
-    border-top: {
-        left-radius: $bevel;
-        right-radius: $bevel;
-    }
-    &-head {
-        padding: 0.5em;
-        border-radius: $bevel;
-        background-color: $darkbg;
-        color: $base01;
-        overflow: auto;
-        /* ^ Absolutely imperative for overflowing when rendering to the right
-         * and left */
-        a {
-            color: $base0;
-            &:hover { color: $yellow; }
-        }
 
-        .footnote {
-            a {
-                color: $yellow;
-                padding: 0.25em;
-            }
-        }
-
-        .left {
-            display: inline-block;
-            font-size: 2em;
-            margin: 0;
-            vertical-align: middle;
-            .arrows {
-                margin: 0;
-            }
-            @media only screen and (min-width: $break5+1) { display: none; }
-            display: inline-block;
-
-        }
-        .center {
-            display: inline-block;
-
-            @media only screen and (max-width: $break5) {
-                vertical-align: middle;
-                margin: 0 auto;
-            }
-            .footnote, .title {
-                @media only screen and (max-width: $break5) { display: block; }
-            }
-            .collapse {
-                margin: 0;
-                @media only screen and (min-width: $break5+1) { display: none; }
-            }
-        }
-
-        .right {
-            float: right;
-            text-align: right;
-        }
-
-        .weight, .collapse, .arrows { margin: 0 0.5em 0 0.5em; }
-        .weight {
-            border: 1px solid;
-            padding: 0 0em 0.1em 0.2em;
-            &.up {
-                color: $accent;
-                border-color: $accent;
-            }
-            &.down {
-                color: $red;
-                border-color: $red;
-            }
-        }
-        .arrows {
-            display: inline-block;
-            font-size: 0.85em;
-			vertical-align: text-top;
-            div {
-                margin: -0.5em 0 -0.5em 0; // squish them together
-                .up { color: $accent; }
-                .down { color: $red; }
-            }
-        }
-    }
-    &-collapsible { padding: 0.5em; }
-    &-body {
-        .cutoff {
-            p:last-of-type::after { content: "..." }
-            a:last-of-type {
-                display: block;
-                margin: 1em;
-            }
-        }
-    }
-    .tags {
-        margin: 0.5em;
-        .tag { margin: 0.25em; }
-
-    }
-    &-footer {
-        padding-bottom: 0.5em;
-        .web {
-            display: none;
-            @media only screen and (min-width: $break5+1) { display: inline; }
-        }
-        .mobile {
-            display: none;
-            @media only screen and (max-width: $break5) { display: inline; }
-        }
-    }
-}
-
-// styling for tags
-.tag {
-    display: inline-block;
-    background-color: $base2-1;
-    border-radius: $bevel;
-    transition: $middelay;
-    padding: 0.25em 1em 0.25em 1em;
-    font: {
-        family: $display;
-        size: 0.85em;
-    }
-    &:hover {
-        background-color: $base02;
-        //box-shadow: 0 0 4px 8px $lightbghl inset;
-    }
-    &.heading {
-        cursor: pointer;
-        border-radius: $bevel+10px;
-        font-size: 1.25em;
-        margin: 1em;
-    }
-}
 
 // styling for toolbars on view pages
 .toolbar {
@@ -623,18 +233,18 @@ nav {
     align-items: stretch;
     margin: 0.5em;
     .card {
-        position: relative;
         margin: 0.5em;
         padding: 0.25em;
         border: 2px dashed $lightbghl;
-
         width: 17em;
+
         @media only screen and (max-width: $break1) { width: 16em; }
         @media only screen and (max-width: $break8) { height: 17em; width: 15em; }
         @media only screen and (max-width: $break9) { height: 20em; }
 
         h3.title { margin: 0; }
         .tag {
+            text-align: center;
             margin: 0.25em auto;
             font-size: 1.01em;
         }
@@ -690,56 +300,6 @@ ul.flash {
     }
 }
 
-// The styling for the table of contents (toc)
-.toc {
-    margin: 1em auto;
-    font-family: $display;
-    width: 75%;
-    border-top: 2px solid $base1;
-    border-collapse: collapse;
-    tr {
-        td {
-            margin: 0.25em;
-            padding: 0.5em;
-            &:first-of-type {
-                min-width: 8em;
-                @media only screen and (max-width: $break2) { min-width: 0; }
-            }
-        }
-        .collapse-td {
-            min-width: 2em;
-        }
-        .content {
-            @media only screen and (max-width: $break4) { text-align: left; }
-        }
-        &.lvl {
-            &1, &2, &3, &4, &5 { cursor: pointer; }
-            &1:hover, &2:hover, &3:hover &4:hover &5:hover { border: 1px solid $accent; }
-
-            &2, &3, &4, &5 { display: none; }
-            &2 td {
-                font-size: 0.9em;
-                padding: 0.3em;
-                &:first-of-type { text-indent: 1em; }
-            }
-            &3 td {
-                font-size: 0.8em;
-                padding: 0.15em;
-                &:first-of-type { text-indent: 2em; }
-            }
-            &4 td {
-                font-size: 0.7em;
-                padding: 0.05em;
-                &:first-of-type { text-indent: 3em; }
-            }
-            &5 td {
-                font-size: 0.6em;
-                padding: 0;
-                &:first-of-type { text-indent: 4em; }
-            }
-        }
-    }
-}
 
 // basic styling for collapse buttons
 .collapse {
@@ -782,91 +342,3 @@ ul.flash {
 }
 
 
-// Styling the read page (also any time text appears)
-#text-content {
-    hr {
-        overflow: visible; /* For IE */
-        padding: 0;
-        border: none;
-        border-top: medium double #333;
-        color: #333;
-        text-align: center;
-        &:after {
-            content: "§";
-            display: inline-block;
-            position: relative;
-            top: -0.7em;
-            font-size: 1.5em;
-            padding: 0 0.25em;
-            background: $lightbg;
-        }
-    }
-    margin: 0 auto;
-    max-width: 50em;
-    ::selection { background-color: $base2; color: $yellow; }
-    ::-moz-selection { background-color: $base2; color: $yellow; }
-    .annotation {
-        right: 2em;
-        left: 2em;
-        position: absolute;
-        z-index: 100;
-        width: inherit;
-        a.collapse {
-            font-family: $sans;
-            font-weight: bold;
-            font-size: 1.5em;
-            &:hover, &:focus {
-                color: $base01;
-            }
-        }
-    }
-    .break {
-        display: none;
-        height: 1em;
-        @media only screen and (max-width: $break3-1) { display: block; }
-    }
-    .line {
-        display: flex;
-        align-items: baseline;
-        justify-content: flex-start;
-        .line-num {
-            @media only screen and (max-width: $break3-1) { display: none; }
-            &.hidden { visibility: hidden; }
-
-            font-size: 0.75em;
-            min-width: 3em;
-            margin-right: 1em;
-            text-align: right;
-
-            -webkit-touch-callout: none; // iOS Safari
-            -webkit-user-select: none; // Safari
-            -khtml-user-select: none; // Konqueror HTML
-            -moz-user-select: none; // Firefox
-            -ms-user-select: none; // Internet Explorer/Edge
-            user-select: none; // Non-prefixed version, currently supported by Chrome and Opera
-        }
-
-        &-annotations { a { color: $yellow; } }
-
-        &.fl { margin-top: 1em; }
-        &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } }
-
-
-        &.lvl {
-            display: block !important;
-            &1, &2, &3, &4, &5 {
-                margin-top: 1em;
-                span.line-num { visibility: hidden; }
-                span.text {
-                    font-family: $display;
-                    margin-left: 1rem;
-                }
-            }
-            &5 span.text { font-size: 1.0em; }
-            &4 span.text { font-size: 1.1em; }
-            &3 span.text { font-size: 1.2em; }
-            &2 span.text { font-size: 1.3em; }
-            &1 span.text { font-size: 2.0em; }
-        }
-    }
-}

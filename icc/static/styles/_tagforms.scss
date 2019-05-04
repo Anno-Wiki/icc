@@ -1,0 +1,71 @@
+.tags {
+    margin: 0 auto;
+    width: 96%;
+    #master_div {
+        background: white;
+
+        display: flex;
+        justify-items: space-around;
+        align-items: center;
+        overflow: hidden;
+
+        transition: $shortdelay;
+        @include formborder;
+
+        // to simulate the form-ness of the file
+        &:hover, &.focus { @include formshadow; }
+
+        #tag_spans {
+            display: flex;
+            flex-wrap: no-wrap;
+            .tag {
+                width: max-content;
+                cursor: pointer;
+                margin: 3px;
+                font-size: 0.75em;
+                &:hover { color: $accent; }
+            }
+        }
+        #input {
+            // the input needs to not style at all
+            input {
+                border: 0;
+                min-width: 20em;
+                &:hover, &:focus { box-shadow: none; }
+
+            }
+        }
+    }
+    #autocomplete {
+        display: none;
+        background-color: white;
+
+        justify-items: space-around;
+        align-items: stretch;
+
+        @include formborder;
+
+        padding: 1em;
+
+        .card {
+            width: 15em;
+            margin: 0.25em;
+            padding: 0.25em;
+
+            border: 1px dashed $lightbghl;
+            cursor: pointer;
+
+            .description {
+                text-align: left;
+                margin-top: 0.5em;
+                &.ellipsis::after {
+                    content: "..."
+                }
+                font: {
+                    size: 12px;
+                    family: $serifs;
+                }
+            }
+        }
+    }
+}

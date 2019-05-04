@@ -1,0 +1,20 @@
+.search {
+    text-align: center;
+    input {
+        width: 20em;
+        background-color: $darkbghl;
+        color: $base01;
+        @media only screen and (max-width: $break8) { width: 15em; }
+        @media only screen and (max-width: $break9) { width: 13em; }
+        border: {
+            width: auto;
+            style: auto;
+            color: $accent;
+            radius: $bevel;
+        }
+        font: {
+            family: $display;
+            size: 1em;
+        }
+    }
+}

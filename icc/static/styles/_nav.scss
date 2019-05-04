@@ -1,0 +1,84 @@
+nav {
+    padding: 0.1em 0.5em 0.1em 0.5em;
+    background-color: $darkbg;
+    border-radius: $bevel;
+    text-align: center;
+    font-family: $serifs;
+    .logo {
+        .footnote {
+            color: $accent;
+            border: 1px solid;
+            padding: 0 0.1em 0.1em 0.1em;
+        }
+    }
+    & img {
+        display: inline-block;
+        vertical-align: middle;
+        width: 1.5em;
+        height: 1.5em;
+    }
+    // The divs within the nav bar should display inline greater than 1020px,
+    // then drop to block in a 3 tiered display, then go back to inline when we
+    // switch to using a hamburger
+    .left, .center, .right {
+        display: inline-block;
+        margin: 0.5em;
+        @media only screen and (max-width: $break1) { display: block; }
+        @media only screen and (max-width: $break6) { display: inline-block; }
+    }
+    &.web {
+        @media only screen and (max-width: $break6) { display: none }
+
+        & * { padding: 0.1em 0.25em 0.1em 0.25em; }
+        .active {
+            border-radius: $bevel;
+            background-color: $darkbghl;
+            color: $accent;
+        }
+        a {
+            color: $base1;
+            transition: $middelay;
+            &:hover { color: $accent; }
+        }
+    }
+
+    &.mobile {
+        // only display under 471
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 0;
+        z-index: 1;
+        @media only screen and (min-width: $break6+1) { display: none; }
+        .hamburger {
+            display: inline-block;
+            vertical-align: middle;
+            cursor: pointer;
+            .bar {
+                &1, &2, &3 {
+                    width: 35px;
+                    height: 5px;
+                    background-color: $base00;
+                    margin: 6px 0;
+                    transition: $shortdelay;
+                }
+            }
+        }
+        .change {
+            .bar {
+                &1 {
+                    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+                    transform: rotate(-45deg) translate(-9px, 6px);
+                    background-color: $accent;
+                }
+                &2 { opacity: 0; }
+                &3 {
+                    -webkit-transform: rotate(45deg) translate(-8px, -8px);
+                    transform: rotate(45deg) translate(-8px, -8px);
+                    background-color: $accent;
+                }
+            }
+        }
+    }
+}

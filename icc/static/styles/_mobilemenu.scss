@@ -1,0 +1,52 @@
+#mainmenu {
+    padding: 1em 0 1em 0;
+
+    position: fixed;
+    margin: 0 0.5em 0 0.5em;
+    z-index: 5;
+
+    top: 3.3em;
+    left: 0;
+    right: 0;
+
+    background-color: $darkbghl;
+    opacity: 0;
+    border-radius: $bevel;
+    visibility: hidden;
+    transition: $shortdelay;
+    input {
+        margin: 1em 0 1em 0;
+        background-color: $darkbg;
+        padding: 0.1em;
+    }
+
+    &.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    a {
+        display: block;
+        margin: 0 auto;
+        transition: $middelay;
+        border-radius: $bevel;
+        width: 75%;
+        color: $base00;
+        font: {
+            family: $display;
+            size: 2em;
+        }
+        text: {
+            align: center;
+            decoration: none;
+        }
+        &:hover {
+            color: $accent;
+        }
+    }
+    hr {
+        border: 0;
+        height: 1px;
+        background-image: linear-gradient(to right, $darkbghl, $accent, $darkbghl)
+    }
+}

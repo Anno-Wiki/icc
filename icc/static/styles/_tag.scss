@@ -1,0 +1,22 @@
+// styling for tags
+.tag {
+    display: inline-block;
+    background-color: $base2-1;
+    border-radius: $bevel;
+    transition: $middelay;
+    padding: 0.25em 1em 0.25em 1em;
+    font: {
+        family: $display;
+        size: 0.85em;
+    }
+    &:hover {
+        background-color: $base02;
+        //box-shadow: 0 0 4px 8px $lightbghl inset;
+    }
+    &.heading {
+        cursor: pointer;
+        border-radius: $bevel+10px;
+        font-size: 1.25em;
+        margin: 1em;
+    }
+}
