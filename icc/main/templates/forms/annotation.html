@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!--Header/Running Head-->
-    <div class="running_head">
-        <a href="{{ edition.url }}"> {{ edition.title }} </a>
-        {% set writers = edition.writers['author'] %}
-        by {% include "includes/_writers_list.html" %}
-    </div>
-
-    <hr>
-
     <div id="text-content">
         {% if annotation %}
             <h1>Editing Annotation [{{ annotation.id }}] on {{ edition.title }}</h1>
