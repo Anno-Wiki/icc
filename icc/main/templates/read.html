@@ -40,8 +40,8 @@
     <hr>
 
     {# Text of the page #}
-    {% include "includes/_highlight.js" %}
-    {% include "includes/_annotation_display.js" %}
+    {% include "includes/js/_highlight.js" %}
+    {% include "includes/js/_annotation_display.js" %}
 
     <div id="text-content">
         {%- for line in lines %}
@@ -67,7 +67,7 @@
         {% endfor %}
     </div>
 
-    {% include "includes/_collapse_script.js" %}
+    {% include "includes/js/_collapse_script.js" %}
     {% if annotations_idx %}
         {% for i in range(lines[0].num, lines[-1].num) %}
                 {% for annotation in annotations_idx[i] %}
