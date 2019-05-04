@@ -11,7 +11,7 @@ for root, dirs, files in walk('.'):
 
 while True:
     for root, dirs, files in walk('.'):
-        for file in files:
+        for name in files:
             if last_seen < stat(name).st_mtime:
                 call(['sass', '-C', 'style.scss', 'style.css'])
                 last_seen = stat(name).st_mtime
