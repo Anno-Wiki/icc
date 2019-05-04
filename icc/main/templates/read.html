@@ -57,7 +57,7 @@
                 {% if line.num in annotations_idx %}
                     <span class="line-annotations">
                         {% for a in annotations_idx[line.num] %}
-                        <a class="annotation-link" onclick="show_annotation(this);" href="#a{{ a.id }}"><sup>[{{ a.id }}]</sup></a>
+                        <a class="annotation-link" onclick="showAnnotation(this);" href="#a{{ a.id }}"><sup>[{{ a.id }}]</sup></a>
                         {% endfor %}
                     </span>
                 {% endif %}

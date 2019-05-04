@@ -1,7 +1,7 @@
 <script>
     function collapse(x) {
         var annotation = x.closest(".annotation")
-        var collapsible = annotation.querySelector(".annotation-collapsible");
+        var collapsible = byCls(annotation, "annotation-collapsible")[0];
         if (collapsible.style.display == "none") {
             collapsible.style.display = "block";
             annotation.style.borderRadius = "0";
