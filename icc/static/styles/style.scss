@@ -71,6 +71,7 @@ $annotationwidth:   50em;
     &:focus, &:hover { @include formshadow; }
 }
 
+
 @import 'annotation';
 @import 'tag';
 @import 'toc';
@@ -78,6 +79,8 @@ $annotationwidth:   50em;
 @import 'search';
 @import 'read';
 
+
+// these just serve as mixin breakpoints for html styling
 .disappear {
     &-1 { @media only screen and (max-width: $break2) { display: none; } }
     &-2 { @media only screen and (max-width: $break3) { display: none; } }
@@ -93,6 +96,7 @@ $annotationwidth:   50em;
     &-5 { @media only screen and (min-width: $break7+1) { display: none; } }
 }
 
+
 body {
     margin: 0 auto;
     max-width: $bodywidth;
@@ -106,12 +110,14 @@ body {
     }
 }
 
+
 // This exists solely to make everything set against a $base03 background
 .body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
     @import 'bodyforms'; // the general stylin gof forms in the body
 }
+
 
 h1, h2, h3, h4, h5, h6 {
     color: $base01;
@@ -122,7 +128,9 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+
 strong { color: $base01; }
+
 
 a {
     color: $base1;
@@ -146,6 +154,7 @@ a {
     padding: 1em;
     @import 'mobilemenu'
 }
+
 
 #footer {
     padding: 1em;
@@ -194,6 +203,7 @@ a {
     }
 }
 
+
 // Style the sorts blob at the top
 .sorts {
     margin: 0.5em;
@@ -207,7 +217,6 @@ a {
         }
     }
 }
-
 
 
 // styling for toolbars on view pages
@@ -225,6 +234,7 @@ a {
         padding: 0.25em;
     }
 }
+
 
 // styling for card indexes
 .index {
@@ -259,6 +269,7 @@ a {
     }
 }
 
+
 // styling for flash messages
 ul.flash {
     padding: 0 0.5em 0 0.5em;
@@ -278,6 +289,7 @@ ul.flash {
 
     }
 }
+
 
 // styling for user page
 .usercard {
@@ -306,6 +318,7 @@ ul.flash {
     font-family: $display;
     cursor: pointer;
 }
+
 
 // The interactive line form for annotating.
 #line-form {
@@ -340,5 +353,3 @@ ul.flash {
         color: $accent;
     }
 }
-
-
