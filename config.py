@@ -5,6 +5,7 @@ import mysqlpw
 class Config:
     """The default config object."""
     DEBUG = True
+    HEARBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['emails@futuretld.org']
     ANNOTATIONS_PER_PAGE = 5

@@ -18,7 +18,7 @@
     </head>
 
     <body>
-        {% if vars["DEBUG"] %}
+        {% if vars["DEBUG"] and vars["HEARTBEAT"] %}
             {% include "includes/_reload_heartbeat.js" %}
         {% endif %}
         <nav class="mobile">
