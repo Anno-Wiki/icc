@@ -30,14 +30,16 @@
             // the input needs to not style at all
             input {
                 border: 0;
-                min-width: 20em;
+                min-width: 50em;
                 &:hover, &:focus { box-shadow: none; }
 
             }
         }
     }
     #autocomplete {
+        margin: 0 auto;
         display: none;
+        position: absolute;
         background-color: white;
 
         justify-items: space-around;

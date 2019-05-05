@@ -419,11 +419,13 @@ body {
                 color: #b58900; }
           .body-form-annotation .tags #master_div #input input {
             border: 0;
-            min-width: 20em; }
+            min-width: 50em; }
             .body-form-annotation .tags #master_div #input input:hover, .body-form-annotation .tags #master_div #input input:focus {
               box-shadow: none; }
         .body-form-annotation .tags #autocomplete {
+          margin: 0 auto;
           display: none;
+          position: absolute;
           background-color: white;
           justify-items: space-around;
           align-items: stretch;
