@@ -1,10 +1,10 @@
 <script>
-    function show_annotate_button() {
+    function showBtn() {
         var sel = window.getSelection();
-        var btn = document.getElementById("annotate-button");
+        var btn = byID("annotate-button");
 
         if (sel.toString() == "") {
-            // Nothing is highlighted, abandon ship.
+            // Nothing to see here, abandon ship.
             btn.style.display = "";
             return;
         }
@@ -13,44 +13,50 @@
         btn.style.display = "block";
     }
 
-    function proc_selection() {
+    function procSel() {
         var sel = window.getSelection();
 
         var ranges = [];
         for (let i = 0; i < sel.rangeCount; i++) {
-            // get all the ranges (weird model)
+            // get all the ranges
             ranges[i] = sel.getRangeAt(i);
         }
 
         // first and last lines
-        firstl = get_parent_id(ranges[0].startContainer);
-        lastl = get_parent_id(ranges[ranges.length-1].endContainer);
+        fl = parentNumID(ranges[0].startContainer);
+        ll = parentNumID(ranges[ranges.length-1].endContainer);
         // first and last characters
-        firstc = ranges[0].startOffset;
-        lastc = ranges[ranges.length-1].endOffset;
+        fc = ranges[0].startOffset;
+        lc = ranges[ranges.length-1].endOffset;
+        console.log([fl, ll, fc, lc])
     }
     function submit() {
-        var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", firstl, "/", lastl, "?fc=", firstc, "&lc=", lastc];
+        var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", fl, "/", ll, "?fc=", fc, "&lc=", lc];
         location.href = url.join("");
     }
 
 
     document.addEventListener("DOMContentLoaded", function () {
-        var theblock = document.getElementById("text-content");
-        theblock.addEventListener("mousedown", show_annotate_button);
-        theblock.addEventListener("mouseup", show_annotate_button);
-        theblock.addEventListener("dblclick", show_annotate_button);
+        var textBlock = document.getElementById("text-content");
+        // these don't work and idk why
+        textBlock.addEventListener("selectionstart", showBtn);
+        textBlock.addEventListener("selectionchange", showBtn);
 
-        theblock.addEventListener("touchcancel", show_annotate_button);
-        theblock.addEventListener("touchend", show_annotate_button);
-        theblock.addEventListener("touchenter", show_annotate_button);
-        theblock.addEventListener("touchleave", show_annotate_button);
-        theblock.addEventListener("touchmove", show_annotate_button);
-        theblock.addEventListener("touchstart", show_annotate_button);
+        // for web
+        textBlock.addEventListener("mousedown", showBtn);
+        textBlock.addEventListener("mouseup", showBtn);
+        textBlock.addEventListener("dblclick", showBtn);
 
-        var btn = document.getElementById("annotate-button");
-        btn.addEventListener("pointerenter", proc_selection);
-        btn.addEventListener("pointerover", proc_selection);
+        // for mobile
+        textBlock.addEventListener("touchcancel", showBtn);
+        textBlock.addEventListener("touchend", showBtn);
+        textBlock.addEventListener("touchenter", showBtn);
+        textBlock.addEventListener("touchleave", showBtn);
+        textBlock.addEventListener("touchmove", showBtn);
+        textBlock.addEventListener("touchstart", showBtn);
+
+        var btn = byID("annotate-button");
+        btn.addEventListener("pointerenter", procSel);
+        btn.addEventListener("pointerover", procSel);
     });
-    setInterval(showBtn, 100);
 </script>
