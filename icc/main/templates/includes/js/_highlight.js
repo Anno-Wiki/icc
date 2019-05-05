@@ -1,7 +1,7 @@
 <script>
     function show_annotate_button() {
-        var btn = document.getElementById("annotate-button");
         var sel = window.getSelection();
+        var btn = document.getElementById("annotate-button");
 
         if (sel.toString() == "") {
             // Nothing is highlighted, abandon ship.
@@ -52,4 +52,5 @@
         btn.addEventListener("pointerenter", proc_selection);
         btn.addEventListener("pointerover", proc_selection);
     });
+    setInterval(showBtn, 100);
 </script>
