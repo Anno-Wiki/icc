@@ -353,3 +353,24 @@ ul.flash {
         color: $accent;
     }
 }
+
+hr {
+    overflow: visible; /* For IE */
+    max-width: 50em;
+    margin: 2em;
+    padding: 0;
+    border: none;
+    border-top: medium double $base1;
+    color: $base1;
+    text-align: center;
+    &:after {
+        content: "[n]";
+        display: inline-block;
+        position: relative;
+        top: -0.9em;
+        font-size: 1.5em;
+        padding: 0 0.25em;
+        background: $lightbg;
+        color: $accent;
+    }
+}

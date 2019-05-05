@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .annotation {
   display: block;
   background-color: #eee8d5;
@@ -248,22 +247,6 @@ nav {
 #text-content {
   margin: 0 auto;
   max-width: 50em; }
-  #text-content hr {
-    overflow: visible;
-    /* For IE */
-    padding: 0;
-    border: none;
-    border-top: medium double #333;
-    color: #333;
-    text-align: center; }
-    #text-content hr:after {
-      content: "§";
-      display: inline-block;
-      position: relative;
-      top: -0.7em;
-      font-size: 1.5em;
-      padding: 0 0.25em;
-      background: #fdf6e3; }
   #text-content ::selection {
     background-color: #eee8d5;
     color: #b58900; }
@@ -684,6 +667,26 @@ ul.flash {
   font-size: 1.5em; }
   #annotate-button:hover {
     background-color: #073642;
+    color: #b58900; }
+
+hr {
+  overflow: visible;
+  /* For IE */
+  max-width: 50em;
+  margin: 2em;
+  padding: 0;
+  border: none;
+  border-top: medium double #93a1a1;
+  color: #93a1a1;
+  text-align: center; }
+  hr:after {
+    content: "[n]";
+    display: inline-block;
+    position: relative;
+    top: -0.9em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: #fdf6e3;
     color: #b58900; }
 
 /*# sourceMappingURL=style.css.map */
