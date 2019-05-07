@@ -6,6 +6,7 @@
     {% endif %}
     {% include "includes/_sorts.html" %}
     {% if annotations %}
+        {% include "/includes/_vote.js" %}
         {% for annotation in annotations %}
             {% include "/includes/_annotation_standalone.html" %}
         {% endfor %}

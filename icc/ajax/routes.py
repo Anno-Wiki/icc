@@ -1,8 +1,12 @@
 """The ajax routes."""
 import time
+from datetime import datetime
 
 from flask import request, jsonify, current_app, get_flashed_messages, flash
-from icc.models.annotation import Tag
+from flask_login import current_user, login_required
+
+from icc import db
+from icc.models.annotation import Tag, Annotation
 from icc.ajax import ajax
 
 
@@ -36,8 +40,46 @@ def tags():
 def flashed():
     """This route is an ajax way to get the flashed messages."""
     messages = get_flashed_messages(with_categories=True)
+    print(messages)
     return jsonify(messages)
 
+
+def vote(upvote):
+    """The actual voting method. Quite simple, really."""
+    annotation_id = request.args.get('id').strip('a')
+    if not current_user.is_authenticated:
+        flash(f"You must login to vote.")
+        return jsonify({'situ': ['failure', 'login']})
+    annotation = Annotation.query.get_or_404(annotation_id)
+    original_weight = annotation.weight
+    vote = current_user.get_vote(annotation)
+    if not annotation.active:
+        flash("You cannot vote on deactivated annotations.")
+        return jsonify({'situ': ['deactivated', 'failure']})
+    elif vote:
+        diff = datetime.utcnow() - vote.timestamp
+        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
+            flash("Your vote is locked until the annotation is modified.")
+            return jsonify({'situ': ['locked-in', 'failure']})
+    if upvote:
+        situ = annotation.upvote(current_user)
+    else:
+        situ = annotation.downvote(current_user)
+    db.session.commit()
+    new_weight = annotation.weight
+    return jsonify({'situ': situ, 'change': new_weight - original_weight})
+
+
+@ajax.route('/annotation/upvote')
+def upvote_annotation():
+    """Upvote ajax style. I really like how simple this is, lol."""
+    return vote(upvote=True)
+
+
+@ajax.route('/annotation/downvote')
+def downvote_annotation():
+    """Downvote ajax style."""
+    return vote(upvote=False)
 
 
 server_start_time = time.time()

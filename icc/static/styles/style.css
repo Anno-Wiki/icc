@@ -41,7 +41,8 @@
     .annotation-head .weight {
       border: 1px solid;
       padding: 0 0em 0.1em 0.2em;
-      font-family: "EB Garamond", "Georgia", serif; }
+      font-family: "EB Garamond", "Georgia", serif;
+      width: max-content; }
       .annotation-head .weight.up {
         color: #b58900;
         border-color: #b58900; }

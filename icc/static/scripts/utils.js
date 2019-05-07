@@ -2,6 +2,7 @@ function byID(id) { return document.getElementById(id); }
 function byCls (el, cl) { return el ? el.getElementsByClassName(cl) : [] }
 function byTag (el, tg) { return el ? el.getElementsByTagName(tg) : [] }
 function allof (cl) { return byCls(document, cl) }
+function atLoad(func) { document.addEventListener("DOMContentLoaded", func); }
 
 function newEl(el, cl) {
         var el = document.createElement(el);

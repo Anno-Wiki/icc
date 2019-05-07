@@ -1,11 +1,11 @@
 <div class="arrows">
     <div>
-        <a href="{{ url_for("main.upvote", annotation_id=annotation.id, next=request.full_path) }}"{% if vote and vote.is_up %} class="up"{% endif %}>
+        <a id="up{{ annotation.id }}" onclick="upvote(this);" href="{{ url_for("main.upvote", annotation_id=annotation.id, next=request.full_path) }}"{% if vote and vote.is_up %} class="up"{% endif %}>
             &#9650;
         </a>
     </div>
     <div>
-        <a href="{{ url_for("main.downvote", annotation_id=annotation.id, next=request.full_path) }}"{% if vote and not vote.is_up %} class="down"{% endif %}>
+        <a id="down{{ annotation.id }}" onclick="downvote(this);" href="{{ url_for("main.downvote", annotation_id=annotation.id, next=request.full_path) }}"{% if vote and not vote.is_up %} class="down"{% endif %}>
             &#9660;
         </a>
     </div>

@@ -56,6 +56,7 @@
             border: 1px solid;
             padding: 0 0em 0.1em 0.2em;
             font-family: $serifs;
+            width: max-content;
             &.up {
                 color: $accent;
                 border-color: $accent;
