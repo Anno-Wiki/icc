@@ -517,6 +517,8 @@ a {
       border: 0;
       height: 1px;
       background-image: linear-gradient(to right, #073642, #b58900, #073642); }
+      #container #mainmenu hr::after {
+        content: ""; }
 
 #footer {
   padding: 1em;
