@@ -1,59 +1,47 @@
 .annotation {
-  display: block;
-  background-color: #eee8d5;
   margin: 2em auto;
   max-width: 50em;
+  background-color: #eee8d5;
   box-shadow: 0 16px 32px 0 #073642;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px; }
   .annotation-head {
+    display: flex;
+    align-items: center;
+    font-family: "Playfair Display", "Georgia", serif;
     padding: 0.5em;
     border-radius: 20px;
     background-color: #002b36;
-    color: #586e75;
-    overflow: auto;
-    /* ^ Absolutely imperative for overflowing when rendering to the right
-     * and left */ }
+    color: #586e75; }
     .annotation-head a {
       color: #839496; }
-      .annotation-head a:hover {
-        color: #b58900; }
+    .annotation-head .left, .annotation-head .collapse {
+      width: fit-content; }
+    @media only screen and (max-width: 880px) {
+      .annotation-head .left {
+        font-size: 2em; } }
+    .annotation-head .left .arrows {
+      margin: 0; }
+    @media only screen and (max-width: 750px) {
+      .annotation-head .center {
+        margin-left: 1em; } }
+    @media only screen and (max-width: 750px) {
+      .annotation-head .center .footnote, .annotation-head .center .line-nums, .annotation-head .center .title {
+        display: block;
+        font-size: 0.9em; } }
+    .annotation-head .right {
+      margin-left: auto; }
+    .annotation-head .footnote, .annotation-head .line-nums {
+      font-family: "EB Garamond", "Georgia", serif; }
     .annotation-head .footnote a {
       color: #b58900;
       padding: 0.25em; }
-    .annotation-head .left {
-      display: inline-block;
-      font-size: 2em;
-      margin: 0;
-      vertical-align: middle;
-      display: inline-block; }
-      .annotation-head .left .arrows {
-        margin: 0; }
-      @media only screen and (min-width: 501px) {
-        .annotation-head .left {
-          display: none; } }
-    .annotation-head .center {
-      display: inline-block; }
-      @media only screen and (max-width: 500px) {
-        .annotation-head .center {
-          vertical-align: middle;
-          margin: 0 auto; } }
-      @media only screen and (max-width: 500px) {
-        .annotation-head .center .footnote, .annotation-head .center .title {
-          display: block; } }
-      .annotation-head .center .collapse {
-        margin: 0; }
-        @media only screen and (min-width: 501px) {
-          .annotation-head .center .collapse {
-            display: none; } }
-    .annotation-head .right {
-      float: right;
-      text-align: right; }
     .annotation-head .weight, .annotation-head .collapse, .annotation-head .arrows {
       margin: 0 0.5em 0 0.5em; }
     .annotation-head .weight {
       border: 1px solid;
-      padding: 0 0em 0.1em 0.2em; }
+      padding: 0 0em 0.1em 0.2em;
+      font-family: "EB Garamond", "Georgia", serif; }
       .annotation-head .weight.up {
         color: #b58900;
         border-color: #b58900; }
@@ -63,7 +51,7 @@
     .annotation-head .arrows {
       display: inline-block;
       font-size: 0.85em;
-      vertical-align: text-top; }
+      vertical-align: -30%; }
       .annotation-head .arrows div {
         margin: -0.5em 0 -0.5em 0; }
         .annotation-head .arrows div .up {

@@ -8,18 +8,16 @@
 
         <div class="center">
             {% set edition = annotation.edition %}
-            <span class="title appear-4">
-                <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
-            </span>
             <span class="footnote">
                 <a href="{{ annotation.url }}">[{{ annotation.id }}]</a>
                 {% if annotation.locked %}&#128274;{% endif %}
-                <a class="collapse" onclick="collapse(this);">[ - ]</a>
             </span>
-            <span class="disappear-4">on</span>
-            <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
-            <span class="disappear-4">of</span>
-            <span class="disappear-4">
+            <span class="disappear-3">on</span>
+            <span class="line-nums">
+                <em>{% include "includes/_annotation_standalone_line_nums.html" %}</em>
+            </span>
+            <span class="disappear-3">of</span>
+            <span class="title">
                 <em><a href="{{ edition.url }}">{{ edition.title }}</a></em>
             </span>
 
@@ -28,14 +26,7 @@
         </div>
 
         <span class="right">
-            <span class="disappear-4">
-                {% include "includes/_annotation_weight.html" %}
-                {% set vote = current_user.get_vote(annotation) %}
-                {% include "includes/_vote.html" %}
-            </span>
-            <span class="disappear-4">
-                <a class="collapse" onclick="collapse(this);">[ - ]</a>
-            </span>
+            <a class="collapse" onclick="collapse(this);">[ - ]</a>
         </span>
     </div>
 
