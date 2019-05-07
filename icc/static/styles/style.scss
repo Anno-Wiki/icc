@@ -274,19 +274,35 @@ a {
 ul.flash {
     padding: 0 0.5em 0 0.5em;
     li {
-        background-color: $darkbg;
-        border-radius: $bevel+10px;
-        border: 1px solid $darkbg;
-        list-style-type: none;
         padding: 1em;
-        margin: 0.5em auto;
+        margin: 1em auto;
+        max-width: 45em;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        border-radius: $bevel;
+        list-style-type: none;
         color: $base1;
-        box-shadow: 0 8px 8px 0px $darkbghl;
+
+        &.message { background-color: $darkbghl; }
+        &.success { background-color: $green; }
+        &.failure { background-color: $red; }
+
         font: {
             family: $display;
             size: 1.15em;
         }
-
+        .close {
+            cursor: pointer;
+            display: inline-block;
+            font: {
+                family: $sans;
+                size: 1.5em;
+                weight: bold;
+            }
+        }
     }
 }
 

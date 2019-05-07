@@ -109,12 +109,25 @@
                     {%- endif %}
                 </div>
             </nav>
+            <script>
+                function closeFlash(x) {
+                    let flash = x.parentNode;
+                    let messages = flash.parentNode;
+                    messages.removeChild(flash);
+                    if (messages.childNodes.length < 1)
+                        messages.parentNode.removeChild(messages);
+                }
+            </script>
 
-            {% with messages = get_flashed_messages() %}
+            {% include "includes/_flash_messages.js" %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <ul class="flash">
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">
+                                <span class="text">{{ message }}</span>
+                                <span class="close" onclick="closeFlash(this);">&times</span>
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}

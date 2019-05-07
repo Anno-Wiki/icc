@@ -1,7 +1,7 @@
 """The ajax routes."""
 import time
 
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, get_flashed_messages, flash
 from icc.models.annotation import Tag
 from icc.ajax import ajax
 
@@ -28,6 +28,14 @@ def tags():
 
     return jsonify({'success': True, 'tags': tag_list,
                     'descriptions': descriptions})
+
+
+@ajax.route('/flashed', methods=['GET'])
+def flashed():
+    """This route is an ajax way to get the flashed messages."""
+    messages = get_flashed_messages(with_categories=True)
+    return jsonify(messages)
+
 
 
 server_start_time = time.time()

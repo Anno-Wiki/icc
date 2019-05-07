@@ -603,16 +603,29 @@ a {
 ul.flash {
   padding: 0 0.5em 0 0.5em; }
   ul.flash li {
-    background-color: #002b36;
-    border-radius: 30px;
-    border: 1px solid #002b36;
-    list-style-type: none;
     padding: 1em;
-    margin: 0.5em auto;
+    margin: 1em auto;
+    max-width: 45em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 20px;
+    list-style-type: none;
     color: #93a1a1;
-    box-shadow: 0 8px 8px 0px #073642;
     font-family: "Playfair Display", "Georgia", serif;
     font-size: 1.15em; }
+    ul.flash li.message {
+      background-color: #073642; }
+    ul.flash li.success {
+      background-color: #859900; }
+    ul.flash li.failure {
+      background-color: #dc322f; }
+    ul.flash li .close {
+      cursor: pointer;
+      display: inline-block;
+      font-family: "Helvetica", "Arial", sans-serif;
+      font-size: 1.5em;
+      font-weight: bold; }
 
 .usercard .avatar {
   text-align: center;
