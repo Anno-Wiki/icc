@@ -28,8 +28,8 @@
         // first and last characters
         fc = ranges[0].startOffset;
         lc = ranges[ranges.length-1].endOffset;
-        console.log([fl, ll, fc, lc])
     }
+
     function submit() {
         var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", fl, "/", ll, "?fc=", fc, "&lc=", lc];
         location.href = url.join("");
@@ -58,5 +58,6 @@
         var btn = byID("annotate-button");
         btn.addEventListener("pointerenter", procSel);
         btn.addEventListener("pointerover", procSel);
+        setInterval(showBtn, 100);
     });
 </script>
