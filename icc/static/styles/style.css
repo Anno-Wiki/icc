@@ -60,7 +60,7 @@
         .annotation-head .arrows div .down {
           color: #dc322f; }
   .annotation-collapsible {
-    padding: 0.5em; }
+    padding: 1em; }
   .annotation-body .cutoff p:last-of-type::after {
     content: "..."; }
   .annotation-body .cutoff a:last-of-type {
