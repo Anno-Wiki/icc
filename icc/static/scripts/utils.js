@@ -20,3 +20,8 @@ function parentNum(el, prefix="") {
 }
 // get the id of the parent whose id contains a number/prefix
 function parentNumID(el, prefix="") { return parentNum(el, prefix).id; }
+
+function parentByCls(el, cls) {
+    while(!el.className || !el.classList.contains(cls)) { el = el.parentNode; }
+    return el;
+}
