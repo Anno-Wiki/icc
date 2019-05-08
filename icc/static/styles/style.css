@@ -601,7 +601,12 @@ a {
       width: 100%; }
 
 ul.flash {
-  padding: 0 0.5em 0 0.5em; }
+  list-style-type: none;
+  padding: 0; }
+  ul.flash.js {
+    position: fixed;
+    left: 0;
+    right: 0; }
   ul.flash li {
     padding: 1em;
     margin: 1em auto;

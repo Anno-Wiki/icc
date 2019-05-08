@@ -16,7 +16,7 @@
             const messages = JSON.parse(this.responseText);
             let container = allof("flash")[0];
             if (container == null) {
-                container = newEl("ul", "flash");
+                container = newEl("ul", "flash js");
                 let par = byID("container");
                 par.insertBefore(container, par.childNodes[0]);
             }

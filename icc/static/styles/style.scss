@@ -272,7 +272,13 @@ a {
 
 // styling for flash messages
 ul.flash {
-    padding: 0 0.5em 0 0.5em;
+    list-style-type: none;
+    padding: 0;
+    &.js {
+        position: fixed;
+        left: 0;
+        right: 0;
+    }
     li {
         padding: 1em;
         margin: 1em auto;
