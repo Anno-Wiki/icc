@@ -11,12 +11,14 @@ from math import log10
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
-from flask import url_for, flash, current_app as app
+from flask import url_for, flash
 
 from icc import db
 from icc.models.mixins import (Base, VoteMixin, EditMixin, FollowableMixin,
                                FlagMixin, LinkableMixin, VotableMixin)
 from icc.models.wiki import Wiki
+
+CONTEXT = 3
 
 
 class Tag(Base, FollowableMixin, LinkableMixin):
@@ -375,8 +377,8 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     context = db.relationship(
         'Line', secondary='edit',
         primaryjoin='and_(Annotation.id==Edit.entity_id,Edit.current==True)',
-        secondaryjoin='and_(Line.num>=Edit.first_line_num-5,'
-        'Line.num<=Edit.last_line_num+5,'
+        secondaryjoin=f'and_(Line.num>=Edit.first_line_num-{CONTEXT},'
+        f'Line.num<=Edit.last_line_num+{CONTEXT},'
         'Line.edition_id==Annotation.edition_id)', viewonly=True, uselist=True)
 
     # Relationships to `Flag`
@@ -594,8 +596,9 @@ class Edit(Base, EditMixin, VotableMixin):
         'Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)',
         uselist=True, foreign_keys=[edition_id, first_line_num, last_line_num])
     context = db.relationship(
-        'Line', primaryjoin='and_(Line.num>=Edit.first_line_num-5,'
-        'Line.num<=Edit.last_line_num+5, Line.edition_id==Edit.edition_id)',
+        'Line', primaryjoin=f'and_(Line.num>=Edit.first_line_num-{CONTEXT},'
+        f'Line.num<=Edit.last_line_num+{CONTEXT},'
+        'Line.edition_id==Edit.edition_id)',
         uselist=True, viewonly=True,
         foreign_keys=[edition_id, first_line_num, last_line_num])
 
