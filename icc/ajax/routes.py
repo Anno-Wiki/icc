@@ -13,6 +13,8 @@ def tags():
     """
     tagstr = request.form.get('tags')
     tags = tagstr.split()
+    if not tags:
+        tags = [""]
     results = Tag.query.filter(Tag.tag.startswith(tags[-1]),
                                Tag.locked==False).limit(6)
     if not results:
