@@ -45,7 +45,7 @@ def process_tags(tagstring):
 @login_required
 def annotate(text_url, edition_num, first_line, last_line):
     """Create an annotation."""
-    fl, ll = line_check(int(first_line), int(first_line))
+    fl, ll = line_check(int(first_line), int(last_line))
     form = AnnotationForm()
     text = Text.get_by_url(text_url).first_or_404()
     edition = (text.primary if not edition_num else
@@ -55,8 +55,8 @@ def annotate(text_url, edition_num, first_line, last_line):
     if lines is None:
         abort(404)
     redirect_url = generate_next(lines[0].url)
-    context = edition.lines.filter(Line.num>=int(fl)-5,
-                                   Line.num<=int(ll)+5).all()
+    context = edition.lines.filter(Line.num>=int(fl)-3,
+                                   Line.num<=int(ll)+3).all()
 
     if form.validate_on_submit():
         fl, ll = line_check(form.first_line.data, form.last_line.data)
