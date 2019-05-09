@@ -557,8 +557,6 @@ a {
 .toolbar {
   display: flex; }
   .toolbar .tools {
-    background-color: #002b36;
-    border-radius: 30px;
     margin: 0 auto;
     padding: 0.25em; }
     .toolbar .tools a {

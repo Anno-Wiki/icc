@@ -32,18 +32,16 @@
                     edit profile
                 </a>
             {% endif %}
-            <span class="dark">
-                <div class="dropdown">
-                    <a class="dropbtn">flag&#x25BE;</a>
-                    <div class="dropdown-content">
-                        {% for userflag in userflags %}
-                            <a href="{{ url_for("user.flag_user", flag_id=userflag.id, user_id=user.id, next=request.full_path) }}">
-                                {{ userflag.enum }}
-                            </a>
-                        {% endfor %}
-                    </div>
+            <div class="dropdown">
+                <a class="dropbtn">flag&#x25BE;</a>
+                <div class="dropdown-content">
+                    {% for userflag in userflags %}
+                        <a href="{{ url_for("user.flag_user", flag_id=userflag.id, user_id=user.id, next=request.full_path) }}">
+                            {{ userflag.enum }}
+                        </a>
+                    {% endfor %}
                 </div>
-            </span>
+            </div>
             <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
                 {% if current_user.is_authenticated and user in current_user.followed_users %}unfollow{% else %}follow{% endif %}
             </a>
