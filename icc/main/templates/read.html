@@ -45,15 +45,22 @@
 
     <div id="text-content">
         {%- for line in lines %}
+            {# I don't remember why I had to do this for the break between
+            paragraphs but I did. Worth investigating to see if we can just get
+            fl to work with the increased top margin still. I remember it not
+            working unless I did this before. Now I remember, it's because --
+            No, that's not it. IDFK, man. #}
             {% if line.primary.enum == "fl" %}<div class="break"></div>{% endif %}
 
             <div class="line {{ line.primary.enum }}" id="{{ line.num }}">
                 <span class="line-num{% if line.num % 5 != 0 %} hidden{% endif %}">{{ line.num }}</span>
-                {%- if line.primary.enum == 'hr' -%}
-                    <hr>
-                {%- else -%}
-                    <span class="text">{{ line.line|safe }}</span>
-                {%- endif -%}
+                <span class="text">
+                    {%- if line.primary.enum == 'hr' -%}
+                        <hr>
+                    {%- else -%}
+                        {{ line.line|safe }}
+                    {% endif %}
+                </span>
                 {% if line.num in annotations_idx %}
                     <span class="line-annotations">
                         {% for a in annotations_idx[line.num] %}

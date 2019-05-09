@@ -58,6 +58,8 @@
         var btn = byID("annotate-button");
         btn.addEventListener("pointerenter", procSel);
         btn.addEventListener("pointerover", procSel);
-        setInterval(showBtn, 100);
+        // do not set an interval on this sucker! because it will re evaluate
+        // the highlight and showBtn before the button can be properly clicked.
+        // This whole thing will hopefully eventually be much nicer.
     });
 </script>
