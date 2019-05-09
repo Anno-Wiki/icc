@@ -7,6 +7,7 @@ from flask_login import current_user, login_required
 
 from icc import db
 from icc.models.annotation import Tag, Annotation
+from icc.models.content import Edition
 from icc.ajax import ajax
 
 
@@ -80,6 +81,22 @@ def upvote_annotation():
 def downvote_annotation():
     """Downvote ajax style."""
     return vote(upvote=False)
+
+
+@ajax.route('edition/<edition_id>/line')
+def line(edition_id):
+    edition = Edition.query.get(edition_id)
+    if not edition:
+        return jsonify({'success': False})
+    num = request.args.get('num')
+    line = edition.lines.filter_by(num=num).first()
+    if not line:
+        return jsonify({'success': False})
+    return jsonify({'success': True, 'line': line.line,
+                    'enum': line.primary.enum })
+
+
+
 
 
 server_start_time = time.time()

@@ -3,9 +3,9 @@
 {% block content %}
     <div id="text-content">
         {% if annotation %}
-            <h1>Editing Annotation [{{ annotation.id }}] on {{ edition.title }}</h1>
+            <h1>Editing Annotation <a href="{{ annotation.url }}">[{{ annotation.id }}]</a> on <a href="{{ edition.url }}">{{ edition.title }}</a></h1>
         {% else %}
-            <h1>Annotating {{ edition.title }}</h1>
+            <h1>Annotating <a href="{{ edition.url }}">{{ edition.title }}</a></h1>
         {% endif %}
         {% if len(lines) > 1 %}
             <h3>Selection: <em>ll. {{ lines[0].num }}-{{ lines[-1].num }}</em></h3>
@@ -13,12 +13,15 @@
             <h3>Selection: <em>l. {{ lines[0].num }}</em></h3>
         {% endif %}
 
-        {% for line in context %}
-            <div class="line {{ line.primary.enum }}" id="{{ line.num }}">
-                <span class="line-num{% if line not in lines %} hidden{% endif %}">{{ line.num }}</span>
-                <span class="text">{{ line.line }}</span>
-            </div>
-        {% endfor %}
+        <div class="backlight">
+            {% include "includes/js/_expand_selection.js" %}
+            {% for line in context %}
+                <div class="line {{ line.primary.enum }}{% if line in lines %} selection{% endif %}" id="{{ line.num }}">
+                    <span class="line-num">{{ line.num }}</span>
+                    <span class="text">{{ line.line }}</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
     <form class="body-form body-form-annotation" action="" method="POST" novalidate>
