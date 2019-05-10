@@ -120,7 +120,9 @@ def edit(annotation_id):
             db.session.rollback()
             return render_template('forms/annotation.html', form=form,
                                    title=annotation.text.title, lines=lines,
-                                   text=annotation.text, annotation=annotation)
+                                   text=annotation.text,
+                                   edition=annotation.edition,
+                                   annotation=annotation, context=context)
         else:
             db.session.commit()
         return redirect(redirect_url)
