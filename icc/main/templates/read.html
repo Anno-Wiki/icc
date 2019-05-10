@@ -77,9 +77,9 @@
     {% include "includes/js/_collapse_script.js" %}
     {% if annotations_idx %}
         {% for i in range(lines[0].num, lines[-1].num) %}
-                {% for annotation in annotations_idx[i] %}
-                    {% include "includes/_annotation.html" %}
-                {% endfor %}
+            {% for annotation in annotations_idx[i] %}
+                {% include "includes/_annotation.html" %}
+            {% endfor %}
         {% endfor %}
     {% else %}
         <h4>There are no annotations for this section.</h4>
