@@ -390,3 +390,28 @@ hr {
         color: $accent;
     }
 }
+
+.comment {
+    background-color: $lightbghl;
+    box-shadow: 10px 10px 5px 5px $base1;
+    border-top: {
+        left-radius: $bevel;
+        right-radius: $bevel;
+    }
+    margin: 1em;
+    .reply {
+        margin-left: 2em;
+        border-left: 3px solid $base2-1;
+        .header {
+            background-color: $base2-1;
+            border-radius: 0;
+        }
+    }
+    .header {
+        padding: 0.5em;
+        background-color: $darkbg;
+        border-radius: $bevel;
+        font-family: $display;
+    }
+    .comment-body { padding: 1em; }
+}

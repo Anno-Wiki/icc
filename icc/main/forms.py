@@ -28,7 +28,7 @@ class CommentForm(FlaskForm):
     """A simple comment form."""
     comment = TextAreaField("Comment", validators=[InputRequired(),
                                                    Length(min=1, max=60000)])
-    submit = SubmitField("Add Comment")
+    submit = SubmitField("Post")
 
 
 class AnnotationForm(FlaskForm):

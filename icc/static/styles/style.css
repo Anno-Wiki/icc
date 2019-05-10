@@ -488,6 +488,8 @@ body {
         max-width: 42em;
         display: block;
         margin: 0 auto; }
+      .body-form textarea#comment, .body-form input#comment {
+        width: 75%; }
       .body-form textarea[type=submit], .body-form input[type=submit] {
         background-color: #eee8d5;
         color: #657b83;
@@ -744,5 +746,25 @@ hr {
     padding: 0 0.25em;
     background: #fdf6e3;
     color: #b58900; }
+
+.comment {
+  background-color: #eee8d5;
+  box-shadow: 10px 10px 5px 5px #93a1a1;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  margin: 1em; }
+  .comment .reply {
+    margin-left: 2em;
+    border-left: 3px solid #ddd7c4; }
+    .comment .reply .header {
+      background-color: #ddd7c4;
+      border-radius: 0; }
+  .comment .header {
+    padding: 0.5em;
+    background-color: #002b36;
+    border-radius: 20px;
+    font-family: "Playfair Display", "Georgia", serif; }
+  .comment .comment-body {
+    padding: 1em; }
 
 /*# sourceMappingURL=style.css.map */

@@ -4,10 +4,12 @@
 
 <script src="{{ url_for("static", filename="scripts/comments.js") }}"></script>
 
+{% include "includes/js/_collapse_script.js" %}
 {% include "includes/_annotation_standalone.html" %}
-<form action="" method="POST" novalidate>
+<form class="body-form" action="" method="POST" novalidate>
+    <h3>Post a Thread</h3>
     {{ form.hidden_tag() }}
-    {{ form.comment(rows=10, cols=70) }}
+    {{ form.comment }}
     <br>
     {{ form.submit }}
 </form>
@@ -16,30 +18,23 @@
 <div id="discussion">
     {% for comment in comments %}
         <div class="comment">
-
-            <a href="{{ url_for("user.profile", user_id=comment.poster.id)
-                }}">{{ comment.poster.displayname }}</a>
-            {{ comment.timestamp }}
-            <a href="#">-</a>
-            <div class="comment_body">{{ comment.body|proc_links|markdown }}</div>
-            <a href="{{ url_for("main.reply", annotation_id=annotation.id,
-                comment_id=comment.id) }}">reply</a>
-            <hr>
+            <div class="header">
+                by <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">{{ comment.poster.displayname }}</a> {{ moment(comment.timestamp).fromNow() }}
+            </div>
+            <div class="comment-body">
+                {{ comment.body|proc_links|markdown }}
+                <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=comment.id) }}">reply</a>
+            </div>
 
             {% for reply in comment.children recursive %}
                 <div class="reply">
-
-                    <a href="{{ url_for("user.profile", user_id=reply.poster.id)
-                        }}">{{ reply.poster.displayname }}</a>
-
-                    {{ reply.timestamp }}
-
-                    <a href="#">-</a>
-                    <div class="comment_body">{{ reply.body|proc_links|markdown }}</div>
-                        <a href="{{ url_for("main.reply",
-                            annotation_id=annotation.id, comment_id=reply.id)
-                            }}">reply</a>
-
+                    <div class="header">
+                        by <a href="{{ url_for("user.profile", user_id=reply.poster.id) }}">{{ reply.poster.displayname }}</a> {{ moment(reply.timestamp).fromNow() }}
+                    </div>
+                    <div class="comment-body">
+                        {{ reply.body|proc_links|markdown }}
+                        <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=reply.id) }}">reply</a>
+                    </div>
                     {{ loop(reply.children) }}
                 </div>
             {% endfor %}

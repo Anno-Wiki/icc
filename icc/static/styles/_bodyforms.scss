@@ -42,6 +42,9 @@
             display: block;
             margin: 0 auto;
         }
+        &#comment {
+            width: 75%;
+        }
 
         &[type=submit] {
             background-color: $lightbghl;
