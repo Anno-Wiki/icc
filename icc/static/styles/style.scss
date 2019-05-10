@@ -11,7 +11,6 @@ $shortdelay:        0.3s;
 $middelay:          0.5s;
 $longdelay:         0.7s;
 
-
 // Solarized Colorscheme
 $base03:            #002b36;
 $base02:            #073642;
@@ -141,7 +140,6 @@ a {
 
 
 #container {
-    position: relative;
     padding: 1em;
     @import 'mobilemenu'
 }
@@ -241,7 +239,7 @@ a {
     .card {
         margin: 0.5em;
         padding: 0.25em;
-        border: 2px dashed $lightbghl;
+        border-bottom: 2px dotted $lightbghl;
         width: 17em;
 
         @media only screen and (max-width: $break1) { width: 16em; }
