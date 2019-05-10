@@ -8,9 +8,8 @@
     .backlight {
         background-color: $lightbghl;
         padding: 1em;
-        max-width: 75%;
         margin: 0 auto;
-        box-shadow: 0.15em 0.15em 0 0 $base1;
+        box-shadow: 0.15em 0.15em 10px 10px $base1;
         .selection {
             .text {
                 background-color: $base2-1;
@@ -25,15 +24,16 @@
             font-family: $sans;
             font-size: 1.5em;
             color: $blue;
+            $trianglewidth: 0.5em;
             .uparr {
-                border-left: 1em solid transparent;
-                border-right: 1em solid transparent;
+                border-left: $trianglewidth solid transparent;
+                border-right: $trianglewidth solid transparent;
                 border-bottom: 1em solid $blue;
                 &:hover { border-bottom: 1em solid $accent; }
             }
             .downarr {
-                border-left: 1em solid transparent;
-                border-right: 1em solid transparent;
+                border-left: $trianglewidth solid transparent;
+                border-right: $trianglewidth solid transparent;
                 border-top: 1em solid $blue;
                 &:hover { border-top: 1em solid $accent; }
             }

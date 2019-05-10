@@ -245,9 +245,8 @@ nav {
   #text-content .backlight {
     background-color: #eee8d5;
     padding: 1em;
-    max-width: 75%;
     margin: 0 auto;
-    box-shadow: 0.15em 0.15em 0 0 #93a1a1; }
+    box-shadow: 0.15em 0.15em 10px 10px #93a1a1; }
     #text-content .backlight .selection .text {
       background-color: #ddd7c4;
       padding: 0 0.1em 0 0.1em; }
@@ -262,14 +261,14 @@ nav {
       font-size: 1.5em;
       color: #268bd2; }
       #text-content .backlight .expander .uparr {
-        border-left: 1em solid transparent;
-        border-right: 1em solid transparent;
+        border-left: 0.5em solid transparent;
+        border-right: 0.5em solid transparent;
         border-bottom: 1em solid #268bd2; }
         #text-content .backlight .expander .uparr:hover {
           border-bottom: 1em solid #b58900; }
       #text-content .backlight .expander .downarr {
-        border-left: 1em solid transparent;
-        border-right: 1em solid transparent;
+        border-left: 0.5em solid transparent;
+        border-right: 0.5em solid transparent;
         border-top: 1em solid #268bd2; }
         #text-content .backlight .expander .downarr:hover {
           border-top: 1em solid #b58900; }
