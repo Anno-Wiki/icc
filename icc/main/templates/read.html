@@ -29,15 +29,14 @@
         {{ form.last_char(class_="hidden") }}
         {{ form.submit() }}
     </form>
-    <div onclick="submit();" id="annotate-button">annotate</div>
 
+    <hr>
+    <div onclick="submit();" id="annotate-button">annotate</div>
     {# hide the line number form from javascript users. #}
     <script>
         var hideform = document.getElementById('line-form');
         hideform.classList.add('js')
     </script>
-
-    <hr>
 
     {# Text of the page #}
     {% include "includes/js/_highlight.js" %}
