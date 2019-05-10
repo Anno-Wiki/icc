@@ -134,7 +134,7 @@ def index():
     if not annotations.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('main.index', page=page, sort=key) for key in
+    sorturls = {key: url_for('main.index', sort=key) for key in
                 sorts.keys()}
     next_page = (url_for('main.index', page=annotations.next_num, sort=sort) if
                  annotations.has_next else None)
