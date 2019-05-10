@@ -2,20 +2,27 @@
 
 {% block content %}
 
-<form action="" method="POST" novalidate>
-    {{ form.csrf_token() }}
-    {{ form.wiki(cols=75, rows=30) }}<br>
-    <br>
-    {% for error in form.wiki.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    {{ form.reason(cols=75, rows=30) }}<br>
-    <br>
-    {% for error in form.reason.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    <br> <br>
-    {{ form.submit }}
-</form>
+    <h1>Edit Wiki for <a href="{{ wiki.entity.url }}">{{ wiki.entity }}</a></h1>
+
+    <script>
+        setInterval(function() {
+            let text = byID('wiki').value;
+
+
+    <div class="preview">
+    </div>
+
+    <form class="body-form" action="" method="POST" novalidate>
+        {{ form.csrf_token() }}
+        {{ form.wiki(cols=75, rows=30) }}
+        {% for error in form.wiki.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        {{ form.reason }}
+        {% for error in form.reason.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        {{ form.submit }}
+    </form>
 
 {% endblock %}

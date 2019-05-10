@@ -37,6 +37,12 @@
     textarea, input {
         @include formstyle;
 
+        &#reason {
+            max-width: 42em;
+            display: block;
+            margin: 0 auto;
+        }
+
         &[type=submit] {
             background-color: $lightbghl;
             color: $base00;

@@ -33,7 +33,8 @@ def edit_wiki(wiki_id):
         return redirect(redirect_url)
 
     form.wiki.data = wiki.current.body
-    return render_template('forms/wiki.html', title="Edit wiki", form=form)
+    return render_template('forms/wiki.html', title="Edit wiki", form=form,
+                           wiki=wiki)
 
 
 @main.route('/wiki/<wiki_id>/history')
