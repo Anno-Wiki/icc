@@ -1,14 +1,12 @@
 <script>
-    UP = '';
-    DOWN = '&#x2B9F;';
     atLoad(function () {
         // get the  inputs make them global
         totalLines = {{ edition.lines.count() }};
         flInput = byID('first_line');
         llInput = byID('last_line');
         // hide the text line inputs because they ugly
-        //flInput.parentNode.style.display = "none";
-        //llInput.parentNode.style.display = "none";
+        flInput.parentNode.style.display = "none";
+        llInput.parentNode.style.display = "none";
         // make the expanders
         genExpander(true);
         genExpander(false);
@@ -33,7 +31,7 @@
                     countAbove++;
             block.removeChild(line);
             block.insertBefore(line, expander);
-            if (countAbove > 3) block.removeChild(lines[0]);
+            if (countAbove >= 3) block.removeChild(lines[0]);
         } else {
             let countBelow = 0;
             for (let i = lines.length-1; i > [...lines].indexOf(line); i--)
@@ -41,11 +39,11 @@
                     countBelow++;
             block.removeChild(expander);
             block.insertBefore(expander, line);
-            console.log(countBelow);
             if (countBelow >= 3) block.removeChild(lines[lines.length-1]);
         }
         input.value = Number(input.value) + change;
     }
+
     function newLine(cls, num, line) {
         let lineEl = newEl("div", `line ${cls}`);
         lineEl.id = num;
@@ -67,7 +65,6 @@
         let change = topExpander ? -1 : 1;
         let lineToHighlight = Number(input.value) + change;
         if (lineToHighlight > totalLines || lineToHighlight < 1) { return; }
-        console.log(lineToHighlight);
 
         // the line to be gotten by ajax
         let lines = allof('line');
@@ -117,11 +114,9 @@
 
         // up and down arrows
         let up = newEl('div', 'uparr');
-        up.innerHTML = UP;
         up.onclick = topExpander ? expand : contract;
 
         let down = newEl('div', 'downarr');
-        down.innerHTML = DOWN;
         down.onclick = topExpander ? contract : expand;
 
         // the middle hr
