@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a50c34999ca8
+Revision ID: f4ff8f21e7e5
 Revises: 
-Create Date: 2019-04-02 16:14:29.557356
+Create Date: 2019-05-11 15:14:26.350393
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a50c34999ca8'
+revision = 'f4ff8f21e7e5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -430,6 +430,19 @@ def upgrade():
     op.create_index(op.f('ix_lineattribute_line_id'), 'lineattribute', ['line_id'], unique=False)
     op.create_index(op.f('ix_lineattribute_precedence'), 'lineattribute', ['precedence'], unique=False)
     op.create_index(op.f('ix_lineattribute_primary'), 'lineattribute', ['primary'], unique=False)
+    op.create_table('commentvote',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('delta', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('entity_id', sa.Integer(), nullable=True),
+    sa.Column('voter_id', sa.Integer(), nullable=True),
+    sa.Column('reputationchange_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
+    sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_commentvote_entity_id'), 'commentvote', ['entity_id'], unique=False)
     op.create_table('editvote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=True),
@@ -457,6 +470,8 @@ def downgrade():
     op.drop_table('tags')
     op.drop_index(op.f('ix_editvote_edit_id'), table_name='editvote')
     op.drop_table('editvote')
+    op.drop_index(op.f('ix_commentvote_entity_id'), table_name='commentvote')
+    op.drop_table('commentvote')
     op.drop_index(op.f('ix_lineattribute_primary'), table_name='lineattribute')
     op.drop_index(op.f('ix_lineattribute_precedence'), table_name='lineattribute')
     op.drop_index(op.f('ix_lineattribute_line_id'), table_name='lineattribute')

@@ -1,8 +1,12 @@
 <div class="annotation" id="a{{ annotation.id }}">
     <div class="annotation-head">
         <div class="left">
-            {% include "includes/_annotation_weight.html" %}
+            {% set weight, readable_weight = annotation.weight, annotation.readable_weight %}
+            {% include "includes/_weight.html" %}
             {% set vote = current_user.get_vote(annotation) %}
+            {% set upvote_url = url_for("main.upvote", annotation_id=annotation.id, next=request.full_path) %}
+            {% set downvote_url = url_for("main.downvote", annotation_id=annotation.id, next=request.full_path) %}
+            {% set ident = annotation.id %}
             {% include "includes/_vote.html" %}
         </div>
 

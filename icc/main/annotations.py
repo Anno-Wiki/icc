@@ -336,3 +336,23 @@ def reply(annotation_id, comment_id):
         return redirect(url_for('main.comments', annotation_id=annotation.id))
     return render_template('forms/reply.html', title="Reply", form=form,
                            comment=comment)
+
+@main.route('/annotation/<annotation_id>/comment/<comment_id>/upvote')
+@login_required
+def upvote_comment(annotation_id, comment_id):
+    redirect_url = generate_next(
+        url_for('main.comments', annotation_id=annotation_id))
+    comment = Comment.query.get_or_404(comment_id)
+    comment.upvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
+
+@main.route('/annotation/<annotation_id>/comment/<comment_id>/downvote')
+@login_required
+def downvote_comment(annotation_id, comment_id):
+    redirect_url = generate_next(
+        url_for('main.comments', annotation_id=annotation_id))
+    comment = Comment.query.get_or_404(comment_id)
+    comment.downvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)

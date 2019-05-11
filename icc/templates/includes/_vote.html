@@ -1,0 +1,13 @@
+{# requires ident (entity id), upvote_url, downvote_url, and vote #}
+<div class="arrows">
+    <div>
+        <a id="up{{ ident }}" onclick="upvote(this);" href="{{ upvote_url }}"{% if vote and vote.is_up %} class="up"{% endif %}>
+            &#9650;
+        </a>
+    </div>
+    <div>
+        <a id="down{{ ident }}" onclick="downvote(this);" href="{{ downvote_url }}"{% if vote and not vote.is_up %} class="down"{% endif %}>
+            &#9660;
+        </a>
+    </div>
+</div>

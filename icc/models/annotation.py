@@ -139,7 +139,19 @@ class Tag(Base, FollowableMixin, LinkableMixin):
         return f'<div class="tag">{self.tag}</div>'
 
 
-class Comment(Base):
+class CommentVote(Base, VoteMixin):
+    """A class that represents a vote on a comment."""
+    entity_id = db.Column(db.Integer,
+                          db.ForeignKey('comment.id', ondelete='CASCADE'),
+                          index=True)
+    entity = db.relationship('Comment')
+
+    def __repr__(self):
+        prefix = super().__repr__()
+        return f"{prefix}{self.entity}"
+
+
+class Comment(Base, VotableMixin):
     """A class representing comments on annotations.
 
     Attributes
@@ -168,6 +180,8 @@ class Comment(Base):
     children : BaseQuery
         The immediate children of the comment.
     """
+    __vote__ = CommentVote
+    __reputable__ = 'poster'
 
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
                           nullable=False)
@@ -200,8 +214,6 @@ class AnnotationVote(Base, VoteMixin):
 
     Attributes
     ----------
-    annotation_id : int
-        The id of the annotation voted on.
     reputationchange_id : int
         The id of the :class:`ReputationChange` object that accompanies the
         :class:`Vote`.
