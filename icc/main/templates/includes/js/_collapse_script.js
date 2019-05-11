@@ -1,12 +1,10 @@
 <script>
     function collapse(x) {
-        var annotation = x.closest(".annotation")
+        var annotation = parentByCls(x, "^annotation$")
         var collapsible = byCls(annotation, "annotation-collapsible")[0];
         if (collapsible.style.display == "none") {
-            collapsible.style.display = "block";
-            annotation.style.borderRadius = "0";
-            annotation.style.borderTopLeftRadius = "20px";
-            annotation.style.borderTopRightRadius = "20px";
+            collapsible.style.display = "";
+            annotation.style.borderRadius = "";
             x.innerHTML = "[ - ]";
         } else {
             x.innerHTML = "[ + ]";
