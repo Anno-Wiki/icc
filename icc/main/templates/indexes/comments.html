@@ -2,8 +2,6 @@
 
 {% block content %}
 
-<script src="{{ url_for("static", filename="scripts/comments.js") }}"></script>
-
 {% include "includes/js/_collapse_script.js" %}
 {% include "includes/_annotation_standalone.html" %}
 <form class="body-form" action="" method="POST" novalidate>
@@ -14,12 +12,13 @@
     {{ form.submit }}
 </form>
 
-
+{% include "includes/js/_collapse_comments.js" %}
 <div id="discussion">
     {% for comment in comments %}
         <div class="comment">
             <div class="header">
                 by <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">{{ comment.poster.displayname }}</a> {{ moment(comment.timestamp).fromNow() }}
+                <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
             </div>
             <div class="comment-body">
                 {{ comment.body|proc_links|markdown }}
@@ -30,6 +29,7 @@
                 <div class="reply">
                     <div class="header">
                         by <a href="{{ url_for("user.profile", user_id=reply.poster.id) }}">{{ reply.poster.displayname }}</a> {{ moment(reply.timestamp).fromNow() }}
+                        <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
                     </div>
                     <div class="comment-body">
                         {{ reply.body|proc_links|markdown }}
