@@ -44,6 +44,8 @@
 
         justify-items: space-around;
         align-items: stretch;
+        flex-wrap: wrap;
+        max-width: 50em;
 
         @include formborder;
 

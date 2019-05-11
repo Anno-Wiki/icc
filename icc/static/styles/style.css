@@ -447,6 +447,8 @@ body {
           background-color: white;
           justify-items: space-around;
           align-items: stretch;
+          flex-wrap: wrap;
+          max-width: 50em;
           border: 1px solid #b58900;
           border-radius: 3px;
           padding: 1em; }
