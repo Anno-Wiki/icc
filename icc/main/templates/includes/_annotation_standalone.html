@@ -60,7 +60,10 @@
                 <span class="disappear-3">| {% include "includes/_annotation_follow.html" %}</span>
             {% endif %}
             | <a href="{{ url_for("main.edit", annotation_id=annotation.id, next=request.full_path) }}">edit</a>
-            | <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">comments</a>
+            {% set count = annotation.comments.count() %}
+            | <a href="{{ url_for("main.comments", annotation_id=annotation.id) }}">
+                {% if count <= 0 %}discuss{% else %}{{ count }} comments{% endif %}
+            </a>
         </div>
     </div>
 </div>
