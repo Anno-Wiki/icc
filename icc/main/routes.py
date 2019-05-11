@@ -21,7 +21,7 @@ from icc import db
 from icc.funky import line_check, generate_next
 from icc.main import main
 
-from icc.models.annotation import Annotation, Edit, AnnotationFlag
+from icc.models.annotation import Annotation, Edit, AnnotationFlag, Comment
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
@@ -126,6 +126,8 @@ def index():
         'modified': (Annotation.query.join(Edit).order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True)),
         'weight': Annotation.query.order_by(Annotation.weight.desc()),
+        'active': (Annotation.query.join(Comment).group_by(Annotation.id)
+                   .order_by(Comment.timestamp.desc()))
     }
 
     sort = sort if sort in sorts else default
@@ -192,8 +194,7 @@ def line_annotations(text_url, edition_num, nums):
         'oldest': edition.annotations.order_by(Annotation.timestamp.asc()),
         'weight': edition.annotations.order_by(Annotation.weight.desc()),
         'line': edition.annotations.order_by(Edit.last_line_num.asc()),
-        'modified': (edition.annotations
-                     .order_by(Edit.timestamp.desc())
+        'modified': (edition.annotations.order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True))
     }
 
