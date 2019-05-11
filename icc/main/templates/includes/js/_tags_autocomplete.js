@@ -1,20 +1,25 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        tagsInput = byID("tags");
+        tagSpans = byID("tag_spans");
+        autoBox = byID("autocomplete");
+        master = byID("master_div");
+
         initTags();
-        submit = byID("submit");
+        let submit = byID("submit");
         submit.onclick = repopulate;
     });
 
     function newTag(name, input=false) {
         // utility to create a new tag
-        var tag = newEl("div", "tag");
-        var tagsInput = byID("tags");
+        let tag = newEl("div", "tag");
         tag.innerHTML = name;
         if (input) {
             tag.onclick = function () {
                 if (this.parentNode.childElementCount == 1)
                     tagsInput.placeholder = "e.g. (explanation freudian reference)";
                 this.parentNode.removeChild(this);
+                limitTags();
                 tagsInput.focus();
             }
             tag.innerHTML = name + " &times;"
@@ -22,24 +27,38 @@
         return tag;
     }
 
+    function limitTags() {
+        if (tagSpans.childNodes.length >= 5) {
+            tagsInput.style.display = "none";
+            let complain = newEl("div", "complain");
+            complain.id = "complain";
+            complain.innerHTML = "You cannot enter more than five tags.";
+            master.parentNode.insertBefore(complain, master);
+        } else {
+            tagsInput.style.display = "";
+            let complain = byID("complain");
+            if (complain)
+                complain.parentNode.removeChild(complain);
+        }
+    }
+
     function initTags() {
         // init the pre-existing tags
-        var tagsInput = byID("tags");
-        var rawText = tagsInput.value;
+        let rawText = tagsInput.value;
         if (rawText != "") {
-            var tagsArray = rawText.split(" ");
-            var tagSpans = byID("tag_spans");
-            for (var i = 0; i < tagsArray.length; i++) {
-                var tag = newTag(tagsArray[i], true);
+            let tagsArray = rawText.split(" ");
+            for (let i = 0; i < tagsArray.length; i++) {
+                let tag = newTag(tagsArray[i], true);
                 tagSpans.appendChild(tag);
             }
             tagsInput.value = "";
             tagsInput.placeholder = "";
+            limitTags();
         }
         tagsInput.onkeyup = autocomplete;
         tagsInput.onkeydown = function(event) {
             lastInput = this.value;
-            var key = event.which || event.keyCode;
+            let key = event.which || event.keyCode;
             if (key == 8 && lastInput == "")
                 autocomplete(event);
         };
@@ -47,28 +66,27 @@
 
     function space() {
         // process a space
-        var tagsInput = byID("tags");
         // don't pass true, because placeholder shouldn't be set
-        var tag = newTag(tagsInput.value.replace(/(^\s+|\s+$)/g, '') + " &times;");
-        tag.onclick = function() { this.parentNode.removeChild(this); };
-        var tagSpans = byID("tag_spans");
+        let tag = newTag(tagsInput.value.replace(/(^\s+|\s+$)/g, '') + " &times;");
+        tag.onclick = function() {
+            this.parentNode.removeChild(this);
+            limitTags();
+        };
         tagSpans.appendChild(tag);
         tagsInput.value = "";
         tagsInput.placeholder = "";
         autoBox.innerHTML = "";
+        limitTags();
     }
 
     function backspace() {
         // process a backspace
-        var autoBox = byID("autocomplete");
-        var tagsInput = byID("tags");
-        var tagSpans = byID("tag_spans");
         autoBox.style.display = "";
         autoBox.innerHTML = "";
         if (lastInput == "") {
-            var last = tagSpans.lastChild;
+            let last = tagSpans.lastChild;
             if (last) {
-                var text = last.innerHTML;
+                let text = last.innerHTML;
                 if (text) {
                     text = text.slice(0, -2);
                     tagsInput.value = text;
@@ -79,23 +97,26 @@
                 }
             }
         }
+        limitTags();
     }
 
     function findTags() {
         // This is the actual autocomplete ajax method. Kinda ugly
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open("POST", "{{ url_for('ajax.tags') }}");
-        var tagsInput = byID("tags");
+        limitTags();
+        if (tagSpans.childNodes.length >= 5)
+            console.log("yeah");
 
         request.onload = function () {
             const data = JSON.parse(request.responseText);
-            var autoBox = byID("autocomplete");
+            let autoBox = byID("autocomplete");
             if (data.success) {
                 autoBox.innerHTML = "";
-                for (var i = 0; i < data.tags.length; i++) {
-                    var tag = newTag(data.tags[i]); // autoBox tag
-                    var card = newEl("div", "card");
-                    var description = newEl("div", "description");
+                for (let i = 0; i < data.tags.length; i++) {
+                    let tag = newTag(data.tags[i]); // autoBox tag
+                    let card = newEl("div", "card");
+                    let description = newEl("div", "description");
                     description.innerHTML = data.descriptions[i];
                     if (data.descriptions[i].length == 500)
                         description.classList.add("ellipsis");
@@ -103,7 +124,7 @@
                     card.appendChild(description);
                     card.onclick = function() {
                         // input box tag
-                        var tag = newTag(this.getElementsByClassName("tag")[0].innerHTML, true);
+                        let tag = newTag(this.getElementsByClassName("tag")[0].innerHTML, true);
                         byID("tag_spans").append(tag);
                         autoBox.innerHTML = "";
                         autoBox.style.display = "";
@@ -128,28 +149,24 @@
 
     function autocomplete(event) {
         // This executes the autocomplete thing
-        var tagsInput = byID("tags");
-        var key = event.which || event.keyCode;
-        if (key == 32) {
+        let key = event.which || event.keyCode;
+        if (key == 32)
             space();
-        } else if (key == 8 && tagsInput.value == "") {
+        else if (key == 8 && tagsInput.value == "")
             backspace();
-        } else {
+        else
             findTags();
-       }
     }
 
     function repopulate() {
         // This is to repopulate the field with a space separated string on
         // submit.
-        var tagsInput = byID("tags");
-        var tagSpans = byID("tag_spans");
-        var tags = tagSpans.children;
-        var tagsArray = [];
-        for (var i = 0; i < tags.length; i++) {
+        let tags = tagSpans.children;
+        let tagsArray = [];
+        for (let i = 0; i < tags.length; i++) {
             tagsArray[i] = tags[i].innerHTML.slice(0,-2);
         }
-        var tagString = tagsArray.join(" ");
+        let tagString = tagsArray.join(" ");
         if (tagString != "" && tagsInput.value != "" ){
             tagsInput.value = tagString + " " + tagsInput.value;
             tag_spans.innerHTML = "";

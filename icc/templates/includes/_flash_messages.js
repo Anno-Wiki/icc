@@ -10,20 +10,23 @@
         li.appendChild(close);
         return li
     }
+    function flashMessage(message) {
+        // requires an array of [category, message]
+        let container = allof("flash")[0];
+        if (container == null) {
+            container = newEl("ul", "flash js");
+            let par = byID("container");
+            par.insertBefore(container, par.childNodes[0]);
+            let li = newFlash(message[0], messages[1]);
+            container.appendChild(li);
+        }
+    }
     function flashMessages() {
         let xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             const messages = JSON.parse(this.responseText);
-            let container = allof("flash")[0];
-            if (container == null) {
-                container = newEl("ul", "flash js");
-                let par = byID("container");
-                par.insertBefore(container, par.childNodes[0]);
-            }
-            for (let i = 0; i < messages.length; i++) {
-                let li = newFlash(messages[i][0], messages[i][1]);
-                container.appendChild(li);
-            }
+            for (let i = 0; i < messages.length; i++)
+                flashMessage(messages[i]);
         };
         xhttp.open("GET", "{{ url_for("ajax.flashed") }}", true);
         xhttp.send();
