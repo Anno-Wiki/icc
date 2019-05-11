@@ -36,7 +36,7 @@
     }
 
 
-    document.addEventListener("DOMContentLoaded", function () {
+    atload(function () {
         var textBlock = document.getElementById("text-content");
         // these don't work and idk why
         textBlock.addEventListener("selectionstart", showBtn);

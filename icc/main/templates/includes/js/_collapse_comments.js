@@ -1,5 +1,5 @@
 <script>
-    atLoad(function () {
+    atload(function () {
         let comments = allof('comment');
         [...comments].forEach(function(comment) {
             let replies = [...comment.childNodes].filter(el => el.className == 'reply');

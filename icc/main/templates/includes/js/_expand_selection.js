@@ -1,12 +1,12 @@
 <script>
-    atLoad(function () {
+    atload(function () {
         // get the  inputs make them global
         totalLines = {{ edition.lines.count() }};
         flInput = byID('first_line');
         llInput = byID('last_line');
         // hide the text line inputs because they ugly
-        flInput.parentNode.style.display = "none";
-        llInput.parentNode.style.display = "none";
+        flInput.parentNode.style.display = 'none';
+        llInput.parentNode.style.display = 'none';
         // make the expanders
         genExpander(true);
         genExpander(false);
@@ -45,12 +45,12 @@
     }
 
     function newLine(cls, num, line) {
-        let lineEl = newEl("div", `line ${cls}`);
+        let lineEl = newEl('div', `line ${cls}`);
         lineEl.id = num;
-        let numEl = newEl("span", "line-num");
+        let numEl = newEl('span', 'line-num');
         numEl.innerHTML = num;
         lineEl.appendChild(numEl);
-        let textEl = newEl("span", "text");
+        let textEl = newEl('span', 'text');
         // make sure you post an hr if it's an hr
         textEl.innerHTML = cls == 'hr' ? '<hr>' : line;
         lineEl.appendChild(textEl);
@@ -103,7 +103,7 @@
             }
 
         }
-        let url = `{{ url_for("ajax.line", edition_id=edition.id) }}?num=${lineToGet}`;
+        let url = `{{ url_for('ajax.line', edition_id=edition.id) }}?num=${lineToGet}`;
         xhttp.open('GET', url, true);
         xhttp.send();
     }

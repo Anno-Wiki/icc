@@ -1,5 +1,5 @@
 <script>
-    atLoad(function () {
+    atload(function () {
         let arrows = allof('arrows');
         for (let i = 0; i < arrows.length; i++) {
             let updown = byTag(arrows[i], 'a');
@@ -91,6 +91,4 @@
         poppers.forEach(function(el) { weight.classList.remove(el) });
         weight.innerHTML = `${newPoints} `;
     }
-
-
 </script>

@@ -122,8 +122,6 @@
     cursor: pointer; }
   .toc tr.lvl1:hover, .toc tr.lvl2:hover, .toc tr.lvl3:hover .toc tr.lvl4:hover .toc tr.lvl5:hover {
     border: 1px solid #b58900; }
-  .toc tr.lvl2, .toc tr.lvl3, .toc tr.lvl4, .toc tr.lvl5 {
-    display: none; }
   .toc tr.lvl2 td {
     font-size: 0.9em;
     padding: 0.3em; }

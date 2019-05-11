@@ -24,7 +24,6 @@
             &1, &2, &3, &4, &5 { cursor: pointer; }
             &1:hover, &2:hover, &3:hover &4:hover &5:hover { border: 1px solid $accent; }
 
-            &2, &3, &4, &5 { display: none; }
             &2 td {
                 font-size: 0.9em;
                 padding: 0.3em;
