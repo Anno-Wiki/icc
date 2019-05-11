@@ -288,6 +288,18 @@ class VotableMixin:
                      the reputation change to, if there is one.>
     """
 
+    @property
+    def readable_weight(self):
+        """This property produces a readable weight, rather than a computer-like
+        int. The readable weight modulates based on the thousand and million.
+        """
+        if self.weight >= 1000000 or self.weight <= -1000000:
+            return f'{round(self.weight/1000000,1)}m'
+        elif self.weight >= 1000 or self.weight <= -1000:
+            return f'{round(self.weight/1000,1)}k'
+        else:
+            return f'{self.weight}'
+
     def upvote(self, voter):
         situ = []
         if hasattr(self, 'approved') and (self.approved or self.rejected):

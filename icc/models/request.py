@@ -49,15 +49,6 @@ class TextRequest(Base, FollowableMixin, VotableMixin):
     def url(self):
         return url_for('requests.view_text_request', request_id=self.id)
 
-    @property
-    def readable_weight(self):
-        if self.weight >= 1000000 or self.weight <= -1000000:
-            return f'{round(self.weight/1000000,1)}m'
-        elif self.weight >= 1000 or self.weight <= -1000:
-            return f'{round(self.weight/1000,1)}k'
-        else:
-            return f'{self.weight}'
-
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
         description = "This wiki is blank." if not description else description
@@ -103,15 +94,6 @@ class TagRequest(Base, FollowableMixin, VotableMixin):
     @property
     def url(self):
         return url_for('requests.view_tag_request', request_id=self.id)
-
-    @property
-    def readable_weight(self):
-        if self.weight >= 1000000 or self.weight <= -1000000:
-            return f'{round(self.weight/1000000,1)}m'
-        elif self.weight >= 1000 or self.weight <= -1000:
-            return f'{round(self.weight/1000,1)}k'
-        else:
-            return f'{self.weight}'
 
     def __init__(self, *args, **kwargs):
         description = kwargs.pop('description', None)
