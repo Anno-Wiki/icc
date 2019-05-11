@@ -23,6 +23,6 @@ function parentNum(el, prefix="") {
 function parentNumID(el, prefix="") { return parentNum(el, prefix).id; }
 
 function parentByCls(el, cls) {
-    while(!el.className || !el.classList.contains(cls)) { el = el.parentNode; }
+    while(!el.className || !el.className.match(cls)) { el = el.parentNode; }
     return el;
 }
