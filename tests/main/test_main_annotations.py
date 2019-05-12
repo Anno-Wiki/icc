@@ -109,7 +109,8 @@ def test_upvote(popclient):
 
         # Make sure you don't get one of george's annotations.
         annotation = Annotation.query.filter(Annotation.annotator != u).first()
-        url = url_for('main.upvote', annotation_id=annotation.id)
+        url = url_for('main.vote', entity='Annotation', up=True,
+                      id=annotation.id)
         rv = client.get(url, follow_redirects=True)
         assert rv.status_code == 200
         db.session.commit()
@@ -125,7 +126,8 @@ def test_downvote(popclient):
         login(u, client)
 
         annotation = Annotation.query.filter(Annotation.annotator != u).first()
-        url = url_for('main.downvote', annotation_id=annotation.id)
+        url = url_for('main.vote', entity='Annotation', up=False,
+                      id=annotation.id)
         rv = client.get(url, follow_redirects=True)
         assert rv.status_code == 200
         db.session.commit()
