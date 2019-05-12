@@ -9,74 +9,51 @@
             }
         }
     });
-    function loginNext(route, id) {
+    function loginNext(id, entity, up) {
         // just a minor complexity reducer for upvote/downvote
         // if the user is not logged in, redirect him to the login with
         // the next param being to upvote the annotation and the next
         // param after that being the page he is currently on
-        let next = escape(`/${route}/${id}?next=${window.location.pathname}`);
-        return `{{ url_for('main.login') }}?next=${next}`;
+        let next = [
+            '{{ url_for('main.vote') }}',
+            '?',
+            `id=${id}`,
+            `&entity=${entity}`,
+            `&up=${up}`,
+            `&next=${window.location.pathname}`
+        ]
+        return `{{ url_for('main.login') }}?next=${escape(next.join(''))}`;
     }
 
     function vote(x, up) {
-        let entity = byID(x.dataset['parent']);
+        let entity = byID(x.dataset.parent);
         let xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             let data = JSON.parse(this.responseText);
             let weight = first(entity, 'weight');
             if (data.status == 'login') {
-                location.href = loginNext(id, up);
+                location.href = loginNext(x.dataset.parent, x.dataset.entity, up);
                 return;
             }
-    }
-    function downvote(x) {
-        let id = parentNumID(x, 'a').replace(/a/, '');
-        let xhttp = new XMLHttpRequest();
-
-        xhttp.onload = function () {
-            let data = JSON.parse(this.responseText);
-            let weight = byCls(parentNum(x, 'a'), 'weight')[0];
-            if (data.situ.includes('login')) {
-                // don't let us go any farther if need to login
-                location.href = loginNext('downvote', id);
-                return;
-            }
-            if (data.situ.includes('rollback')) {
-                if (data.situ.includes('success')) {
-                    x.className = 'down';
-                    byID(`up${id}`).className = '';
+            if (data.rollback) {
+                if (data.success) {
+                    x.className = up ? 'up' : 'down';
+                    opposite = up ? 'down' : 'up'
+                    byID(`${opposite}-${x.dataset.parent}`).className = '';
                 } else { x.className = ''; }
-            } else if (data.situ.includes('success')) { x.className = 'up'; }
+            } else if(data.success) { x.className = 'up'; }
             if ('change' in data)
                 modWeight(weight, data.change);
             flashMessages();
         }
-        xhttp.open('GET', url, true);
-        xhttp.send();
-    }
-
-    function upvote(x) {
-        let id = parentNumID(x, 'a').replace(/a/, '');
-        let xhttp = new XMLHttpRequest();
-
-        xhttp.onload = function () {
-            let data = JSON.parse(this.responseText);
-            let weight = byCls(parentNum(x, 'a'), 'weight')[0];
-            if (data.situ.includes('login')) {
-                location.href = loginNext('upvote', id);
-                return;
-            }
-            if (data.situ.includes('rollback')) {
-                if (data.situ.includes('success')) {
-                    x.className = 'up';
-                    byID(`down${id}`).className = '';
-                } else { x.className = ''; }
-            } else if (data.situ.includes('success')) { x.className = 'up'; }
-            if ('change' in data)
-                modWeight(weight, data.change);
-            flashMessages();
-        }
-        xhttp.open('GET', url, true);
+        url = [
+            '{{ url_for('ajax.vote') }}',
+            '?',
+            `id=${x.dataset.parent}`,
+            `&entity=${x.dataset.entity}`,
+            `&up=${up}`
+        ]
+        xhttp.open('GET', url.join(''), true);
         xhttp.send();
     }
 

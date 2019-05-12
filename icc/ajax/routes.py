@@ -1,5 +1,6 @@
 """The ajax routes."""
 import time
+from string import ascii_lowercase as lowercase
 from datetime import datetime
 
 from flask import request, jsonify, current_app, get_flashed_messages, flash
@@ -41,7 +42,6 @@ def tags():
 def flashed():
     """This route is an ajax way to get the flashed messages."""
     messages = get_flashed_messages(with_categories=True)
-    print(messages)
     return jsonify(messages)
 
 
@@ -49,28 +49,32 @@ def flashed():
 def vote():
     """All ajax voting routes in one!"""
     entity_cls = classes.get(request.args.get('entity'), None)
-    entity_id = request.args.get('id').strip('[a-z]')
+    entity_id = request.args.get('id').strip(lowercase)
     if not entity_cls:
         return jsonify({'success': False, 'rollback': False,
                         'status': 'not-a-thing'})
-    if not isinstance(entity_cls, classes['VotableMixin']):
+    if not issubclass(entity_cls, classes['VotableMixin']):
         return jsonify({'success': False, 'rollback': False,
                         'status': 'not-votable'})
     if not current_user.is_authenticated:
         flash(f"You must login to vote.")
         return jsonify({'success': False, 'rollback': False, 'status': 'login'})
-    entity = entity_cls.query.get_or_404(entity_id)
+    entity = entity_cls.query.get(entity_id)
+    print(entity_cls)
+    print(entity_id)
     original_weight = entity.weight
     vote = current_user.get_vote(entity)
     if isinstance(entity, classes['Annotation']) and not entity.active:
         flash("You cannot vote on deactivated annotations.")
         return jsonify({'success': False, 'rollback': False,
                         'status': 'deactivated'})
-    up = bool(request.args.get('up'))
+    up = True if request.args.get('up').lower() == 'true' else False
     status = (entity.upvote(current_user) if up else
-              annotation.downvote(current_user))
+              entity.downvote(current_user))
     db.session.commit()
     new_weight = entity.weight
+    change = new_weight - original_weight
+    status['change'] = change
     return jsonify(status)
 
 

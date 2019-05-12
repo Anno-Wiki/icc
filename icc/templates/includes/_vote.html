@@ -2,17 +2,19 @@
 {% set vote = current_user.get_vote(entity) %}
 <div class="arrows">
     <div>
-        <a id="up{{ ident }}"
-            data-parent="{{ prefix }}{{ ident }}"
-            onclick="vote(this, true);"
-            href="{{ url_for('main.vote', entity=entity.__class__.__name__, id=ident, up=True, next=request.full_path) }}"
-            {% if vote and vote.is_up %} class="up"{% endif %}>
+        <a id="up-{{prefix}}{{ ident }}"
+           data-parent="{{ prefix }}{{ ident }}"
+           data-entity="{{ entity.__class__.__name__ }}"
+           onclick="vote(this, true);"
+           href="{{ url_for('main.vote', entity=entity.__class__.__name__, id=ident, up=True, next=request.full_path) }}"
+           {% if vote and vote.is_up %} class="up"{% endif %}>
             &#9650;
         </a>
     </div>
     <div>
-        <a id="down{{ ident }}"
+        <a id="down-{{ prefix }}{{ ident }}"
            data-parent="{{ prefix }}{{ ident }}"
+           data-entity="{{ entity.__class__.__name__ }}"
            onclick="vote(this, false);"
            href="{{ url_for('main.vote', entity=entity.__class__.__name__, id=ident, up=False, next=request.full_path) }}"
            {% if vote and not vote.is_up %} class="down"{% endif %}>

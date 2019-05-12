@@ -11,6 +11,7 @@ Of course, one could argue that the annotation routes are the sine qua non of
 the icc. I would argue that you are an idiot.
 """
 
+from string import ascii_lowercase as lowercase
 from collections import defaultdict
 
 from flask import (render_template, redirect, url_for, request, abort, g, flash,
@@ -326,7 +327,7 @@ def read(text_url, edition_num):
 def vote():
     """This pretty much covers voting! Love it."""
     entity_cls = classes.get(request.args.get('entity'), None)
-    entity_id = request.args.get('id').strip('[a-z]')
+    entity_id = request.args.get('id').strip(ascii_lowercase)
     if not entity_cls:
         abort(404)
     if not issubclass(entity_cls, classes['VotableMixin']):
@@ -336,9 +337,7 @@ def vote():
     if isinstance(entity, classes['Annotation']) and not entity.active:
         flash("You cannot vote on deactivated annotations.")
         return redirect(redirect_url)
-
-    up = request.args.get('up')
-    up = True if up == 'True' else False
+    up = True if request.args.get('up').lower() == 'true' else False
     if up:
         entity.upvote(current_user)
     else:
