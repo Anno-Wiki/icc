@@ -75,6 +75,7 @@
 
     <br>
     {% include "includes/js/_collapse_script.js" %}
+    {% include "includes/_vote.js" %}
     {% if annotations_idx %}
         {% for i in range(lines[0].num, lines[-1].num) %}
             {% for annotation in annotations_idx[i] %}

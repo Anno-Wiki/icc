@@ -1,9 +1,9 @@
 <div class="annotation" id="a{{ annotation.id }}">
     <div class="annotation-head">
         <div class="left">
-            {% entity = annotation %}
+            {% set entity = annotation %}
             {% include "includes/_weight.html" %}
-            {% prefix, ident = 'a', annotation.id %}
+            {% set prefix, ident = 'a', annotation.id %}
             {% include "includes/_vote.html" %}
         </div>
 

@@ -3,6 +3,7 @@
 <div class="arrows">
     <div>
         <a id="up-{{prefix}}{{ ident }}"
+           data-direction="up"
            data-parent="{{ prefix }}{{ ident }}"
            data-entity="{{ entity.__class__.__name__ }}"
            onclick="vote(this, true);"
@@ -13,6 +14,7 @@
     </div>
     <div>
         <a id="down-{{ prefix }}{{ ident }}"
+           data-direction="down"
            data-parent="{{ prefix }}{{ ident }}"
            data-entity="{{ entity.__class__.__name__ }}"
            onclick="vote(this, false);"

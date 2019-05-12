@@ -38,7 +38,7 @@
             if (data.rollback) {
                 if (data.success) {
                     x.className = up ? 'up' : 'down';
-                    opposite = up ? 'down' : 'up'
+                    let opposite = up ? 'down' : 'up'
                     byID(`${opposite}-${x.dataset.parent}`).className = '';
                 } else { x.className = ''; }
             } else if(data.success) { x.className = 'up'; }
