@@ -327,7 +327,7 @@ def read(text_url, edition_num):
 def vote():
     """This pretty much covers voting! Love it."""
     entity_cls = classes.get(request.args.get('entity'), None)
-    entity_id = request.args.get('id').strip(ascii_lowercase)
+    entity_id = request.args.get('id').strip(lowercase)
     if not entity_cls:
         abort(404)
     if not issubclass(entity_cls, classes['VotableMixin']):
