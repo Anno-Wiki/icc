@@ -33,8 +33,8 @@ def tag_index():
     if not tags.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('main.tag_index', sort=key, page=page)
-                for key in sorts.keys()}
+    sorturls = {key: url_for('main.tag_index', sort=key) for key in
+                sorts.keys()}
     next_page = (url_for('main.tag_index', page=tags.next_num, sort=sort) if
                  tags.has_next else None)
     prev_page = (url_for('main.tag_index', page=tags.prev_num, sort=sort) if

@@ -50,8 +50,8 @@ def edit_review_queue():
     if not edits.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('admin.edit_review_queue', page=page,
-                             sort=key) for key in sorts.keys()}
+    sorturls = {key: url_for('admin.edit_review_queue', sort=key) for key in
+                sorts.keys()}
     next_page = url_for('admin.edit_review_queue', page=edits.next_num,
                         sort=sort) if edits.has_next else None
     prev_page = url_for('admin.edit_review_queue', page=edits.prev_num,

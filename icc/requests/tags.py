@@ -32,8 +32,8 @@ def tag_request_index():
     if not requests.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('requests.tag_request_index', page=page, sort=key)
-                for key in sorts.keys()}
+    sorturls = {key: url_for('requests.tag_request_index', sort=key) for key in
+                sorts.keys()}
     next_page = (url_for('requests.tag_request_index', page=requests.next_num,
                          sort=sort) if requests.has_next else None)
     prev_page = (url_for('requests.tag_request_index', page=requests.prev_num,

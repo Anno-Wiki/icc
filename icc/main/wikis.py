@@ -62,7 +62,7 @@ def wiki_edit_history(wiki_id):
         .paginate(page, current_app.config['ANNOTATIONS_PER_PAGE'], False)
 
     sorturls = {key: url_for('main.wiki_edit_history', wiki_id=wiki_id,
-                             sort=key, page=page) for key in sorts.keys()}
+                             sort=key) for key in sorts.keys()}
     next_page = (url_for('main.wiki_edit_history', page=edits.next_num,
                          sort=sort) if edits.has_next else None)
     prev_page = (url_for('main.wiki_edit_history', page=edits.prev_num,

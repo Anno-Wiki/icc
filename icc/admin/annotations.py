@@ -58,8 +58,8 @@ def view_deactivated_annotations():
     if not annotations.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('admin.view_deactivated_annotations', page=page,
-                             sort=key) for key in sorts.keys()}
+    sorturls = {key: url_for('admin.view_deactivated_annotations', sort=key) for
+                key in sorts.keys()}
     next_page = (url_for('admin.view_deactivated_annotations',
                          page=annotations.next_num, sort=sort) if
                  annotations.has_next else None)
@@ -140,8 +140,8 @@ def all_annotation_flags():
     if not flags.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('admin.all_annotation_flags', page=page, sort=key)
-                for key in sorts.keys()}
+    sorturls = {key: url_for('admin.all_annotation_flags', sort=key) for key in
+                sorts.keys()}
     next_page = url_for('admin.all_annotation_flags', page=flags.next_num,
                         sort=sort) if flags.has_next else None
 
@@ -200,8 +200,8 @@ def annotation_flags(annotation_id):
         abort(404)
 
     sorturls = {key: url_for('admin.annotation_flags',
-                             annotation_id=annotation_id, page=page, sort=key)
-                for key in sorts.keys()}
+                             annotation_id=annotation_id, sort=key) for key in
+                sorts.keys()}
     next_page = (url_for('admin.annotation_flags', annotation_id=annotation.id,
                          page=flags.next_num, sort=sort) if flags.has_next else
                  None)

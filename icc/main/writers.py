@@ -40,8 +40,8 @@ def writer_index():
     if not writers.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('main.writer_index', sort=key, page=page) for key
-                in sorts.keys()}
+    sorturls = {key: url_for('main.writer_index', sort=key) for key in
+                sorts.keys()}
     next_page = (url_for('main.writer_index', page=writers.next_num, sort=sort)
                  if writers.has_next else None)
     prev_page = (url_for('main.writer_index', page=writers.prev_num, sort=sort)
@@ -84,7 +84,7 @@ def writer_annotations(writer_url):
         abort(404)
 
     sorturls = {key: url_for('main.writer_annotations', writer_url=writer_url,
-                             sort=key, page=page) for key in sorts.keys()}
+                             sort=key) for key in sorts.keys()}
     next_page = (url_for('main.writer_annotations', writer_url=writer_url,
                          sort=sort, page=annotations.next_num) if
                  annotations.has_next else None)

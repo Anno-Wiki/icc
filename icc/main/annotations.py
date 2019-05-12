@@ -197,7 +197,7 @@ def edit_history(annotation_id):
         .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
 
     sorturls = {key: url_for('main.edit_history', annotation_id=annotation_id,
-                             page=edits.next_num, sort=key) for key in
+                             sort=key) for key in
                 sorts.keys()}
     next_page = (url_for('main.edit_history', annotation_id=annotation_id,
                          page=edits.next_num, sort=sort) if edits.has_next else

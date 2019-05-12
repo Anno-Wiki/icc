@@ -44,7 +44,7 @@ def text_index():
     if not texts.items and page > 1:
         abort(404)
 
-    sorturls = {key: url_for('main.text_index', sort=key, page=page) for key in
+    sorturls = {key: url_for('main.text_index', sort=key) for key in
                 sorts.keys()}
     next_page = (url_for('main.text_index', page=texts.next_num, sort=sort) if
                  texts.has_next else None)
@@ -88,7 +88,7 @@ def text_annotations(text_url):
         abort(404)
 
     sorturls = {key: url_for('main.text_annotations', text_url=text_url,
-                             sort=key, page=page) for key in sorts.keys()}
+                             sort=key) for key in sorts.keys()}
     next_page = (url_for('main.text_annotations', text_url=text_url, sort=sort,
                          page=annotations.next_num) if annotations.has_next else
                  None)

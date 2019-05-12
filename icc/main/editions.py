@@ -45,8 +45,8 @@ def edition_annotations(text_url, edition_num):
         abort(404)
 
     sorturls = {key: url_for('main.edition_annotations', text_url=text_url,
-                             edition_num=edition_num, page=page, sort=key) for
-                key in sorts.keys()}
+                             edition_num=edition_num, sort=key) for key in
+                sorts.keys()}
     next_page = (url_for('main.edition_annotations', text_url=text.url,
                          edition_num=edition.num, sort=sort,
                          page=annotations.next_num) if annotations.has_next else
