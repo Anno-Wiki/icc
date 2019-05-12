@@ -18,6 +18,17 @@
         return `{{ url_for('main.login') }}?next=${next}`;
     }
 
+    function vote(x, up) {
+        let entity = byID(x.dataset['parent']);
+        let xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+            let data = JSON.parse(this.responseText);
+            let weight = first(entity, 'weight');
+            if (data.status == 'login') {
+                location.href = loginNext(id, up);
+                return;
+            }
+    }
     function downvote(x) {
         let id = parentNumID(x, 'a').replace(/a/, '');
         let xhttp = new XMLHttpRequest();
@@ -40,7 +51,6 @@
                 modWeight(weight, data.change);
             flashMessages();
         }
-        let url = `{{ url_for('ajax.downvote_annotation') }}?id=${id}`
         xhttp.open('GET', url, true);
         xhttp.send();
     }
@@ -66,7 +76,6 @@
                 modWeight(weight, data.change);
             flashMessages();
         }
-        let url = `{{ url_for('ajax.upvote_annotation') }}?id=${id}`
         xhttp.open('GET', url, true);
         xhttp.send();
     }

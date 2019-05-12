@@ -205,6 +205,10 @@ class Comment(Base, VotableMixin):
         'Comment', remote_side='Comment.id', uselist=False,
         backref=backref('children', remote_side=[parent_id], lazy='dynamic'))
 
+    @property
+    def url(self):
+        return url_for('main.comments', annotation_id=self.annotation_id)
+
     def __repr__(self):
         return f'<Comment {self.id} on [{self.annotation_id}]>'
 

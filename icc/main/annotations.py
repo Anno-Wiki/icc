@@ -170,46 +170,6 @@ def flag_annotation(flag_id, annotation_id):
     return redirect(redirect_url)
 
 
-@main.route('/upvote/<annotation_id>')
-@login_required
-def upvote(annotation_id):
-    """Upvote an annotation."""
-    annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation_id))
-    vote = current_user.get_vote(annotation)
-    if not annotation.active:
-        flash("You cannot vote on deactivated annotations.")
-        return redirect(redirect_url)
-    elif vote:
-        diff = datetime.utcnow() - vote.timestamp
-        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
-            flash("Your vote is locked until the annotation is modified.")
-            return redirect(redirect_url)
-    annotation.upvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@main.route('/downvote/<annotation_id>')
-@login_required
-def downvote(annotation_id):
-    annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation_id))
-    vote = current_user.get_vote(annotation)
-    if not annotation.active:
-        flash("You cannot vote on deactivated annotations.")
-    elif vote:
-        diff = datetime.utcnow() - vote.timestamp
-        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
-            flash("Your vote is locked until the annotation is modified.")
-            return redirect(redirect_url)
-    annotation.downvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
 @main.route('/annotation/<annotation_id>/edit/history')
 def edit_history(annotation_id):
     default = 'num'
@@ -336,23 +296,3 @@ def reply(annotation_id, comment_id):
         return redirect(url_for('main.comments', annotation_id=annotation.id))
     return render_template('forms/reply.html', title="Reply", form=form,
                            comment=comment)
-
-@main.route('/annotation/<annotation_id>/comment/<comment_id>/upvote')
-@login_required
-def upvote_comment(annotation_id, comment_id):
-    redirect_url = generate_next(
-        url_for('main.comments', annotation_id=annotation_id))
-    comment = Comment.query.get_or_404(comment_id)
-    comment.upvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-@main.route('/annotation/<annotation_id>/comment/<comment_id>/downvote')
-@login_required
-def downvote_comment(annotation_id, comment_id):
-    redirect_url = generate_next(
-        url_for('main.comments', annotation_id=annotation_id))
-    comment = Comment.query.get_or_404(comment_id)
-    comment.downvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)

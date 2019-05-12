@@ -11,6 +11,13 @@ from icc import db
 from icc.search import add_to_index, remove_from_index, query_index
 
 
+def iff(a, b):
+    """Helper function for if and only if logic construction because I am a dork
+    for elegant code and logic.
+    """
+    return (a and b) or (not a and not b)
+
+
 class Base(db.Model):
     """This Base class does nothing. It is here in case I need to expand
     implement something later. I feel like it's a good early practice.
@@ -300,26 +307,32 @@ class VotableMixin:
         else:
             return f'{self.weight}'
 
-    def upvote(self, voter):
-        situ = []
+    def voteprep(self, up, voter):
+        status = {'success': False, 'rollback': False, 'status': None}
         if hasattr(self, 'approved') and (self.approved or self.rejected):
             flash("Voting is closed.")
-            situ.append('closed')
-            situ.append('failure')
-            return situ
+            status['status'] = 'closed'
+            return status
         reputable = getattr(self, self.__reputable__)
         if reputable == voter:
             flash("You cannot vote on your own submissions.")
-            situ.append('self-vote')
-            situ.append('failure')
-            return situ
+            status['status'] = 'self-vote'
+            return status
         ov = voter.get_vote(self)
         if ov:
             self.rollback(ov)
-            situ.append('rollback')
-            if ov.is_up:
-                situ.append('failure')
-                return situ
+            status['rollback'] = True
+            if (not (ov.is_up ^ up)):
+                # not ^ is if and only if
+                return status
+        status['success'] = True
+        return status
+
+    def upvote(self, voter):
+        status = self.voteprep(True, voter)
+        if not status['success']:
+            return status
+        reputable = getattr(self, self.__reputable__)
         repchange = reputable.repchange(f'{self.__class__.__name__}_upvote')
         weight = self.up_power(voter) if hasattr(self, 'up_power') else 1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
@@ -330,41 +343,24 @@ class VotableMixin:
                 (self.weight >= current_app.config[self.__margin_approvable__]
                  or voter.is_authorized(self.__approvable__))):
             self.approve()
-        situ.append('success')
-        return situ
+        return status
 
     def downvote(self, voter):
-        situ = []
-        if hasattr(self, 'approved') and (self.approved or self.rejected):
-            flash("Voting is closed.")
-            situ.append('failure')
-            situ.append('closed')
-            return situ
+        status = self.voteprep(False, voter)
+        if not status['success']:
+            return status
         reputable = getattr(self, self.__reputable__)
-        if reputable == voter:
-            flash("You cannot vote on your own submissions.")
-            situ.append('failure')
-            situ.append('self-vote')
-            return situ
-        ov = voter.get_vote(self)
-        if ov:
-            self.rollback(ov)
-            situ.append('rollback')
-            if not ov.is_up:
-                situ.append('failure')
-                return situ
         repchange = reputable.repchange(f'{self.__class__.__name__}_downvote')
         weight = self.down_power(voter) if hasattr(self, 'down_power') else -1
         vote = self.__vote__(voter=voter, entity=self, delta=weight,
                              repchange=repchange)
         self.weight += vote.delta
         db.session.add(vote)
-        if (hasattr(self, 'rejected') and
-                (self.weight <= current_app.config[self.__margin_rejectable__]
-                 or voter.is_authorized(self.__approvable__))):
+        if (hasattr(self, 'rejected')
+                and (self.weight <= current_app.config[self.__margin_rejectable__]
+                     or voter.is_authorized(self.__approvable__))):
             self.reject()
-        situ.append('success')
-        return situ
+        return status
 
     def rollback(self, vote):
         self.weight -= vote.delta

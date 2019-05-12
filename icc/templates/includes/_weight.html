@@ -1,4 +1,4 @@
 {# needs weight and readable_weight vars set #}
-<span class="weight {% if weight > 0 %}up{% elif weight == 0 %}nil{% else %}down{% endif %}">
-    {{ readable_weight }}
+<span class="weight {% if entity.weight > 0 %}up{% elif entity.weight == 0 %}nil{% else %}down{% endif %}">
+    {{ entity.readable_weight }}
 </span>

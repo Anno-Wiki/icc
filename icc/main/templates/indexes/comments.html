@@ -18,12 +18,9 @@
     {% for comment in comments %}
         <div id="c{{ comment.id }}" class="comment">
             <div class="header">
-                {% set weight, readable_weight = comment.weight, comment.readable_weight %}
+                {% set entity = comment %}
                 {% include "includes/_weight.html" %}
-                {% set vote = current_user.get_vote(comment) %}
-                {% set ident = comment.id %}
-                {% set upvote_url = url_for("main.upvote_comment", annotation_id=annotation.id, comment_id=comment.id, next=request.full_path) %}
-                {% set downvote_url = url_for("main.downvote_comment", annotation_id=annotation.id, comment_id=comment.id, next=request.full_path) %}
+                {% set prefix, ident = 'c', comment.id %}
                 {% include "includes/_vote.html" %}
                 <div>by <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">{{ comment.poster.displayname }}</a> {{ moment(comment.timestamp).fromNow() }}</div>
                 <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
@@ -36,12 +33,9 @@
             {% for reply in comment.children recursive %}
                 <div id="r{{ reply.id }}" class="reply">
                     <div class="header">
-                        {% set weight, readable_weight = reply.weight, reply.readable_weight %}
+                        {% set entity = reply %}
                         {% include "includes/_weight.html" %}
-                        {% set vote = current_user.get_vote(reply) %}
-                        {% set ident = reply.id %}
-                        {% set upvote_url = url_for("main.upvote_comment", annotation_id=annotation.id, comment_id=reply.id, next=request.full_path) %}
-                        {% set downvote_url = url_for("main.downvote_comment", annotation_id=annotation.id, comment_id=reply.id, next=request.full_path) %}
+                        {% set prefix, ident = 'r', reply.id %}
                         {% include "includes/_vote.html" %}
                         <div>by <a href="{{ url_for("user.profile", user_id=reply.poster.id) }}">{{ reply.poster.displayname }}</a> {{ moment(reply.timestamp).fromNow() }}</div>
                         <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>

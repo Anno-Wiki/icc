@@ -5,8 +5,8 @@ from datetime import datetime
 from flask import request, jsonify, current_app, get_flashed_messages, flash
 from flask_login import current_user, login_required
 
-from icc import db
-from icc.models.annotation import Tag, Annotation
+from icc import db, classes
+from icc.models.annotation import Tag
 from icc.models.content import Edition
 from icc.ajax import ajax
 
@@ -45,42 +45,33 @@ def flashed():
     return jsonify(messages)
 
 
-def vote(upvote):
-    """The actual voting method. Quite simple, really."""
-    annotation_id = request.args.get('id').strip('a')
+@ajax.route('/vote')
+def vote():
+    """All ajax voting routes in one!"""
+    entity_cls = classes.get(request.args.get('entity'), None)
+    entity_id = request.args.get('id').strip('[a-z]')
+    if not entity_cls:
+        return jsonify({'success': False, 'rollback': False,
+                        'status': 'not-a-thing'})
+    if not isinstance(entity_cls, classes['VotableMixin']):
+        return jsonify({'success': False, 'rollback': False,
+                        'status': 'not-votable'})
     if not current_user.is_authenticated:
         flash(f"You must login to vote.")
-        return jsonify({'situ': ['failure', 'login']})
-    annotation = Annotation.query.get_or_404(annotation_id)
-    original_weight = annotation.weight
-    vote = current_user.get_vote(annotation)
-    if not annotation.active:
+        return jsonify({'success': False, 'rollback': False, 'status': 'login'})
+    entity = entity_cls.query.get_or_404(entity_id)
+    original_weight = entity.weight
+    vote = current_user.get_vote(entity)
+    if isinstance(entity, classes['Annotation']) and not entity.active:
         flash("You cannot vote on deactivated annotations.")
-        return jsonify({'situ': ['deactivated', 'failure']})
-    elif vote:
-        diff = datetime.utcnow() - vote.timestamp
-        if diff.days > 0 and annotation.HEAD.timestamp < vote.timestamp:
-            flash("Your vote is locked until the annotation is modified.")
-            return jsonify({'situ': ['locked-in', 'failure']})
-    if upvote:
-        situ = annotation.upvote(current_user)
-    else:
-        situ = annotation.downvote(current_user)
+        return jsonify({'success': False, 'rollback': False,
+                        'status': 'deactivated'})
+    up = bool(request.args.get('up'))
+    status = (entity.upvote(current_user) if up else
+              annotation.downvote(current_user))
     db.session.commit()
-    new_weight = annotation.weight
-    return jsonify({'situ': situ, 'change': new_weight - original_weight})
-
-
-@ajax.route('/annotation/upvote')
-def upvote_annotation():
-    """Upvote ajax style. I really like how simple this is, lol."""
-    return vote(upvote=True)
-
-
-@ajax.route('/annotation/downvote')
-def downvote_annotation():
-    """Downvote ajax style."""
-    return vote(upvote=False)
+    new_weight = entity.weight
+    return jsonify(status)
 
 
 @ajax.route('edition/<edition_id>/line')
@@ -96,10 +87,8 @@ def line(edition_id):
                     'enum': line.primary.enum })
 
 
-
-
-
 server_start_time = time.time()
+
 
 @ajax.route('/heartbeat', methods=['GET'])
 def heartbeat():

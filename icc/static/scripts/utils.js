@@ -1,8 +1,8 @@
 function byID(id) { return document.getElementById(id); }
-function byCls (el, cl) { return el ? el.getElementsByClassName(cl) : [] }
-function byTag (el, tg) { return el ? el.getElementsByTagName(tg) : [] }
-function allof (cl) { return byCls(document, cl) }
-function atLoad(func) { document.addEventListener('DOMContentLoaded', func); }
+function byCls (el, cl) { return el ? el.getElementsByClassName(cl) : []; }
+function first(el, cl) { return byCls(el, cl)[0]; }
+function byTag (el, tg) { return el ? el.getElementsByTagName(tg) : []; }
+function allof (cl) { return byCls(document, cl); }
 function atload(func) { document.addEventListener('DOMContentLoaded', func); }
 
 function newEl(el, cl) {

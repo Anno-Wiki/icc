@@ -15,9 +15,9 @@ from collections import defaultdict
 
 from flask import (render_template, redirect, url_for, request, abort, g, flash,
                    current_app)
-from flask_login import current_user, logout_user, login_user
+from flask_login import current_user, logout_user, login_user, login_required
 
-from icc import db
+from icc import db, classes
 from icc.funky import line_check, generate_next
 from icc.main import main
 
@@ -319,3 +319,29 @@ def read(text_url, edition_num):
                            text=text, edition=edition, lines=lines,
                            section='.'.join(map(str, section)),
                            annotations_idx=annotations_idx)
+
+
+@main.route('/vote')
+@login_required
+def vote():
+    """This pretty much covers voting! Love it."""
+    entity_cls = classes.get(request.args.get('entity'), None)
+    entity_id = request.args.get('id').strip('[a-z]')
+    if not entity_cls:
+        abort(404)
+    if not issubclass(entity_cls, classes['VotableMixin']):
+        abort(501)
+    entity = entity_cls.query.get_or_404(entity_id)
+    redirect_url = generate_next(entity.url)
+    if isinstance(entity, classes['Annotation']) and not entity.active:
+        flash("You cannot vote on deactivated annotations.")
+        return redirect(redirect_url)
+
+    up = request.args.get('up')
+    up = True if up == 'True' else False
+    if up:
+        entity.upvote(current_user)
+    else:
+        entity.downvote(current_user)
+    db.session.commit()
+    return redirect(redirect_url)
