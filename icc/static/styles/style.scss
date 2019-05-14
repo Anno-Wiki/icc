@@ -448,3 +448,19 @@ hr {
     }
     .comment-body { padding: 1em; }
 }
+
+.events {
+    .event a {
+        font: {
+            family: $display;
+            size: 1.15em;
+        }
+
+        margin: 0.5em;
+        background-color: $lightbghl;
+        display: flex;
+        justify-content: space-between;
+        padding: 1em;
+    }
+}
+

@@ -795,4 +795,13 @@ hr {
   .comment .comment-body {
     padding: 1em; }
 
+.events .event a {
+  font-family: "Playfair Display", "Georgia", serif;
+  font-size: 1.15em;
+  margin: 0.5em;
+  background-color: #eee8d5;
+  display: flex;
+  justify-content: space-between;
+  padding: 1em; }
+
 /*# sourceMappingURL=style.css.map */

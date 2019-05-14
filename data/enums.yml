@@ -19,22 +19,29 @@ UserFlagEnum:
     - enum: hate speech
 ReputationEnum:
     - enum: Annotation_upvote
+      entity: AnnotationVote
       display: annotation upvote
       default_delta: 5
     - enum: Annotation_downvote
+      entity: AnnotationVote
       display: annotation downvote
       default_delta: -2
     - enum: Edit_approval
+      entity: EditVote
       display: edit approval
       default_delta: 2
     - enum: WikiEdit_approval
+      entity: WikiEditVote
+      display: wiki edit approval
       default_delta: 2
     - enum: Comment_upvote
-      default_delta: 1
+      entity: CommentVote
       display: comment upvote
+      default_delta: 1
     - enum: Comment_downvote
-      default_delta: -1
+      entity: CommentVote
       display: comment downvote
+      default_delta: -1
 AdminRight:
     - enum: anonymize_users
       min_rep: null

@@ -10,6 +10,7 @@ from hashlib import md5
 from flask import abort, url_for, current_app as app
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import orm
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -291,6 +292,7 @@ class ReputationEnum(Base, EnumMixin):
         say, the amount by which the event will change the user's reputation.
     """
     default_delta = db.Column(db.Integer, nullable=False)
+    entity = db.Column(db.String(128))
     display = db.Column(db.String(128))
 
 
@@ -327,6 +329,10 @@ class ReputationChange(Base):
     def __repr__(self):
         return (f'<rep change {self.type} on {self.user.displayname} '
                 f'{self.timestamp}>')
+
+    @orm.reconstructor
+    def __init_on_load__(self):
+        self.entity = getattr(self, self.enum.entity.lower(), None)
 
 
 class UserFlag(Base, FlagMixin):

@@ -1,11 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-{% for change in changes %}
-    <div>
-        {{ change.type }} {{ change.timestamp }} {{ change.delta }}
+    <div class="events">
+        {% for change in changes %}
+            <div class="event">
+                <a href="{{ change.entity.entity.url }}">
+                    <div class="type">
+                        {{ change.enum.display }}
+                    </div>
+                    <div class="time">
+                        {{ moment(change.timestamp).fromNow() }}
+                    </div>
+                    <div class="delta">
+                        {{ change.delta }}pt{% if change.delta > 1 or change.delta < -1 %}s{% endif %}.
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
     </div>
-{% endfor %}
-
 {% endblock %}

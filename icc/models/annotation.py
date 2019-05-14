@@ -666,6 +666,11 @@ class Edit(Base, EditMixin, VotableMixin):
             lines[-1].line = lines[-1].line[:self.last_char_idx]
         return lines
 
+    @property
+    def url(self):
+        return url_for('main.view_edit', annotation_id=self.annotation.id,
+                       num=self.num)
+
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
 classes['AnnotationFlagEnum'] = AnnotationFlag.enum_cls
