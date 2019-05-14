@@ -263,8 +263,7 @@ def comments(annotation_id):
     if form.validate_on_submit():
         if not current_user.is_authenticated:
             flash("You must be logged in to post a comment.")
-            return redirect(url_for('main.comments',
-                                    annotation_id=annotation.id))
+            return redirect(url_for('main.login', next=request.full_path))
         comment = Comment(annotation=annotation, body=form.comment.data,
                           poster=current_user)
         db.session.add(comment)
