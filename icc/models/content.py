@@ -279,7 +279,7 @@ class Edition(Base, FollowableMixin):
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """Creates a defaultdict of lists of writers based on their connection
         type (e.g., author, editor, translator, etc.)
         """
@@ -415,7 +415,7 @@ class Writer(Base, FollowableMixin, LinkableMixin):
         self.wiki = Wiki(body=description, entity_string=str(self))
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """Creates a dictionary mapping the writer's role to the editions."""
         self.works = defaultdict(list)
         for conn in self.connections.all():
@@ -461,7 +461,7 @@ class WriterConnection(Base):
         self.enum = WRITERS[self.enum_id]
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """Resolves the enum_id to the enum."""
         self.enum = WRITERS[self.enum_id]
 
@@ -586,7 +586,7 @@ class Line(SearchableMixin, Base):
         return tuple(i.num for i in self.attrs.values() if i.precedence > 0)
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """Resolves the em_id to the line's emphasis status."""
         self.emphasis = EMPHASIS[self.em_id]
         for attr in self.attrs.values():

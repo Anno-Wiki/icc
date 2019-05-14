@@ -621,7 +621,7 @@ class Edit(Base, EditMixin, VotableMixin):
         foreign_keys=[edition_id, first_line_num, last_line_num])
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """Create the hash_id that recognizes when an edit differs from it's
         previous version to prevent dupe edits.
         """
