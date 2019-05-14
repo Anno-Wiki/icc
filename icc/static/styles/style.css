@@ -231,84 +231,84 @@ nav {
       .search input {
         width: 13em; } }
 
-#text-content {
+.text-content, #text-content {
   margin: 0 auto;
   max-width: 40em; }
-  #text-content ::selection {
+  .text-content ::selection, #text-content ::selection {
     background-color: #eee8d5;
     color: #b58900; }
-  #text-content ::-moz-selection {
+  .text-content ::-moz-selection, #text-content ::-moz-selection {
     background-color: #eee8d5;
     color: #b58900; }
-  #text-content .backlight {
+  .text-content .backlight, #text-content .backlight {
     background-color: #eee8d5;
     padding: 1em;
     margin: 0 auto;
     box-shadow: 0.15em 0.15em 10px 10px #93a1a1; }
-    #text-content .backlight .selection .text {
+    .text-content .backlight .selection .text, #text-content .backlight .selection .text {
       background-color: #ddd7c4;
       padding: 0 0.1em 0 0.1em; }
-    #text-content .backlight .selection .line-num {
+    .text-content .backlight .selection .line-num, #text-content .backlight .selection .line-num {
       visibility: visible; }
-    #text-content .backlight .line-num {
+    .text-content .backlight .line-num, #text-content .backlight .line-num {
       visibility: hidden; }
-    #text-content .backlight .expander {
+    .text-content .backlight .expander, #text-content .backlight .expander {
       margin: 0.15em;
       text-align: center;
       font-family: "Helvetica", "Arial", sans-serif;
       font-size: 1.5em;
       color: #268bd2; }
-      #text-content .backlight .expander .uparr {
+      .text-content .backlight .expander .uparr, #text-content .backlight .expander .uparr {
         border-left: 0.5em solid transparent;
         border-right: 0.5em solid transparent;
         border-bottom: 1em solid #268bd2; }
-        #text-content .backlight .expander .uparr:hover {
+        .text-content .backlight .expander .uparr:hover, #text-content .backlight .expander .uparr:hover {
           border-bottom: 1em solid #b58900; }
-      #text-content .backlight .expander .downarr {
+      .text-content .backlight .expander .downarr, #text-content .backlight .expander .downarr {
         border-left: 0.5em solid transparent;
         border-right: 0.5em solid transparent;
         border-top: 1em solid #268bd2; }
-        #text-content .backlight .expander .downarr:hover {
+        .text-content .backlight .expander .downarr:hover, #text-content .backlight .expander .downarr:hover {
           border-top: 1em solid #b58900; }
-      #text-content .backlight .expander .uparr, #text-content .backlight .expander .downarr {
+      .text-content .backlight .expander .uparr, .text-content .backlight .expander .downarr, #text-content .backlight .expander .uparr, #text-content .backlight .expander .downarr {
         margin: 0 auto;
         width: 0;
         height: 0;
         cursor: pointer;
         overflow: hidden; }
-        #text-content .backlight .expander .uparr:hover, #text-content .backlight .expander .downarr:hover {
+        .text-content .backlight .expander .uparr:hover, .text-content .backlight .expander .downarr:hover, #text-content .backlight .expander .uparr:hover, #text-content .backlight .expander .downarr:hover {
           color: #b58900; }
-      #text-content .backlight .expander hr {
+      .text-content .backlight .expander hr, #text-content .backlight .expander hr {
         margin: 0 auto;
         max-width: 4em;
         border: 0;
         height: 1px;
         background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0)); }
-        #text-content .backlight .expander hr:after {
+        .text-content .backlight .expander hr:after, #text-content .backlight .expander hr:after {
           content: none; }
-  #text-content .annotation {
+  .text-content .annotation, #text-content .annotation {
     right: 2em;
     left: 2em;
     position: absolute;
     z-index: 100;
     width: inherit; }
-    #text-content .annotation a.collapse {
+    .text-content .annotation a.collapse, #text-content .annotation a.collapse {
       font-family: "Helvetica", "Arial", sans-serif;
       font-weight: bold;
       font-size: 1.5em; }
-      #text-content .annotation a.collapse:hover, #text-content .annotation a.collapse:focus {
+      .text-content .annotation a.collapse:hover, .text-content .annotation a.collapse:focus, #text-content .annotation a.collapse:hover, #text-content .annotation a.collapse:focus {
         color: #586e75; }
-  #text-content .break {
+  .text-content .break, #text-content .break {
     display: none;
     height: 1em; }
     @media only screen and (max-width: 800px) {
-      #text-content .break {
+      .text-content .break, #text-content .break {
         display: block; } }
-  #text-content .line {
+  .text-content .line, #text-content .line {
     display: flex;
     align-items: baseline;
     justify-content: flex-start; }
-    #text-content .line .line-num {
+    .text-content .line .line-num, #text-content .line .line-num {
       font-size: 0.75em;
       min-width: 3em;
       margin-right: 1em;
@@ -320,35 +320,35 @@ nav {
       -ms-user-select: none;
       user-select: none; }
       @media only screen and (max-width: 800px) {
-        #text-content .line .line-num {
+        .text-content .line .line-num, #text-content .line .line-num {
           display: none; } }
-      #text-content .line .line-num.hidden {
+      .text-content .line .line-num.hidden, #text-content .line .line-num.hidden {
         visibility: hidden; }
-    #text-content .line-annotations a {
+    .text-content .line-annotations a, #text-content .line-annotations a {
       color: #b58900; }
-    #text-content .line.fl {
+    .text-content .line.fl, #text-content .line.fl {
       margin-top: 1em; }
     @media only screen and (max-width: 800px) {
-      #text-content .line.fl, #text-content .line.l {
+      .text-content .line.fl, .text-content .line.l, #text-content .line.fl, #text-content .line.l {
         display: inline; } }
-    #text-content .line.lvl {
+    .text-content .line.lvl, #text-content .line.lvl {
       display: block !important; }
-      #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
+      .text-content .line.lvl1, .text-content .line.lvl2, .text-content .line.lvl3, .text-content .line.lvl4, .text-content .line.lvl5, #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
         margin-top: 1em; }
-        #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
+        .text-content .line.lvl1 span.line-num, .text-content .line.lvl2 span.line-num, .text-content .line.lvl3 span.line-num, .text-content .line.lvl4 span.line-num, .text-content .line.lvl5 span.line-num, #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
           visibility: hidden; }
-        #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
+        .text-content .line.lvl1 span.text, .text-content .line.lvl2 span.text, .text-content .line.lvl3 span.text, .text-content .line.lvl4 span.text, .text-content .line.lvl5 span.text, #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
           font-family: "Playfair Display", "Georgia", serif;
           margin-left: 1rem; }
-      #text-content .line.lvl5 span.text {
+      .text-content .line.lvl5 span.text, #text-content .line.lvl5 span.text {
         font-size: 1.0em; }
-      #text-content .line.lvl4 span.text {
+      .text-content .line.lvl4 span.text, #text-content .line.lvl4 span.text {
         font-size: 1.1em; }
-      #text-content .line.lvl3 span.text {
+      .text-content .line.lvl3 span.text, #text-content .line.lvl3 span.text {
         font-size: 1.2em; }
-      #text-content .line.lvl2 span.text {
+      .text-content .line.lvl2 span.text, #text-content .line.lvl2 span.text {
         font-size: 1.3em; }
-      #text-content .line.lvl1 span.text {
+      .text-content .line.lvl1 span.text, #text-content .line.lvl1 span.text {
         font-size: 2.0em; }
 
 @media only screen and (max-width: 940px) {

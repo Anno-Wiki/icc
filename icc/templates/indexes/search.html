@@ -2,8 +2,8 @@
 
 {% block content %}
     <h1>Search Results</h1>
-    <h2>{{ line_total }} lines</h2>
-    <div id='content'>
+    <h2>{{ line_total['value'] }} lines</h2>
+    <div id="content">
         {% for line in lines %}
             <h3>
                 Line
@@ -18,23 +18,20 @@
                 {% set writers = line.edition.writers['author'] %}
                 {% include "includes/_writers_list.html" %}
             </h3>
-            {% for l in line.context %}
-                <a href='{{ url_for('main.line_annotations',
-                    text_url=l.edition.text.url_name,
-                    edition_num=l.edition.num, line_num=l.num) }}'>
-                    <line class='{{ l.primary.enum }}' id='{{ l.num }}'>
-                        <div{% if l == line %} class='highlight'{% endif %}>
-                            <span{% if l == line %} class='linenum'{% else %}
-                                class='hidden_linenum'{% endif %}>{{ l.num
-                                }}</span>
-                                {{ l.line|safe }}
-                            <span class="body_annotation">
-                                &times; {{ l.annotations.count() }}
-                            </span>
-                        </div>
-                    </line>
-                </a>
-            {% endfor %}
+            <div class="text-content">
+                <div class="backlight">
+                    {% for l in line.context %}
+                        <a href='{{ url_for('main.line_annotations', text_url=l.edition.text.url_name, edition_num=l.edition.num, nums=l.num) }}'>
+                            <div class="line {{ l.primary.enum }}{% if l == line %} selection{% endif %}" id="{{ l.num }}">
+                                <span class="line-num">{{ l.num }}</span>
+                                <span class="text">{{ l.line|safe }}</span>
+                                <span class="annotation-count">&times; {{ l.annotations.count() }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
             <hr>
         {% endfor %}
     </div>

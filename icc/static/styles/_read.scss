@@ -1,5 +1,5 @@
 // Styling the read page (also any time text appears)
-#text-content {
+.text-content, #text-content {
     margin: 0 auto;
     max-width: 40em;
     ::selection { background-color: $base2; color: $yellow; }
