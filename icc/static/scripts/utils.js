@@ -4,6 +4,13 @@ function first(el, cl) { return byCls(el, cl)[0]; }
 function byTag (el, tg) { return el ? el.getElementsByTagName(tg) : []; }
 function allof (cl) { return byCls(document, cl); }
 function atload(func) { document.addEventListener('DOMContentLoaded', func); }
+function newel(el, attrs) {
+    // a new style new element method to be used in place of newEl
+    var el = document.createElement(el);
+    for (let k in attrs)
+        el[k] = attrs[k];
+    return el;
+}
 
 function newEl(el, cl) {
         var el = document.createElement(el);
