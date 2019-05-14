@@ -332,6 +332,9 @@ class ReputationChange(Base):
 
     @orm.reconstructor
     def __init_on_load__(self):
+        # this is cleaner than the entity population of the wiki system, but it
+        # relies on the existence of the enum to call on. Since that is
+        # necessary, wiki can't use the same method.
         self.entity = getattr(self, self.enum.entity.lower(), None)
 
 

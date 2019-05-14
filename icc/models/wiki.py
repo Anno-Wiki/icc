@@ -28,7 +28,7 @@ class Wiki(Base):
         passive_deletes=False)
 
     @orm.reconstructor
-    def init_on_load(self):
+    def __init_on_load__(self):
         """The primary purpose of this method is to load the entity reference.
         """
         # This is a hack and needs to be improved.
