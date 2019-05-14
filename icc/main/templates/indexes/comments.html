@@ -28,6 +28,9 @@
             <div class="comment-body">
                 {{ comment.body|proc_links|markdown }}
                 <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=comment.id) }}">reply</a>
+                {% if current_user.is_authorized('delete_comments') %}
+                    | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=comment.id) }}">delete</a>
+                {% endif %}
             </div>
 
             {% for reply in comment.children recursive %}
@@ -43,6 +46,9 @@
                     <div class="comment-body">
                         {{ reply.body|proc_links|markdown }}
                         <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=reply.id) }}">reply</a>
+                        {% if current_user.is_authorized('delete_comments') %}
+                            | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=reply.id) }}">delete</a>
+                        {% endif %}
                     </div>
                     {{ loop(reply.children) }}
                 </div>

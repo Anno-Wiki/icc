@@ -9,7 +9,7 @@ from icc.forms import AreYouSureForm
 from icc.funky import generate_next, authorize
 from icc.admin import admin
 
-from icc.models.annotation import Annotation, Edit, AnnotationFlag
+from icc.models.annotation import Annotation, Edit, AnnotationFlag, Comment
 from icc.models.content import Text, Edition
 from icc.models.user import User
 
@@ -292,3 +292,27 @@ def delete_annotation(annotation_id):
                            title=f"Delete [{annotation_id}]",
                            form=form,
                            text=text)
+
+@admin.route('/annotation/<annotation_id>/comment/<comment_id>', methods=['GET',
+                                                                          'POST'])
+@login_required
+@authorize('delete_comments')
+def delete_comment(annotation_id, comment_id):
+    """Delete a comment."""
+    form = AreYouSureForm()
+    comment = Comment.query.get_or_404(comment_id)
+    redirect_url = generate_next(comment.url)
+
+    if form.validate_on_submit():
+        comment.body = "[deleted]"
+        db.session.commit()
+        flash(f"Comment deleted.")
+        return redirect(redirect_url)
+    text = """This is to delete a comment. The only reason to delete a comment
+is if it is illegal content.
+
+It doesn't actually "delete" the comment, it just obliterates the content.
+    """
+    return render_template('forms/delete_check.html',
+                           title=f"Delete Comment {comment_id}",
+                           form=form, text=text)

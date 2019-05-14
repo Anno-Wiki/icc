@@ -92,3 +92,5 @@ AdminRight:
       min_rep: null
     - enum: view_deactivated_annotations
       min_rep: null
+    - enum: delete_comments
+      min_rep: null
