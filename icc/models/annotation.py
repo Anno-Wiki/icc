@@ -418,6 +418,9 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         primaryjoin='and_(Annotation.id==AnnotationFlag.annotation_id,'
         'AnnotationFlag.resolver_id==None)', passive_deletes=True)
 
+    def __str__(self):
+        return f'[{self.id}]'
+
     @property
     def url(self):
         return url_for('main.annotation', annotation_id=self.id)
