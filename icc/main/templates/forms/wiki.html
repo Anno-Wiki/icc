@@ -1,16 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     <h1>Edit Wiki for <a href="{{ wiki.entity.url }}">{{ wiki.entity }}</a></h1>
-
-    <script>
-        setInterval(function() {
-            let text = byID('wiki').value;
-
-
-    <div class="preview">
-    </div>
 
     <form class="body-form" action="" method="POST" novalidate>
         {{ form.csrf_token() }}
@@ -24,5 +15,4 @@
         {% endfor %}
         {{ form.submit }}
     </form>
-
 {% endblock %}
