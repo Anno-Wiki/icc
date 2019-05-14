@@ -4,6 +4,17 @@
         totalLines = {{ edition.lines.count() }};
         flInput = byID('first_line');
         llInput = byID('last_line');
+
+        // This is to override firefox's form caching, which wreaks havoc with
+        // my js script. Eventually I'll have to make this work even with the
+        // caching, but for now (and a while going forward) this is good enough.
+        let first_line = byID('first_line_cache');
+        let last_line = byID('last_line_cache');
+        if (first_line != null & last_line != null) {
+            flInput.value = first_line.innerHTML;
+            llInput.value = last_line.innerHTML;
+        }
+
         // hide the text line inputs because they ugly
         flInput.parentNode.style.display = 'none';
         llInput.parentNode.style.display = 'none';

@@ -23,6 +23,8 @@
             {% endfor %}
         </div>
     </div>
+    <div style="display:none;" id="first_line_cache">{{ lines[0].num }}</div>
+    <div style="display:none;" id="last_line_cache">{{ lines[-1].num }}</div>
 
     <form class="body-form body-form-annotation" action="" method="POST" novalidate>
         {{ form.csrf_token }}
