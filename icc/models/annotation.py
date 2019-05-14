@@ -139,6 +139,17 @@ class Tag(Base, FollowableMixin, LinkableMixin):
         return f'<div class="tag">{self.tag}</div>'
 
 
+class CommentFlag(Base, FlagMixin):
+    """A flag for a comment."""
+    entity_id = db.Column(db.Integer,
+                          db.ForeignKey('comment.id', ondelete='CASCADE'),
+                          index=True)
+    entity = db.relationship('Comment', backref=backref('flags', lazy='dynamic'))
+
+    def __repr__(self):
+        return (f'<CommentFlag on {self.entity_id} on'
+                f'[{self.entity.annotation.id}]>')
+
 class CommentVote(Base, VoteMixin):
     """A class that represents a vote on a comment."""
     entity_id = db.Column(db.Integer,
@@ -655,3 +666,4 @@ class Edit(Base, EditMixin, VotableMixin):
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
 classes['AnnotationFlagEnum'] = AnnotationFlag.enum_cls
+classes['CommentFlagEnum'] = CommentFlag.enum_cls

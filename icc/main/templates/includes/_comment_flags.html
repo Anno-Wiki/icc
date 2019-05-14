@@ -1,0 +1,8 @@
+<div class="dropdown">
+    <a class="dropbtn">flag&#x25be;</a>
+    <div class="dropdown-content">
+        {% for flag in flags %}
+            <a href="{{ url_for("main.flag_comment", flag_id=flag.id, annotation_id=annotation.id, comment_id=entity.id, next=request.full_path) }}">{{ flag.enum }}</a>
+        {% endfor %}
+    </div>
+</div>

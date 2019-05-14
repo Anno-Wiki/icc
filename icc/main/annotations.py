@@ -10,7 +10,8 @@ from flask_login import current_user, login_required
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import Annotation, Comment, Edit, Tag, AnnotationFlag
+from icc.models.annotation import (Annotation, Comment, Edit, Tag,
+                                   AnnotationFlag, CommentFlag)
 from icc.models.content import Text, Edition, Line
 from icc.models.user import User
 
@@ -159,14 +160,26 @@ def annotation(annotation_id):
 def flag_annotation(flag_id, annotation_id):
     """Flag an annotation."""
     annotation = Annotation.query.get_or_404(annotation_id)
-    redirect_url = generate_next(url_for('main.annotation',
-                                         annotation_id=annotation.id))
+    redirect_url = generate_next(annotation.url)
     if not annotation.active:
         current_user.authorize('view_deactivated_annotations')
     flag = AnnotationFlag.enum_cls.query.get_or_404(flag_id)
     AnnotationFlag.flag(annotation, flag, current_user)
     db.session.commit()
     flash(f"Annotation {annotation.id} flagged \"{flag.enum}\"")
+    return redirect(redirect_url)
+
+
+@main.route('/annotation/<annotation_id>/comment/<comment_id>/flag/<flag_id>')
+@login_required
+def flag_comment(annotation_id, comment_id, flag_id):
+    """Flag an annotation."""
+    comment = Comment.query.get_or_404(comment_id)
+    redirect_url = generate_next(comment.url)
+    flag = CommentFlag.enum_cls.query.get_or_404(flag_id)
+    CommentFlag.flag(comment, flag, current_user)
+    db.session.commit()
+    flash(f"Comment {comment.id} flagged \"{flag.enum}\"")
     return redirect(redirect_url)
 
 
@@ -273,6 +286,7 @@ def comments(annotation_id):
 
     return render_template('indexes/comments.html',
                            title=f"[{annotation.id}] comments", form=form,
+                           flags=CommentFlag.enum_cls.query.all(),
                            annotation=annotation, comments=comments.items)
 
 

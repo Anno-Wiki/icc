@@ -2,9 +2,7 @@
     <a class="dropbtn">flag&#x25be;</a>
     <div class="dropdown-content">
         {% for annotationflag in g.aflags %}
-            <a href="{{ url_for("main.flag_annotation",
-                flag_id=annotationflag.id, annotation_id=annotation.id,
-                next=request.full_path) }}">{{ annotationflag.enum }}</a>
+            <a href="{{ url_for("main.flag_annotation", flag_id=annotationflag.id, annotation_id=annotation.id, next=request.full_path) }}">{{ annotationflag.enum }}</a>
         {% endfor %}
     </div>
 </div>

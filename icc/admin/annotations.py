@@ -144,7 +144,6 @@ def all_annotation_flags():
                 sorts.keys()}
     next_page = url_for('admin.all_annotation_flags', page=flags.next_num,
                         sort=sort) if flags.has_next else None
-
     prev_page = url_for('admin.all_annotation_flags', page=flags.prev_num,
                         sort=sort) if flags.has_prev else None
     return render_template('indexes/all_annotation_flags.html',

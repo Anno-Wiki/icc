@@ -4,6 +4,14 @@ AnnotationFlagEnum:
     - enum: superfluous
     - enum: unhelpful
     - enum: offensive
+    - enum: illegal
+CommentFlagEnum:
+    - enum: spam
+    - enum: innappropriate language
+    - enum: superfluous
+    - enum: unhelpful
+    - enum: offensive
+    - enum: illegal
 UserFlagEnum:
     - enum: innappropriate behavior
     - enum: bot

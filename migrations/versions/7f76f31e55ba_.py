@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f4ff8f21e7e5
+Revision ID: 7f76f31e55ba
 Revises: 
-Create Date: 2019-05-11 15:14:26.350393
+Create Date: 2019-05-14 14:15:10.242299
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f4ff8f21e7e5'
+revision = '7f76f31e55ba'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,6 +31,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_annotationflagenum_enum'), 'annotationflagenum', ['enum'], unique=False)
+    op.create_table('commentflagenum',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('enum', sa.String(length=128), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_commentflagenum_enum'), 'commentflagenum', ['enum'], unique=False)
     op.create_table('lineenum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
@@ -430,6 +436,24 @@ def upgrade():
     op.create_index(op.f('ix_lineattribute_line_id'), 'lineattribute', ['line_id'], unique=False)
     op.create_index(op.f('ix_lineattribute_precedence'), 'lineattribute', ['precedence'], unique=False)
     op.create_index(op.f('ix_lineattribute_primary'), 'lineattribute', ['primary'], unique=False)
+    op.create_table('commentflag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('entity_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
+    sa.Column('thrower_id', sa.Integer(), nullable=True),
+    sa.Column('resolver_id', sa.Integer(), nullable=True),
+    sa.Column('time_thrown', sa.DateTime(), nullable=True),
+    sa.Column('time_resolved', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['enum_id'], ['commentflagenum.id'], ),
+    sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_commentflag_entity_id'), 'commentflag', ['entity_id'], unique=False)
+    op.create_index(op.f('ix_commentflag_enum_id'), 'commentflag', ['enum_id'], unique=False)
+    op.create_index(op.f('ix_commentflag_resolver_id'), 'commentflag', ['resolver_id'], unique=False)
+    op.create_index(op.f('ix_commentflag_thrower_id'), 'commentflag', ['thrower_id'], unique=False)
     op.create_table('commentvote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=True),
@@ -472,6 +496,11 @@ def downgrade():
     op.drop_table('editvote')
     op.drop_index(op.f('ix_commentvote_entity_id'), table_name='commentvote')
     op.drop_table('commentvote')
+    op.drop_index(op.f('ix_commentflag_thrower_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_resolver_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_enum_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_entity_id'), table_name='commentflag')
+    op.drop_table('commentflag')
     op.drop_index(op.f('ix_lineattribute_primary'), table_name='lineattribute')
     op.drop_index(op.f('ix_lineattribute_precedence'), table_name='lineattribute')
     op.drop_index(op.f('ix_lineattribute_line_id'), table_name='lineattribute')
@@ -568,6 +597,8 @@ def downgrade():
     op.drop_table('reputationenum')
     op.drop_index(op.f('ix_lineenum_enum'), table_name='lineenum')
     op.drop_table('lineenum')
+    op.drop_index(op.f('ix_commentflagenum_enum'), table_name='commentflagenum')
+    op.drop_table('commentflagenum')
     op.drop_index(op.f('ix_annotationflagenum_enum'), table_name='annotationflagenum')
     op.drop_table('annotationflagenum')
     op.drop_index(op.f('ix_adminright_enum'), table_name='adminright')
