@@ -30,7 +30,6 @@
         let xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             let data = JSON.parse(this.responseText);
-            console.log(this.responseText);
             let weight = first(entity, 'weight');
             if (data.status == 'login') {
                 location.href = loginNext(x.dataset.parent, x.dataset.entity, up);

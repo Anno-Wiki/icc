@@ -1,4 +1,4 @@
-{# requires ident (entity id), upvote_url, downvote_url, and vote #}
+{# requires prefix, ident, and entity #}
 {% set vote = current_user.get_vote(entity) %}
 <div class="arrows">
     <div>
