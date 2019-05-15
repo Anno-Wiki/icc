@@ -17,7 +17,7 @@
             container = newEl("ul", "flash js");
             let par = byID("container");
             par.insertBefore(container, par.childNodes[0]);
-            let li = newFlash(message[0], messages[1]);
+            let li = newFlash(message[0], message[1]);
             container.appendChild(li);
         }
     }
