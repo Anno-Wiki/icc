@@ -1,0 +1,7 @@
+<a href="{{ first_line.url }}#{{ first_line.num }}">
+    {%- if first_line.num == last_line.num %}
+        <em>l.{{ last_line.num }}</em>
+    {% else -%}
+        <em>ll.{{ first_line.num }}-{{ last_line.num }}</em>
+    {% endif -%}
+</a>

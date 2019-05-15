@@ -79,6 +79,12 @@
     }
     &-collapsible { padding: 1em; }
     &-body {
+        .delta, .plus {
+            color: $base2;
+            p { padding: 0.15rem; }
+        }
+        .plus p { background-color: $green; }
+        .delta p { background-color: $red; }
         .cutoff {
             p:last-of-type::after { content: "..." }
             a:last-of-type {

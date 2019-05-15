@@ -27,19 +27,10 @@ def edit_review_queue():
 
     sorts = {
         'voted': Edit.query.outerjoin(EditVote).order_by(EditVote.delta.desc()),
-        'voted_invert': (Edit.query.outerjoin(EditVote)
-                         .order_by(EditVote.delta.asc())),
-        'id': Edit.query.join(Annotation).order_by(Annotation.id.asc()),
-        'id_invert': Edit.query.join(Annotation).order_by(Annotation.id.desc()),
-        'edit_num': Edit.query.order_by(Edit.num.asc()),
-        'edit_num_invert': Edit.query.order_by(Edit.num.desc()),
+        'annotation': Edit.query.join(Annotation).order_by(Annotation.id.asc()),
+        'number': Edit.query.order_by(Edit.num.asc()),
         'editor': Edit.query.join(User).order_by(User.displayname.asc()),
-        'editor_invert': (Edit.query.join(User)
-                          .order_by(User.displayname.desc())),
         'time': Edit.query.order_by(Edit.timestamp.asc()),
-        'time_invert': Edit.query.order_by(Edit.timestamp.desc()),
-        'reason': Edit.query.order_by(Edit.reason.asc()),
-        'reason_invert': Edit.query.order_by(Edit.reason.desc())
     }
 
     sort = sort if sort in sorts else default
@@ -70,8 +61,7 @@ def review_edit(annotation_id, edit_id):
     """Review an edit. This, with the queue, are the chief moderation routes."""
     edit = Edit.query.get_or_404(edit_id)
     if edit.approved == True:
-        return redirect(url_for('main.view_edit',
-                                annotation_id=edit.annotation.id, num=edit.num))
+        return redirect(edit.url)
     if not edit.annotation.active:
         current_user.authorize('review_deactivated_annotation_edits')
 
@@ -102,32 +92,6 @@ def review_edit(annotation_id, edit_id):
     return render_template('view/edit_review.html',
                            title=f"[{edit.annotation.id}] Edit #{edit.num}",
                            diff=diff, edit=edit, tags=tags, context=context)
-
-
-@admin.route('/annotation/<annotation_id>/edit/<edit_id>/upvote')
-@login_required
-@authorize('review_edits')
-def upvote_edit(annotation_id, edit_id):
-    """Upvote an edit."""
-    edit = Edit.query.get_or_404(edit_id)
-    if not edit.annotation.active:
-        current_user.authorize('review_deactivated_annotation_edits')
-    edit.upvote(current_user)
-    db.session.commit()
-    return redirect(url_for('admin.edit_review_queue'))
-
-
-@admin.route('/annotation/<annotation_id>/edit/<edit_id>/downvote')
-@login_required
-@authorize('review_edits')
-def downvote_edit(annotation_id, edit_id):
-    """Downvote an edit."""
-    edit = Edit.query.get_or_404(edit_id)
-    if not edit.annotation.active:
-        current_user.authorize('review_deactivated_annotation_edits')
-    edit.downvote(current_user)
-    db.session.commit()
-    return redirect(url_for('admin.edit_review_queue'))
 
 
 @admin.route('/edit/<edit_id>/delete/', methods=['GET', 'POST'])

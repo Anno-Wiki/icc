@@ -217,8 +217,6 @@ a {
 .toolbar {
     display: flex;
     .tools {
-        //background-color: $darkbg;
-        //border-radius: $bevel+10px;
         margin: 0 auto;
         a {
             font-family: $display;
@@ -226,6 +224,7 @@ a {
             &.dropbtn { font-family: $display; }
         }
         padding: 0.25em;
+
     }
 }
 
@@ -370,6 +369,7 @@ ul.flash {
     }
 }
 
+
 hr {
     overflow: visible; /* For IE */
     max-width: 50em;
@@ -390,6 +390,7 @@ hr {
         color: $accent;
     }
 }
+
 
 .comment {
     background-color: $lightbghl;
@@ -420,47 +421,55 @@ hr {
                 color: $accent;
             }
         }
-        .arrows {
-            margin: 0 0.25em 0 0.25em;
-            display: inline-block;
-            font-size: 0.85em;
-            vertical-align: -30%;
-            div {
-                margin: -0.5em 0 -0.5em 0; // squish them together
-                .up { color: $accent; }
-                .down { color: $red; }
-            }
-        }
-        .weight {
-            border: 1px solid;
-            padding: 0 0.2em 0 0.2em;
-            font-family: $serifs;
-            width: max-content;
-            &.up {
-                color: $accent;
-                border-color: $accent;
-            }
-            &.down {
-                color: $red;
-                border-color: $red;
-            }
-        }
     }
     .comment-body { padding: 1em; }
 }
 
+
+.weightvote {
+    font-size: 2em;
+    .arrows {
+        display: inline-block;
+        vertical-align: -35%;
+        div {
+            padding: 0;
+            margin: -0.5rem 0.5rem -0.5rem 0.5rem;
+            .up { color: $accent; }
+            .down { color: $red; }
+            a { padding: 0 !important; }
+        }
+    }
+    .weight {
+        border: 1px solid;
+        padding: 0 0.1em 0 0.2em;
+        font-family: $serifs;
+        width: max-content;
+        &.up {
+            color: $accent;
+            border-color: $accent;
+        }
+        &.down {
+            color: $red;
+            border-color: $red;
+        }
+    }
+}
+
 .events {
+    .header, .event a {
+        margin: 0.5em;
+        display: flex;
+        justify-content: space-between;
+        padding: 1em;
+    }
+
     .event a {
         font: {
             family: $display;
             size: 1.15em;
         }
 
-        margin: 0.5em;
         background-color: $lightbghl;
-        display: flex;
-        justify-content: space-between;
-        padding: 1em;
     }
 }
 

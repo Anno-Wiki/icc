@@ -337,6 +337,12 @@ def vote():
     if isinstance(entity, classes['Annotation']) and not entity.active:
         flash("You cannot vote on deactivated annotations.")
         return redirect(redirect_url)
+    if isinstance(entity, classes['Edit'])\
+            and not entity.annotation.active\
+            and not current_user.is_authorized(
+                'review_deactivated_annotation_edits'):
+            flash("You cannot vote on deactivated annotations edits.")
+            return redirect(redirect_url)
     up = True if request.args.get('up').lower() == 'true' else False
     if up:
         entity.upvote(current_user)

@@ -1,63 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>Pending Edit Review Queue</h1>
+    {% include "includes/_sorts.html" %}
 
-{% set header = [
-    ('voted',       'Voted? &#9662;',       'voted_invert',     'Voted? &#9652;'),
-    ('id',          'Annotation &#9662;',   'id_invert',        'Annotation &#9652;'),
-    ('edit_num',    'Edit # &#9662;',       'edit_num_invert',  'Edit # &#9652;'),
-    ('editor',      'Editor &#9662;',       'editor_invert',    'Editor &#9652;'),
-    ('time',        'Time &#9662;',         'time_invert',      'Time &#9652;'),
-    ('reason',      'Reason &#9662;',       'reason_invert',    'Reason &#9652;'),
-    ]
-%}
-<h1>Pending Edit Review Queue</h1>
-<table class="inbox">
-    {% include "includes/_table_header.html" %}
     {% if edits %}
-        {% for edit in edits %}
-            {% set vote = current_user.get_vote(edit) %}
-            <tr{% if vote %} class="read"{% else %} class="unread"{% endif %}>
-                <td>
-                    {# voted #}
-                    <a href="{{ url_for("admin.review_edit",
-                        annotation_id=edit.annotation.id, edit_id=edit.id)
-                        }}">{% if vote %}&#10003;{% else %}review{% endif %}</a>
-                </td>
-                <td>
-                    {# annotation id #}
-                    <a href="{{ url_for("main.annotation",
-                        annotation_id=edit.annotation.id) }}">[{{
-                        edit.annotation.id }}]</a>
-                </td>
-                <td>
-                    {# edit number #}
-                    <a href="{{ url_for("admin.review_edit",
-                        annotation_id=edit.annotation.id, edit_id=edit.id)
-                        }}">#{{ edit.num }}</a>
-                </td>
-                <td>
-                    {# editor #}
-                    <a href="{{ url_for("user.profile", user_id=edit.editor_id)
-                        }}">{{ edit.editor.displayname }}</a>
-                </td>
-                <td>
-                    {# timestamp #}
-                    {{ edit.timestamp }}
-                </td>
-                <td>
-                    {# reason #}
-                    {{ edit.reason }}
-                </td>
-            </tr>
-        {% endfor %}
+        <div class="events">
+            {% for edit in edits %}
+                <div class="event">
+                    <a href="{{ edit.url }}">
+                        <div class="annotation-num">
+                            edit #{{ edit.num }} on {{ edit.annotation }}
+                        </div>
+                        <div class="vote-status">
+                            {% set vote = current_user.get_vote(edit) %}
+                            {% if vote %}
+                                {% if vote.is_up %}
+                                you upvoted it
+                                {% else %}
+                                you downvoted it
+                                {% endif %}
+                            {% else %}
+                                you haven't voted
+                            {% endif %}
+                        </div>
+                        <div class="weight">
+                            {{ edit.weight }} votes
+                        </div>
+                        <div class="editor">
+                            edited by {{ edit.editor.displayname }}
+                            {% set timestamp = edit.timestamp %}
+                            {% include "includes/_timestamp.html" %}
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <tr class="read">
-            <td colspan=6>
-                This queue has been cleared.
-            </td>
-        </tr>
+        <h2>This queue has been cleared.</h3>
     {% endif %}
-</table>
 
 {% endblock %}

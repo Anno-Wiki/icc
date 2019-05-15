@@ -8,16 +8,32 @@
     .backlight {
         background-color: $lightbghl;
         padding: 1em;
-        margin: 0 auto;
+        margin: 2em auto;
         box-shadow: 0.15em 0.15em 10px 10px $base1;
-        .selection {
-            .text {
-                background-color: $base2-1;
-                padding: 0 0.1em 0 0.1em;
-            }
+        .selection, .plus, .delta {
             .line-num { visibility: visible; }
+            .text { padding: 0 0.2em 0 0.1em; }
         }
+        .selection .text {
+            background-color: $base2-1;
+        }
+        .delta {
+            .text {
+                background-color: $red;
+                color: $base2;
+            }
+            .line-num { color: $red; }
+        }
+        .plus {
+            .text {
+                background-color: $green;
+                color: $base2;
+            }
+            .line-num { color: $green; }
+        }
+
         .line-num { visibility: hidden; }
+
         .expander {
             margin: 0.15em;
             text-align: center;

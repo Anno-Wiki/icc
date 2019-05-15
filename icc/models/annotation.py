@@ -668,8 +668,12 @@ class Edit(Base, EditMixin, VotableMixin):
 
     @property
     def url(self):
-        return url_for('main.view_edit', annotation_id=self.annotation.id,
-                       num=self.num)
+        if self.approved:
+            return url_for('main.view_edit', annotation_id=self.annotation.id,
+                           num=self.num)
+        else:
+            return url_for('admin.review_edit',
+                           annotation_id=self.annotation.id, edit_id=self.id)
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

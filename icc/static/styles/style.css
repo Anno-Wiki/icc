@@ -61,6 +61,14 @@
           color: #dc322f; }
   .annotation-collapsible {
     padding: 1em; }
+  .annotation-body .delta, .annotation-body .plus {
+    color: #eee8d5; }
+    .annotation-body .delta p, .annotation-body .plus p {
+      padding: 0.15rem; }
+  .annotation-body .plus p {
+    background-color: #859900; }
+  .annotation-body .delta p {
+    background-color: #dc322f; }
   .annotation-body .cutoff p:last-of-type::after {
     content: "..."; }
   .annotation-body .cutoff a:last-of-type {
@@ -98,6 +106,12 @@
     border-radius: 30px;
     font-size: 1.25em;
     margin: 1em; }
+  .tag.plus, .tag.delta {
+    color: #eee8d5; }
+  .tag.plus {
+    background-color: #859900; }
+  .tag.delta {
+    background-color: #dc322f; }
 
 .toc {
   margin: 1em auto;
@@ -243,13 +257,24 @@ nav {
   .text-content .backlight, #text-content .backlight {
     background-color: #eee8d5;
     padding: 1em;
-    margin: 0 auto;
+    margin: 2em auto;
     box-shadow: 0.15em 0.15em 10px 10px #93a1a1; }
-    .text-content .backlight .selection .text, #text-content .backlight .selection .text {
-      background-color: #ddd7c4;
-      padding: 0 0.1em 0 0.1em; }
-    .text-content .backlight .selection .line-num, #text-content .backlight .selection .line-num {
+    .text-content .backlight .selection .line-num, .text-content .backlight .plus .line-num, .text-content .backlight .delta .line-num, #text-content .backlight .selection .line-num, #text-content .backlight .plus .line-num, #text-content .backlight .delta .line-num {
       visibility: visible; }
+    .text-content .backlight .selection .text, .text-content .backlight .plus .text, .text-content .backlight .delta .text, #text-content .backlight .selection .text, #text-content .backlight .plus .text, #text-content .backlight .delta .text {
+      padding: 0 0.2em 0 0.1em; }
+    .text-content .backlight .selection .text, #text-content .backlight .selection .text {
+      background-color: #ddd7c4; }
+    .text-content .backlight .delta .text, #text-content .backlight .delta .text {
+      background-color: #dc322f;
+      color: #eee8d5; }
+    .text-content .backlight .delta .line-num, #text-content .backlight .delta .line-num {
+      color: #dc322f; }
+    .text-content .backlight .plus .text, #text-content .backlight .plus .text {
+      background-color: #859900;
+      color: #eee8d5; }
+    .text-content .backlight .plus .line-num, #text-content .backlight .plus .line-num {
+      color: #859900; }
     .text-content .backlight .line-num, #text-content .backlight .line-num {
       visibility: hidden; }
     .text-content .backlight .expander, #text-content .backlight .expander {
@@ -770,38 +795,43 @@ hr {
       transition: 0.3s; }
       .comment .header .collapse:hover {
         color: #b58900; }
-    .comment .header .arrows {
-      margin: 0 0.25em 0 0.25em;
-      display: inline-block;
-      font-size: 0.85em;
-      vertical-align: -30%; }
-      .comment .header .arrows div {
-        margin: -0.5em 0 -0.5em 0; }
-        .comment .header .arrows div .up {
-          color: #b58900; }
-        .comment .header .arrows div .down {
-          color: #dc322f; }
-    .comment .header .weight {
-      border: 1px solid;
-      padding: 0 0.2em 0 0.2em;
-      font-family: "EB Garamond", "Georgia", serif;
-      width: max-content; }
-      .comment .header .weight.up {
-        color: #b58900;
-        border-color: #b58900; }
-      .comment .header .weight.down {
-        color: #dc322f;
-        border-color: #dc322f; }
   .comment .comment-body {
     padding: 1em; }
 
-.events .event a {
-  font-family: "Playfair Display", "Georgia", serif;
-  font-size: 1.15em;
+.weightvote {
+  font-size: 2em; }
+  .weightvote .arrows {
+    display: inline-block;
+    vertical-align: -35%; }
+    .weightvote .arrows div {
+      padding: 0;
+      margin: -0.5rem 0.5rem -0.5rem 0.5rem; }
+      .weightvote .arrows div .up {
+        color: #b58900; }
+      .weightvote .arrows div .down {
+        color: #dc322f; }
+      .weightvote .arrows div a {
+        padding: 0 !important; }
+  .weightvote .weight {
+    border: 1px solid;
+    padding: 0 0.1em 0 0.2em;
+    font-family: "EB Garamond", "Georgia", serif;
+    width: max-content; }
+    .weightvote .weight.up {
+      color: #b58900;
+      border-color: #b58900; }
+    .weightvote .weight.down {
+      color: #dc322f;
+      border-color: #dc322f; }
+
+.events .header, .events .event a {
   margin: 0.5em;
-  background-color: #eee8d5;
   display: flex;
   justify-content: space-between;
   padding: 1em; }
+.events .event a {
+  font-family: "Playfair Display", "Georgia", serif;
+  font-size: 1.15em;
+  background-color: #eee8d5; }
 
 /*# sourceMappingURL=style.css.map */
