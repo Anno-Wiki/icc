@@ -789,7 +789,8 @@ hr {
     padding: 0.5em;
     background-color: #002b36;
     border-radius: 20px;
-    font-family: "Playfair Display", "Georgia", serif; }
+    font-family: "Playfair Display", "Georgia", serif;
+    align-items: center; }
     .comment .header .collapse {
       margin-left: auto;
       transition: 0.3s; }
@@ -799,7 +800,12 @@ hr {
     padding: 1em; }
 
 .weightvote {
-  font-size: 2em; }
+  font-size: 2rem; }
+  .weightvote.small {
+    font-size: 1rem; }
+    @media only screen and (max-width: 750px) {
+      .weightvote.small {
+        font-size: 2rem; } }
   .weightvote .arrows {
     display: inline-block;
     vertical-align: -35%; }

@@ -2,61 +2,64 @@
 
 {% block content %}
 
-{% include "includes/js/_collapse_script.js" %}
-{% include "includes/_vote.js" %}
-{% include "includes/_annotation_standalone.html" %}
-<form class="body-form" action="" method="POST" novalidate>
-    <h3>Post a Thread</h3>
-    {{ form.hidden_tag() }}
-    {{ form.comment }}
-    <br>
-    {{ form.submit }}
-</form>
+    {% include "includes/js/_collapse_script.js" %}
+    {% include "includes/_vote.js" %}
+    {% include "includes/_annotation_standalone.html" %}
+    <form class="body-form" action="" method="POST" novalidate>
+        <h3>Post a Thread</h3>
+        {{ form.hidden_tag() }}
+        {{ form.comment }}
+        <br>
+        {{ form.submit }}
+    </form>
 
-{% include "includes/js/_collapse_comments.js" %}
-<div id="discussion">
-    {% for comment in comments %}
-        <div id="c{{ comment.id }}" class="comment">
-            <div class="header">
-                {% set entity = comment %}
-                {% include "includes/_weight.html" %}
-                {% set prefix, ident = 'c', comment.id %}
-                {% include "includes/_vote.html" %}
-                <div>by <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">{{ comment.poster.displayname }}</a> {{ moment(comment.timestamp).fromNow() }}</div>
-                <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
-            </div>
-            <div class="comment-body">
-                {{ comment.body|proc_links|markdown }}
-                <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=comment.id) }}">reply</a> |
-                {% include "includes/_comment_flags.html" %}
-                {% if current_user.is_authorized('delete_comments') %}
-                    | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=comment.id) }}">delete</a>
-                {% endif %}
-            </div>
-
-            {% for reply in comment.children recursive %}
-                <div id="r{{ reply.id }}" class="reply">
-                    <div class="header">
-                        {% set entity = reply %}
+    {% include "includes/js/_collapse_comments.js" %}
+    <div id="discussion">
+        {% for comment in comments %}
+            <div id="c{{ comment.id }}" class="comment">
+                <div class="header">
+                    <div class="weightvote small">
+                        {% set entity = comment %}
                         {% include "includes/_weight.html" %}
-                        {% set prefix, ident = 'r', reply.id %}
+                        {% set prefix, ident = 'c', comment.id %}
                         {% include "includes/_vote.html" %}
-                        <div>by <a href="{{ url_for("user.profile", user_id=reply.poster.id) }}">{{ reply.poster.displayname }}</a> {{ moment(reply.timestamp).fromNow() }}</div>
-                        <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
                     </div>
-                    <div class="comment-body">
-                        {{ reply.body|proc_links|markdown }}
-                        <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=reply.id) }}">reply</a> |
-                        {% include "includes/_comment_flags.html" %}
-                        {% if current_user.is_authorized('delete_comments') %}
-                            | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=reply.id) }}">delete</a>
-                        {% endif %}
-                    </div>
-                    {{ loop(reply.children) }}
+                    <div>by <a href="{{ url_for("user.profile", user_id=comment.poster.id) }}">{{ comment.poster.displayname }}</a> {{ moment(comment.timestamp).fromNow() }}</div>
+                    <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
                 </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-</div>
+                <div class="comment-body">
+                    {{ comment.body|proc_links|markdown }}
+                    <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=comment.id) }}">reply</a> |
+                    {% include "includes/_comment_flags.html" %}
+                    {% if current_user.is_authorized('delete_comments') %}
+                        | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=comment.id) }}">delete</a>
+                    {% endif %}
+                </div>
 
+                {% for reply in comment.children recursive %}
+                    <div id="r{{ reply.id }}" class="reply">
+                        <div class="header">
+                            <div class="weightvote small">
+                                {% set entity = reply %}
+                                {% include "includes/_weight.html" %}
+                                {% set prefix, ident = 'r', reply.id %}
+                                {% include "includes/_vote.html" %}
+                            </div>
+                            <div>by <a href="{{ url_for("user.profile", user_id=reply.poster.id) }}">{{ reply.poster.displayname }}</a> {{ moment(reply.timestamp).fromNow() }}</div>
+                            <span data-count="{{ comment.children.count() }}" class="collapse" onclick="collapseThread(this);">[ - ]</span>
+                        </div>
+                        <div class="comment-body">
+                            {{ reply.body|proc_links|markdown }}
+                            <a href="{{ url_for("main.reply", annotation_id=annotation.id, comment_id=reply.id) }}">reply</a> |
+                            {% include "includes/_comment_flags.html" %}
+                            {% if current_user.is_authorized('delete_comments') %}
+                                | <a href="{{ url_for("admin.delete_comment", annotation_id=annotation.id, comment_id=reply.id) }}">delete</a>
+                            {% endif %}
+                        </div>
+                        {{ loop(reply.children) }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
