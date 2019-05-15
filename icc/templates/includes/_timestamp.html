@@ -1,0 +1,5 @@
+{% if utcnow().day - timestamp.day > 7 %}
+    {{ moment(timestamp).format(mmt_fmt) }}
+{% else %}
+    {{ moment(timestamp).fromNow() }}
+{% endif %}

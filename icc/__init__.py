@@ -82,8 +82,12 @@ def create_app(config_class=Config):
     app.jinja_env.globals['len'] = len
     app.jinja_env.globals['zip'] = zip
     app.jinja_env.globals['enumerate'] = enumerate
+    app.jinja_env.globals['mmt_fmt'] = 'MMM Do YY'
+    from datetime import datetime
+    app.jinja_env.globals['utcnow'] = datetime.utcnow
     from icc.funky import proc_links
     app.jinja_env.filters['proc_links'] = proc_links
+
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.auto_reload = True

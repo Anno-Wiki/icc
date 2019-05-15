@@ -9,7 +9,8 @@
                         {{ change.enum.display }}
                     </div>
                     <div class="time">
-                        {{ moment(change.timestamp).fromNow() }}
+                        {% set timestamp = change.timestamp %}
+                        {% include "includes/_timestamp.html" %}
                     </div>
                     <div class="delta">
                         {{ change.delta }}pt{% if change.delta > 1 or change.delta < -1 %}s{% endif %}.
