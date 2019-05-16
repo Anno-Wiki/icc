@@ -1,64 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Book Requests</h1>
+    <h1>Text/Edition Requests</h1>
 
-{% if current_user.is_authorized("request_texts") %}
-    <h4>
-        Don't see what you're looking for?
-        <a href="{{ url_for("requests.request_text") }}">Try requesting it.</a>
-    </h4>
-{% endif %}
+    {% if current_user.is_authorized("request_texts") %}
+        <h3>
+            Don't see what you're looking for?
+            <a href="{{ url_for("requests.request_text") }}">Try requesting it.</a>
+        </h3>
+    {% endif %}
 
-sort by:
-{% for type, url in sorts.items() %}
-    <a href="{{ url }}"{% if type == sort %} class="active"{% endif %}>{{ type }}</a>
-{% endfor %}
+    {% include "includes/_sorts.html" %}
 
-<div class="index">
-    {% for text_request in requests %}
-        <div class="card">
-            <a href="{{ url_for("requests.view_text_request",
-                request_id=text_request.id) }}">
-                <h2{% if len(text_request.title) > 20 %} class="text_cutoff"{% endif
-                    %}>{{ text_request.title[:20] }}</h2>
-            </a>
-            by {{ text_request.authors }}<br>
-            {% set entity = text_request %}
-            {% include "includes/_weight.html" %}
+    <div class="index">
+        {% for req in requests %}
+            <div class="card">
+                <h3 class="title">
+                    <a href="{{ req.url }}">
+                        {{ req }}
+                    </a>
+                    <div class="weightvote small">
+                        {% set entity = req %}
+                        {% include "includes/_weight.html" %}
+                        {% set prefix, ident = 'tr', req.id %}
+                        {% include "includes/_vote.html" %}
+                    </div>
+                </h3>
+                by {{ req.authors }}<br>
 
-            {% set vote = current_user.get_vote(text_request) %}
+                {% set vote = current_user.get_vote(req) %}
 
-            |
-            <a href="{{ url_for("requests.upvote_text_request",
-                request_id=text_request.id, next=request.full_path) }}" class="{% if
-                vote and vote.is_up %}voted{% else %}notvoted{% endif %}">
-                {% if current_user.is_authorized('approve_text_requests')
-                %}approve{% else %}up{% endif %}
-            </a>
-            /
-            <a href="{{ url_for("requests.downvote_text_request",
-                request_id=text_request.id, next=request.full_path) }}" class="{% if
-                vote and not vote.is_up %}voted{% else %}notvoted{% endif
-                %}">
-                {% if current_user.is_authorized('approve_tag_requests')
-                %}reject{% else %}down{% endif %}
-            </a>
-            <br>
-            <a href="{{ url_for("user.follow_text_request",
-                request_id=text_request.id, next=request.full_path) }}">{% if
-                current_user.is_authenticated and text_request in
-                current_user.followed_textrequests %}unfollow{% else %}follow{%
-                endif %}</a>
+                {% set followings = current_user.followed_textrequests %}
+                {% include "includes/_follow.html" %}
 
-            {% set long = (len(text_request.wiki.current.body) >= 127) %}
-            <div{% if long %} class="card_text_cutoff"{% endif %}>{{
-                text_request.wiki.current.body[:127]|markdown }}</div>
+                {% set long = (len(req.wiki.current.body) >= 127) %}
+                <div{% if long %} class="card_text_cutoff"{% endif %}>
+                    {{ req.wiki.current.body[:127]|markdown }}
+                </div>
 
-            <a href="{{ url_for("requests.view_text_request",
-                request_id=text_request.id) }}">View
-                More</a>
-        </div>
-    {% endfor %}
-</div>
+                <a href="{{ req.url }}">View More</a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

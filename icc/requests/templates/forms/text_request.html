@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="POST" novalidate>
-    {{ form.csrf_token() }}
+    <form class="body-form" action="" method="POST" novalidate>
+        {{ form.csrf_token() }}
 
-    {{ form.title(size=70) }}
-    <br>
-    {% for error in form.title.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    {{ form.authors(size=70) }}
-    <br>
-    {% for error in form.authors.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    {{ form.description(rows=10, cols=70) }}
-    <br>
-    {{ form.submit }}
-</form>
+        {{ form.title(size=70) }}
+        <br>
+        {% for error in form.title.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        {{ form.authors(size=70) }}
+        <br>
+        {% for error in form.authors.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        {{ form.description(rows=10, cols=70) }}
+        <br>
+        {{ form.submit }}
+    </form>
 {% endblock %}

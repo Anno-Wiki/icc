@@ -58,6 +58,9 @@ class TextRequest(Base, FollowableMixin, VotableMixin):
     def __repr__(self):
         return f'<Request for {self.title}>'
 
+    def __str__(self):
+        return self.title
+
 
 class TagRequestVote(Base, VoteMixin):
     tag_request_id = db.Column(

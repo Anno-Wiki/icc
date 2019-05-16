@@ -1,43 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1>{{ text_request.title }}{% if text_request.approved %}&#10003;{% elif
-    text_request.rejected %}&#10007;{% endif %}</h1>
-<h2>by {{ text_request.authors }}</h2>
-<br>
-{% set entity = text_request %}
-{% include "includes/_weight.html" %}
-
-{% set vote = current_user.get_vote(text_request) %}
-
-<a href="{{ url_for("requests.upvote_text_request", request_id=text_request.id,
-    next=request.full_path) }}" class="{% if vote and vote.is_up %}voted{% else
-    %}notvoted{% endif %}">{% if
-    current_user.is_authorized('approve_text_requests') %}approve{% else
-    %}down{% endif %}</a>
-/ <a href="{{ url_for("requests.downvote_text_request", request_id=text_request.id,
-    next=request.full_path) }}" class="{% if vote and not vote.is_up %}voted{%
-    else %}notvoted{% endif %}">{% if
-    current_user.is_authorized('approve_text_requests') %}reject{% else %}down{%
-    endif %}</a>
-
-| <a href="{{ url_for("user.follow_text_request", request_id=text_request.id,
-    next=request.full_path) }}">{% if current_user.is_authenticated and request
-    in current_user.followed_textrequests %}unfollow{% else %}follow{% endif %}</a>
-
-| <a href="{{ url_for("main.edit_wiki", wiki_id=text_request.wiki.id,
-    next=request.full_path) }}">edit</a>
-| <a href="{{ url_for("main.wiki_edit_history", wiki_id=text_request.wiki.id)
-    }}">edit history</a>
-
-{% if current_user.is_authorized("delete_text_requests") or current_user ==
-    text_request.requester %}
-    | <a href="{{ url_for("admin.delete_text_request", request_id=text_request.id)
-        }}">delete</a>
-{% endif %}
-
-<h3>Description</h3>
-<div id="description">{{ text_request.wiki.current.body|markdown }}</div>
-
+    {% set req = text_request %}
+    <h1>
+        {{ req }}
+        {% if req.approved %}&#10003;{% elif req.rejected %}&#10007;{% endif %}
+    </h1>
+    <h2>by {{ req.authors }}</h2>
+    <div class="toolbar">
+        <div class="tools">
+            <div class="weightvote">
+                {% set entity = req %}
+                {% include "includes/_weight.html" %}
+                {% set prefix, ident = 'tr', req.id %}
+                {% include "includes/_vote.html" %}
+            </div>
+        </div>
+    </div>
+    <div class="toolbar">
+        <div class="tools">
+            {% set followings = current_user.followed_textrequests %}
+            {% include "includes/_follow.html" %}
+            <a href="{{ url_for("main.edit_wiki", wiki_id=req.wiki.id, next=request.full_path) }}">edit</a>
+            <a href="{{ url_for("main.wiki_edit_history", wiki_id=req.wiki.id) }}">edit history</a>
+            {% if current_user.is_authorized("delete_text_requests") or current_user == req.requester %}
+                <a href="{{ url_for("admin.delete_text_request", request_id=req.id) }}">delete</a>
+            {% endif %}
+        </div>
+    </div>
+    <div id="description">{{ req.wiki.current.body|proc_links|markdown }}</div>
 {% endblock %}
