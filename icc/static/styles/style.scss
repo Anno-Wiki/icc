@@ -479,3 +479,16 @@ hr {
     }
 }
 
+.diff {
+    background-color: $lightbghl;
+    padding: 1em;
+    margin: 2em auto;
+    box-shadow: 0.15em 0.15em 10px 10px $base1;
+    .delta, .plus {
+        color: $base2;
+        padding: 0 0.25rem 0 0.25rem;
+    }
+    .delta { background-color: $red; }
+    .plus { background-color: $green; }
+
+}

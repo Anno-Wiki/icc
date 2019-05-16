@@ -26,20 +26,10 @@ def wiki_edit_review_queue():
     sorts = {
         'voted': (WikiEdit.query.outerjoin(WikiEditVote)
                   .order_by(WikiEditVote.delta.desc())),
-        'voted_invert': (WikiEdit.query.outerjoin(WikiEditVote)
-                         .order_by(WikiEditVote.delta.asc())),
         'entity': WikiEdit.query.join(Wiki).order_by(Wiki.entity_string.asc()),
-        'entity_invert': (WikiEdit.query.join(Wiki)
-                          .order_by(Wiki.entity_string.desc())),
-        'num': WikiEdit.query.order_by(WikiEdit.num.asc()),
-        'num_invert': WikiEdit.query.order_by(WikiEdit.num.desc()),
+        'number': WikiEdit.query.order_by(WikiEdit.num.asc()),
         'editor': WikiEdit.query.join(User).order_by(User.displayname.asc()),
-        'editor_invert': (WikiEdit.query.join(User)
-                          .order_by(User.displayname.desc())),
         'time': WikiEdit.query.order_by(WikiEdit.timestamp.asc()),
-        'time_invert': WikiEdit.query.order_by(WikiEdit.timestamp.desc()),
-        'reason': WikiEdit.query.order_by(WikiEdit.reason.asc()),
-        'reason_invert': WikiEdit.query.order_by(WikiEdit.reason.desc()),
     }
 
     sort = sort if sort in sorts else default

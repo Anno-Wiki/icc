@@ -2,7 +2,7 @@
 import sys
 import inspect
 
-from flask import flash, current_app as app
+from flask import flash, url_for, current_app as app
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
@@ -91,6 +91,11 @@ class WikiEdit(Base, EditMixin, VotableMixin):
 
     def __repr__(self):
         return f"<WikiEdit on {self.wiki}>"
+
+    @property
+    def url(self):
+        return url_for('admin.review_wiki_edit', wiki_id=self.wiki.id,
+                       edit_id=self.id)
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
