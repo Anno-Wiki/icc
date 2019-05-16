@@ -241,6 +241,7 @@ a {
         padding: 0.25em;
         border-bottom: 2px dotted $lightbghl;
         width: 17em;
+        .life_years { text-align: center; }
 
         @media only screen and (max-width: $break1) { width: 16em; }
         @media only screen and (max-width: $break8) { height: 17em; width: 15em; }

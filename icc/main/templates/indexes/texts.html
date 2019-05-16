@@ -15,13 +15,12 @@
             <div class="card">
                 <h3 class="title">
                     <a href="{{ text.url }}">
-                        {{ text.title }}
+                        {{ text }}
                     </a>
                 </h3>
 
-                <a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
-                    {% if current_user.is_authenticated and text in current_user.followed_texts %}unfollow{% else %}follow{% endif %}
-                </a>
+                {% set entity, followings = text, current_user.followed_texts %}
+                {% include "includes/_follow.html" %}
                 <br>
 
                 editions &times; {{ text.editions.count() }}

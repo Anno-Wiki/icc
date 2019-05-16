@@ -6,9 +6,8 @@
             <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">
                 view annotations
             </a>
-            <a href="{{ url_for("user.follow_tag", tag_id=tag.id, next=request.full_path) }}">
-                {% if current_user.is_authenticated and tag in current_user.followed_tags %}unfollow{% else %}follow{% endif %}
-            </a>
+            {% set followings, entity = current_user.followed_tags, tag %}
+            {% include "includes/_follow.html" %}
             <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">
                 wiki edit
             </a>

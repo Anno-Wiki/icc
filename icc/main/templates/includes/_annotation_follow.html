@@ -1,4 +1,0 @@
-<a href="{{ url_for("user.follow_annotation", annotation_id=annotation.id,
-   next=request.full_path) }}">{% if current_user.is_authenticated and
-   annotation in current_user.followed_annotations %}unfollow{% else %}follow{%
-   endif %}</a>

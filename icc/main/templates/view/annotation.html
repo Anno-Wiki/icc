@@ -8,7 +8,8 @@
             <div class="tools">
                 <a href="{{ url_for("main.edit_history", annotation_id=annotation.id) }}">version history</a>
                 <a href="{{ url_for("main.view_edit", annotation_id=annotation.id, num=annotation.HEAD.previous.num) }}">previous version</a>
-                {% include "includes/_annotation_follow.html" %}
+                {% set entity, followings = annotation, current_user.followed_annotations %}
+                {% include "includes/_follow.html" %}
                 {% include "includes/_annotation_flags.html" %}
                 {% if current_user.is_authorized("resolve_annotation_flags") %}
                     <a href="{{ url_for("admin.annotation_flags", annotation_id=annotation.id) }}">active flags</a>

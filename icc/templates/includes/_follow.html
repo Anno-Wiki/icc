@@ -1,3 +1,3 @@
-<a href="{{ url_for("user.follow", entity=req.__class__.__name__, id=entity.id, next=request.full_path) }}">
-    {% if current_user.is_authenticated and req in followings %}unfollow{% else %}follow{% endif %}
+<a href="{{ url_for("user.follow", entity=entity.__class__.__name__, id=entity.id, next=request.full_path) }}">
+    {% if current_user.is_authenticated and entity in followings %}unfollow{% else %}follow{% endif %}
 </a>

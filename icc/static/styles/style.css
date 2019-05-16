@@ -652,6 +652,8 @@ a {
     padding: 0.25em;
     border-bottom: 2px dotted #eee8d5;
     width: 17em; }
+    .index .card .life_years {
+      text-align: center; }
     @media only screen and (max-width: 1120px) {
       .index .card {
         width: 16em; } }

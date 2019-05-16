@@ -6,9 +6,8 @@
             <a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name) }}">
                 view annotations
             </a>
-            <a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
-                {% if current_user.is_authenticated and writer in current_user.followed_writers %}unfollow{% else %}follow{% endif %}
-            </a>
+            {% set entity, followings = writer, current_user.followed_writers %}
+            {% include "includes/_follow.html" %}
             <a href="{{ url_for("main.edit_wiki", wiki_id=writer.wiki.id, next=request.full_path) }}">
                 edit wiki
             </a>

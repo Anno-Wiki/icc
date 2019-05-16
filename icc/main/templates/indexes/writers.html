@@ -25,9 +25,8 @@
                     </div>
                 {% endif %}
 
-                <a href="{{ url_for("user.follow_writer", writer_id=writer.id, next=request.full_path) }}">
-                    {%- if current_user.is_authenticated and writer in current_user.followed_writers -%}unfollow{%- else -%}follow{%- endif -%}
-                </a>
+                {% set entity, followings = writer, current_user.followed_writers %}
+                {% include "includes/_follow.html" %}
                 <br>
                 <em>author</em>     &times; {% if 'author' in writer.works %}{{ len(writer.works['author']) }}{% else %}0{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;
                 <em>editor</em>     &times; {% if 'editor' in writer.works %}{{ len(writer.works['editor']) }}{% else %}0{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;

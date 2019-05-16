@@ -6,9 +6,8 @@
             <a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">
                 view annotations
             </a>
-            <a href="{{ url_for("user.follow_text", text_id=text.id, next=request.full_path) }}">
-                {% if current_user.is_authenticated and text in current_user.followed_texts %}unfollow{% else %}follow{% endif %}
-            </a>
+            {% set entity, followings = text, current_user.followed_texts %}
+            {% include "includes/_follow.html" %}
             <a href="{{ url_for("main.edit_wiki", wiki_id=text.wiki.id,
                 next=request.full_path) }}">
                 edit wiki
@@ -19,7 +18,7 @@
         </div>
     </div>
 
-    <h1>{{ text.title }}</h1>
+    <h1>{{ text }}</h1>
     {% set writers = text.primary.writers['author'] %}
     <h3>by {% include "includes/_all_writers_list.html" %}</h3>
 
