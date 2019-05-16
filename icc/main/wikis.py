@@ -40,21 +40,16 @@ def edit_wiki(wiki_id):
 @main.route('/wiki/<wiki_id>/history')
 def wiki_edit_history(wiki_id):
     """The edit history for a given wiki."""
-    default = 'num'
+    default = 'number'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
     wiki = Wiki.query.get_or_404(wiki_id)
 
     sorts = {
-        'num': wiki.edits.order_by(WikiEdit.num.desc()),
-        'num_invert': wiki.edits.order_by(WikiEdit.num.asc()),
+        'number': wiki.edits.order_by(WikiEdit.num.desc()),
         'time': wiki.edits.order_by(WikiEdit.timestamp.desc()),
-        'time_invert': wiki.edits.order_by(WikiEdit.timestamp.asc()),
         'editor': wiki.edits.join(User).order_by(User.displayname.asc()),
-        'editor_invert': (wiki.edits.join(User)
-                          .order_by(User.displayname.desc())),
         'reason': wiki.edits.order_by(WikiEdit.reason.asc()),
-        'reason_invert': wiki.edits.order_by(WikiEdit.reason.desc()),
     }
 
     sort = sort if sort in sorts else default
@@ -74,15 +69,15 @@ def wiki_edit_history(wiki_id):
                            wiki=wiki, edits=edits.items)
 
 
-@main.route('/wiki/<wiki_id>/edit/<edit_num>')
-def view_wiki_edit(wiki_id, edit_num):
+@main.route('/wiki/<wiki_id>/edit/<num>')
+def view_wiki_edit(wiki_id, num):
     """The diff page for a wiki edit in comparison to it's previous version. For
     the first version we use a special template.
     """
     wiki = Wiki.query.get_or_404(wiki_id)
     edit = wiki.edits\
         .filter(WikiEdit.approved==True,
-                WikiEdit.num==edit_num).first_or_404()
+                WikiEdit.num==num).first_or_404()
 
     if not edit.previous:
         return render_template(

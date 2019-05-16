@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Initial version of the {{ edit.entity }} wiki</h1>
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id) }}">version history</a>
+            {% if current_user.is_authorized("delete_wiki_edits") %}<a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id) }}">delete</a>{% endif %}
+        </div>
+    </div>
+
+    <div class="diff">{{ edit.body|proc_links|markdown }}</div>
+{% endblock %}

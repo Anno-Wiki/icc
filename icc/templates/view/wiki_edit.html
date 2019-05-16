@@ -11,7 +11,7 @@
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.wiki_edit_history", wiki_id=edit.wiki.id) }}">version history</a>
-            <a href="{{ url_for("main.view_wiki_edit", wiki_id=edit.wiki.id, edit_num=edit.previous.num) }}">previous version</a>
+            <a href="{{ edit.previous.url }}">previous version</a>
             {% if current_user.is_authorized("delete_wiki_edits") %}<a href="{{ url_for("admin.delete_wiki_edit", edit_id=edit.id) }}">delete</a>{% endif %}
         </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="toolbar">
         <div class="tools">
             {% set entity, prefix, ident = edit, 'e', edit.id %}
-            <div id="{{ prefix }}{{ ident }}" class="weightvote">
+            <div id="{{ prefix }}{{ ident }}" class="weightvote{% if edit.approved or edit.rejected %} closed{% endif %}">
                 {% include "includes/_weight.html" %}
                 {% include "includes/_vote.html" %}
             </div>
@@ -43,22 +43,22 @@
     <div class="diff">
         {% for line in diff %}
             {% if line.startswith("-") %}
-                <div class="delta">{{ line[2:]|markdown }}</div>
+                <div class="delta">{{ line[2:] }}</div>
             {% elif line.startswith("+") %}
-                <div class="plus">{{ line[2:]|markdown }}</div>
+                <div class="plus">{{ line[2:] }}</div>
             {% elif line.startswith(" ") %}
-                <div>{{ line|markdown }}</div>
+                <div>{{ line }}</div>
             {% endif %}
         {% endfor %}
     </div>
 
     <h3>New version, edit #{{ edit.num }}:</h3>
-    <div class="diff">{{ edit.body|markdown }}</div>
+    <div class="diff">{{ edit.body|proc_links|markdown }}</div>
 
     {% if edit.previous.num > 0 %}
         <h3>Old version, edit #{{ edit.previous.num }}:</h3>
     {% else %}
         <h3>Original version:</h3>
     {% endif %}
-    <div class="diff">{{ edit.previous.body|markdown }}</div>
+    <div class="diff">{{ edit.previous.body|proc_links|markdown }}</div>
 {% endblock %}

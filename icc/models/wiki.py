@@ -94,8 +94,12 @@ class WikiEdit(Base, EditMixin, VotableMixin):
 
     @property
     def url(self):
-        return url_for('admin.review_wiki_edit', wiki_id=self.wiki.id,
-                       edit_id=self.id)
+        if self.approved or self.rejected:
+            return url_for('main.view_wiki_edit', wiki_id=self.wiki.id,
+                           num=self.num)
+        else:
+            return url_for('admin.review_wiki_edit', wiki_id=self.wiki.id,
+                           edit_id=self.id)
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))
