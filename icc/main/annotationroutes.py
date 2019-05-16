@@ -1,21 +1,3 @@
-"""The routes governing editions."""
-from flask import render_template, url_for, request, abort, current_app
-from icc.main import main
-
-from icc.models.annotation import Annotation, Edit, Comment
-from icc.models.content import Text, Edition
-
-
-@main.route('/text/<text_url>/edition/<edition_num>')
-def edition(text_url, edition_num):
-    """The main edition view."""
-    text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
-    edition = Edition.query.filter(Edition.text_id==text.id,
-                                   Edition.num==edition_num).first_or_404()
-    return render_template('view/edition.html',
-                           title=f"{text.title} #{edition.num}",
-                           edition=edition)
-
 
 @main.route('/text/<text_url>/edition/<edition_num>/annotations')
 def edition_annotations(text_url, edition_num):
@@ -35,9 +17,7 @@ def edition_annotations(text_url, edition_num):
         'weight': edition.annotations.order_by(Annotation.weight.desc()),
         'line': (edition.annotations.join(Edit)
                  .filter(Edit.current==True)
-                 .order_by(Edit.last_line_num.asc())),
-        'active': (edition.annotations.join(Comment).group_by(Annotation.id)
-                   .order_by(Comment.timestamp.desc()))
+                 .order_by(Edit.last_line_num.asc()))
     }
 
     sort = sort if sort in sorts else default

@@ -5,7 +5,7 @@ from flask import render_template, url_for, request, abort, current_app
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import Annotation, Edit
+from icc.models.annotation import Annotation, Edit, Comment
 from icc.models.content import Edition, Writer, WriterConnection, WRITERS
 
 
@@ -75,6 +75,8 @@ def writer_annotations(writer_url):
         'weight': writer.annotations.order_by(Annotation.weight.desc()),
         'modified': (writer.annotations.join(Edit)
                      .order_by(Edit.timestamp.desc())),
+        'active': (writer.annotations.join(Comment).group_by(Annotation.id)
+                   .order_by(Comment.timestamp.desc()))
     }
 
     sort = sort if sort in sorts else default

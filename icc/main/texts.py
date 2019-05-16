@@ -5,7 +5,7 @@ from flask import render_template, url_for, request, abort, current_app
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import Annotation,  Edit
+from icc.models.annotation import Annotation,  Edit, Comment
 from icc.models.content import Text, Edition, WriterConnection, Line, WRITERS
 
 
@@ -79,6 +79,8 @@ def text_annotations(text_url):
                  .order_by(Edit.last_line_num.asc())),
         'modified': (text.annotations.join(Edit).filter(Edit.current==True)
                      .order_by(Edit.timestamp.desc())),
+        'active': (text.annotations.join(Comment).group_by(Annotation.id)
+                   .order_by(Comment.timestamp.desc()))
     }
 
     sort = sort if sort in sorts else default

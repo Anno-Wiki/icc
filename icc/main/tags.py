@@ -4,7 +4,7 @@ from flask import render_template, url_for, request, abort, current_app
 from icc import db
 from icc.main import main
 
-from icc.models.annotation import Annotation,  Edit, Tag
+from icc.models.annotation import Annotation,  Edit, Tag, Comment
 from icc.models.tables import tags as tags_table
 
 
@@ -65,7 +65,9 @@ def tag_annotations(tag):
         'oldest': tag.annotations.order_by(Annotation.timestamp.asc()),
         'weight': tag.annotations.order_by(Annotation.weight.desc()),
         'modified': (tag.annotations.order_by(Edit.timestamp.desc())
-                     .filter(Edit.current==True))
+                     .filter(Edit.current==True)),
+        'active': (tag.annotations.join(Comment).group_by(Annotation.id)
+                   .order_by(Comment.timestamp.desc()))
     }
 
     sort = sort if sort in sorts else default

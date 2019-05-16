@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-    <form class="body-form" action="" method="post" novalidate>
+    <form class="body-form validate" action="" method="post" novalidate>
         <h1>Sign In</h1>
         {{ form.hidden_tag() }}
 
         <p>
-            {{ form.email.label }} <br> {{ form.email(size=32) }} <br>
+            {{ form.email.label }} <br> {{ form.email }} <br>
             {% for error in form.email.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
 
         <p>
-            {{ form.password.label }} <br> {{ form.password(size=32) }} <br>
+            {{ form.password.label }} <br> {{ form.password }} <br>
             {% for error in form.password.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
@@ -37,5 +36,4 @@
 
         <p>{{ form.submit() }}</p>
     </form>
-
 {% endblock %}

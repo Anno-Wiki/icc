@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form class="body-form" action="" method="post">
+    <form class="body-form validate" action="" method="post">
         <h1>Register</h1>
         {{ form.csrf_token() }}
         <p>
-            {{ form.displayname.label }} <br> {{ form.displayname(size=32) }} <br>
+            {{ form.displayname.label }} <br> {{ form.displayname }} <br>
             {% for error in form.displayname.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.email.label }} <br> {{ form.email(size=32) }} <br>
+            {{ form.email.label }} <br> {{ form.email }} <br>
             {% for error in form.email.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.password.label }} <br> {{ form.password(size=32) }} <br>
+            {{ form.password.label }} <br> {{ form.password }} <br>
             {% for error in form.password.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.password2.label }} <br> {{ form.password2(size=32) }} <br>
+            {{ form.password2.label }} <br> {{ form.password2 }} <br>
             {% for error in form.password2.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
