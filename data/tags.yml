@@ -8,9 +8,6 @@ tags:
     - tag: explanation
       description: For explanations of difficult passages
       locked: false
-    - tag: freudian
-      description: Fuck Ethan Hickey.
-      locked: false
     - tag: intertextuality
       description: For making explicit instances of intertextuality.
       locked: false
@@ -41,51 +38,9 @@ tags:
     - tag: context
       description: For providing context to modern audiences
       locked: false
-    - tag: georgic
-      description: |
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla a congue sem. Nulla vulputate velit est. Cras scelerisque, urna vitae dictum bibendum, diam nisl efficitur lacus, in scelerisque leo arcu eget mauris. Duis congue maximus interdum. Donec et tincidunt nisl. Nulla sed porta arcu. Donec scelerisque felis eu odio venenatis, quis tincidunt mi laoreet.
-
-        Mauris non nunc sem. Phasellus pulvinar erat et euismod bibendum. Duis sagittis elit orci, rhoncus vestibulum lacus tincidunt sit amet. Sed feugiat augue sit amet semper lacinia. Praesent tincidunt non nunc ac faucibus. Aliquam erat volutpat. Pellentesque nulla quam, viverra vel nisl ut, imperdiet vehicula sem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum nisl ligula, tincidunt a leo sed, porta sodales ligula. Duis congue, lectus quis consequat finibus, turpis arcu laoreet eros, vitae lacinia lorem neque et leo. Sed sit amet diam tincidunt, auctor ligula et, convallis risus.
-
-        Quisque efficitur purus nec mi blandit tincidunt. Donec in dolor sagittis, convallis libero non, tincidunt augue. Proin quis leo eget arcu rhoncus bibendum nec ut nulla. Donec nulla risus, finibus id tincidunt eget, congue at enim. Nam vulputate, elit at convallis semper, neque nisi lobortis nibh, sit amet finibus dui magna at augue. Praesent vitae mauris ligula. Donec placerat sit amet dolor in tempor. Nunc convallis est vel dolor aliquet dapibus. Vestibulum luctus magna vitae diam faucibus, imperdiet posuere arcu malesuada. Quisque commodo metus ut tellus ultricies congue. Nunc pellentesque pretium consectetur. Morbi accumsan metus eget orci fringilla, id cursus velit euismod.
-
-        Maecenas eu commodo elit. In a velit in turpis feugiat tincidunt et a elit. Pellentesque nec dignissim lorem, auctor congue dui. Mauris vitae est ut quam congue suscipit. Mauris egestas metus non placerat ornare. Aenean lobortis nunc quis magna pellentesque varius vitae vestibulum elit. Pellentesque et velit interdum lorem molestie lobortis. Maecenas lobortis nisl id mollis varius. Etiam vitae malesuada leo. Aenean in elit nulla. Proin suscipit aliquet semper. Ut mauris tellus, tempor vel augue vitae, sodales tristique augue. Curabitur bibendum lorem feugiat, vehicula diam vel, congue mi. In finibus rhoncus turpis ultrices pellentesque. Sed congue, dolor id aliquam cursus, ex mi tempus libero, sed sodales risus massa ut ligula.
-
-        Cras semper augue varius vulputate malesuada. In vel lacinia velit. Duis et odio commodo, vestibulum velit eget, dictum enim. Aenean dapibus neque eu quam tincidunt lacinia. Aenean tempus eu risus a elementum. Nulla malesuada urna vel ligula dictum mollis. Mauris tempor facilisis magna, sed aliquet purus tempor et. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed id viverra orci. 
+    - tag: allusion
+      description: For allusion.
       locked: false
-    - tag: gangrenous
-      description: |
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla a congue sem. Nulla vulputate velit est. Cras scelerisque, urna vitae dictum bibendum, diam nisl efficitur lacus, in scelerisque leo arcu eget mauris. Duis congue maximus interdum. Donec et tincidunt nisl. Nulla sed porta arcu. Donec scelerisque felis eu odio venenatis, quis tincidunt mi laoreet.
-
-        Mauris non nunc sem. Phasellus pulvinar erat et euismod bibendum. Duis sagittis elit orci, rhoncus vestibulum lacus tincidunt sit amet. Sed feugiat augue sit amet semper lacinia. Praesent tincidunt non nunc ac faucibus. Aliquam erat volutpat. Pellentesque nulla quam, viverra vel nisl ut, imperdiet vehicula sem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum nisl ligula, tincidunt a leo sed, porta sodales ligula. Duis congue, lectus quis consequat finibus, turpis arcu laoreet eros, vitae lacinia lorem neque et leo. Sed sit amet diam tincidunt, auctor ligula et, convallis risus.
-
-        Quisque efficitur purus nec mi blandit tincidunt. Donec in dolor sagittis, convallis libero non, tincidunt augue. Proin quis leo eget arcu rhoncus bibendum nec ut nulla. Donec nulla risus, finibus id tincidunt eget, congue at enim. Nam vulputate, elit at convallis semper, neque nisi lobortis nibh, sit amet finibus dui magna at augue. Praesent vitae mauris ligula. Donec placerat sit amet dolor in tempor. Nunc convallis est vel dolor aliquet dapibus. Vestibulum luctus magna vitae diam faucibus, imperdiet posuere arcu malesuada. Quisque commodo metus ut tellus ultricies congue. Nunc pellentesque pretium consectetur. Morbi accumsan metus eget orci fringilla, id cursus velit euismod.
-
-        Maecenas eu commodo elit. In a velit in turpis feugiat tincidunt et a elit. Pellentesque nec dignissim lorem, auctor congue dui. Mauris vitae est ut quam congue suscipit. Mauris egestas metus non placerat ornare. Aenean lobortis nunc quis magna pellentesque varius vitae vestibulum elit. Pellentesque et velit interdum lorem molestie lobortis. Maecenas lobortis nisl id mollis varius. Etiam vitae malesuada leo. Aenean in elit nulla. Proin suscipit aliquet semper. Ut mauris tellus, tempor vel augue vitae, sodales tristique augue. Curabitur bibendum lorem feugiat, vehicula diam vel, congue mi. In finibus rhoncus turpis ultrices pellentesque. Sed congue, dolor id aliquam cursus, ex mi tempus libero, sed sodales risus massa ut ligula.
-
-        Cras semper augue varius vulputate malesuada. In vel lacinia velit. Duis et odio commodo, vestibulum velit eget, dictum enim. Aenean dapibus neque eu quam tincidunt lacinia. Aenean tempus eu risus a elementum. Nulla malesuada urna vel ligula dictum mollis. Mauris tempor facilisis magna, sed aliquet purus tempor et. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed id viverra orci. 
-      locked: false
-    - tag: gregarious
-      description: |
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla a congue sem. Nulla vulputate velit est. Cras scelerisque, urna vitae dictum bibendum, diam nisl efficitur lacus, in scelerisque leo arcu eget mauris. Duis congue maximus interdum. Donec et tincidunt nisl. Nulla sed porta arcu. Donec scelerisque felis eu odio venenatis, quis tincidunt mi laoreet.
-
-        Mauris non nunc sem. Phasellus pulvinar erat et euismod bibendum. Duis sagittis elit orci, rhoncus vestibulum lacus tincidunt sit amet. Sed feugiat augue sit amet semper lacinia. Praesent tincidunt non nunc ac faucibus. Aliquam erat volutpat. Pellentesque nulla quam, viverra vel nisl ut, imperdiet vehicula sem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum nisl ligula, tincidunt a leo sed, porta sodales ligula. Duis congue, lectus quis consequat finibus, turpis arcu laoreet eros, vitae lacinia lorem neque et leo. Sed sit amet diam tincidunt, auctor ligula et, convallis risus.
-
-        Quisque efficitur purus nec mi blandit tincidunt. Donec in dolor sagittis, convallis libero non, tincidunt augue. Proin quis leo eget arcu rhoncus bibendum nec ut nulla. Donec nulla risus, finibus id tincidunt eget, congue at enim. Nam vulputate, elit at convallis semper, neque nisi lobortis nibh, sit amet finibus dui magna at augue. Praesent vitae mauris ligula. Donec placerat sit amet dolor in tempor. Nunc convallis est vel dolor aliquet dapibus. Vestibulum luctus magna vitae diam faucibus, imperdiet posuere arcu malesuada. Quisque commodo metus ut tellus ultricies congue. Nunc pellentesque pretium consectetur. Morbi accumsan metus eget orci fringilla, id cursus velit euismod.
-
-        Maecenas eu commodo elit. In a velit in turpis feugiat tincidunt et a elit. Pellentesque nec dignissim lorem, auctor congue dui. Mauris vitae est ut quam congue suscipit. Mauris egestas metus non placerat ornare. Aenean lobortis nunc quis magna pellentesque varius vitae vestibulum elit. Pellentesque et velit interdum lorem molestie lobortis. Maecenas lobortis nisl id mollis varius. Etiam vitae malesuada leo. Aenean in elit nulla. Proin suscipit aliquet semper. Ut mauris tellus, tempor vel augue vitae, sodales tristique augue. Curabitur bibendum lorem feugiat, vehicula diam vel, congue mi. In finibus rhoncus turpis ultrices pellentesque. Sed congue, dolor id aliquam cursus, ex mi tempus libero, sed sodales risus massa ut ligula.
-
-        Cras semper augue varius vulputate malesuada. In vel lacinia velit. Duis et odio commodo, vestibulum velit eget, dictum enim. Aenean dapibus neque eu quam tincidunt lacinia. Aenean tempus eu risus a elementum. Nulla malesuada urna vel ligula dictum mollis. Mauris tempor facilisis magna, sed aliquet purus tempor et. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed id viverra orci. 
-      locked: false
-    - tag: technical-issues
-      description: |
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla a congue sem. Nulla vulputate velit est. Cras scelerisque, urna vitae dictum bibendum, diam nisl efficitur lacus, in scelerisque leo arcu eget mauris. Duis congue maximus interdum. Donec et tincidunt nisl. Nulla sed porta arcu. Donec scelerisque felis eu odio venenatis, quis tincidunt mi laoreet.
-
-        Mauris non nunc sem. Phasellus pulvinar erat et euismod bibendum. Duis sagittis elit orci, rhoncus vestibulum lacus tincidunt sit amet. Sed feugiat augue sit amet semper lacinia. Praesent tincidunt non nunc ac faucibus. Aliquam erat volutpat. Pellentesque nulla quam, viverra vel nisl ut, imperdiet vehicula sem. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum nisl ligula, tincidunt a leo sed, porta sodales ligula. Duis congue, lectus quis consequat finibus, turpis arcu laoreet eros, vitae lacinia lorem neque et leo. Sed sit amet diam tincidunt, auctor ligula et, convallis risus.
-
-        Quisque efficitur purus nec mi blandit tincidunt. Donec in dolor sagittis, convallis libero non, tincidunt augue. Proin quis leo eget arcu rhoncus bibendum nec ut nulla. Donec nulla risus, finibus id tincidunt eget, congue at enim. Nam vulputate, elit at convallis semper, neque nisi lobortis nibh, sit amet finibus dui magna at augue. Praesent vitae mauris ligula. Donec placerat sit amet dolor in tempor. Nunc convallis est vel dolor aliquet dapibus. Vestibulum luctus magna vitae diam faucibus, imperdiet posuere arcu malesuada. Quisque commodo metus ut tellus ultricies congue. Nunc pellentesque pretium consectetur. Morbi accumsan metus eget orci fringilla, id cursus velit euismod.
-
-        Maecenas eu commodo elit. In a velit in turpis feugiat tincidunt et a elit. Pellentesque nec dignissim lorem, auctor congue dui. Mauris vitae est ut quam congue suscipit. Mauris egestas metus non placerat ornare. Aenean lobortis nunc quis magna pellentesque varius vitae vestibulum elit. Pellentesque et velit interdum lorem molestie lobortis. Maecenas lobortis nisl id mollis varius. Etiam vitae malesuada leo. Aenean in elit nulla. Proin suscipit aliquet semper. Ut mauris tellus, tempor vel augue vitae, sodales tristique augue. Curabitur bibendum lorem feugiat, vehicula diam vel, congue mi. In finibus rhoncus turpis ultrices pellentesque. Sed congue, dolor id aliquam cursus, ex mi tempus libero, sed sodales risus massa ut ligula.
-
-        Cras semper augue varius vulputate malesuada. In vel lacinia velit. Duis et odio commodo, vestibulum velit eget, dictum enim. Aenean dapibus neque eu quam tincidunt lacinia. Aenean tempus eu risus a elementum. Nulla malesuada urna vel ligula dictum mollis. Mauris tempor facilisis magna, sed aliquet purus tempor et. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed id viverra orci. 
+    - tag: homage
+      description: For homage.
       locked: false
