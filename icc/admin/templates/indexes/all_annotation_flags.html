@@ -1,73 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% set header = [
-    ('marked',          '&#9662;',                  'marked_invert',            '&#9652;'),
-    ('annotation',      '[n] &#9662;',              'annotation_invert',        '[n] &#9652;'),
-    ('flag',            'Flag &#9662;',             'flag_invert',              'Flag &#9652;'),
-    ('thrower',         'Thrower &#9662;',          'thrower_invert',           'Thrower &#9652;'),
-    ('time',            'Time Thrown &#9662;',      'time_invert',              'Time Thrown &#9652;'),
-    ('resolver',        'Resolver &#9662;',         'resolver_invert',          'Resolver &#9652;'),
-    ('time_resolved',   'Time Resolved &#9662;',    'time_resolved_invert',     'Time Resolved &#9652;'),
-    ('text',            'Text &#9662;',             'text_invert',              'Text &#9652;'),
-    ] %}
-
-{% if flags %}
-    <table class="inbox">
-        {% include "includes/_table_header.html" %}
-
+    <h1>All Annotation Flags</h1>
+    {% include "includes/_sorts.html" %}
+    <div class="events">
         {% for flag in flags %}
-            <tr class="{% if flag.resolver %}read{% else %}unread{% endif %}">
-                <td>
-                    {# marked #}
-                    <a href="{{ url_for("admin.mark_annotation_flag",
-                        flag_id=flag.id, next=request.full_path) }}">{% if
-                        flag.resolver %}&#10003;{% else %}&#10007;{% endif
-                    %}</a>
-                </td>
-                <td>
-                    <a href="{{ url_for("main.annotation",
-                        annotation_id=flag.entity.id) }}">[{{ flag.entity.id
-                        }}]</a>
-                </td>
-                <td>
-                    {# flag #}
-                    {{ flag.enum.enum }}
-                </td>
-                <td>
-                    {# thrower #}
-                    <a href="{{ url_for("user.profile", user_id=flag.thrower.id)
-                        }}">{{ flag.thrower.displayname }}</a>
-                </td>
-                <td>
-                    {# time thrown #}
-                    {{ flag.time_thrown }}
-                </td>
-                <td>
-                    {# resolver #}
-                    {% if flag.resolver %}
-                        <a href="{{ url_for("user.profile",
-                            user_id=flag.resolver.id) }}">{{
-                            flag.resolver.displayname }}</a>
-                    {% endif %}
-                </td>
-                <td>
-                    {# time resolved #}
-                    {% if flag.time_resolved %}
-                        {{ flag.time_resolved }}
-                    {% endif %}
-                </td>
-                <td>
-                    {# text title #}
-                    <a href="{{ url_for("main.text",
-                        text_url=flag.entity.text.url) }}">{{
-                        flag.entity.edition.title }}</a>
-                </td>
-            </tr>
+            <div class="event">
+                <a href="{{ url_for('admin.annotation_flags', annotation_id=flag.entity.id) }}">
+                    <div class="resolved">{% if flag.resolver %}&#10003;{% else %}&#10007;{% endif %}</div>
+                    <div class="annotation-num">{{ flag.entity }} on {{ flag.entity.edition }}</div>
+                    <div class="flag">{{ flag.enum }}</div>
+                    <div class="thrower">
+                        thrown by {{ flag.thrower }}
+                        {% set timestamp = flag.time_thrown %}
+                        {% include "includes/_timestamp.html" %}
+                    </div>
+                    <div class="resolver">
+                        {% if flag.resolver %}
+                            resolved by {{ flag.resolver }}
+                            {% set timestamp = flag.time_resolved %}
+                            {% include "includes/_timestamp.html" %}
+                        {% else %}unresolved{% endif %}
+                    </div>
+                </a>
+            </div>
         {% endfor %}
-    </table>
-{% else %}
-    <h3>No flags yet.</h3>
-{% endif %}
-
+    </div>
 {% endblock %}

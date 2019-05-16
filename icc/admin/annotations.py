@@ -81,60 +81,36 @@ def all_annotation_flags():
     for now. But soon I will make this a more democratic process including with
     voting.
     """
-    default = 'marked'
+    default = 'unresolved'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'marked': (AnnotationFlag.query
+        'unresolved': (AnnotationFlag.query
                    .order_by(AnnotationFlag.time_resolved.desc())),
-        'marked_invert': (AnnotationFlag.query
-                          .order_by(AnnotationFlag.time_resolved.asc())),
         'flag': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
                  .order_by(AnnotationFlag.enum_cls.enum.asc())),
-        'flag_invert': (AnnotationFlag.query
-                        .outerjoin(AnnotationFlag.enum_cls)
-                        .order_by(AnnotationFlag.enum_cls.enum.desc())),
         'thrower': (AnnotationFlag.query
                     .join(User, User.id==AnnotationFlag.thrower_id)
                     .order_by(User.displayname.asc())),
-        'thrower_invert': (AnnotationFlag.query
-                           .join(User, User.id==AnnotationFlag.thrower_id)
-                           .order_by(User.displayname.desc())),
         'time': (AnnotationFlag.query
                  .order_by(AnnotationFlag.time_thrown.desc())),
-        'time_invert': (AnnotationFlag.query
-                        .order_by(AnnotationFlag.time_thrown.asc())),
         'resolver': (AnnotationFlag.query
                      .outerjoin(User, User.id==AnnotationFlag.resolver_id)
                      .order_by(User.displayname.asc())),
-        'resolver_invert': (AnnotationFlag.query
-                            .outerjoin(User,
-                                       User.id==AnnotationFlag.resolver_id)
-                            .order_by(User.displayname.desc())),
-        'time_resolved': (AnnotationFlag.query
+        'time-resolved': (AnnotationFlag.query
                           .order_by(AnnotationFlag.time_resolved.desc())),
-        'time_resolved_invert': (AnnotationFlag.query
-                                 .order_by(AnnotationFlag.time_resolved.asc())),
         'annotation': (AnnotationFlag.query
                        .order_by(AnnotationFlag.annotation_id.asc())),
-        'annotation_invert': (AnnotationFlag.query
-                              .order_by(AnnotationFlag.annotation_id.desc())),
         'text': (AnnotationFlag.query
                  .join(Annotation, Annotation.id==AnnotationFlag.annotation_id)
                  .join(Edition, Edition.id==Annotation.edition_id)
                  .join(Text, Text.id==Edition.text_id)
                  .order_by(Text.sort_title.asc())),
-        'text_invert': (AnnotationFlag.query
-                        .join(Annotation,
-                              Annotation.id==AnnotationFlag.annotation_id)
-                        .join(Edition, Edition.id==Annotation.edition_id)
-                        .join(Text, Text.id==Edition.text_id)
-                        .order_by(Text.sort_title.desc()))
     }
 
     sort = sort if sort in sorts else default
-    flags = sorts[sort].paginate(page,
+    flags = sorts[sort].filter_by(time_resolved=None).paginate(page,
                                  current_app.config['NOTIFICATIONS_PER_PAGE'],
                                  False)
     if not flags.items and page > 1:
@@ -158,7 +134,7 @@ def all_annotation_flags():
 @authorize('resolve_annotation_flags')
 def annotation_flags(annotation_id):
     """View all flags for a given annotation."""
-    default = 'marked'
+    default = 'unresolved'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
 
@@ -167,28 +143,14 @@ def annotation_flags(annotation_id):
         current_user.authorize('resolve_deactivated_annotation_flags')
 
     sorts = {
-        'marked': (annotation.flags
-                   .order_by(AnnotationFlag.time_resolved.desc())),
-        'marked_invert': (annotation.flags
-                          .order_by(AnnotationFlag.time_resolved.asc())),
+        'unresolved': (annotation.flags
+                       .order_by(AnnotationFlag.time_resolved.asc())),
         'flag': (annotation.flags.outerjoin(AnnotationFlag.enum_cls)
                  .order_by(AnnotationFlag.enum_cls.enum.asc())),
-        'flag_invert': (annotation.flags.outerjoin(AnnotationFlag.enum_cls)
-                        .order_by(AnnotationFlag.enum_cls.enum.desc())),
-        'time': annotation.flags.order_by(AnnotationFlag.time_thrown.desc()),
-        'time_invert': (annotation.flags
-                        .order_by(AnnotationFlag.time_thrown.asc())),
-        'resolver': (annotation.flags
-                     .outerjoin(User, User.id==AnnotationFlag.resolver_id)
-                     .order_by(User.displayname.asc())),
-        'resolver_invert': (
-            annotation.flags
-            .outerjoin(User, User.id==AnnotationFlag.resolver_id)
-            .order_by(User.displayname.desc())),
-        'time_resolved': (annotation.flags
+        'time-thrown': (annotation.flags
+                        .order_by(AnnotationFlag.time_thrown.desc())),
+        'time-resolved': (annotation.flags
                           .order_by(AnnotationFlag.time_resolved.desc())),
-        'time_resolved_invert': (annotation.flags
-                                 .order_by(AnnotationFlag.time_resolved.asc())),
     }
 
     sort = sort if sort in sorts else default

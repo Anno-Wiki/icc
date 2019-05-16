@@ -55,6 +55,12 @@ class EnumMixin:
     def __repr__(self):
         return f"<{type(self).__name__} {self.enum}>"
 
+    def __str__(self):
+        if hasattr(self, 'display'):
+            return self.display
+        else:
+            return self.enum
+
 
 class FlagMixin:
     """FlagMixin is a complex mixin. It defines a new class for enums for flags.
