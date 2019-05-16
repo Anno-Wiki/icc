@@ -1,226 +1,216 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content">
-        {% if edit.rejected %}
-            <h1 class="rejected">&#10007; Edit Rejected<h1>
-        {% endif %}
-        <h1>
-            Edit #{{ edit.num }} of
-            Annotation <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
-            on <a href="{{ edit.edition.url }}">{{ edit.edition }}</a>
-        </h1>
+    {% if edit.rejected %}
+        <h1 class="rejected">&#10007; Edit Rejected<h1>
+    {% elif edit.approved %}
+        <h1 class="approved">&#10003;</h1>
+    {% endif %}
+    <h1>
+        Edit #{{ edit.num }} of
+        Annotation <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
+        on <a href="{{ edit.edition.url }}">{{ edit.edition }}</a>
+    </h1>
 
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">version history</a>
+            <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation.id, num=edit.previous.num) }}">previous version</a>
+            {% if current_user.is_authorized("delete_edits") %}<a href="{{ url_for("admin.delete_edit", edit_id=edit.id) }}">delete</a>{% endif %}
+        </div>
+    </div>
+
+    {% include "includes/_vote.js" %}
+    <div class="toolbar">
+        <div class="tools">
+            {% set entity, prefix, ident = edit, 'e', edit.id %}
+            <div id="{{ prefix }}{{ ident }}" class="weightvote">
+                {% include "includes/_weight.html" %}
+                {% include "includes/_vote.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% if edit.ballots %}
         <div class="toolbar">
             <div class="tools">
-                <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">version history</a>
-                <a href="{{ url_for("main.view_edit", annotation_id=edit.annotation.id, num=edit.previous.num) }}">previous version</a>
-                {% if current_user.is_authorized("delete_edits") %}
-                    <a href="{{ url_for("admin.delete_edit", edit_id=edit.id) }}">delete</a>
-                {% endif %}
+                approved by:
+                {% for ballot in edit.ballots %}{% if ballot.is_up %}<a href="{{ ballot.voter.url }}">{{ ballot.voter.displayname }}</a>{% endif %}{% endfor %}
+                rejected by:
+                {% for ballot in edit.ballots %}{% if not ballot.is_up %}<a href="{{ ballot.voter.url }}">{{ ballot.voter.displayname }}</a>{% endif %}{% endfor %}
             </div>
         </div>
+    {% endif %}
 
-        {% include "includes/_vote.js" %}
-        <div class="toolbar">
-            <div class="tools">
-                {% set entity, prefix, ident = edit, 'e', edit.id %}
-                <div id="{{ prefix }}{{ ident }}" class="weightvote">
-                    {% include "includes/_weight.html" %}
-                    {% include "includes/_vote.html" %}
-                </div>
-            </div>
-        </div>
-
-        <div class="toolbar">
-            <div class="tools">
-                {% if edit.ballots %}
-                    approved by:
-                    {% for ballot in edit.ballots %}
-                        {% if ballot.is_up %}
-                            <a href="{{ url_for("user.profile", user_id=ballot.voter.id) }}">{{ ballot.voter.displayname }}</a>
-                        {% endif %}
-                    {% endfor %}
-                    rejected by:
-                    {% for ballot in edit.ballots %}
-                        {% if not ballot.is_up %}
-                            <a href="{{ url_for("user.profile", user_id=ballot.voter.id) }}">{{ ballot.voter.displayname }}</a>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-
-        <div id="text-content">
-            <div class="backlight">
-                {% for line in context %}
-                    <div class="line {{ line.primary.enum }}{% if line in edit.lines and line in edit.previous.lines %} selection{% elif line in edit.lines %} plus{% elif line in edit.previous.lines %} delta{% endif %}">
-                        <span class="line-num">
-                            {% if line in edit.lines and line in edit.previous.lines %}
-                                {{ line.num }}
-                            {% elif line in edit.lines %}
-                                +
-                            {% elif line in edit.previous.lines %}
-                                -
-                            {% else %}
-                                {{ line.num }}
-                            {% endif %}
-                        </span>
-                        <span class="text">{{ line.line }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="annotation">
-            <div class="annotation-head">
-                <div>
-                    <span class="footnote">
-                        <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
-                        {% if edit.annotation.locked %}&#128274;{% endif %}
-                    </span>
-                    <span class="line-nums">
-                        {% if edit.previous.first_line_num == edit.first_line_num and edit.previous.last_line_num == edit.last_line_num %}
-                            on
-                            {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
-                            {% include "includes/_line_nums.html" %}
+    <div id="text-content">
+        <div class="backlight">
+            {% for line in context %}
+                <div class="line {{ line.primary.enum }}{% if line in edit.lines and line in edit.previous.lines %} selection{% elif line in edit.lines %} plus{% elif line in edit.previous.lines %} delta{% endif %}">
+                    <span class="line-num">
+                        {% if line in edit.lines and line in edit.previous.lines %}
+                            {{ line.num }}
+                        {% elif line in edit.lines %}
+                            +
+                        {% elif line in edit.previous.lines %}
+                            -
                         {% else %}
-                            previously on
-                            {% set first_line, last_line = edit.previous.lines[0], edit.previous.lines[-1] %}
-                            {% include "includes/_line_nums.html" %},
-                            now on
-                            {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
-                            {% include "includes/_line_nums.html" %}
+                            {{ line.num }}
                         {% endif %}
                     </span>
-
+                    <span class="text">{{ line.line }}</span>
                 </div>
-            </div>
-
-            <div class="annotation-collapsible">
-                <div class="annotation-body">
-                    {% for line in diff %}
-                        {% if line.startswith("-") %}
-                            <div class="delta">{{ line[2:]|markdown }}</div>
-                        {% elif line.startswith("+") %}
-                            <div class="plus">{{ line[2:]|markdown }}</div>
-                        {% elif line.startswith(" ") %}
-                            <div>{{ line|markdown }}</div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="tags">
-                    {% for tag in tags %}
-                        {% if tag in edit.tags and tag in edit.previous.tags %}
-                            <a href="{{ tag.url }}">
-                                <div class="tag">{{ tag.tag }}</div>
-                            </a>
-                        {% elif tag in edit.tags and tag not in edit.previous.tags
-                            %}
-                            <a href="{{ tag.url }}">
-                                <div class="tag plus">+ {{ tag.tag }}</div>
-                            </a>
-                        {% elif tag not in edit.tags and tag in edit.previous.tags %}
-                            <a href="{{ tag.url }}">
-                                <div class="tag delta">- {{ tag.tag }}</div>
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <div class="annotation-footer">
-                    <em><a href="{{ edit.annotation.url }}">annotated</a> by</em>
-                    <a href="{{ edit.annotation.annotator.url }}">{{ edit.annotation.annotator.displayname }}</a>
-                    {% set timestamp = edit.annotation.timestamp %}
-                    {% include "includes/_timestamp.html" %}
-                    <br>
-
-                    {% if edit.previous.num != 0 %}
-                        <em><a href="{{ edit.previous.url }}">last edited</a> by</em>
-                        <a href="{{ edit.previous.editor.url }}">{{ edit.previous.editor.displayname }}</a>
-                        {% set timestamp = edit.previous.timestamp %}
-                        {% include "includes/_timestamp.html" %}
-                        <br>
-                    {% endif %}
-
-                    <em>this time edited by</em>
-                    <a href="{{ edit.editor.url }}">{{ edit.editor.displayname }}</a>
-                    {% set timestamp = edit.timestamp %}
-                    {% include "includes/_timestamp.html" %}
-                    <br>
-                    <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+    </div>
 
-        <div class="annotation">
-            <div class="annotation-head">
-                <div>
-                    <span class="footnote">
-                        <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
-                        {% if edit.annotation.locked %}&#128274;{% endif %}
-                    </span>
-                    <span class="line-nums">
-                        new version on
-                        {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
-                        {% include "includes/_line_nums.html" %}
-
-                    </span>
-                </div>
-            </div>
-            <div class="annotation-collapsible">
-                <div class="annotation-content">{{ edit.body|markdown }}</div>
-
-                <div class="tags">
-                    {% for tag in edit.tags %}
-                        <a href="{{ tag.url }}">
-                            <div class="tag">{{ tag.tag }}</div>
-                        </a>
-                    {% endfor %}
-                </div>
-                <div class="annotation-footer">
-                    <em>edited by</em>
-                    <a href="{{ edit.editor.url}}">{{ edit.editor.displayname }}</a>
-                    {% set timestamp = edit.timestamp %}
-                    {% include "includes/_timestamp.html" %}
-                    <em>for:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
-                </div>
-            </div>
-        </div>
-        <div class="annotation">
-            <div class="annotation-head">
+    <div class="annotation">
+        <div class="annotation-head">
+            <div>
                 <span class="footnote">
                     <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
                     {% if edit.annotation.locked %}&#128274;{% endif %}
                 </span>
                 <span class="line-nums">
-                    old version on
-                    {% set first_line, last_line = edit.previous.lines[0], edit.previous.lines[-1] %}
+                    {% if edit.previous.first_line_num == edit.first_line_num and edit.previous.last_line_num == edit.last_line_num %}
+                        on
+                        {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
+                        {% include "includes/_line_nums.html" %}
+                    {% else %}
+                        previously on
+                        {% set first_line, last_line = edit.previous.lines[0], edit.previous.lines[-1] %}
+                        {% include "includes/_line_nums.html" %},
+                        now on
+                        {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
+                        {% include "includes/_line_nums.html" %}
+                    {% endif %}
+                </span>
+
+            </div>
+        </div>
+
+        <div class="annotation-collapsible">
+            <div class="annotation-body">
+                {% for line in diff %}
+                    {% if line.startswith("-") %}
+                        <div class="delta">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith("+") %}
+                        <div class="plus">{{ line[2:]|markdown }}</div>
+                    {% elif line.startswith(" ") %}
+                        <div>{{ line|markdown }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="tags">
+                {% for tag in tags %}
+                    {% if tag in edit.tags and tag in edit.previous.tags %}
+                        <a href="{{ tag.url }}">
+                            <div class="tag">{{ tag.tag }}</div>
+                        </a>
+                    {% elif tag in edit.tags and tag not in edit.previous.tags
+                        %}
+                        <a href="{{ tag.url }}">
+                            <div class="tag plus">+ {{ tag.tag }}</div>
+                        </a>
+                    {% elif tag not in edit.tags and tag in edit.previous.tags %}
+                        <a href="{{ tag.url }}">
+                            <div class="tag delta">- {{ tag.tag }}</div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="annotation-footer">
+                <em><a href="{{ edit.annotation.url }}">annotated</a> by</em>
+                <a href="{{ edit.annotation.annotator.url }}">{{ edit.annotation.annotator.displayname }}</a>
+                {% set timestamp = edit.annotation.timestamp %}
+                {% include "includes/_timestamp.html" %}
+                <br>
+
+                {% if edit.previous.num != 0 %}
+                    <em><a href="{{ edit.previous.url }}">last edited</a> by</em>
+                    <a href="{{ edit.previous.editor.url }}">{{ edit.previous.editor.displayname }}</a>
+                    {% set timestamp = edit.previous.timestamp %}
+                    {% include "includes/_timestamp.html" %}
+                    <br>
+                {% endif %}
+
+                <em>this time edited by</em>
+                <a href="{{ edit.editor.url }}">{{ edit.editor.displayname }}</a>
+                {% set timestamp = edit.timestamp %}
+                {% include "includes/_timestamp.html" %}
+                <br>
+                <em>edit reason:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="annotation">
+        <div class="annotation-head">
+            <div>
+                <span class="footnote">
+                    <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
+                    {% if edit.annotation.locked %}&#128274;{% endif %}
+                </span>
+                <span class="line-nums">
+                    new version on
+                    {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
                     {% include "includes/_line_nums.html" %}
+
                 </span>
             </div>
-            <div class="annotation-collapsible">
-                <div class="annotation-body">{{ edit.previous.body|markdown }}</div>
+        </div>
+        <div class="annotation-collapsible">
+            <div class="annotation-content">{{ edit.body|markdown }}</div>
 
-                <div class="tags">
-                    {% for tag in edit.previous.tags %}
-                        <a href="{{ tag.url }}">{{ tag|safe }}</a>
-                    {% endfor %}
-                </div>
-                <div class="annotation-footer">
-                    {% if edit.previous.num > 0 %}
-                        <em><a href="{{ edit.previous.url }}">last edited</a> by </em>
-                        <a href="{{ edit.previous.editor.url }}">{{ edit.previous.editor.displayname }}</a>
-                        {% set timestamp = edit.previous.timestamp %}
-                        {% include "includes/_timestamp.html" %}
-                        <em>for:</em> &nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
-                    {% else %}
-                        <em><a href="{{ edit.annotation.url }}">originally annotated</a> by</em>
-                        <a href="{{ edit.annotation.annotator.url }}">{{ edit.annotation.annotator.displayname }}</a>
-                        {% set timestamp = edit.annotation.timestamp %}
-                        {% include "includes/_timestamp.html" %}
-                    {% endif %}
-                </div>
+            <div class="tags">
+                {% for tag in edit.tags %}
+                    <a href="{{ tag.url }}">
+                        <div class="tag">{{ tag.tag }}</div>
+                    </a>
+                {% endfor %}
+            </div>
+            <div class="annotation-footer">
+                <em>edited by</em>
+                <a href="{{ edit.editor.url}}">{{ edit.editor.displayname }}</a>
+                {% set timestamp = edit.timestamp %}
+                {% include "includes/_timestamp.html" %}
+                <em>for:</em>&nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+            </div>
+        </div>
+    </div>
+    <div class="annotation">
+        <div class="annotation-head">
+            <span class="footnote">
+                <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
+                {% if edit.annotation.locked %}&#128274;{% endif %}
+            </span>
+            <span class="line-nums">
+                old version on
+                {% set first_line, last_line = edit.previous.lines[0], edit.previous.lines[-1] %}
+                {% include "includes/_line_nums.html" %}
+            </span>
+        </div>
+        <div class="annotation-collapsible">
+            <div class="annotation-body">{{ edit.previous.body|markdown }}</div>
+
+            <div class="tags">
+                {% for tag in edit.previous.tags %}
+                    <a href="{{ tag.url }}">{{ tag|safe }}</a>
+                {% endfor %}
+            </div>
+            <div class="annotation-footer">
+                {% if edit.previous.num > 0 %}
+                    <em><a href="{{ edit.previous.url }}">last edited</a> by </em>
+                    <a href="{{ edit.previous.editor.url }}">{{ edit.previous.editor.displayname }}</a>
+                    {% set timestamp = edit.previous.timestamp %}
+                    {% include "includes/_timestamp.html" %}
+                    <em>for:</em> &nbsp;&nbsp;&nbsp; <b>{{ edit.edit_reason }}</b>
+                {% else %}
+                    <em><a href="{{ edit.annotation.url }}">originally annotated</a> by</em>
+                    <a href="{{ edit.annotation.annotator.url }}">{{ edit.annotation.annotator.displayname }}</a>
+                    {% set timestamp = edit.annotation.timestamp %}
+                    {% include "includes/_timestamp.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
