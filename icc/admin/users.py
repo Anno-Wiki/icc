@@ -55,39 +55,22 @@ def lock_user(user_id):
 @authorize('resolve_user_flags')
 def all_user_flags():
     """Display all user flags for all users."""
-    default = 'marked'
+    default = 'flag'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'marked': UserFlag.query.order_by(UserFlag.time_resolved.desc()),
-        'marked_invert': UserFlag.query.order_by(UserFlag.time_resolved.asc()),
-        'flag': (UserFlag.query.join(UserFlag.enum_cls)
-                 .order_by(UserFlag.enum_cls.enum.asc())),
-        'flag_invert': (UserFlag.query.join(UserFlag.enum_cls)
-                        .order_by(UserFlag.enum_cls.enum.desc())),
-        'time': UserFlag.query.order_by(UserFlag.time_thrown.desc()),
-        'time_invert': UserFlag.query.order_by(UserFlag.time_thrown.asc()),
-        'thrower': (UserFlag.query.join(User, User.id==UserFlag.user_id)
-                    .order_by(User.displayname.asc())),
-        'thrower_invert': (UserFlag.query.join(User, User.id==UserFlag.user_id)
-                           .order_by(User.displayname.desc())),
-        'resolver': (UserFlag.query.join(User, User.id==UserFlag.user_id)
-                     .order_by(User.displayname.asc())),
-        'resolver_invert': (UserFlag.query.join(User, User.id==UserFlag.user_id)
-                            .order_by(User.displayname.desc())),
-        'time_resolved': UserFlag.query.order_by(UserFlag.time_resolved.desc()),
-        'time_resolved_invert': (UserFlag.query
-                                 .order_by(UserFlag.time_resolved.asc())),
         'user': (UserFlag.query.join(User, User.id==UserFlag.user_id)
                  .order_by(User.displayname.asc())),
-        'user_invert': (UserFlag.query
-                        .join(User, User.id==UserFlag.user_id)
-                        .order_by(User.displayname.desc())),
+        'flag': (UserFlag.query.join(UserFlag.enum_cls)
+                 .order_by(UserFlag.enum_cls.enum.asc())),
+        'time-thrown': UserFlag.query.order_by(UserFlag.time_thrown.desc()),
+        'thrower': (UserFlag.query.join(User, User.id==UserFlag.user_id)
+                    .order_by(User.displayname.asc())),
     }
 
     sort = sort if sort in sorts else default
-    flags = sorts[sort]\
+    flags = sorts[sort].filter(UserFlag.time_resolved==None)\
         .paginate(page, current_app.config['NOTIFICATIONS_PER_PAGE'], False)
     if not flags.items and page > 1:
         abort(404)
@@ -110,33 +93,22 @@ def all_user_flags():
 @authorize('resolve_user_flags')
 def user_flags(user_id):
     """Display all flags for a given user."""
-    default = 'marked'
+    default = 'unresolved'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
     user = User.query.get_or_404(user_id)
 
     sorts = {
-        'marked': user.flags.order_by(UserFlag.time_resolved.desc()),
-        'marked_invert': (user.flags
-                          .order_by(UserFlag.time_resolved.asc())),
+        'unresolved': user.flags.order_by(UserFlag.time_resolved.desc()),
         'flag': (user.flags.join(UserFlag.enum_cls)
                 .order_by(UserFlag.enum_cls.enum.asc())),
-        'flag_invert': (user.flags.join(UserFlag.enum_cls)
-                        .order_by(UserFlag.enum_cls.enum.desc())),
-        'time': user.flags.order_by(UserFlag.time_thrown.desc()),
-        'time_invert': user.flags.order_by(UserFlag.time_thrown.asc()),
+        'time-thrown': user.flags.order_by(UserFlag.time_thrown.desc()),
         'thrower': (user.flags.join(User, UserFlag.user_id==User.id)
                     .order_by(User.displayname.asc())),
-        'thrower_invert': (user.flags.join(User, UserFlag.user_id==User.id)
-                        .order_by(User.displayname.desc())),
         'resolver': (user.flags.join(User, UserFlag.user_id==User.id)
                      .order_by(User.displayname.asc())),
-        'resolver_invert': (user.flags.join(User, UserFlag.user_id==User.id)
-                            .order_by(User.displayname.desc())),
-        'time_resolved': (user.flags
+        'time-resolved': (user.flags
                           .order_by(UserFlag.time_resolved.desc())),
-        'time_resolved_invert': (user.flags
-                             .order_by(UserFlag.time_resolved.asc())),
     }
 
     sort = sort if sort in sorts else default
@@ -170,8 +142,10 @@ def mark_user_flag(flag_id):
                                          user_id=flag.user_id))
     if flag.time_resolved:
         flag.unresolve()
+        flash("Flag unresolved.")
     else:
         flag.resolve(current_user)
+        flash("Flag resolved.")
     db.session.commit()
     return redirect(redirect_url)
 
@@ -185,5 +159,6 @@ def mark_all_user_flags(user_id):
     redirect_url = generate_next(url_for('admin.user_flags', user_id=user.id))
     for flag in user.active_flags:
         flag.resolve(current_user)
+    flash("All active user flags resolved.")
     db.session.commit()
     return redirect(redirect_url)

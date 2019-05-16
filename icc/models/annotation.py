@@ -413,8 +413,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         'AnnotationFlag',
         primaryjoin='Annotation.id==AnnotationFlag.annotation_id',
         lazy='dynamic')
-    active_flags = db.relationship(
-        'AnnotationFlag',
+    active_flags = db.relationship('AnnotationFlag',
         primaryjoin='and_(Annotation.id==AnnotationFlag.annotation_id,'
         'AnnotationFlag.resolver_id==None)', passive_deletes=True)
 

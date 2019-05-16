@@ -81,13 +81,11 @@ def all_annotation_flags():
     for now. But soon I will make this a more democratic process including with
     voting.
     """
-    default = 'unresolved'
+    default = 'flag'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'unresolved': (AnnotationFlag.query
-                   .order_by(AnnotationFlag.time_resolved.desc())),
         'flag': (AnnotationFlag.query.outerjoin(AnnotationFlag.enum_cls)
                  .order_by(AnnotationFlag.enum_cls.enum.asc())),
         'thrower': (AnnotationFlag.query
@@ -95,11 +93,6 @@ def all_annotation_flags():
                     .order_by(User.displayname.asc())),
         'time': (AnnotationFlag.query
                  .order_by(AnnotationFlag.time_thrown.desc())),
-        'resolver': (AnnotationFlag.query
-                     .outerjoin(User, User.id==AnnotationFlag.resolver_id)
-                     .order_by(User.displayname.asc())),
-        'time-resolved': (AnnotationFlag.query
-                          .order_by(AnnotationFlag.time_resolved.desc())),
         'annotation': (AnnotationFlag.query
                        .order_by(AnnotationFlag.annotation_id.asc())),
         'text': (AnnotationFlag.query
@@ -110,7 +103,7 @@ def all_annotation_flags():
     }
 
     sort = sort if sort in sorts else default
-    flags = sorts[sort].filter_by(time_resolved=None).paginate(page,
+    flags = sorts[sort].filter(AnnotationFlag.time_resolved==None).paginate(page,
                                  current_app.config['NOTIFICATIONS_PER_PAGE'],
                                  False)
     if not flags.items and page > 1:

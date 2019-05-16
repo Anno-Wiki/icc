@@ -7,26 +7,8 @@
     {% include "includes/_sorts.html" %}
     <div class="events">
         {% for flag in flags %}
-            <div class="event">
-                <a href="{{ url_for('admin.mark_annotation_flag', flag_id=flag.id) }}">
-                    <div class="resolved">{% if flag.resolver %}&#10003;{% else %}&#10007;{% endif %}</div>
-                    <div class="flag">{{ flag.enum }}</div>
-                    <div class="thrower">
-                        {{ flag.thrower }}
-                        {% set timestamp = flag.time_thrown %}
-                        {% include "includes/_timestamp.html" %}
-                    </div>
-                    <div class="resolver">
-                        {% if flag.resolver %}
-                            {{ flag.resolver }}
-                            {% set timestamp = flag.time_resolved %}
-                            {% include "includes/_timestamp.html" %}
-                        {% else %}
-                            unresolved
-                        {% endif %}
-                    </div>
-                </a>
-            </div>
+            {% set url = url_for('admin.mark_annotation_flag', flag_id=flag.id) %}
+            {% include "includes/_flag.html" %}
         {% endfor %}
     </div>
 {% endblock %}

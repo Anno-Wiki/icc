@@ -108,6 +108,10 @@ class User(UserMixin, Base):
     reputation_changes = db.relationship('ReputationChange', lazy='dynamic')
     rights = db.relationship('AdminRight', secondary='rights')
     annotations = db.relationship('Annotation', lazy='dynamic')
+    active_flags = db.relationship('UserFlag',
+                                   primaryjoin='and_(User.id==UserFlag.user_id,'
+                                   'UserFlag.resolver_id==None)',
+                                   passive_deletes=True)
 
     # Because this is a self-referential many-to-many it is defined explicitly
     # as opposed to using my FollowableMixin

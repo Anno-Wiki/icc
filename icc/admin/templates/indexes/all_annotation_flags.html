@@ -1,26 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>All Annotation Flags</h1>
+    <h1>All Unresolved Annotation Flags</h1>
     {% include "includes/_sorts.html" %}
     <div class="events">
         {% for flag in flags %}
             <div class="event">
                 <a href="{{ url_for('admin.annotation_flags', annotation_id=flag.entity.id) }}">
-                    <div class="resolved">{% if flag.resolver %}&#10003;{% else %}&#10007;{% endif %}</div>
                     <div class="annotation-num">{{ flag.entity }} on {{ flag.entity.edition }}</div>
                     <div class="flag">{{ flag.enum }}</div>
                     <div class="thrower">
                         thrown by {{ flag.thrower }}
                         {% set timestamp = flag.time_thrown %}
                         {% include "includes/_timestamp.html" %}
-                    </div>
-                    <div class="resolver">
-                        {% if flag.resolver %}
-                            resolved by {{ flag.resolver }}
-                            {% set timestamp = flag.time_resolved %}
-                            {% include "includes/_timestamp.html" %}
-                        {% else %}unresolved{% endif %}
                     </div>
                 </a>
             </div>

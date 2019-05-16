@@ -11,13 +11,6 @@ from icc import db
 from icc.search import add_to_index, remove_from_index, query_index
 
 
-def iff(a, b):
-    """Helper function for if and only if logic construction because I am a dork
-    for elegant code and logic.
-    """
-    return (a and b) or (not a and not b)
-
-
 class Base(db.Model):
     """This Base class does nothing. It is here in case I need to expand
     implement something later. I feel like it's a good early practice.
