@@ -1,53 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1>
-    Edit history for
-    <a href="{{ url_for("main.annotation", annotation_id=annotation.id) }}">
-        Annotation
-        <sup>
-             [{{ annotation.id }}]
-        </sup>
-    </a>
-    of
-    <a href="{{ url_for("main.text", text_url=annotation.text.url) }}">
-        {{ annotation.text.title }}
-    </a>
-</h1>
-{% set header = [
-    ('num',         '# &#9662;',            'num_invert',       '# &#9652;'),
-    ('editor',      'Editor &#9662;',       'editor_invert',    'Editor &#9652;'),
-    ('time',        'Time &#9662;',         'time_invert',      'Time &#9652;'),
-    ('reason',      'Reason &#9662;',       'reason_invert',    'Reason &#9652;'),
-    ]%}
-<table class="inbox">
-    {% include "includes/_table_header.html" %}
-    {% if edits %}
+    <h1>
+        Edit history for
+        <a href="{{ annotation.url }}">Annotation {{ annotation }}</a>
+        of
+        <a href="{{ annotation.edition.url }}">{{ annotation.edition }}</a>
+    </h1>
+    {% include "includes/_sorts.html" %}
+    <div class="events">
         {% for edit in edits %}
-            <tr class="unread">
-                <td>
-                    <a href="{{ url_for("main.view_edit",
-                        annotation_id=annotation.id, num=edit.num) }}">
-                        {{ edit.num }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ url_for("user.profile", user_id=edit.editor_id) }}">
-                        {{ edit.editor.displayname }}
-                    </a>
-                </td>
-                <td> {{ edit.timestamp }} </td>
-                <td> {{ edit.reason }} </td>
-            </tr>
+            <div class="event">
+                <a href="{{ edit.url }}">
+                    <div class="edit-num">Edit #{{ edit.num }}</div>
+                    <div class="votes">{{ edit.weight }} pts.</div>
+                    <div class="editor">
+                        {{ edit.editor }}
+                        {% set timestamp = edit.timestamp %}
+                        {% include "includes/_timestamp.html" %}
+                    </div>
+                </a>
+            </div>
         {% endfor %}
-    {% else %}
-        <tr class="read">
-            <td colspan=6>
-                There are no more edits for this annotation.
-            </td>
-        </tr>
-    {% endif %}
-</table>
-
+    </div>
 {% endblock %}

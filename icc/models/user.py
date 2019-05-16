@@ -150,6 +150,9 @@ class User(UserMixin, Base):
     def __repr__(self):
         return f"<User {self.displayname}>"
 
+    def __str__(self):
+        return self.displayname
+
     def update_last_seen(self):
         """A method that will update the user's last seen timestamp."""
         self.last_seen = datetime.utcnow()

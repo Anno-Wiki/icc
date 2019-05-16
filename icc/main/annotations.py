@@ -185,7 +185,7 @@ def flag_comment(annotation_id, comment_id, flag_id):
 
 @main.route('/annotation/<annotation_id>/edit/history')
 def edit_history(annotation_id):
-    default = 'num'
+    default = 'number'
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'num_invert', type=str)
     annotation = Annotation.query.get_or_404(annotation_id)
@@ -193,16 +193,10 @@ def edit_history(annotation_id):
         current_user.authorize('view_deactivated_annotations')
 
     sorts = {
-        'num': annotation.history.order_by(Edit.num.asc()),
-        'num_invert': annotation.history.order_by(Edit.num.desc()),
+        'number': annotation.history.order_by(Edit.num.desc()),
         'editor': (annotation.history.join(User)
                    .order_by(User.displayname.asc())),
-        'editor_invert': (annotation.history.join(User)
-                          .order_by(User.displayname.desc())),
         'time': annotation.history.order_by(Edit.timestamp.asc()),
-        'time_invert': annotation.history.order_by(Edit.timestamp.desc()),
-        'reason': annotation.history.order_by(Edit.reason.asc()),
-        'reason_invert': annotation.history.order_by(Edit.reason.desc()),
     }
 
     sort = sort if sort in sorts else default
