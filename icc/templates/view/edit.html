@@ -91,13 +91,9 @@
         <div class="annotation-collapsible">
             <div class="annotation-body">
                 {% for line in diff %}
-                    {% if line.startswith("-") %}
-                        <div class="delta">{{ line[2:]|markdown }}</div>
-                    {% elif line.startswith("+") %}
-                        <div class="plus">{{ line[2:]|markdown }}</div>
-                    {% elif line.startswith(" ") %}
-                        <div>{{ line|markdown }}</div>
-                    {% endif %}
+                    <div class="{% if line.startswith("-") %}delta{% elif line.startswith("+") %}plus{% endif %}">
+                        <p>{{ line }}</p>
+                    </div>
                 {% endfor %}
             </div>
 
@@ -160,7 +156,7 @@
             </div>
         </div>
         <div class="annotation-collapsible">
-            <div class="annotation-content">{{ edit.body|markdown }}</div>
+            <div class="annotation-content">{{ edit.body|proc_links|markdown }}</div>
 
             <div class="tags">
                 {% for tag in edit.tags %}
@@ -191,7 +187,7 @@
             </span>
         </div>
         <div class="annotation-collapsible">
-            <div class="annotation-body">{{ edit.previous.body|markdown }}</div>
+            <div class="annotation-body">{{ edit.previous.body|proc_links|markdown }}</div>
 
             <div class="tags">
                 {% for tag in edit.previous.tags %}

@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="annotation-collapsible">
-            <div class="annotation-body">{{ edit.body|markdown }}</div>
+            <div class="annotation-body">{{ edit.body|proc_links|markdown }}</div>
             <div class="tags">
                 {% for tag in edit.tags %}<a href="{{ tag.url }}"><div class="tag">{{ tag.tag }}</div></a>{% endfor %}
             </div>
