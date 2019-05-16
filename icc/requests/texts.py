@@ -49,8 +49,10 @@ def text_request_index():
 @requests.route('/text/<request_id>')
 def view_text_request(request_id):
     """View a text request."""
-    text_request = TextRequest.query.get_or_404(request_id)
-    return render_template('view/text_request.html', text_request=text_request)
+    req = TextRequest.query.get_or_404(request_id)
+    return render_template('view/text_request.html',
+                           title=f"Request for {req.title}",
+                           req=req)
 
 
 @requests.route('/text/create', methods=['GET', 'POST'])
@@ -71,39 +73,3 @@ def request_text():
         return redirect(url_for('requests.text_request_index'))
     return render_template('forms/text_request.html', title="Request Text",
                            form=form)
-
-
-@requests.route('/text/<request_id>/upvote')
-@login_required
-def upvote_text_request(request_id):
-    """Upvote a text request."""
-    text_request = TextRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.text_request_index'))
-    vote = current_user.get_vote(text_request)
-    if vote:
-        rd_bool = vote.is_up
-        text_request.rollback(vote)
-        db.session.commit()
-        if rd_bool:
-            return redirect(redirect_url)
-    text_request.upvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@requests.route('/text/<request_id>/downvote')
-@login_required
-def downvote_text_request(request_id):
-    """Downvote a text request."""
-    text_request = TextRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.text_request_index'))
-    vote = current_user.get_vote(text_request)
-    if vote:
-        rd = not vote.is_up
-        text_request.rollback(vote)
-        db.session.commit()
-        if rd:
-            return redirect(redirect_url)
-    text_request.downvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)

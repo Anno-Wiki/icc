@@ -12,6 +12,7 @@
 
     {% include "includes/_sorts.html" %}
 
+    {% include "includes/_vote.js" %}
     <div class="index">
         {% for req in requests %}
             <div class="card">
@@ -19,7 +20,7 @@
                     <a href="{{ req.url }}">
                         {{ req }}
                     </a>
-                    <div class="weightvote small">
+                    <div id="tr{{ req.id }}" class="weightvote small">
                         {% set entity = req %}
                         {% include "includes/_weight.html" %}
                         {% set prefix, ident = 'tr', req.id %}

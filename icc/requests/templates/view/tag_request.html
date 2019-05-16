@@ -1,43 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>
+        <div class="tag">{{ req.tag }}</div>
+        {% if req.approved %}&#10003;{% elif req.rejected %}&#10007;{% endif %}
+    </h1>
 
-<h1><tag>{{ tag_request.tag }}</tag> {% if tag_request.approved %}&#10003;{%
-    elif tag_request.rejected %}&#10007;{% endif %}</h1>
+    <div class="toolbar">
+        <div class="tools">
+            <div id="r{{ req.id }}" class="weightvote">
+                {% include "includes/_vote.js" %}
+                {% set entity = req %}
+                {% include "includes/_weight.html" %}
+                {% set prefix, ident = 'r', req.id %}
+                {% include "includes/_vote.html" %}
+            </div>
+        </div>
+    </div>
 
-<br>
-{% set entity = tag_request %}
-{% include "includes/_weight.html" %}
+    <div class="toolbar">
+        <div class="tools">
+            {% set followings, entity = current_user.followed_tagrequests, req %}
+            {% include "includes/_follow.html" %}
+            <a href="{{ url_for("main.edit_wiki", wiki_id=req.wiki.id, next=request.full_path) }}">edit</a>
+            <a href="{{ url_for("main.wiki_edit_history", wiki_id=req.wiki.id) }}">edit history</a>
+            {% if current_user.is_authorized("delete_tag_requests") or current_user == req.requester %}
+                <a href="{{ url_for("admin.delete_tag_request", request_id=req.id) }}">delete</a>
+            {% endif %}
+        </div>
+    </div>
 
-{% set vote = current_user.get_vote(tag_request) %}
-<a href="{{ url_for("requests.upvote_tag_request", request_id=tag_request.id,
-    next=request.full_path) }}" class="{% if vote and vote.is_up %}voted{% else
-    %}notvoted{% endif %}">{% if
-    current_user.is_authorized('approve_tag_requests') %}approve{% else %}up{%
-    endif %}</a>
-/ <a href="{{ url_for("requests.downvote_tag_request", request_id=tag_request.id,
-    next=request.full_path) }}" class="{% if vote and not vote.is_up %}voted{%
-    else %} notvoted{% endif %}">{% if
-    current_user.is_authorized('approve_tag_requests') %}reject{% else %}down{%
-    endif %}</a>
 
-| <a href="{{ url_for("user.follow_tag_request", request_id=tag_request.id,
-    next=request.full_path) }}">{% if current_user.is_authenticated and
-    tag_request in current_user.followed_tagrequests %}unfollow{% else
-    %}follow{% endif %}</a>
-
-| <a href="{{ url_for("main.edit_wiki", wiki_id=tag_request.wiki.id,
-    next=request.full_path) }}">edit</a>
-| <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag_request.wiki.id)
-    }}">edit history</a>
-
-{% if current_user.is_authorized("delete_tag_requests") or current_user ==
-    tag_request.requester %}
-    | <a href="{{ url_for("admin.delete_tag_request", request_id=tag_request.id) }}">delete</a>
-{% endif %}
-
-<br>
-
-<div id="description">{{ tag_request.wiki.current.body|markdown }}</div>
+    <div class="backlight-description">{{ req.wiki.current.body|markdown }}</div>
 
 {% endblock %}

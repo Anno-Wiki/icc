@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="POST" novalidate>
-    {{ form.csrf_token() }}
-    {{ form.tag(size=70) }}
-    <br>
-    {% for error in form.tag.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    {{ form.description(rows=10, cols=70) }}
-    {% for error in form.description.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    <br>
-    {{ form.submit }}
-</form>
+    <form class="body-form" action="" method="POST" novalidate>
+        {{ form.csrf_token() }}
+        {{ form.tag(size=70) }}
+        <br>
+        {% for error in form.tag.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        {{ form.description }}
+        {% for error in form.description.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        <br>
+        {{ form.submit }}
+    </form>
 {% endblock %}

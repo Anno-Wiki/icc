@@ -1,66 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>Tag Requests</h1>
+    {% if current_user.is_authorized("request_tags") %}
+        <h4>Don't see what you’re looking for?
+            <a href="{{ url_for("requests.request_tag") }}">Try requesting it.</a>
+        </h4>
+    {% endif %}
+    {% if current_user.is_authorized('create_tags') %}
+        <h4>
+            You have the appropriate permissions to
+            <a href="{{ url_for("admin.create_tag") }}">create a tag</a>.
+        </h4>
+    {% endif %}
 
-<h1>Tag Requests</h1>
-{% if current_user.is_authorized("request_tags") %}
-    <h4>Don't see what you’re looking for? <a href="{{
-            url_for("requests.request_tag") }}">Try requesting it.</a></h4>
-{% endif %}
-{% if current_user.is_authorized('create_tags') %}
-    <h4>You have the appropriate permissions to <a href="{{
-            url_for("admin.create_tag") }}">create a tag</a>.</h4>
-{% endif %}
+    {% include "includes/_sorts.html" %}
+    {% include "includes/_vote.js" %}
 
-{% include "includes/_sorts.html" %}
+    <div class="index">
+        {% for req in tag_requests %}
+            <div class="card">
+                <h2>
+                    <a href="{{ req.url }}">
+                        <div class="tag">{{ req.tag }}</div>
+                    </a>
+                    {% if req.approved %}&#10003;{% elif req.rejected %}&#10007;{% endif %}
+                    <div id="tr{{ req.id }}" class="weightvote small">
+                        {% set entity = req %}
+                        {% include "includes/_weight.html" %}
+                        {% set prefix, ident = 'tr', req.id %}
+                        {% include "includes/_vote.html" %}
+                    </div>
+                </h2>
 
-<div class="index">
-    {% for tag_request in tag_requests %}
-        <div class="tag_card">
-            <h2>
-                <a href="{{ url_for("requests.view_tag_request",
-                    request_id=tag_request.id) }}"><tag>{{ tag_request.tag
-                    }}</tag></a>
-                {% if tag_request.approved %}&#10003;{% elif tag_request.rejected %}&#10007;{% endif %}
-            </h2>
 
-            <div class="weight">
-                {% set entity = tag_request %}
-                {% include "includes/_weight.html" %}
-                |
-                {% set vote = current_user.get_vote(tag_request) %}
-                <a href="{{ url_for("requests.upvote_tag_request",
-                    request_id=tag_request.id, next=request.full_path) }}"
-                    class="{% if vote and vote.is_up %}voted{% else %}notvoted{%
-                    endif %}">
-                    {% if current_user.is_authorized('approve_tag_requests')
-                    %}approve{% else %}up{% endif %}
-                </a>
-                / <a href="{{ url_for("requests.downvote_tag_request",
-                    request_id=tag_request.id, next=request.full_path) }}"
-                    class="{% if vote and not vote.is_up %}voted{% else
-                    %}notvoted{% endif %}">
-                    {% if current_user.is_authorized('approve_tag_requests')
-                    %}reject{% else %}down{% endif %}
-                </a>
+                {% set followings = current_user.followed_tagrequests %}
+
+                {% set long = (len(req.wiki.current.body) >= 127) %}
+                <div{% if long %} class="card_text_cutoff"{% endif %}>
+                    {{ req.wiki.current.body[:127]|markdown }}
+                </div>
+
+                <a href="{{ req.url }}">View More</a>
             </div>
-
-            <a href="{{ url_for("user.follow_tag_request",
-                request_id=tag_request.id, next=request.full_path) }}">{%
-                if current_user.is_authenticated and tag_request in
-                current_user.followed_tagrequests %}unfollow{% else %}follow{%
-                endif %}</a>
-
-            {% set long = (len(tag_request.wiki.current.body) >= 127) %}
-            <div{% if long %} class="card_text_cutoff"{% endif %}>{{
-                tag_request.wiki.current.body[:127]|markdown }}</div>
-
-            <a href="{{ url_for("requests.view_tag_request",
-                request_id=tag_request.id) }}">
-                View More
-            </a>
-        </div>
-    {% endfor %}
-</div>
-
+        {% endfor %}
+    </div>
 {% endblock %}

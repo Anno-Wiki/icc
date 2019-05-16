@@ -430,10 +430,6 @@ body {
     .body-form-annotation {
       margin-top: 1em;
       max-width: 50em; }
-      .body-form-annotation textarea, .body-form-annotation input {
-        width: 95%; }
-        .body-form-annotation textarea[type=submit], .body-form-annotation input[type=submit] {
-          max-width: 10em; }
       .body-form-annotation .tags {
         margin: 0 auto;
         width: 96%; }
@@ -500,8 +496,9 @@ body {
       font-size: 0.9em; }
     .body-form textarea {
       font-family: "EB Garamond", "Georgia", serif;
-      height: 10em; }
+      height: 15em; }
     .body-form textarea, .body-form input {
+      width: 95%;
       border: 1px solid #b58900;
       border-radius: 3px;
       padding: 0.25em;
@@ -509,17 +506,12 @@ body {
       transition: 0.3s; }
       .body-form textarea:focus, .body-form textarea:hover, .body-form input:focus, .body-form input:hover {
         box-shadow: 0px 0px 2px 2px #cc9900; }
-      .body-form textarea#reason, .body-form input#reason {
-        max-width: 42em;
-        display: block;
-        margin: 0 auto; }
-      .body-form textarea#comment, .body-form input#comment {
-        width: 75%; }
       .body-form textarea[type=submit], .body-form input[type=submit] {
         background-color: #eee8d5;
         color: #657b83;
         cursor: pointer;
-        font-size: 1em; }
+        font-size: 1em;
+        max-width: 10em; }
 
 h1, h2, h3, h4, h5, h6 {
   color: #586e75;
@@ -845,11 +837,12 @@ hr {
   font-size: 1.15em;
   background-color: #eee8d5; }
 
-#description {
+.backlight-description {
   background-color: #eee8d5;
   padding: 1em;
   margin: 2em auto;
-  box-shadow: 0.15em 0.15em 10px 10px #93a1a1; }
+  box-shadow: 0.15em 0.15em 10px 10px #93a1a1;
+  max-width: 40rem; }
 
 .diff {
   background-color: #eee8d5;

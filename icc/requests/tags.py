@@ -47,8 +47,10 @@ def tag_request_index():
 @requests.route('/tag/<request_id>')
 def view_tag_request(request_id):
     """View a tag request page."""
-    tag_request = TagRequest.query.get_or_404(request_id)
-    return render_template('view/tag_request.html', tag_request=tag_request)
+    req = TagRequest.query.get_or_404(request_id)
+    return render_template('view/tag_request.html',
+                           title=f"Request for {req.tag}",
+                           req=req)
 
 
 @requests.route('/tag/create', methods=['GET', 'POST'])
@@ -69,39 +71,3 @@ def request_tag():
         return redirect(url_for('requests.tag_request_index'))
     return render_template('forms/tag_request.html', title="Request Tag",
                            form=form)
-
-
-@requests.route('/tag/<request_id>/upvote')
-@login_required
-def upvote_tag_request(request_id):
-    """Upvote a tag request."""
-    tag_request = TagRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.tag_request_index'))
-    vote = current_user.get_vote(tag_request)
-    if vote:
-        rd = vote.is_up
-        tag_request.rollback(vote)
-        db.session.commit()
-        if rd:
-            return redirect(redirect_url)
-    tag_request.upvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)
-
-
-@requests.route('/tag/<request_id>/downvote')
-@login_required
-def downvote_tag_request(request_id):
-    """Downvote a tag request."""
-    tag_request = TagRequest.query.get_or_404(request_id)
-    redirect_url = generate_next(url_for('requests.tag_request_index'))
-    vote = current_user.get_vote(tag_request)
-    if vote:
-        rd = not vote.is_up
-        tag_request.rollback(vote)
-        db.session.commit()
-        if rd:
-            return redirect(redirect_url)
-    tag_request.downvote(current_user)
-    db.session.commit()
-    return redirect(redirect_url)

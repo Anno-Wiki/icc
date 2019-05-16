@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% set req = text_request %}
     <h1>
         {{ req }}
         {% if req.approved %}&#10003;{% elif req.rejected %}&#10007;{% endif %}
@@ -9,10 +8,11 @@
     <h2>by {{ req.authors }}</h2>
     <div class="toolbar">
         <div class="tools">
-            <div class="weightvote">
+            <div id="r{{ req.id }}" class="weightvote">
+                {% include "includes/_vote.js" %}
                 {% set entity = req %}
                 {% include "includes/_weight.html" %}
-                {% set prefix, ident = 'tr', req.id %}
+                {% set prefix, ident = 'r', req.id %}
                 {% include "includes/_vote.html" %}
             </div>
         </div>
@@ -28,5 +28,5 @@
             {% endif %}
         </div>
     </div>
-    <div id="description">{{ req.wiki.current.body|proc_links|markdown }}</div>
+    <div class="backlight-description">{{ req.wiki.current.body|proc_links|markdown }}</div>
 {% endblock %}
