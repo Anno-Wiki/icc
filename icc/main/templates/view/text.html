@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     <h1>{{ text }}</h1>
     {% set writers = text.primary.writers['author'] %}
     <h2>by {% include "includes/_all_writers_list.html" %}</h2>
+    {% include "includes/_follow.js" %}
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">view annotations</a>

@@ -872,4 +872,7 @@ hr {
 .rejected {
   color: #dc322f; }
 
+.follow {
+  cursor: pointer; }
+
 /*# sourceMappingURL=style.css.map */

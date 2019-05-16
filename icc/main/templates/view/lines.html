@@ -1,31 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>
+        <a href="{{ lines[0].url }}#{{ lines[0].num }}">
+            {%- if len(lines) >= 2 %}ll. {{ lines[0].num }}-{{ lines[-1].num }}{% else
+                %}l.{{ lines[0].num }}{% endif -%}
+        </a>
+        of <em><a href="{% if edition.primary %}{{ edition.text.url }}{% else %}{{
+                edition.url }}{% endif %}">{{ edition.title }}</a></em>
+    </h1>
 
-<h1>
-    <a href="{{ lines[0].url }}#{{ lines[0].num }}">
-        {%- if len(lines) >= 2 %}ll. {{ lines[0].num }}-{{ lines[-1].num }}{% else
-            %}l.{{ lines[0].num }}{% endif -%}
-    </a>
-    of <em><a href="{% if edition.primary %}{{ edition.text.url }}{% else %}{{
-            edition.url }}{% endif %}">{{ edition.title }}</a></em>
-</h1>
-
-<a href="{{ url_for("main.line_annotations", text_url=text.url_name,
-    edition_num=edition.num, nums=nums) }}">annotations</a>
-<br>
-<br>
-<div class="selection">
-    {% for line in lines %}
-        <line class="{{ line.primary.enum }}" id="{{ line.num }}">
-            <span class="linenum">{{ line.num }}</span>
-            {%- if line.primary.enum == 'hr' -%}
-                <hr class="text_separator">
-            {%- else -%}
-                {{ line.line|safe }}
-            {%- endif -%}
-        </line>
-    {% endfor %}
-</div>
-
+    <a href="{{ url_for("main.line_annotations", text_url=text.url_name, edition_num=edition.num, nums=nums) }}">annotations</a>
+    <br>
+    <br>
+    <div class="selection">
+        {% for line in lines %}
+            <line class="{{ line.primary.enum }}" id="{{ line.num }}">
+                <span class="linenum">{{ line.num }}</span>
+                {%- if line.primary.enum == 'hr' -%}
+                    <hr class="text_separator">
+                {%- else -%}
+                    {{ line.line|safe }}
+                {%- endif -%}
+            </line>
+        {% endfor %}
+    </div>
 {% endblock %}

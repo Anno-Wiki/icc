@@ -34,17 +34,6 @@ def follow():
     db.session.commit()
     return redirect(redirect_url)
 
-def follow_entity(entity, followed):
-    """A helper function to reduce code duplication. Simply process the
-    following abstractly.
-    """
-    redirect_url = generate_next(entity.url)
-    if entity in followed:
-        followed.remove(entity)
-    else:
-        followed.append(entity)
-    db.session.commit()
-    return redirect(redirect_url)
 
 @user.route('/follow/user/<user_id>')
 @login_required
@@ -55,5 +44,10 @@ def follow_user(user_id):
     if user == current_user:
         flash("You can't follow yourself.")
         return redirect(redirect_url)
+    followed = current_user.followed_users
+    if user in followed:
+        followed.remove(user)
     else:
-        return follow_entity(user, current_user.followed_users)
+        followed.append(user)
+    db.session.commit()
+    return redirect(redirect_url)

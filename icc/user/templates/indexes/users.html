@@ -13,7 +13,7 @@
                     {{ user.readable_reputation }}
                 </h3>
                 <a href="{{ url_for("user.follow_user", user_id=user.id, next=request.full_path) }}">
-                    {% if current_user.is_authenticated and user in current_user.follow_users %}unfollow{% else %}follow{% endif %}
+                    {% if current_user.is_authenticated and user in current_user.followed_users %}unfollow{% else %}follow{% endif %}
                 </a>
                 <br>
                 [n] &times; {{ user.annotations.count() }}

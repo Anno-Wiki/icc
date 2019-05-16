@@ -76,6 +76,26 @@ def vote():
     return jsonify(status)
 
 
+@ajax.route('/follow')
+def follow():
+    entity_cls = classes.get(request.args.get('entity'), None)
+    entity_id = request.args.get('id').strip(lowercase)
+    if not entity_cls:
+        return jsonifY({'success': False, 'status': 'no-class'})
+    if not issubclass(entity_cls, classes['FollowableMixin']):
+        return jsonifY({'success': False, 'status': 'not-followable'})
+    entity = entity_cls.query.get_or_404(entity_id)
+    followings = getattr(current_user,
+                         f'followed_{entity_cls.__name__.lower()}s')
+    if entity in followings:
+        followings.remove(entity)
+        status = 'follow'
+    else:
+        followings.append(entity)
+        status = 'unfollow'
+    db.session.commit()
+    return jsonify({'success': True, 'status': status})
+
 @ajax.route('edition/<edition_id>/line')
 def line(edition_id):
     edition = Edition.query.get(edition_id)

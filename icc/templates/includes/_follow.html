@@ -1,3 +1,7 @@
-<a href="{{ url_for("user.follow", entity=entity.__class__.__name__, id=entity.id, next=request.full_path) }}">
+<a class="follow"
+   data-entity="{{ entity.__class__.__name__ }}"
+   data-id="{{ entity.id }}"
+   onclick="follow(this);"
+   href="{{ url_for("user.follow", entity=entity.__class__.__name__, id=entity.id, next=request.full_path) }}">
     {% if current_user.is_authenticated and entity in followings %}unfollow{% else %}follow{% endif %}
 </a>

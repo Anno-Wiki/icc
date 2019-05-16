@@ -4,6 +4,7 @@
 {% block content %}
     <h1>Writers</h1>
     {% include "includes/_sorts.html" %}
+    {% include "includes/_follow.js" %}
 
     <div class="index">
         {% if len(writers) <= 0 %}

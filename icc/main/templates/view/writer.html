@@ -5,6 +5,7 @@
         {{ writer.name }}
         {% if writer.birth_date.year %}({{ writer.birth_date.year }}-{{ writer.death_date.year }}){% endif %}
     </h1>
+    {% include "includes/_follow.js" %}
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name) }}">view annotations</a>

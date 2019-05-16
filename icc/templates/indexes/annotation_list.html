@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% include "includes/_follow.js" %}
+    {% include "includes/_sorts.html" %}
+    {% include "/includes/js/_collapse_script.js" %}
     {% if title != 'Home' %}
         <h1>{{ title }}</h1>
     {% endif %}
-    {% include "includes/_sorts.html" %}
     {% if annotations %}
         {% include "/includes/_vote.js" %}
         {% for annotation in annotations %}
@@ -13,5 +15,4 @@
     {% else %}
         <h3>There are no annotations here.</h3>
     {% endif %}
-    {% include "/includes/js/_collapse_script.js" %}
 {% endblock %}

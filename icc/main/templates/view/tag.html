@@ -4,6 +4,7 @@
     <h1>
         <div class="tag">{{ tag.tag }}</div> &times; {{ tag.annotations.count() }}
     </h1>
+    {% include "includes/_follow.js" %}
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">
