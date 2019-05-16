@@ -70,8 +70,8 @@ def writer_annotations(writer_url):
         .filter_by(name=writer_url.replace('_', ' ')).first_or_404()
 
     sorts = {
-        'newest': writer.annotations.order_by(Annotation.timestamp.desc()),
-        'oldest': writer.annotations.order_by(Annotation.timestamp.asc()),
+        'newest': writer.annotations.order_by(Annotation.id.desc()),
+        'oldest': writer.annotations.order_by(Annotation.id.asc()),
         'weight': writer.annotations.order_by(Annotation.weight.desc()),
         'modified': (writer.annotations.join(Edit)
                      .order_by(Edit.timestamp.desc())),

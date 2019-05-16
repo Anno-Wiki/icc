@@ -72,8 +72,8 @@ def text_annotations(text_url):
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
 
     sorts = {
-        'newest': text.annotations.order_by(Annotation.timestamp.desc()),
-        'oldest': text.annotations.order_by(Annotation.timestamp.asc()),
+        'newest': text.annotations.order_by(Annotation.id.desc()),
+        'oldest': text.annotations.order_by(Annotation.id.asc()),
         'weight': text.annotations.order_by(Annotation.weight.desc()),
         'line': (text.annotations.join(Edit).filter(Edit.current==True)
                  .order_by(Edit.last_line_num.asc())),

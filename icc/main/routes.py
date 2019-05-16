@@ -122,8 +122,8 @@ def index():
     sort = request.args.get('sort', default, type=str)
 
     sorts = {
-        'newest': Annotation.query.order_by(Annotation.timestamp.desc()),
-        'oldest': Annotation.query.order_by(Annotation.timestamp.asc()),
+        'newest': Annotation.query.order_by(Annotation.id.desc()),
+        'oldest': Annotation.query.order_by(Annotation.id.asc()),
         'modified': (Annotation.query.join(Edit).order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True)),
         'weight': Annotation.query.order_by(Annotation.weight.desc()),

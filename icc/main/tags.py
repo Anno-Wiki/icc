@@ -61,8 +61,8 @@ def tag_annotations(tag):
     tag = Tag.query.filter_by(tag=tag).first_or_404()
 
     sorts = {
-        'newest': tag.annotations.order_by(Annotation.timestamp.desc()),
-        'oldest': tag.annotations.order_by(Annotation.timestamp.asc()),
+        'newest': tag.annotations.order_by(Annotation.id.desc()),
+        'oldest': tag.annotations.order_by(Annotation.id.asc()),
         'weight': tag.annotations.order_by(Annotation.weight.desc()),
         'modified': (tag.annotations.order_by(Edit.timestamp.desc())
                      .filter(Edit.current==True)),
