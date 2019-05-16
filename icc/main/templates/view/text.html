@@ -1,28 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="toolbar">
-        <div class="tools">
-            <a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">
-                view annotations
-            </a>
-            {% set entity, followings = text, current_user.followed_texts %}
-            {% include "includes/_follow.html" %}
-            <a href="{{ url_for("main.edit_wiki", wiki_id=text.wiki.id,
-                next=request.full_path) }}">
-                edit wiki
-            </a>
-            <a href="{{ url_for("main.wiki_edit_history", wiki_id=text.wiki.id) }}">
-                wiki edit history
-            </a>
-        </div>
-    </div>
 
     <h1>{{ text }}</h1>
     {% set writers = text.primary.writers['author'] %}
-    <h3>by {% include "includes/_all_writers_list.html" %}</h3>
+    <h2>by {% include "includes/_all_writers_list.html" %}</h2>
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.text_annotations", text_url=text.url_name) }}">view annotations</a>
+            {% set entity, followings = text, current_user.followed_texts %}
+            {% include "includes/_follow.html" %}
+            {% include "includes/_wiki_links.html" %}
+        </div>
+    </div>
 
-    <div id="summary">{{ text.wiki.current.body|markdown }}</div>
+    <div class="backlight-description">{{ text.wiki.current.body|markdown }}</div>
 
     <h2>Editions</h2>
     <div class="index">

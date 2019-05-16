@@ -1,28 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>
+        {{ writer.name }}
+        {% if writer.birth_date.year %}({{ writer.birth_date.year }}-{{ writer.death_date.year }}){% endif %}
+    </h1>
     <div class="toolbar">
         <div class="tools">
-            <a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name) }}">
-                view annotations
-            </a>
+            <a href="{{ url_for("main.writer_annotations", writer_url=writer.url_name) }}">view annotations</a>
             {% set entity, followings = writer, current_user.followed_writers %}
             {% include "includes/_follow.html" %}
-            <a href="{{ url_for("main.edit_wiki", wiki_id=writer.wiki.id, next=request.full_path) }}">
-                edit wiki
-            </a>
-            <a href="{{ url_for("main.wiki_edit_history", wiki_id=writer.wiki.id) }}">
-                wiki edit history
-            </a>
+            {% include "includes/_wiki_links.html" %}
         </div>
     </div>
-    <h1>{{ writer.name }}
-        {% if writer.birth_date.year %}
-                ({{ writer.birth_date.year }}-{{ writer.death_date.year }})
-        {% endif %}
-    </h1>
 
-    <div id="bio">{{ writer.wiki.current.body|markdown }}</div>
+    <div class="backlight-description">{{ writer.wiki.current.body|proc_links|markdown }}</div>
 
     {% for category, works in writer.works.items() %}
         <h2>{{ category.title() }} &times; {{ len(writer.works) }}</h2>

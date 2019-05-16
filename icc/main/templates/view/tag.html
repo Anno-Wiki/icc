@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1>
+        <div class="tag">{{ tag.tag }}</div> &times; {{ tag.annotations.count() }}
+    </h1>
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.tag_annotations", tag=tag.tag) }}">
@@ -8,16 +11,9 @@
             </a>
             {% set followings, entity = current_user.followed_tags, tag %}
             {% include "includes/_follow.html" %}
-            <a href="{{ url_for("main.edit_wiki", wiki_id=tag.wiki.id) }}">
-                wiki edit
-            </a>
-            <a href="{{ url_for("main.wiki_edit_history", wiki_id=tag.wiki.id) }}">
-                wiki edit history
-            </a>
+            {% include "includes/_wiki_links.html" %}
         </div>
     </div>
 
-    <div class="tag heading">{{ tag.tag }}</div> &times; {{ tag.annotations.count() }}
-
-    <div id="summary">{{ tag.wiki.current.body|proc_links|markdown }}</div>
+    <div class="backlight-description">{{ tag.wiki.current.body|proc_links|markdown }}</div>
 {% endblock %}
