@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Initial version of Annotation {{ edit.annotation }} of {{ edit.edition.text.title }}</h1>
+    <div class="toolbar">
+        <div class="tools">
+            <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">version history</a>
+            {% if current_user.is_authorized("delete_edits") %}<a href="{{ url_for("admin.delete_edit", edit_id=edit.id) }}">delete</a>{% endif %}
+        </div>
+    </div>
+
+    <div id="text-content">
+        <div class="backlight">
+            {% for line in edit.context %}
+                <div class="line {{ line.primary.enum }}{% if line in edit.lines %} selection{% endif %}" id="{{ line.num }}">
+                    <span class="line-num">{{ line.num }}</span>
+                    <span class="text">{{ line.line }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="annotation">
+        <div class="annotation-head">
+            <div class="footnote">
+                {{ edit.annotation }}
+                {% if edit.annotation.locked %}&#128274;{% endif %}
+            </div>
+            <div class="line-nums">
+                {% set first_line, last_line = edit.lines[0], edit.lines[-1] %}
+                {% include "includes/_line_nums.html" %}
+            </div>
+        </div>
+        <div class="annotation-collapsible">
+            <div class="annotation-body">{{ edit.body|markdown }}</div>
+            <div class="tags">
+                {% for tag in edit.tags %}<a href="{{ tag.url }}"><div class="tag">{{ tag.tag }}</div></a>{% endfor %}
+            </div>
+
+            <div class="annotation-footer">
+                <em>annotated by</em>
+                <a href="{{ edit.editor.url }}">{{ edit.editor.displayname }}</a>
+                {% set timestamp = edit.timestamp %}
+                {% include "includes/_timestamp.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
