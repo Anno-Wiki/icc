@@ -60,8 +60,6 @@ def vote():
         flash(f"You must login to vote.")
         return jsonify({'success': False, 'rollback': False, 'status': 'login'})
     entity = entity_cls.query.get(entity_id)
-    print(entity_cls)
-    print(entity_id)
     original_weight = entity.weight
     vote = current_user.get_vote(entity)
     if isinstance(entity, classes['Annotation']) and not entity.active:

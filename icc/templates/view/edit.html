@@ -4,7 +4,7 @@
     {% if edit.rejected %}
         <h1 class="rejected">&#10007; Edit Rejected<h1>
     {% elif edit.approved %}
-        <h1 class="approved">&#10003;</h1>
+        <h1 class="approved">&#10003; Edit approved</h1>
     {% endif %}
     <h1>
         Edit #{{ edit.num }} of
@@ -24,7 +24,7 @@
     <div class="toolbar">
         <div class="tools">
             {% set entity, prefix, ident = edit, 'e', edit.id %}
-            <div id="{{ prefix }}{{ ident }}" class="weightvote">
+            <div id="{{ prefix }}{{ ident }}" class="weightvote{% if edit.approved or edit.rejected %} closed{% endif %}">
                 {% include "includes/_weight.html" %}
                 {% include "includes/_vote.html" %}
             </div>

@@ -121,6 +121,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
     color: $base01;
     margin-top: 0;
+    text-align: center;
     font: {
         family: $display;
         weight: normal; // The font difference is sufficient, no bold=less font
@@ -428,6 +429,7 @@ hr {
 
 
 .weightvote {
+    &.closed { .arrows { display: none; } }
     font-size: 2rem;
     &.small {
         font-size: 1rem;
@@ -490,5 +492,8 @@ hr {
     }
     .delta { background-color: $red; }
     .plus { background-color: $green; }
-
 }
+
+.approved, .rejected { text-align: center; }
+.approved { color: $green; }
+.rejected { color: $red; }

@@ -45,6 +45,8 @@
             if ('change' in data)
                 modWeight(weight, data.change);
             flashMessages();
+            if (data.status == 'approved' || data.status == 'rejected')
+                entity.classList.add('closed');
         }
         url = [
             '{{ url_for('ajax.vote') }}',

@@ -343,6 +343,7 @@ class VotableMixin:
                 (self.weight >= current_app.config[self.__margin_approvable__]
                  or voter.is_authorized(self.__approvable__))):
             self.approve()
+            status['status'] = 'approved'
         return status
 
     def downvote(self, voter):
@@ -360,6 +361,7 @@ class VotableMixin:
                 and (self.weight <= current_app.config[self.__margin_rejectable__]
                      or voter.is_authorized(self.__approvable__))):
             self.reject()
+            status['status'] = 'rejected'
         return status
 
     def rollback(self, vote):

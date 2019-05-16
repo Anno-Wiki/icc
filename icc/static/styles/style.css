@@ -524,6 +524,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   color: #586e75;
   margin-top: 0;
+  text-align: center;
   font-family: "Playfair Display", "Georgia", serif;
   font-weight: normal; }
 
@@ -801,6 +802,8 @@ hr {
 
 .weightvote {
   font-size: 2rem; }
+  .weightvote.closed .arrows {
+    display: none; }
   .weightvote.small {
     font-size: 1rem; }
     @media only screen and (max-width: 750px) {
@@ -852,5 +855,14 @@ hr {
     background-color: #dc322f; }
   .diff .plus {
     background-color: #859900; }
+
+.approved, .rejected {
+  text-align: center; }
+
+.approved {
+  color: #859900; }
+
+.rejected {
+  color: #dc322f; }
 
 /*# sourceMappingURL=style.css.map */

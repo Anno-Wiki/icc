@@ -89,7 +89,7 @@ def review_edit(annotation_id, edit_id):
             if line not in context:
                 context.append(line)
 
-    return render_template('view/edit_review.html',
+    return render_template('view/edit.html',
                            title=f"[{edit.annotation.id}] Edit #{edit.num}",
                            diff=diff, edit=edit, tags=tags, context=context)
 
