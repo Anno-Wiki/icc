@@ -8,7 +8,7 @@ idx = iccvenv.rfind('/')
 sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
-from icc.models.annotation import Annotation, Tag
+from icc.models.annotation import Annotation, Tag, Comment
 from icc.models.content import Edition
 from icc.models.user import User
 
@@ -27,7 +27,14 @@ def get_annotations():
             'lc': annotation.HEAD.last_char_idx,
             'body': annotation.HEAD.body,
             'tags': [(tag.tag, tag.locked) for tag in annotation.HEAD.tags],
-            'locked': annotation.locked
+            'locked': annotation.locked,
+            'comments': [{
+                'id': comment.id,
+                'depth': comment.depth,
+                'weight': comment.weight,
+                'parent_id': comment.parent_id,
+                'body': comment.body
+            } for comment in annotation.comments.all()]
         }
         annotations.append(exp)
     return annotations
@@ -48,15 +55,20 @@ def recreate(annotation):
             tag_obj = Tag(tag=tag[0], locked=tag[1], description=TAG_DESCRIPTION)
         tags.append(tag_obj)
     annotation['tags'] = tags
-    return annotation
+    comments = annotation.pop('comments')
+    return annotation, comments
 
 
 def _import(file_name):
     fin = open(file_name, 'rt')
     annotations = json.load(fin)
     community = User.query.get(1)
-    for i, annotation in enumerate(annotations):
-        db.session.add(Annotation(annotator=community, **recreate(annotation)))
+    for i, annotation_dict in enumerate(annotations):
+        annotation_dict, comments = recreate(annotation_dict)
+        annotation = Annotation(annotator=community, **annotation_dict)
+        for comment in comments:
+            annotation.comments.append(Comment(**comment, poster=community))
+        db.session.add(annotation)
         if not i % 25:
             print(f"{i} annotations added.")
     db.session.commit()

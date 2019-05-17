@@ -33,3 +33,6 @@ echo "- populating lines for War and Peace by Leo Tolstoy"
 cat $DIR/../data/texts/wap/lines.json | \
     $ICCVENV/bin/python $DIR/../inserts/insertlines.py -i \
     -c $DIR/../data/texts/wap/meta.yml
+
+$ICCVENV/bin/python $DIR/../annotations.py -i \
+    $DIR/../data/texts/wap/annotations.json
