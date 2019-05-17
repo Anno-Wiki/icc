@@ -15,6 +15,7 @@ from icc.models.user import User
 
 TAG_DESCRIPTION = "This tag's description is still blank. Please expand it."
 
+
 def get_annotations():
     annotations = []
     for annotation in Annotation.query.all():
@@ -43,9 +44,9 @@ def recreate(annotation):
     tags = []
     for tag in annotation['tags']:
         tag_obj = Tag.query.filter_by(tag=tag[0]).first()
-        if not tag:
-            tag = Tag(tag=tag_str, locked=tag[1], description=TAG_DESCRIPTION)
-        tags.append(tag)
+        if not tag_obj:
+            tag_obj = Tag(tag=tag[0], locked=tag[1], description=TAG_DESCRIPTION)
+        tags.append(tag_obj)
     annotation['tags'] = tags
     return annotation
 
