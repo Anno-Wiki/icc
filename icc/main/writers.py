@@ -73,7 +73,8 @@ def writer_annotations(writer_url):
         'newest': writer.annotations.order_by(Annotation.id.desc()),
         'oldest': writer.annotations.order_by(Annotation.id.asc()),
         'weight': writer.annotations.order_by(Annotation.weight.desc()),
-        'modified': (writer.annotations.join(Edit)
+        'modified': (writer.annotations
+                     .join(Edit, Edit.entity_id==Annotation.id)
                      .order_by(Edit.timestamp.desc())),
         'active': (writer.annotations.join(Comment).group_by(Annotation.id)
                    .order_by(Comment.timestamp.desc()))

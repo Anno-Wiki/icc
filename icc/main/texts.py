@@ -75,9 +75,13 @@ def text_annotations(text_url):
         'newest': text.annotations.order_by(Annotation.id.desc()),
         'oldest': text.annotations.order_by(Annotation.id.asc()),
         'weight': text.annotations.order_by(Annotation.weight.desc()),
-        'line': (text.annotations.join(Edit).filter(Edit.current==True)
+        'line': (text.annotations
+                 .join(Edit, Edit.entity_id==Annotation.id)
+                 .filter(Edit.current==True)
                  .order_by(Edit.last_line_num.asc())),
-        'modified': (text.annotations.join(Edit).filter(Edit.current==True)
+        'modified': (text.annotations
+                     .join(Edit, Edit.entity_id==Annotation.id)
+                     .filter(Edit.current==True)
                      .order_by(Edit.timestamp.desc())),
         'active': (text.annotations.join(Comment).group_by(Annotation.id)
                    .order_by(Comment.timestamp.desc()))

@@ -354,7 +354,8 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     ballots = db.relationship('AnnotationVote', lazy='dynamic')
     annotator = db.relationship('User')
     first_line = db.relationship(
-        'Line', secondary='edit', primaryjoin='Edit.entity_id==Annotation.id',
+        'Line', secondary='edit',
+        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.current==True)',
         secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
         'Edit.first_line_num==Line.num)', uselist=False)
 
