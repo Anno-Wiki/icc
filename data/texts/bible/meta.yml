@@ -1,0 +1,89 @@
+title: The Bible
+sort_title: Bible
+publication_date: 0000-00-00
+description: |
+    The Bible (from Koine Greek τὰ βιβλία, tà biblía, “the books”) is a
+    collection of sacred texts or scriptures. Varying parts of the Bible are
+    considered to be a product of divine inspiration and a record of the
+    relationship between God and humans by Christians, Jews, Samaritans, and
+    Rastafarians.
+
+    What is regarded as canonical text differs depending on traditions and
+    groups; a number of Bible canons have evolved, with overlapping and
+    diverging contents. The Hebrew Bible overlaps with the Greek Septuagint and
+    the Christian Old Testament. The Christian New Testament is a collection of
+    writings by early Christians, believed to be mostly Jewish disciples of
+    Christ, written in first-century Koine Greek. Among Christian denominations
+    there is some disagreement about what should be included in the canon,
+    primarily about the Apocrypha, a list of works that are regarded with
+    varying levels of respect.
+
+    Attitudes towards the Bible also differ among Christian groups. Roman
+    Catholics, high church Anglicans, Methodists and Eastern Orthodox Christians
+    stress the harmony and importance of the Bible and sacred tradition, while
+    many Protestant churches, including Evangelical Anglicans, focus on the idea
+    of sola scriptura, or scripture alone. This concept arose during the
+    Reformation, and many denominations today support the use of the Bible as
+    the only infallible source of Christian teaching. Others though, advance the
+    concept of prima scriptura in contrast.
+
+    The Bible has been a massive influence on literature and history, especially
+    in the Western World, where the Gutenberg Bible was the first book printed
+    using movable type. According to the March 2007 edition of Time, the
+    Bible “has done more to shape literature, history, entertainment, and
+    culture than any book ever written. Its influence on world history is
+    unparalleled, and shows no signs of abating.” With estimated total sales
+    of over 5 billion copies, it is widely considered to be the most influential
+    and best-selling book of all time. As of the 2000s, it sells approximately
+    100 million copies annually.
+edition:
+    primary: true
+    number: 1
+    publication_date: 1904-01-01
+    translator:
+        - name: Constance Garnett
+          family_name: Garnett
+          birth_date: 1861-12-19
+          death_date: 1946-12-17
+          description: |
+              Constance Clara Garnett (née Black; 19 December 1861 – 17 December
+              1946) was an English translator of nineteenth-century Russian
+              literature. Garnett was one of the first English translators of
+              Leo Tolstoy, Fyodor Dostoyevsky and Anton Chekhov and introduced
+              them on a wide basis to the English-speaking public.
+    editor: []
+    author:
+        - name: Leo Tolstoy
+          family_name: Tolstoy
+          birth_date: 1828-09-09
+          death_date: 1910-11-20
+          description: |
+              Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28
+              August] 1828 – 20 November [O.S. 7 November] 1910), usually
+              referred to in English as Leo Tolstoy, was a Russian writer who is
+              regarded as one of the greatest authors of all time.
+
+              Born to an aristocratic Russian family in 1828, he is best known
+              for the novels _War and Peace_ (1869) and _Anna Karenina_ (1877),
+              often cited as pinnacles of realist fiction. He first achieved
+              literary acclaim in his twenties with his semi-autobiographical
+              trilogy, _Childhood_, _Boyhood_, and _Youth_ (1852–1856), and
+              _Sevastopol Sketches_ (1855), based upon his experiences in the
+              Crimean War.  Tolstoy’s fiction includes dozens of short stories
+              and several novellas such as _The Death of Ivan Ilyich_ (1886),
+              _Family Happiness_ (1859), and _Hadji Murad_ (1912). He also wrote
+              plays and numerous philosophical essays.
+
+              In the 1870s Tolstoy experienced a profound moral crisis, followed
+              by what he regarded as an equally profound spiritual awakening, as
+              outlined in his non-fiction work _A Confession_ (1882). His
+              literal interpretation of the ethical teachings of Jesus,
+              centering on the Sermon on the Mount, caused him to become a
+              fervent Christian anarchist and pacifist. Tolstoy’s ideas on
+              nonviolent resistance, expressed in such works as _The Kingdom of
+              God Is Within You_ (1894), were to have a profound impact on such
+              pivotal 20th-century figures as Mohandas Karamchand Gandhi, and
+              Martin Luther King, Jr. Tolstoy also became a dedicated advocate
+              of Georgism, the economic philosophy of Henry George, which he
+              incorporated into his writing, particularly _Resurrection_ (1899).
+    description: null
