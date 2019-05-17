@@ -8,7 +8,8 @@ class Config:
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['emails@futuretld.org']
-    ANNOTATIONS_PER_PAGE = 5
+
+    LOG_POWER = False
 
     # mail system
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
@@ -24,6 +25,7 @@ class Config:
     VOTES_FOR_REQUEST_APPROVAL = 100000000000000
 
     # per pages
+    ANNOTATIONS_PER_PAGE = 5
     ANNOTATIONS_PER_SEARCH_PAGE = 5
     CARDS_PER_PAGE = 15
     COMMENTS_PER_PAGE = 25

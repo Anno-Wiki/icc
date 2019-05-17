@@ -11,7 +11,7 @@ from math import log10
 
 from sqlalchemy import orm
 from sqlalchemy.orm import backref
-from flask import url_for, flash
+from flask import url_for, flash, current_app
 
 from icc import db
 from icc.models.mixins import (Base, VoteMixin, EditMixin, FollowableMixin,
@@ -470,6 +470,8 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
 
         This is currently set to 10log10 of the user's reputation, floored at 1.
         """
+        if not current_app['LOG_POWER']:
+            return 1
         if voter.reputation <= 1:
             return 1
         else:
@@ -479,6 +481,8 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         """An int of the user's down power. This is simply half of the user's up
         power, but at least one.
         """
+        if not current_app['LOG_POWER']:
+            return -1
         power = self.up_power(voter)
         if power / 2 <= 1:
             return -1
