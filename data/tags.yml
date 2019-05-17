@@ -44,3 +44,6 @@ tags:
     - tag: homage
       description: For homage.
       locked: false
+    - tag: history
+      description: For history.
+      locked: false
