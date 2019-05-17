@@ -31,4 +31,11 @@
         xhttp.open("GET", "{{ url_for("ajax.flashed") }}", true);
         xhttp.send();
     }
+    function closeFlash(x) {
+        let flash = x.parentNode;
+        let messages = flash.parentNode;
+        messages.removeChild(flash);
+        if (byTag(messages, 'li').length  < 1)
+            messages.parentNode.removeChild(messages);
+    }
 </script>
