@@ -117,7 +117,7 @@ class Tag(Base, FollowableMixin, LinkableMixin):
         'Annotation', secondary='join(tags, Edit, and_(tags.c.edit_id==Edit.id,'
         'Edit.current==True))', primaryjoin='Tag.id==tags.c.tag_id',
         secondaryjoin='and_(Edit.entity_id==Annotation.id,'
-        'Annotation.active==True)', lazy='dynamic', passive_deletes=True)
+        'Annotation.active==True)', lazy='dynamic')
 
     @property
     def url(self):
@@ -141,20 +141,17 @@ class Tag(Base, FollowableMixin, LinkableMixin):
 
 class CommentFlag(Base, FlagMixin):
     """A flag for a comment."""
-    entity_id = db.Column(db.Integer,
-                          db.ForeignKey('comment.id', ondelete='CASCADE'),
-                          index=True)
+    entity_id = db.Column(db.Integer, db.ForeignKey('comment.id'), index=True)
     entity = db.relationship('Comment', backref=backref('flags', lazy='dynamic'))
 
     def __repr__(self):
         return (f'<CommentFlag on {self.entity_id} on'
                 f'[{self.entity.annotation.id}]>')
 
+
 class CommentVote(Base, VoteMixin):
     """A class that represents a vote on a comment."""
-    entity_id = db.Column(db.Integer,
-                          db.ForeignKey('comment.id', ondelete='CASCADE'),
-                          index=True)
+    entity_id = db.Column(db.Integer, db.ForeignKey('comment.id'), index=True)
     entity = db.relationship('Comment')
 
     def __repr__(self):
@@ -196,12 +193,10 @@ class Comment(Base, VotableMixin):
 
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,
                           nullable=False)
-    annotation_id = db.Column(
-        db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
-        index=True, nullable=False)
-    parent_id = db.Column(
-        db.Integer, db.ForeignKey('comment.id', ondelete='CASCADE'), index=True,
-        default=None)
+    annotation_id = db.Column(db.Integer, db.ForeignKey('annotation.id'),
+                              index=True, nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), index=True,
+                          default=None)
     depth = db.Column(db.Integer, default=0)
     weight = db.Column(db.Integer, default=0)
     body = db.Column(db.Text)
@@ -210,8 +205,7 @@ class Comment(Base, VotableMixin):
     poster = db.relationship('User', backref=backref('comments',
                                                      lazy='dynamic'))
     annotation = db.relationship('Annotation',
-                                 backref=backref('comments', lazy='dynamic',
-                                                 passive_deletes=True))
+                                 backref=backref('comments', lazy='dynamic'))
     parent = db.relationship(
         'Comment', remote_side='Comment.id', uselist=False,
         backref=backref('children', remote_side=[parent_id], lazy='dynamic'))
@@ -238,8 +232,7 @@ class AnnotationVote(Base, VoteMixin):
     The Vote class also possesses all of the attributes of :class:`VoteMixin`.
     """
     annotation_id = db.Column(
-        db.Integer, db.ForeignKey('annotation.id', ondelete='CASCADE'),
-        index=True)
+        db.Integer, db.ForeignKey('annotation.id'), index=True)
 
     entity = db.relationship('Annotation')
 
@@ -264,9 +257,8 @@ class AnnotationFlag(Base, FlagMixin):
     entity : :class:`Annotation`
         The actual annotation.
     """
-    annotation_id = db.Column(db.Integer,
-                              db.ForeignKey('annotation.id',
-                                            ondelete='CASCADE'), index=True)
+    annotation_id = db.Column(db.Integer, db.ForeignKey('annotation.id'),
+                              index=True)
     entity = db.relationship('Annotation', backref=backref('flags',
                                                            lazy='dynamic'))
 
@@ -310,8 +302,6 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         (namely, :class:`Wiki`), once this command is applied and committed,
         there's really no going back without manually finding it. So for now,
         this is where it's staying.
-    edits : list
-        All of the edits which have been approved.
     history : list
         All of the edits which have been approved, dynamically.
     all_edits : list
@@ -377,22 +367,19 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     HEAD = db.relationship('Edit', primaryjoin='and_(Edit.current==True,'
                            'Edit.entity_id==Annotation.id)', uselist=False)
 
-    edits = db.relationship(
-        'Edit',
-        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==True)',
-        passive_deletes=True)
+    # history is used for annotation edit history
     history = db.relationship(
         'Edit',
         primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==True)',
-        lazy='dynamic', passive_deletes=True)
+        lazy='dynamic')
+    # all_edits is used primarily for the cascade delete
     all_edits = db.relationship(
-        'Edit', primaryjoin='Edit.entity_id==Annotation.id', lazy='dynamic',
-        passive_deletes=True)
+        'Edit', primaryjoin='Edit.entity_id==Annotation.id', lazy='dynamic')
+    # edit_pending is used primarily as a falsey boolean
     edit_pending = db.relationship(
         'Edit',
         primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.approved==False, '
-        'Edit.rejected==False)',
-        passive_deletes=True)
+        'Edit.rejected==False)')
 
     # relationships to `Line`
     lines = db.relationship(
@@ -415,7 +402,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         lazy='dynamic')
     active_flags = db.relationship('AnnotationFlag',
         primaryjoin='and_(Annotation.id==AnnotationFlag.annotation_id,'
-        'AnnotationFlag.resolver_id==None)', passive_deletes=True)
+        'AnnotationFlag.resolver_id==None)')
 
     def __str__(self):
         return f'[{self.id}]'
@@ -516,11 +503,8 @@ class EditVote(Base, VoteMixin):
     The EditVote class also possesses all of the attributes of
     :class:`VoteMixin`.
     """
-    edit_id = db.Column(db.Integer,
-                        db.ForeignKey('edit.id', ondelete='CASCADE'),
-                        index=True)
-    entity = db.relationship('Edit', backref=backref('ballots', lazy='dynamic',
-                                                     passive_deletes=True))
+    edit_id = db.Column(db.Integer, db.ForeignKey('edit.id'), index=True)
+    entity = db.relationship('Edit', backref=backref('ballots', lazy='dynamic'))
 
     def __repr__(self):
         prefix = super().__repr__()
@@ -594,8 +578,7 @@ class Edit(Base, EditMixin, VotableMixin):
     __margin_rejectable__ = 'VOTES_FOR_REJECTION'
 
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
-    entity_id = db.Column(db.Integer,
-                          db.ForeignKey('annotation.id', ondelete='CASCADE'),
+    entity_id = db.Column(db.Integer, db.ForeignKey('annotation.id'),
                           index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 
@@ -607,7 +590,7 @@ class Edit(Base, EditMixin, VotableMixin):
     edition = db.relationship('Edition')
 
     annotation = db.relationship('Annotation')
-    tags = db.relationship('Tag', secondary='tags', passive_deletes=True)
+    tags = db.relationship('Tag', secondary='tags')
     lines = db.relationship(
         'Line', primaryjoin='and_(Line.num>=Edit.first_line_num,'
         'Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)',

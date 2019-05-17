@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 77381be6b74c
+Revision ID: 9bc59dbfe788
 Revises: 
-Create Date: 2019-05-14 15:17:04.394881
+Create Date: 2019-05-17 11:24:13.310382
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '77381be6b74c'
+revision = '9bc59dbfe788'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -247,7 +247,7 @@ def upgrade():
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
-    sa.ForeignKeyConstraint(['tag_request_id'], ['tagrequest.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['tag_request_id'], ['tagrequest.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -272,7 +272,7 @@ def upgrade():
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
-    sa.ForeignKeyConstraint(['text_request_id'], ['textrequest.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['text_request_id'], ['textrequest.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -284,7 +284,7 @@ def upgrade():
     sa.Column('edit_id', sa.Integer(), nullable=False),
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['edit_id'], ['wikiedit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['edit_id'], ['wikiedit.id'], ),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -352,7 +352,7 @@ def upgrade():
     sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['annotationflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
@@ -369,7 +369,7 @@ def upgrade():
     sa.Column('annotation_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -384,8 +384,8 @@ def upgrade():
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['parent_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
+    sa.ForeignKeyConstraint(['parent_id'], ['comment.id'], ),
     sa.ForeignKeyConstraint(['poster_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -411,7 +411,7 @@ def upgrade():
     sa.Column('editor_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['entity_id'], ['annotation.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['entity_id'], ['annotation.id'], ),
     sa.ForeignKeyConstraint(['first_line_num'], ['line.num'], ),
     sa.ForeignKeyConstraint(['last_line_num'], ['line.num'], ),
     sa.PrimaryKeyConstraint('id')
@@ -445,7 +445,7 @@ def upgrade():
     sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['commentflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
@@ -462,7 +462,7 @@ def upgrade():
     sa.Column('entity_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -475,7 +475,7 @@ def upgrade():
     sa.Column('edit_id', sa.Integer(), nullable=True),
     sa.Column('voter_id', sa.Integer(), nullable=True),
     sa.Column('reputationchange_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ),
     sa.ForeignKeyConstraint(['reputationchange_id'], ['reputationchange.id'], ),
     sa.ForeignKeyConstraint(['voter_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -484,7 +484,7 @@ def upgrade():
     op.create_table('tags',
     sa.Column('tag_id', sa.Integer(), nullable=True),
     sa.Column('edit_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['edit_id'], ['edit.id'], ),
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], )
     )
     # ### end Alembic commands ###

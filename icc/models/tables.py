@@ -6,8 +6,7 @@ from icc import db
 tags = db.Table(
     'tags',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-    db.Column('edit_id', db.Integer, db.ForeignKey(
-        'edit.id', ondelete='CASCADE')))
+    db.Column('edit_id', db.Integer, db.ForeignKey('edit.id')))
 
 """The rights table connects AdminRight to a User."""
 rights = db.Table(

@@ -12,11 +12,9 @@ from icc.models.wiki import Wiki
 
 
 class TextRequestVote(Base, VoteMixin):
-    text_request_id = db.Column(
-        db.Integer, db.ForeignKey('textrequest.id', ondelete='CASCADE'),
-        index=True)
-    entity = db.relationship(
-        'TextRequest', backref=backref('ballots', passive_deletes=True))
+    text_request_id = db.Column(db.Integer, db.ForeignKey('textrequest.id'),
+                                index=True)
+    entity = db.relationship('TextRequest', backref=backref('ballots'))
 
     def __repr__(self):
         prefix = super().__repr__()
@@ -63,11 +61,9 @@ class TextRequest(Base, FollowableMixin, VotableMixin):
 
 
 class TagRequestVote(Base, VoteMixin):
-    tag_request_id = db.Column(
-        db.Integer, db.ForeignKey('tagrequest.id', ondelete='CASCADE'),
-        index=True)
-    entity = db.relationship(
-        'TagRequest', backref=backref('ballots', passive_deletes=True))
+    tag_request_id = db.Column(db.Integer, db.ForeignKey('tagrequest.id'),
+                               index=True)
+    entity = db.relationship('TagRequest', backref=backref('ballots'))
 
     def __repr__(self):
         prefix = super().__repr__()
