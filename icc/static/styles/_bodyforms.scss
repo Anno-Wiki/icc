@@ -5,10 +5,8 @@
 
     &-annotation {
         // the annotation form
-        margin-top: 1em;
-        max-width: 50em;
-        textarea, input {
-        }
+        margin-top: 1rem;
+        max-width: 50rem;
         @import 'tagforms';
     }
     &-line-nums {
@@ -23,31 +21,28 @@
     input {
         font: {
             family: $display;
-            size: 0.9em;
+            size: 1.15rem;
         }
     }
+    input, textarea {
+        font-size: 1.15rem;
+        @include formstyle;
+    }
+    input[type=text], textarea { width: 95%; }
     textarea {
         font-family: $serifs;
-        height: 15em;
+        height: 15rem;
     }
-    textarea, input {
-        width: 95%;
-        @include formstyle;
-
-        &#submit {
-            max-width: 10em;
-        }
-
-        &[type=submit] {
-            background-color: $lightbghl;
-            color: $base00;
-            cursor: pointer;
-            font-size: 1em;
-            max-width: 10em;
-        }
+    input[type=submit] {
+        background-color: $lightbghl;
+        color: $base00;
+        cursor: pointer;
+        font-size: 1.25rem;
     }
-    &.validate {
-        input { max-width: 40%; }
-        input#remember_me { max-width: 1em; }
+    &.validate input {
+        &[type=text], &[type=password] {
+            width: 35%;
+            @media only screen and (max-width: $break3) { min-width: 20rem; }
+        }
     }
 }
