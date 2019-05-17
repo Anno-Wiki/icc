@@ -157,17 +157,17 @@
     function repopulate() {
         // This is to repopulate the field with a space separated string on
         // submit.
-        let tags = master.children;
+        let tags = byCls(master, 'tag');
         let tagsArray = [];
-        for (let i = 0; i < tags.length; i++)
+        for (let i = 0; i < tags.length; i++) {
             tagsArray[i] = tags[i].innerHTML.slice(0,-2);
+            master.removeChild(tags[i]);
+        }
         let tagString = tagsArray.join(' ');
         if (tagString != '' && tagsInput.value != '' ){
             tagsInput.value = tagString + ' ' + tagsInput.value;
-            tag_spans.innerHTML = '';
         } else if (tagString != '') {
             tagsInput.value = tagString;
-            master.innerHTML = '';
         }
     }
 
