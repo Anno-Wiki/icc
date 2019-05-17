@@ -1,39 +1,31 @@
 .tags {
     margin: 0 auto;
-    width: 96%;
+    width: 96.5%;
     #master_div {
         background: white;
-
         display: flex;
-        justify-items: space-around;
         align-items: center;
         overflow: hidden;
+        @media only screen and (max-width: $break4) { flex-wrap: wrap; }
 
         transition: $shortdelay;
         @include formborder;
 
         // to simulate the form-ness of the file
         &:hover, &.focus { @include formshadow; }
-
-        #tag_spans {
-            display: flex;
-            flex-wrap: no-wrap;
-            .tag {
-                width: max-content;
-                cursor: pointer;
-                margin: 3px;
-                font-size: 0.75em;
-                &:hover { color: $accent; }
-            }
+        .tag {
+            width: max-content;
+            white-space: nowrap;
+            margin: 0.15rem;
+            cursor: pointer;
         }
-        #input {
-            // the input needs to not style at all
-            input {
-                border: 0;
-                min-width: 50em;
-                &:hover, &:focus { box-shadow: none; }
 
-            }
+        input#tags {
+            // the input needs to not style at all
+            border: 0;
+            min-width: 50rem;
+            &:hover, &:focus { box-shadow: none; }
+
         }
     }
     #autocomplete {

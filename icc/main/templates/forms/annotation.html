@@ -64,8 +64,7 @@
             <div id="master_div">
                 {# tag spans is where we put the tags as they're
                     created by the javascript #}
-                <div id="tag_spans"></div>
-                <div id="input">{{ form.tags(onfocus="focusDiv(this);", onblur="blurDiv(this);") }}</div>
+                {{ form.tags(onfocus="focusDiv(this);", onblur="blurDiv(this);") }}
             </div>
             <div id="autocomplete"></div>
 

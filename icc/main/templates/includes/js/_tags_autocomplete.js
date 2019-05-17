@@ -1,7 +1,6 @@
 <script>
     atload(function () {
         tagsInput = byID('tags');
-        tagSpans = byID('tag_spans');
         autoBox = byID('autocomplete');
         master = byID('master_div');
         PLACEHOLDER = "e.g. (explanation freudian reference)";
@@ -30,7 +29,8 @@
     }
 
     function limitTags() {
-        if (tagSpans.childNodes.length >= 5) {
+        let currentTags = byCls(master, 'tag');
+        if (currentTags.length >= 5) {
             tagsInput.style.display = 'none';
             let complain = newEl('div', 'complain');
             complain.id = 'complain';
@@ -51,7 +51,7 @@
             let tagsArray = rawText.split(' ');
             for (let i = 0; i < tagsArray.length; i++) {
                 let tag = newTag(tagsArray[i], true);
-                tagSpans.appendChild(tag);
+                master.insertBefore(tag, tagsInput);
             }
             tagsInput.value = '';
             tagsInput.placeholder = '';
@@ -74,7 +74,7 @@
             this.parentNode.removeChild(this);
             limitTags();
         };
-        tagSpans.appendChild(tag);
+        master.insertBefore(tag, tagsInput);
         tagsInput.value = '';
         tagsInput.placeholder = '';
         autoBox.innerHTML = '';
@@ -86,17 +86,16 @@
         autoBox.style.display = '';
         autoBox.innerHTML = '';
         if (lastInput == '') {
-            let last = tagSpans.lastChild;
+            let last = tagsInput.previousSibling;
             if (last) {
                 let text = last.innerHTML;
                 if (text) {
                     text = text.slice(0, -2);
                     tagsInput.value = text;
                 }
-                tagSpans.removeChild(last);
-                if (tagSpans.childElementCount < 1) {
+                master.removeChild(last);
+                if (byCls(master, 'tag').length < 1)
                     tagsInput.placeholder = PLACEHOLDER;
-                }
             }
         }
         limitTags();
@@ -123,8 +122,8 @@
                     card.appendChild(description);
                     card.onclick = function() {
                         // input box tag
-                        let tag = newTag(this.getElementsByClassName('tag')[0].innerHTML, true);
-                        byID('tag_spans').append(tag);
+                        let tag = newTag(first(this, 'tag').innerHTML, true);
+                        master.insertBefore(tag, tagsInput);
                         autoBox.innerHTML = '';
                         autoBox.style.display = '';
                         tagsInput.value = '';
@@ -158,7 +157,7 @@
     function repopulate() {
         // This is to repopulate the field with a space separated string on
         // submit.
-        let tags = tagSpans.children;
+        let tags = master.children;
         let tagsArray = [];
         for (let i = 0; i < tags.length; i++)
             tagsArray[i] = tags[i].innerHTML.slice(0,-2);
@@ -168,7 +167,7 @@
             tag_spans.innerHTML = '';
         } else if (tagString != '') {
             tagsInput.value = tagString;
-            tagSpans.innerHTML = '';
+            master.innerHTML = '';
         }
     }
 

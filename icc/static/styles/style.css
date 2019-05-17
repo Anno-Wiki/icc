@@ -432,32 +432,29 @@ body {
       max-width: 50rem; }
       .body-form-annotation .tags {
         margin: 0 auto;
-        width: 96%; }
+        width: 96.5%; }
         .body-form-annotation .tags #master_div {
           background: white;
           display: flex;
-          justify-items: space-around;
           align-items: center;
           overflow: hidden;
           transition: 0.3s;
           border: 1px solid #b58900;
           border-radius: 3px; }
+          @media only screen and (max-width: 750px) {
+            .body-form-annotation .tags #master_div {
+              flex-wrap: wrap; } }
           .body-form-annotation .tags #master_div:hover, .body-form-annotation .tags #master_div.focus {
             box-shadow: 0px 0px 2px 2px #cc9900; }
-          .body-form-annotation .tags #master_div #tag_spans {
-            display: flex;
-            flex-wrap: no-wrap; }
-            .body-form-annotation .tags #master_div #tag_spans .tag {
-              width: max-content;
-              cursor: pointer;
-              margin: 3px;
-              font-size: 0.75em; }
-              .body-form-annotation .tags #master_div #tag_spans .tag:hover {
-                color: #b58900; }
-          .body-form-annotation .tags #master_div #input input {
+          .body-form-annotation .tags #master_div .tag {
+            width: max-content;
+            white-space: nowrap;
+            margin: 0.15rem;
+            cursor: pointer; }
+          .body-form-annotation .tags #master_div input#tags {
             border: 0;
-            min-width: 50em; }
-            .body-form-annotation .tags #master_div #input input:hover, .body-form-annotation .tags #master_div #input input:focus {
+            min-width: 50rem; }
+            .body-form-annotation .tags #master_div input#tags:hover, .body-form-annotation .tags #master_div input#tags:focus {
               box-shadow: none; }
         .body-form-annotation .tags #autocomplete {
           margin: 0 auto;
