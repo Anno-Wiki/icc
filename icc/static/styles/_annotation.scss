@@ -87,10 +87,6 @@
         .delta p { background-color: $red; }
         .cutoff {
             p:last-of-type::after { content: "..." }
-            a:last-of-type {
-                display: block;
-                margin: 1em;
-            }
         }
     }
     .tags {

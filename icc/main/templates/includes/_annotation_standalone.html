@@ -33,7 +33,7 @@
 
     <div class="annotation-collapsible">
         <div class="annotation-body">
-            {%- if len(annotation.HEAD.body) < 255 -%}
+            {%- if len(annotation.HEAD.body) < 512 -%}
                 {{ annotation.HEAD.body|proc_links|markdown }}
             {%- else -%}
                 <div class="cutoff">

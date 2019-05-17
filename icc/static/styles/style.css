@@ -71,9 +71,6 @@
     background-color: #dc322f; }
   .annotation-body .cutoff p:last-of-type::after {
     content: "..."; }
-  .annotation-body .cutoff a:last-of-type {
-    display: block;
-    margin: 1em; }
   .annotation .tags {
     margin: 0.5em; }
     .annotation .tags .tag {
