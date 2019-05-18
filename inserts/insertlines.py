@@ -3,7 +3,7 @@ text. Requires a `config.yml` file.
 """
 import sys
 import os
-import codecs
+import io
 import argparse
 import yaml
 import json
@@ -137,20 +137,24 @@ if __name__ == '__main__':
                         required=True, help="A yaml configuration file "
                         "adhering to a specific template. See Text Processing "
                         "in the documentation for details.")
-    parser.add_argument('-i', '--initial', action='store_true',
+    parser.add_argument('-f', '--first', action='store_true',
                         help="This is an initial text.")
+    parser.add_argument('-i', '--input', action='store', type=str,
+                        help="The input file or prepared and preprocessed "
+                        "text.")
     parser.add_argument('-d', '--dryrun', action='store_true',
                         help="Flag for a dry run test.")
 
     args = parser.parse_args()
     config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
-    fin = codecs.getreader('utf_8_sig')(sys.stdin.buffer, errors='replace')
-    lines = json.load(fin)
+    FIN = io.open(args.input, 'r', encoding='utf-8-sig') if args.input\
+        else open(args.input, 'rt', encoding='utf-8-sig')
+    lines = json.load(FIN)
 
     app = create_app()
 
     with app.app_context():
-        text = get_text(config, args.initial)
+        text = get_text(config, args.first)
 
         edition = get_edition(config, text)
 
