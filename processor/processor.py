@@ -14,6 +14,8 @@ BLANK = re.compile(r'^ *$')
 HR = re.compile(r'^\*\*\*$')
 QUOTE = re.compile(r'^>')
 PRE = re.compile(r'```')
+INDENT = re.compile(r'^#+')
+INDENT_ENUM = re.compile(r'ind[0-9]*')
 
 ELLIPSE = re.compile(r'[a-zA-Z]+[!,:;&?]?\.{3,5}[!,:;&?]?[a-zA-Z]+')
 EMDASH = re.compile(r'[A-Za-z]+[.,;:!?&]?—[.,;:!?&]?[A-Za-z]+')
@@ -67,22 +69,22 @@ def readin(fin, matches):
         }
 
         def __init__(self, matches):
-            """Creates three dictionaries of {<regex>: <lambda>} form:
+            """Creates three dictionaries of {<regex>: <lambda>} from:
             - the table of contents headings and levels
             - the special designators (e.g., stage directions)
             - syntax space (e.g., quotes, preformatted lines, etc.
             """
             syntaxspace = {
                 BLANK: lambda line: self.lines.append(
-                    (self.emphasis, 'blank', line.strip())
-                ),
+                    (self.emphasis, 'blank', line.strip())),
                 HR: lambda line: self.lines.append(
-                    (self.emphasis, 'hr', '<hr>')
-                ),
+                    (self.emphasis, 'hr', '<hr>')),
                 QUOTE: lambda line: self.lines.append(
-                    (self.emphasis, 'quo', line.strip('>').strip())
-                ),
-                PRE: lambda line: self.switch_pre()
+                    (self.emphasis, 'quo', line.strip('>').strip())),
+                PRE: lambda line: self.switch_pre(),
+                INDENT: lambda line: self.lines.append(
+                    (self.emphasis, f'ind{line.count("#")}',
+                     line.strip('#').strip()))
             }
 
             toc = matches.get('toc', {})
@@ -200,23 +202,27 @@ def readout(lines, matches):
         def __init__(self, matches):
             """Create the non-trivial class attributes."""
             # attribute dictionaries for specific enums
-            HR = {'enum': 'hr', 'display': 'Horizontal Rule',
-                  'num': 0, 'precedence': 0, 'primary': True}
-            QUO = {'enum': 'quo', 'display': 'Quote',
-                   'num': 0, 'precedence': 0, 'primary': True}
-            PRE = {'enum': 'pre', 'display': 'Preformatted Text',
-                   'num': 0, 'precedence': 0, 'primary': True}
+            DEFAULT = {'num': 0, 'precedence': 0, 'primary': True }
+            HR = {'enum': 'hr', 'display': 'Horizontal Rule', **DEFAULT}
+            QUO = {'enum': 'quo', 'display': 'Quote', **DEFAULT}
+            PRE = {'enum': 'pre', 'display': 'Preformatted Text', **DEFAULT}
             syntaxspace = {
                 'blank': lambda line: None,
                 'hr': lambda line: self.lines.append(
-                    {'line': line[2], 'emphasis': 0, 'num': self.num,
+                    {'line': line[2], 'emphasis': 'nem', 'num': self.num,
                      'attributes': self.hierarchy(line) + [HR]}),
                 'quo': lambda line: self.lines.append(
                     {'line': line[2], 'emphasis': line[0], 'num': self.num,
                      'attributes': self.hierarchy(line) + [QUO]}),
                 'pre': lambda line: self.lines.append(
                     {'line': line[2], 'emphasis': line[0], 'num': self.num,
-                     'attributes': self.hierarchy(line) + [PRE]})
+                     'attributes': self.hierarchy(line) + [PRE]}),
+                INDENT_ENUM: lambda line: self.lines.append(
+                    {'line': line[2], 'emphasis': line[0], 'num': self.num,
+                     'attributes': self.hierarchy(line) +
+                     [{'enum': line[1], 'display': 'Indent', **DEFAULT}]
+                     }
+                )
             }
 
             toc = matches.get('toc', {})
@@ -283,7 +289,12 @@ def readout(lines, matches):
                 self.num += 1
             triggered = False
             for enum in self.searchspace:
-                if line[1] == enum:
+                match = False
+                try:
+                    match = re.match(enum, str(line[1]))
+                except:
+                    match = (str(enum) in str(line[1]))
+                if match:
                     if enum in self.tocnums.keys():
                         self.update_toc_nums(line)
                     self.searchspace[enum](line)
@@ -329,8 +340,7 @@ if __name__ == '__main__':
 
     FIN = io.open(args.input, 'r', encoding='utf-8-sig') if args.input\
         else open(args.input, 'rt', encoding='utf-8-sig')
-    FOUT = sys.stdout if not args.output else open(args.output, 'wt',
-                                                   encoding='UTF-8-SIG')
+    FOUT = sys.stdout if not args.output else open(args.output, 'wt')
     MATCHES = yaml.load(open(args.matches, 'rt'), Loader=yaml.FullLoader)
 
     linesin = readin(FIN, MATCHES)
