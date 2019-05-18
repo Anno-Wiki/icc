@@ -51,13 +51,17 @@ def deactivate_previous_primary(text):
 
 def get_edition(config, text):
     """Create the new edition, add it to the databsae, and return it."""
-    edition = Edition(num=config['edition']['number'], text=text,
+    edition = Edition(num=config['edition']['number'],
+                      _title=config['edition']['title'], text=text,
                       primary=config['edition']['primary'],
                       description=config['edition']['description'],
                       published=config['edition']['publication_date'])
     db.session.add(edition)
     if __name__ == '__main__':
-        print(f"Created edition number {edition.num} for {text.title}.")
+        if edition._title:
+            print(f"Created {edition._title} for {text.title}.")
+        else:
+            print(f"Created edition number {edition.num} for {text.title}.")
     return edition
 
 

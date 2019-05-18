@@ -217,6 +217,7 @@ class Edition(Base, FollowableMixin):
         if not all(isinstance(n, int) for n in section):
             raise TypeError("The section tuple must consist of only integers.")
 
+    _title = db.Column(db.String(235), default=None)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
     primary = db.Column(db.Boolean, default=False)
@@ -241,14 +242,18 @@ class Edition(Base, FollowableMixin):
     @property
     def title(self):
         """Returns the title representation string of the edition."""
+        if self._title:
+            return self._title
         return (f"{self.text_title}*" if self.primary else
-                f"{self.text_title} - Edition #{self.num}")
+                f"{self.text_title} - Ed. #{self.num}")
 
     @property
     def edition_title(self):
         """A string for the edition similar to title but *not* including the
         parent text's title.
         """
+        if self._title:
+            return self._title
         return (f"Edition #{self.num} - Primary" if self.primary else
                 f"Edition #{self.num}")
 

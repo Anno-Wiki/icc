@@ -21,6 +21,7 @@ description: |
     in English of the twentieth century.
 edition:
     primary: true
+    title: null
     number: 1
     publication_date: 1899-01-01
     translator: []

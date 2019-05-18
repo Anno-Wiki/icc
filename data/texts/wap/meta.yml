@@ -22,6 +22,7 @@ description: |
     Russian writer Leo Tolstoy’s _War and Peace_.”
 edition:
     primary: true
+    title: null
     number: 1
     publication_date: 1904-01-01
     translator:
