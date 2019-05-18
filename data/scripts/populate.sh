@@ -49,3 +49,8 @@ echo "- populating lines for Shakespare's Hamlet"
 $PYTHON $ROOT/inserts/insertlines.py \
     -c $data/texts/shakespeare_william/hamlet/meta.yml \
     -i $DATA/texts/shakespeare_william/hamlet/lines.json
+
+echo "- populating lines for Shakespare's Macbeth"
+$PYTHON $ROOT/inserts/insertlines.py \
+    -c $data/texts/shakespeare_william/macbeth/meta.yml \
+    -i $DATA/texts/shakespeare_william/macbeth/lines.json
