@@ -26,12 +26,12 @@ echo "- populating tags..."
 $PYTHON $ROOT/inserts/inserttags.py -c $DATA/tags.yml
 
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
-$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/hod/meta.yml \
+$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/conrad_joseph/hod/meta.yml \
     -i $DATA/texts/conrad_joseph/hod/lines.json
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
-$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/wap/meta.yml \
-    -i $DATA/texts/tolstoy_leowap/lines.json
+$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/tolstoy_leo/wap/meta.yml \
+    -i $DATA/texts/tolstoy_leo/wap/lines.json
 
 echo "- populating annotations for War and Peace by Leo Tolstoy"
 $PYTHON $ROOT/annotations.py -i $DATA/texts/tolstoy_leo/wap/annotations.json
@@ -42,7 +42,7 @@ $PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/bible/meta.yml \
 
 echo "- populating lines for Shakespare's Sonnets"
 $PYTHON $ROOT/inserts/insertlines.py \
-    -c $data/texts/shakespeare_william/sonnets/meta.yml \
+    -c $DATA/texts/shakespeare_william/sonnets/meta.yml \
     -i $DATA/texts/shakespeare_william/sonnets/lines.json
 
 echo "- populating lines for Shakespare's Hamlet"
