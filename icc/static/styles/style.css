@@ -353,6 +353,10 @@ nav {
     @media only screen and (max-width: 800px) {
       .text-content .line.fl, .text-content .line.l, #text-content .line.fl, #text-content .line.l {
         display: inline; } }
+    .text-content .line.ind1 .text, #text-content .line.ind1 .text {
+      text-indent: 1rem; }
+    .text-content .line.ind2 .text, #text-content .line.ind2 .text {
+      text-indent: 2rem; }
     .text-content .line.lvl, #text-content .line.lvl {
       display: block !important; }
       .text-content .line.lvl1, .text-content .line.lvl2, .text-content .line.lvl3, .text-content .line.lvl4, .text-content .line.lvl5, #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
