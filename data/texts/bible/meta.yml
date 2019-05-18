@@ -1,6 +1,6 @@
 title: The Bible
 sort_title: Bible
-publication_date: 0000-00-00
+publication_date: null
 description: |
     The Bible (from Koine Greek τὰ βιβλία, tà biblía, “the books”) is a
     collection of sacred texts or scriptures. Varying parts of the Bible are
@@ -38,52 +38,117 @@ description: |
     100 million copies annually.
 edition:
     primary: true
+    title: The King James Version
     number: 1
-    publication_date: 1904-01-01
+    publication_date: 1611-01-01
     translator:
-        - name: Constance Garnett
-          family_name: Garnett
-          birth_date: 1861-12-19
-          death_date: 1946-12-17
+        - name: Authorized Version Translation Committee
+          family_name: Authorized
+          birth_date: 1604-01-01
+          death_date: 1611-01-01
           description: |
-              Constance Clara Garnett (née Black; 19 December 1861 – 17 December
-              1946) was an English translator of nineteenth-century Russian
-              literature. Garnett was one of the first English translators of
-              Leo Tolstoy, Fyodor Dostoyevsky and Anton Chekhov and introduced
-              them on a wide basis to the English-speaking public.
+              Translation committees
+              ======================
+
+              - First Westminster Company, translated Genesis to 2 Kings:
+                [Lancelot Andrewes](https://en.wikipedia.org/wiki/Lancelot_Andrewes),
+                [John Overall](https://en.wikipedia.org/wiki/John_Overall_(bishop)),
+                [Hadrian à Saravia](https://en.wikipedia.org/wiki/Hadrian_%C3%A0_Saravia),
+                [Richard Clarke](https://en.wikipedia.org/wiki/Richard_Clarke_(priest)),
+                [John Layfield](https://en.wikipedia.org/wiki/John_Layfield_(theologian)),
+                [Robert Tighe](https://en.wikipedia.org/wiki/Robert_Tighe),
+                [Francis Burleigh](https://en.wikipedia.org/wiki/Francis_Burleigh),
+                [Geoffrey King](https://en.wikipedia.org/wiki/Geoffrey_King_(theologian)),
+                [Richard Thomson](https://en.wikipedia.org/wiki/Richard_Thomson_(theologian)),
+                [William Bedwell](https://en.wikipedia.org/wiki/William_Bedwell);
+              - First Cambridge Company, translated 1 Chronicles to the Song of
+                Solomon: Edward Lively, John Richardson, Lawrence Chaderton,
+                Francis Dillingham, Roger Andrewes, Thomas Harrison, Robert
+                Spaulding, Andrew Bing;
+              - First Oxford Company, translated Isaiah to Malachi: John
+                Harding, John Rainolds (or Reynolds), Thomas Holland, Richard
+                Kilby, Miles Smith, Richard Brett, Daniel Fairclough, William
+                Thorne;
+              - Second Oxford Company, translated the Gospels, Acts of the
+                Apostles, and the Book of Revelation: Thomas Ravis, George
+                Abbot, Richard Eedes, Giles Tomson, Sir Henry Savile, John
+                Peryn, Ralph Ravens, John Harmar, John Aglionby, Leonard Hutten;
+              - Second Westminster Company, translated the Epistles: William
+                Barlow, John Spenser, Roger Fenton, Ralph Hutchinson, William
+                Dakins, Michael Rabbet, Thomas Sanderson (who probably had
+                already become Archdeacon of Rochester);
+              - Second Cambridge Company, translated the Apocrypha: John Duport,
+                William Branthwaite, Jeremiah Radcliffe, Samuel Ward, Andrew
+                Downes, John Bois, Robert Ward, Thomas Bilson, Richard
+                Bancroft.
     editor: []
-    author:
-        - name: Leo Tolstoy
-          family_name: Tolstoy
-          birth_date: 1828-09-09
-          death_date: 1910-11-20
-          description: |
-              Count Lyov (also Lev) Nikolayevich Tolstoy (9 September [O.S. 28
-              August] 1828 – 20 November [O.S. 7 November] 1910), usually
-              referred to in English as Leo Tolstoy, was a Russian writer who is
-              regarded as one of the greatest authors of all time.
+    author: []
+    description: |
+        The King James Version (KJV), also known as the King James Bible
+        (KJB) or simply the Authorized Version (AV), is an English
+        translation of the Christian Bible for the Church of England,
+        begun in 1604 and completed as well as published in 1611 under the
+        sponsorship of James VI and I. The books of the King James
+        Version include the 39 books of the Old Testament, an
+        intertestamental section containing 14 books of the Apocrypha, and
+        the 27 books of the New Testament. The translation is noted for
+        its “majesty of style”, and has been described as one of the most
+        important books in English culture and a driving force in the
+        shaping of the English-speaking world.
 
-              Born to an aristocratic Russian family in 1828, he is best known
-              for the novels _War and Peace_ (1869) and _Anna Karenina_ (1877),
-              often cited as pinnacles of realist fiction. He first achieved
-              literary acclaim in his twenties with his semi-autobiographical
-              trilogy, _Childhood_, _Boyhood_, and _Youth_ (1852–1856), and
-              _Sevastopol Sketches_ (1855), based upon his experiences in the
-              Crimean War.  Tolstoy’s fiction includes dozens of short stories
-              and several novellas such as _The Death of Ivan Ilyich_ (1886),
-              _Family Happiness_ (1859), and _Hadji Murad_ (1912). He also wrote
-              plays and numerous philosophical essays.
+        It was first printed by Robert Barker, the King's Printer, and was
+        the third translation into English approved by the English Church
+        authorities: The first had been the Great Bible, commissioned in
+        the reign of King Henry VIII (1535), and the second had been the
+        Bishops' Bible, commissioned in the reign of Queen Elizabeth I
+        (1568). On the European continent, the first generation of
+        Calvinists had produced the Geneva Bible of 1560 from the original
+        Hebrew and Greek Scriptures, which was influential in the writing
+        of the Authorized King James Version. In January 1604, King James
+        convened the Hampton Court Conference, where a new English version
+        was conceived in response to the problems of the earlier
+        translations perceived by the Puritans, a faction of the Church of
+        England.
 
-              In the 1870s Tolstoy experienced a profound moral crisis, followed
-              by what he regarded as an equally profound spiritual awakening, as
-              outlined in his non-fiction work _A Confession_ (1882). His
-              literal interpretation of the ethical teachings of Jesus,
-              centering on the Sermon on the Mount, caused him to become a
-              fervent Christian anarchist and pacifist. Tolstoy’s ideas on
-              nonviolent resistance, expressed in such works as _The Kingdom of
-              God Is Within You_ (1894), were to have a profound impact on such
-              pivotal 20th-century figures as Mohandas Karamchand Gandhi, and
-              Martin Luther King, Jr. Tolstoy also became a dedicated advocate
-              of Georgism, the economic philosophy of Henry George, which he
-              incorporated into his writing, particularly _Resurrection_ (1899).
-    description: null
+        James gave the translators instructions intended to ensure that
+        the new version would conform to the ecclesiology of, and reflect
+        the episcopal structure of, the Church of England and its belief
+        in an ordained clergy. The translation was done by 47 scholars,
+        all of whom were members of the Church of England. In common with
+        most other translations of the period, the New Testament was
+        translated from Greek, the Old Testament from Hebrew and Aramaic,
+        and the Apocrypha from Greek and Latin. In the Book of Common
+        Prayer (1662), the text of the Authorized Version replaced the
+        text of the Great Bible for Epistle and Gospel readings (but not
+        for the Psalter, which substantially retained Coverdale's Great
+        Bible version), and as such was authorised by Act of Parliament.
+
+        By the first half of the 18th century, the Authorized Version had
+        become effectively unchallenged as the English translation used in
+        Anglican and English Protestant churches, except for the Psalms
+        and some short passages in the Book of Common Prayer of the Church
+        of England. Over the course of the 18th century, the Authorized
+        Version supplanted the Latin Vulgate as the standard version of
+        scripture for English-speaking scholars. With the development of
+        stereotype printing at the beginning of the 19th century, this
+        version of the Bible became the most widely printed book in
+        history, almost all such printings presenting the standard text of
+        1769 extensively re-edited by Benjamin Blayney at Oxford, and
+        nearly always omitting the books of the Apocrypha. Today the
+        unqualified title “King James Version” usually indicates this
+        Oxford standard text.
+
+        Notes for anno.wiki
+        ===================
+        Unfortunately, the version most well-formatted for our purposes,
+        provided by [Project Gutenberg][0], does not include the Apocrypha
+        (which was, indeed, originally included in the Authorized
+        Version). Furthermore, the processing issues in separating
+        Chapters and Verses within each Book was unduly difficult (and
+        would create significant performance issues).
+
+        In the future anno.wiki will improve our King James Version. For
+        now, please accept this is a the definitive Bible in anno.wiki for
+        reference.
+
+        [0]: https://www.gutenberg.org/ebooks/10

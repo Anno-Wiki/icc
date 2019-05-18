@@ -1,5 +1,5 @@
 toc:
-    "TESTAMENT":
+    "Testament":
         display: Testament
         precedence: 1
         aggregate: False
