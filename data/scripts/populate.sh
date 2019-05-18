@@ -42,5 +42,10 @@ $PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/bible/meta.yml \
 
 echo "- populating lines for Shakespare's Sonnets"
 $PYTHON $ROOT/inserts/insertlines.py \
-    -c $data/texts/shakespeare_william/meta.yml \
-    -i $DATA/texts/shakespeare_william/lines.json
+    -c $data/texts/shakespeare_william/sonnets/meta.yml \
+    -i $DATA/texts/shakespeare_william/sonnets/lines.json
+
+echo "- populating lines for Shakespare's Hamlet"
+$PYTHON $ROOT/inserts/insertlines.py \
+    -c $data/texts/shakespeare_william/hamlet/meta.yml \
+    -i $DATA/texts/shakespeare_william/hamlet/lines.json
