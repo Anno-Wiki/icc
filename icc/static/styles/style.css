@@ -329,7 +329,8 @@ nav {
   .text-content .line, #text-content .line {
     display: flex;
     align-items: baseline;
-    justify-content: flex-start; }
+    justify-content: flex-start;
+    /* Below are all of the special designations for lines */ }
     .text-content .line .line-num, #text-content .line .line-num {
       font-size: 0.75em;
       min-width: 3em;
@@ -348,7 +349,7 @@ nav {
         visibility: hidden; }
     .text-content .line-annotations a, #text-content .line-annotations a {
       color: #b58900; }
-    .text-content .line.fl, #text-content .line.fl {
+    .text-content .line.fl, .text-content .line.char, #text-content .line.fl, #text-content .line.char {
       margin-top: 1em; }
     @media only screen and (max-width: 800px) {
       .text-content .line.fl, .text-content .line.l, #text-content .line.fl, #text-content .line.l {
@@ -357,6 +358,14 @@ nav {
       text-indent: 1rem; }
     .text-content .line.ind2 .text, #text-content .line.ind2 .text {
       text-indent: 2rem; }
+    .text-content .line.ind3 .text, #text-content .line.ind3 .text {
+      text-indent: 3rem; }
+    .text-content .line.ind4 .text, #text-content .line.ind4 .text {
+      text-indent: 4rem; }
+    .text-content .line.quo .text, #text-content .line.quo .text {
+      text-indent: 1rem;
+      font-style: italic;
+      font-size: 1.30rem; }
     .text-content .line.lvl, #text-content .line.lvl {
       display: block !important; }
       .text-content .line.lvl1, .text-content .line.lvl2, .text-content .line.lvl3, .text-content .line.lvl4, .text-content .line.lvl5, #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {

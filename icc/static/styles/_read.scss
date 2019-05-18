@@ -114,12 +114,22 @@
 
         &-annotations { a { color: $yellow; } }
 
-        &.fl { margin-top: 1em; }
+        /* Below are all of the special designations for lines */
+
+        &.fl, &.char { margin-top: 1em; }
         &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } }
 
         &.ind {
             &1 .text { text-indent: 1rem; }
             &2 .text { text-indent: 2rem; }
+            &3 .text { text-indent: 3rem; }
+            &4 .text { text-indent: 4rem; }
+        }
+
+        &.quo .text {
+            text-indent: 1rem;
+            font-style: italic;
+            font-size: 1.30rem;
         }
 
         &.lvl {
