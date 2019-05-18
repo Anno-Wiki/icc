@@ -91,9 +91,9 @@ def get_enums_dict():
 
 
 def process_attributes(attrs_dict, enums_dict):
-    """Process the attribute dictionary from the a line, creating LineEnums as
-    we need them, and return both a list of attrs to be applied to the line and
-    the updated enums dictionary with the newly created enums.
+    """Process the attribute dictionary from a line, creating LineEnums as we
+    need them, and return both a list of attrs to be applied to the line and the
+    updated enums dictionary with the newly created enums.
     """
     attrs = {}
     for attr in attrs_dict:
