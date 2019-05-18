@@ -39,3 +39,8 @@ $PYTHON $ROOT/annotations.py -i $DATA/texts/tolstoy_leo/wap/annotations.json
 echo "- populating lines for The King James Bible"
 $PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/bible/meta.yml \
     -i $DATA/texts/bible/lines.json
+
+echo "- populating lines for Shakespare's Sonnets"
+$PYTHON $ROOT/inserts/insertlines.py \
+    -c $data/texts/shakespeare_william/meta.yml \
+    -i $DATA/texts/shakespeare_william/lines.json

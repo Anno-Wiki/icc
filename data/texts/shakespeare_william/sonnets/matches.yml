@@ -1,0 +1,5 @@
+toc:
+    "^[1-9]*$":
+        display: Sonnet
+        precedence: 1
+        aggregate: False
