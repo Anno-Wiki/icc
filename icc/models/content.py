@@ -243,8 +243,8 @@ class Edition(Base, FollowableMixin):
     def title(self):
         """Returns the title representation string of the edition."""
         if self._title:
-            return self._title
-        return (f"{self.text_title}*" if self.primary else
+            return f'{self._title}*' if self.primary else self._title
+        return (f'{self.text_title}*' if self.primary else
                 f"{self.text_title} - Ed. #{self.num}")
 
     @property
@@ -253,7 +253,7 @@ class Edition(Base, FollowableMixin):
         parent text's title.
         """
         if self._title:
-            return self._title
+            return f'{self._title}*' if self.primary else self._title
         return (f"Edition #{self.num} - Primary" if self.primary else
                 f"Edition #{self.num}")
 
@@ -293,7 +293,7 @@ class Edition(Base, FollowableMixin):
             self.writers[conn.enum].append(conn.writer)
 
     def __repr__(self):
-        return f"<Edition #{self.num} {self.text.title}>"
+        return self.edition_title
 
     def __str__(self):
         return self.title
