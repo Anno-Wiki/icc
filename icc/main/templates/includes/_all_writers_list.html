@@ -1,12 +1,14 @@
-{% for writer in writers %}
-    {# Precede the last writer, if there are at least 2 writers, with an
-        ampersand #}
-    {% if writer == writers[-1] and len(writers) >= 2 %} &amp; {% endif %}
+{% if writers %}
+    {% for writer in writers %}
+        {# Precede the last writer, if there are at least 2 writers, with an
+            ampersand #}
+        {% if writer == writers[-1] and len(writers) >= 2 %} &amp; {% endif %}
 
-    <a href="{{ writer.url }}">{{ writer.name }}</a>
+        <a href="{{ writer.url }}">{{ writer.name }}</a>
 
-    {# Follow each writer with a comma if it is not the second to last or
-        last.#}
-    {% if len(writers) >= 3 and not (writer == writers[-2] or writer ==
-        writers[-1]) %}, {% endif %}
-{% endfor %}
+        {# Follow each writer with a comma if it is not the second to last or
+            last.#}
+        {% if len(writers) >= 3 and not (writer == writers[-2] or writer ==
+            writers[-1]) %}, {% endif %}
+    {% endfor %}
+{% endif %}

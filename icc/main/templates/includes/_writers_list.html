@@ -1,4 +1,6 @@
-<a href="{{ writers[0].url }}">{{ writers[0].name }}</a>
-{% if len(writers) >= 2 %}
-    &amp; al.
+{% if writers %}
+    <a href="{{ writers[0].url }}">{{ writers[0].name }}</a>
+    {% if len(writers) >= 2 %}
+        &amp; al.
+    {% endif %}
 {% endif %}
