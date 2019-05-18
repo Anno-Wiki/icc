@@ -26,16 +26,16 @@ echo "- populating tags..."
 $PYTHON $ROOT/inserts/inserttags.py -c $DATA/tags.yml
 
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
-$PYTHON $ROOT/inserts/insertlines.py -f -c $DATA/texts/hod/meta.yml \
+$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/hod/meta.yml \
     -i $DATA/texts/conrad_joseph/hod/lines.json
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
-$PYTHON $ROOT/inserts/insertlines.py -f -c $DATA/texts/wap/meta.yml \
+$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/wap/meta.yml \
     -i $DATA/texts/tolstoy_leowap/lines.json
 
 echo "- populating annotations for War and Peace by Leo Tolstoy"
 $PYTHON $ROOT/annotations.py -i $DATA/texts/tolstoy_leo/wap/annotations.json
 
 echo "- populating lines for The King James Bible"
-$PYTHON $ROOT/inserts/insertlines.py -f -c $DATA/texts/bible/meta.yml \
+$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/bible/meta.yml \
     -i $DATA/texts/bible/lines.json

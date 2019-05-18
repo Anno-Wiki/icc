@@ -18,24 +18,22 @@ from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
                                 WRITERS_REVERSE)
 
 
-def get_text(config, initial=False):
+def get_text(config):
     """Create the text, add the authors, and return the text object added the
     database.
     """
-    if initial:
+    text = Text.query.filter_by(title=config['title']).first()
+    if text:
+        print(f"Found {text.title} in the database.")
+        if config['edition']['primary']:
+            print("Deactivating previous primary {text.primary}.")
+            deactivate_previous_primary(text)
+    else:
         text = Text(title=config['title'], sort_title=config['sort_title'],
                     published=config['publication_date'],
                     description=config['description'])
         db.session.add(text)
-        if __name__ == '__main__':
-            print(f"Created text {text.title}.")
-
-    else:
-        text = Text.query.filter_by(title=config['title']).first()
-        if __name__ == '__main__':
-            print(f"Found {text.title} in the database.")
-        if config['edition']['primary']:
-            deactivate_previous_primary(text)
+        print(f"Created text {text.title}.")
     return text
 
 
@@ -137,8 +135,6 @@ if __name__ == '__main__':
                         required=True, help="A yaml configuration file "
                         "adhering to a specific template. See Text Processing "
                         "in the documentation for details.")
-    parser.add_argument('-f', '--first', action='store_true',
-                        help="This is an initial text.")
     parser.add_argument('-i', '--input', action='store', type=str,
                         help="The input file or prepared and preprocessed "
                         "text.")
@@ -154,7 +150,7 @@ if __name__ == '__main__':
     app = create_app()
 
     with app.app_context():
-        text = get_text(config, args.first)
+        text = get_text(config)
 
         edition = get_edition(config, text)
 
