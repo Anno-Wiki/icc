@@ -1,0 +1,3 @@
+[submodule "data/library"]
+	path = data/library
+	url = git@github.com:malan88/texts
