@@ -1,5 +1,0 @@
-toc:
-    "^[0-9]$":
-        display: Stanza
-        precedence: 1
-        aggregate: False

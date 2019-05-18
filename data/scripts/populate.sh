@@ -12,6 +12,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 ROOT=$DIR/../..
 DATA=$DIR/..
+LIBRARY=$DATA/library
 PYTHON=$ICCVENV/bin/python
 
 echo "- populating enum tables..."
@@ -26,31 +27,31 @@ echo "- populating tags..."
 $PYTHON $ROOT/inserts/inserttags.py -c $DATA/tags.yml
 
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
-$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/conrad_joseph/hod/meta.yml \
-    -i $DATA/texts/conrad_joseph/hod/lines.json
+$PYTHON $ROOT/inserts/insertlines.py -c $LIBRARY/conrad_joseph/hod/meta.yml \
+    -i $LIBRARY/conrad_joseph/hod/lines.json
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
-$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/tolstoy_leo/wap/meta.yml \
-    -i $DATA/texts/tolstoy_leo/wap/lines.json
+$PYTHON $ROOT/inserts/insertlines.py -c $LIBRARY/tolstoy_leo/wap/meta.yml \
+    -i $LIBRARY/tolstoy_leo/wap/lines.json
 
 echo "- populating annotations for War and Peace by Leo Tolstoy"
-$PYTHON $ROOT/annotations.py -i $DATA/texts/tolstoy_leo/wap/annotations.json
+$PYTHON $ROOT/annotations.py -i $LIBRARY/tolstoy_leo/wap/annotations.json
 
 echo "- populating lines for The King James Bible"
-$PYTHON $ROOT/inserts/insertlines.py -c $DATA/texts/bible/meta.yml \
-    -i $DATA/texts/bible/lines.json
+$PYTHON $ROOT/inserts/insertlines.py -c $LIBRARY/bible/kjv/meta.yml \
+    -i $LIBRARY/bible/kjv/lines.json
 
 echo "- populating lines for Shakespare's Sonnets"
 $PYTHON $ROOT/inserts/insertlines.py \
-    -c $DATA/texts/shakespeare_william/sonnets/meta.yml \
-    -i $DATA/texts/shakespeare_william/sonnets/lines.json
+    -c $LIBRARY/shakespeare_william/sonnets/meta.yml \
+    -i $LIBRARY/shakespeare_william/sonnets/lines.json
 
 echo "- populating lines for Shakespare's Hamlet"
 $PYTHON $ROOT/inserts/insertlines.py \
-    -c $data/texts/shakespeare_william/hamlet/meta.yml \
-    -i $DATA/texts/shakespeare_william/hamlet/lines.json
+    -c $LIBRARY/shakespeare_william/hamlet/meta.yml \
+    -i $LIBRARY/shakespeare_william/hamlet/lines.json
 
 echo "- populating lines for Shakespare's Macbeth"
 $PYTHON $ROOT/inserts/insertlines.py \
-    -c $data/texts/shakespeare_william/macbeth/meta.yml \
-    -i $DATA/texts/shakespeare_william/macbeth/lines.json
+    -c $LIBRARY/shakespeare_william/macbeth/meta.yml \
+    -i $LIBRARY/shakespeare_william/macbeth/lines.json
