@@ -75,13 +75,13 @@ def add_writer_connections(meta, edition):
                 writer_obj = Writer(**writer)
                 db.session.add(writer_obj)
                 if __name__ == '__main__':
-                    print(f"Writer {writer_obj.name} created.")
+                    print(f"Created writer {writer_obj.name}.")
 
             conn = WriterConnection(writer=writer_obj, edition=edition,
                                            enum_id=enum)
             db.session.add(conn)
             if __name__ == '__main__':
-                print(f"Writer {writer_obj.name} added as {value}.")
+                print(f"Added {writer_obj.name} as {value}.")
 
 
 def get_enums_dict():
