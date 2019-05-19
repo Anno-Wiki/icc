@@ -1,5 +1,5 @@
 """Populate the text, authors, edition, writer connections, and lines for a
-text. Requires a `config.yml` file.
+text. Requires a `meta.yml` file.
 """
 import sys
 import os
@@ -18,20 +18,20 @@ from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
                                 WRITERS_REVERSE)
 
 
-def get_text(config):
+def get_text(meta):
     """Create the text, add the authors, and return the text object added the
     database.
     """
-    text = Text.query.filter_by(title=config['title']).first()
+    text = Text.query.filter_by(title=meta['title']).first()
     if text:
         print(f"Found {text.title} in the database.")
-        if config['edition']['primary']:
+        if meta['edition']['primary']:
             print("Deactivating previous primary {text.primary}.")
             deactivate_previous_primary(text)
     else:
-        text = Text(title=config['title'], sort_title=config['sort_title'],
-                    published=config['publication_date'],
-                    description=config['description'])
+        text = Text(title=meta['title'], sort_title=meta['sort_title'],
+                    published=meta['publication_date'],
+                    description=meta['description'])
         db.session.add(text)
         print(f"Created text {text.title}.")
     return text
@@ -47,13 +47,13 @@ def deactivate_previous_primary(text):
     text.primary.primary = False
 
 
-def get_edition(config, text):
+def get_edition(meta, text):
     """Create the new edition, add it to the databsae, and return it."""
-    edition = Edition(num=config['edition']['number'],
-                      _title=config['edition']['title'], text=text,
-                      primary=config['edition']['primary'],
-                      description=config['edition']['description'],
-                      published=config['edition']['publication_date'])
+    edition = Edition(num=meta['edition']['number'],
+                      _title=meta['edition']['title'], text=text,
+                      primary=meta['edition']['primary'],
+                      description=meta['edition']['description'],
+                      published=meta['edition']['publication_date'])
     db.session.add(edition)
     if __name__ == '__main__':
         if edition._title:
@@ -63,13 +63,13 @@ def get_edition(config, text):
     return edition
 
 
-def add_writer_connections(config, edition):
+def add_writer_connections(meta, edition):
     """Add all of the writer connections to the edition."""
     # For all the connection types we have, we go look in the edition dictionary
     # for those connection types, and then loop through the writers in those
     # dictionaries to create those connections.
     for value, enum in WRITERS_REVERSE.items():
-        for writer in config['edition'][value]:
+        for writer in meta['edition'][value]:
             writer_obj = Writer.query.filter_by(name=writer['name']).first()
             if not writer_obj:
                 writer_obj = Writer(**writer)
@@ -131,8 +131,8 @@ def populate_lines(lines, edition):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Insert lines into icc database")
-    parser.add_argument('-c', '--config', action='store', type=str,
-                        required=True, help="A yaml configuration file "
+    parser.add_argument('-m', '--meta', action='store', type=str,
+                        required=True, help="A yaml metauration file "
                         "adhering to a specific template. See Text Processing "
                         "in the documentation for details.")
     parser.add_argument('-i', '--input', action='store', type=str,
@@ -142,7 +142,7 @@ if __name__ == '__main__':
                         help="Flag for a dry run test.")
 
     args = parser.parse_args()
-    config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
+    meta = yaml.load(open(args.meta, 'rt'), Loader=yaml.FullLoader)
     FIN = io.open(args.input, 'r', encoding='utf-8-sig') if args.input\
         else open(args.input, 'rt', encoding='utf-8-sig')
     lines = json.load(FIN)
@@ -150,11 +150,11 @@ if __name__ == '__main__':
     app = create_app()
 
     with app.app_context():
-        text = get_text(config)
+        text = get_text(meta)
 
-        edition = get_edition(config, text)
+        edition = get_edition(meta, text)
 
-        add_writer_connections(config, edition)
+        add_writer_connections(meta, edition)
 
         i = populate_lines(lines, edition)
 
