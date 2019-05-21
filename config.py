@@ -41,7 +41,7 @@ class Config:
     TIME = '%I:%M %p %m/%d/%y (UTC)'
 
     # technicals
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'youllneverguess'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'securitybreach'
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or\
         f'mysql+pymysql://{ACCT}:{PW}@localhost/'\
