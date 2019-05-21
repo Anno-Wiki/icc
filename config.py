@@ -6,7 +6,7 @@ class Config:
     """The default config object."""
     HASH_REGISTRATION = True
 
-    DEBUG = True
+    DEBUG = False
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['emails@futuretld.org']
