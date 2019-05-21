@@ -1,14 +1,41 @@
 """Administrative routes for users."""
+import jwt
+from time import time
+
 from flask import (render_template, flash, redirect, url_for, request,
                    current_app)
 from flask_login import current_user, login_required
 
 from icc import db
+from icc.email.email import send_beta_invite_email
 from icc.funky import generate_next, authorize
 from icc.forms import AreYouSureForm
+from icc.admin.forms import InviteForm
 from icc.admin import admin
 
 from icc.models.user import User, UserFlag
+
+# expires in seven days
+expires_in = 604800
+
+@admin.route('/user/invite', methods=['GET', 'POST'])
+@login_required
+@authorize('invite_beta')
+def invite():
+    if not current_app.config['HASH_REGISTRATION']:
+        flash("The app is open to registration, dude, what are you thinking?")
+        return url_for('main.index')
+    form = InviteForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        token = jwt.encode(
+            {'email': email, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+        print(token)
+
+        send_beta_invite_email(email, token)
+        flash(f"Invited {email}.")
+    return render_template('forms/invite.html', form=form)
 
 
 @admin.route('/user/<user_id>/delete/', methods=['GET', 'POST'])

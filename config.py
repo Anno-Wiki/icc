@@ -4,6 +4,8 @@ import mysqlpw
 
 class Config:
     """The default config object."""
+    HASH_REGISTRATION = True
+
     DEBUG = True
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True

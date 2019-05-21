@@ -76,6 +76,7 @@
                         'review_wiki_edits',
                         'resolve_user_flags',
                         'resolve_annotation_flags',
+                        'invite_beta'
                         ]%}
                     {% set adminlinks = [
                         ('deactivated', url_for('admin.view_deactivated_annotations')),
@@ -83,6 +84,7 @@
                         ('wiki edits', url_for('admin.wiki_edit_review_queue')),
                         ('user flags', url_for('admin.all_user_flags')),
                         ('annotation flags', url_for('admin.all_annotation_flags')),
+                        ('invite', url_for('admin.invite'))
                         ]%}
 
                     {%- if current_user.is_anonymous -%}

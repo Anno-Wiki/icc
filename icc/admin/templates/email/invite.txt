@@ -1,0 +1,6 @@
+This is an email with a magic link for the beta of anno.wiki.
+
+Keep it secret. Keep it safe.
+
+To register, click on the following link:
+{{ url_for('main.register', token=token, _external=True) }}

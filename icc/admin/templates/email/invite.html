@@ -1,0 +1,11 @@
+<p>This is an email with a magic link for the beta of anno.wiki.</p>
+<p>Keep it secret.</p>
+<p>Keep it safe.</p>
+<p>
+    To register
+    <a href="{{ url_for('main.register', token=token, _external=True) }}">
+        click here
+    </a>.
+</p>
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+<p>{{ url_for('main.register', token=token, _external=True) }}</p>

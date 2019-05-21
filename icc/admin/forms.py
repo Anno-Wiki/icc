@@ -1,7 +1,7 @@
 """Forms specific to the admin module."""
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import ValidationError, InputRequired, Length
+from wtforms.validators import ValidationError, InputRequired, Length, Email
 
 from icc.models.annotation import Tag
 
@@ -26,4 +26,10 @@ class LineForm(FlaskForm):
     line = StringField('Line',
                        validators=[InputRequired(), Length(min=0, max=140)],
                        render_kw={'maxlength': 200})
+    submit = SubmitField('Submit')
+
+
+class InviteForm(FlaskForm):
+    """A form for an admin to beta invite a user."""
+    email = StringField('Email', validators=[InputRequired(), Email()])
     submit = SubmitField('Submit')

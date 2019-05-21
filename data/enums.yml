@@ -109,3 +109,5 @@ AdminRight:
       min_rep: null
     - enum: delete_comments
       min_rep: null
+    - enum: invite_beta
+      min_rep: null

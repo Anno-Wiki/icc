@@ -11,6 +11,7 @@ Of course, one could argue that the annotation routes are the sine qua non of
 the icc. I would argue that you are an idiot.
 """
 
+import jwt
 from string import ascii_lowercase as lowercase
 from collections import defaultdict
 
@@ -49,6 +50,16 @@ def register():
         return redirect(redirect_url)
     form = RegistrationForm()
     if form.validate_on_submit():
+        token = request.args.get('token')
+        email = jwt.decode(token, current_app.config['SECRET_KEY'],
+                        algorithms=['HS256'])['email'] if token else None
+        if current_app.config['HASH_REGISTRATION'] and email != form.email.data:
+            flash("Registration is currently invite only. Either you have "
+                  "submitted an invalid invite token, or no invite token at "
+                  "all. Public registration will begin soon. Please have "
+                  "patience. Alternatively, if you recieved an email token, "
+                  "please contact your administrator for a fresh one.")
+            return redirect(redirect_url)
         user = User(displayname=form.displayname.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
