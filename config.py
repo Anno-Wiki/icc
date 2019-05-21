@@ -5,7 +5,7 @@ PW=''
 
 class Config:
     """The default config object."""
-    HASH_REGISTRATION = True
+    HASH_REGISTRATION = os.environ.get('BETA') or True
 
     DEBUG = False
     HEARTBEAT = False
