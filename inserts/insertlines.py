@@ -49,11 +49,10 @@ def deactivate_previous_primary(text):
 
 def get_edition(meta, text):
     """Create the new edition, add it to the databsae, and return it."""
-    edition = Edition(num=meta['edition']['number'],
-                      _title=meta['edition']['title'], text=text,
-                      primary=meta['edition']['primary'],
-                      description=meta['edition']['description'],
-                      published=meta['edition']['publication_date'])
+    edition = Edition(num=meta['number'], verse=meta.get('verse', False),
+                      _title=meta['title'], text=text, primary=meta['primary'],
+                      description=meta['description'],
+                      published=meta['publication_date'])
     db.session.add(edition)
     if __name__ == '__main__':
         if edition._title:
@@ -152,7 +151,7 @@ if __name__ == '__main__':
     with app.app_context():
         text = get_text(meta)
 
-        edition = get_edition(meta, text)
+        edition = get_edition(meta['edition'], text)
 
         add_writer_connections(meta, edition)
 

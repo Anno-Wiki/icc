@@ -14,7 +14,7 @@ sudo echo "- dropping and recreating database..."
 echo "drop database icc; create database icc;" |\
     sudo mysql -u root --password=$mysqlpw icc
 echo "- removing original migrations folder..."
-rm -rf $DIR/../migrations
+rm -rf $DIR/../../migrations
 echo "- creating new migrations folder..."
 $ICCVENV/bin/flask db init
 echo "- recreating alembic scripts..."

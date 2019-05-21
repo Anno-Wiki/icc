@@ -208,6 +208,9 @@ class Edition(Base, FollowableMixin):
     text_title : str
         A proxy for the title of the text. Mostly used so that the Annotation
         can query it easily with it's own association_proxy.
+    verse : boolean
+        A flag for disabling the line concatenation that happens on cell phones.
+        It will eventually become (either) more useful, or less. Unsure yet.
     """
     @staticmethod
     def _check_section_argument(section):
@@ -218,6 +221,7 @@ class Edition(Base, FollowableMixin):
             raise TypeError("The section tuple must consist of only integers.")
 
     _title = db.Column(db.String(235), default=None)
+    verse = db.Column(db.Boolean, default=False)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
     primary = db.Column(db.Boolean, default=False)
