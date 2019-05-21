@@ -1,5 +1,4 @@
 import os
-import mysqlpw
 
 
 class Config:
@@ -42,8 +41,9 @@ class Config:
     # technicals
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'youllneverguess'
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or\
-        f'mysql+pymysql://{mysqlpw.ACCT}:{mysqlpw.PW}@localhost/'\
-        'icc?charset=utf8mb4'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+#    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or\
+#        f'mysql+pymysql://{mysqlpw.ACCT}:{mysqlpw.PW}@localhost/'\
+#        'icc?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
