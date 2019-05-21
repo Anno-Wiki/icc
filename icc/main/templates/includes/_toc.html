@@ -10,17 +10,26 @@
     </thead>
     <tbody>
         {% for section in hierarchy %}
+            {% set linkbase = section.primary.precedence > 1 or deepest == 1 %}
             <tr class="lvl{{ section.primary.precedence }} {% for attr in section.attrs.values() %}{{ attr.precedence }}-{{ attr.num }} {% endfor %}">
-                <td align="left" class="disappear-3 section" onclick="location.href='{{ section.url }}';">
-                    <a href="{{ section.url }}">
+                <td align="left" class="disappear-3 section"{% if linkbase %} onclick="location.href='{{ section.url }}';"{% endif %}>
+                    {% if linkbase %}<a href="{{ section.url }}">{% endif %}
                         {{ section.primary.display }} {{ section.primary.num }}
-                    </a>
+                    {% if linkbase %}</a>{% endif %}
                 </td>
-                <td align="center" class="content" onclick="location.href='{{ section.url }}';">
-                    <a href="{{ section.url }}">{{ section.line }}</a>
+                <td align="center" class="content"{% if linkbase %} onclick="location.href='{{ section.url }}';"{% endif %}>
+                    {% if linkbase %}
+                        <a href="{{ section.url }}">{{ section.line }}</a>
+                    {% else %}
+                        {{ section.line }}
+                    {% endif %}
                 </td>
-                <td align="right" class="lineno disappear-1" onclick="location.href='{{ section.url }}';">
-                    <a href="{{ section.url }}">{{ section.num }}</a>
+                <td align="right" class="lineno disappear-1"{% if linkbase %} onclick="location.href='{{ section.url }}';"{% endif %}>
+                    {% if linkbase %}
+                        <a href="{{ section.url }}">{{ section.num }}</a>
+                    {% else %}
+                        {{ section.num }}
+                    {% endif %}
                 </td>
                 {% if section.primary.precedence < deepest %}
                     <td class="collapse-td">
