@@ -39,9 +39,10 @@ venv
 app.db
 icc.log*
 
-mysqlpw.py
+data/library
 
 # sass
 **/.sass-cache
 **/.sass-cache/*
 *.map
+
