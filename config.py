@@ -7,7 +7,7 @@ class Config:
     """The default config object."""
     HASH_REGISTRATION = os.environ.get('BETA') or True
 
-    DEBUG = False
+    DEBUG = os.environ.get('ICC_DEBUG') or False
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['emails@futuretld.org']
