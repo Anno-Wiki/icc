@@ -10,6 +10,7 @@ class Config:
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['emails@futuretld.org']
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
 
     LOG_POWER = False
 
