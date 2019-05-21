@@ -31,19 +31,3 @@ users:
           I am the puppetmaster.
 
           I also really like wine.
-    - displayname: chris
-      email: chriss@glendalepainting.com
-      rights: none
-      locked: false
-      about_me: |
-          I'm a fake user created by malan to be used like a puppet.
-
-          I also like beer.
-    - displayname: nick
-      email: nsendker@gmail.com
-      rights: none
-      locked: false
-      about_me: |
-          I'm a fake user created by malan to be used like a puppet.
-
-          I also like cocktails.
