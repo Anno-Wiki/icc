@@ -49,8 +49,9 @@ def deactivate_previous_primary(text):
 
 def get_edition(meta, text):
     """Create the new edition, add it to the databsae, and return it."""
+    _title = meta.get('title', None)
     edition = Edition(num=meta['number'], verse=meta.get('verse', False),
-                      _title=meta['title'], text=text, primary=meta['primary'],
+                      _title=_title, text=text, primary=meta['primary'],
                       description=meta['description'],
                       published=meta['publication_date'])
     db.session.add(edition)
@@ -121,50 +122,58 @@ def populate_lines(lines, edition):
                         line=line['line'], attrs=attrs)
         db.session.add(line_obj)
 
-        if i % 1000 == 0 and __name__ == '__main__':
+        if i % 1000 == 0:
             print(i)
         i+=1
 
     return i
 
 
+def parse_files(path):
+    path = path.rstrip('/')
+    meta = yaml.load(open(f'{path}/meta.yml', 'rt'), Loader=yaml.FullLoader)
+    FIN = io.open(f'{path}/lines.json', 'r', encoding='utf-8-sig')
+    lines = json.load(FIN)
+    return meta, lines
+
+
+def main(path, dryrun=False):
+    meta, lines = parse_files(path)
+
+    text = get_text(meta)
+
+    edition = get_edition(meta['edition'], text)
+
+    add_writer_connections(meta, edition)
+
+    i = populate_lines(lines, edition)
+
+    print(f"After an arduous {i} lines, we are done.")
+
+    if dryrun:
+        db.session.rollback()
+        print(f"Nothing committed.")
+    else:
+        print(f"Now committing...")
+        db.session.commit()
+        print(f"Done.")
+        print(f"Reindexing...")
+        Line.reindex(edition=edition)
+        print(f"Done.")
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("Insert lines into icc database")
-    parser.add_argument('-m', '--meta', action='store', type=str,
-                        required=True, help="A yaml metauration file "
-                        "adhering to a specific template. See Text Processing "
-                        "in the documentation for details.")
-    parser.add_argument('-i', '--input', action='store', type=str,
-                        help="The input file or prepared and preprocessed "
-                        "text.")
-    parser.add_argument('-d', '--dryrun', action='store_true',
+    parser = argparse.ArgumentParser("Insert lines into icc database.")
+    parser.add_argument('path', action='store', type=str,
+                        help="The input directory. Must contain lines.json and "
+                        "meta.yml in the proper format.")
+    parser.add_argument('-d', '--dryrun', action='store_true', default=False,
                         help="Flag for a dry run test.")
 
     args = parser.parse_args()
-    meta = yaml.load(open(args.meta, 'rt'), Loader=yaml.FullLoader)
-    FIN = io.open(args.input, 'r', encoding='utf-8-sig') if args.input\
-        else open(args.input, 'rt', encoding='utf-8-sig')
-    lines = json.load(FIN)
+
 
     app = create_app()
 
     with app.app_context():
-        text = get_text(meta)
-
-        edition = get_edition(meta['edition'], text)
-
-        add_writer_connections(meta, edition)
-
-        i = populate_lines(lines, edition)
-
-        print(f"After an arduous {i} lines, we are done.")
-        if  args.dryrun:
-            db.session.rollback()
-            print(f"Nothing committed.")
-        else:
-            print(f"Now committing...")
-            db.session.commit()
-            print(f"Done.")
-            print(f"Reindexing...")
-            Line.reindex(edition=edition)
-            print(f"Done.")
+        main(args.path, args.dryrun)

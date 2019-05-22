@@ -559,7 +559,7 @@ class Line(SearchableMixin, Base):
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
     em_id = db.Column(db.Integer)
-    line = db.Column(db.String(200))
+    line = db.Column(db.Text)
 
     edition = db.relationship('Edition', backref=backref('lines',
                                                          lazy='dynamic'))
