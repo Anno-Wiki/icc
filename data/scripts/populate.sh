@@ -35,6 +35,9 @@ $PYTHON $ROOT/inserts/insertlines.py $LIBRARY/tolstoy_leo/wap
 echo "- populating annotations for War and Peace by Leo Tolstoy"
 $PYTHON $ROOT/annotations.py -i $LIBRARY/tolstoy_leo/wap/annotations.json
 
+echo "- populating lines for War and Peace by Leo Tolstoy"
+$PYTHON $ROOT/inserts/insertlines.py $LIBRARY/bible/kjv/kjbo
+
 echo "- populating lines for shakespeare"
 for file in $LIBRARY/shakespeare_william/mit/processed/*; do
     echo "- populationg lines for $file"
