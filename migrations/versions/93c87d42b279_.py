@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 10f935dcfd72
+Revision ID: 93c87d42b279
 Revises: 
-Create Date: 2019-05-22 15:36:29.321797
+Create Date: 2019-05-24 13:36:09.489974
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '10f935dcfd72'
+revision = '93c87d42b279'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,13 +37,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_commentflagenum_enum'), 'commentflagenum', ['enum'], unique=False)
-    op.create_table('lineenum',
+    op.create_table('lineattr',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
     sa.Column('display', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_lineenum_enum'), 'lineenum', ['enum'], unique=False)
+    op.create_index(op.f('ix_lineattr_enum'), 'lineattr', ['enum'], unique=False)
     op.create_table('reputationenum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
@@ -53,6 +53,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_reputationenum_enum'), 'reputationenum', ['enum'], unique=False)
+    op.create_table('tocenum',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('enum', sa.String(length=128), nullable=True),
+    sa.Column('display', sa.String(length=64), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_tocenum_enum'), 'tocenum', ['enum'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('displayname', sa.String(length=64), nullable=True),
@@ -218,13 +225,14 @@ def upgrade():
     op.create_table('edition',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('_title', sa.String(length=235), nullable=True),
-    sa.Column('verse', sa.Boolean(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('text_id', sa.Integer(), nullable=True),
     sa.Column('primary', sa.Boolean(), nullable=True),
     sa.Column('wiki_id', sa.Integer(), nullable=False),
     sa.Column('published', sa.DateTime(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('tochide', sa.Boolean(), nullable=True),
+    sa.Column('verse', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -320,17 +328,25 @@ def upgrade():
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], )
     )
-    op.create_table('line',
+    op.create_table('toc',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('em_id', sa.Integer(), nullable=True),
-    sa.Column('line', sa.Text(), nullable=True),
+    sa.Column('precedence', sa.Integer(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('body', sa.String(length=200), nullable=True),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
+    sa.ForeignKeyConstraint(['enum_id'], ['tocenum.id'], ),
+    sa.ForeignKeyConstraint(['parent_id'], ['toc.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_line_edition_id'), 'line', ['edition_id'], unique=False)
-    op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
+    op.create_index(op.f('ix_toc_body'), 'toc', ['body'], unique=False)
+    op.create_index(op.f('ix_toc_edition_id'), 'toc', ['edition_id'], unique=False)
+    op.create_index(op.f('ix_toc_enum_id'), 'toc', ['enum_id'], unique=False)
+    op.create_index(op.f('ix_toc_num'), 'toc', ['num'], unique=False)
+    op.create_index(op.f('ix_toc_parent_id'), 'toc', ['parent_id'], unique=False)
+    op.create_index(op.f('ix_toc_precedence'), 'toc', ['precedence'], unique=False)
     op.create_table('writerconnection',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('writer_id', sa.Integer(), nullable=True),
@@ -394,51 +410,20 @@ def upgrade():
     op.create_index(op.f('ix_comment_annotation_id'), 'comment', ['annotation_id'], unique=False)
     op.create_index(op.f('ix_comment_parent_id'), 'comment', ['parent_id'], unique=False)
     op.create_index(op.f('ix_comment_poster_id'), 'comment', ['poster_id'], unique=False)
-    op.create_table('edit',
+    op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('current', sa.Boolean(), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
-    sa.Column('approved', sa.Boolean(), nullable=True),
-    sa.Column('rejected', sa.Boolean(), nullable=True),
-    sa.Column('reason', sa.String(length=191), nullable=True),
-    sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('edition_id', sa.Integer(), nullable=True),
-    sa.Column('entity_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('first_line_num', sa.Integer(), nullable=True),
-    sa.Column('last_line_num', sa.Integer(), nullable=True),
-    sa.Column('first_char_idx', sa.Integer(), nullable=True),
-    sa.Column('last_char_idx', sa.Integer(), nullable=True),
-    sa.Column('editor_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
-    sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['entity_id'], ['annotation.id'], ),
-    sa.ForeignKeyConstraint(['first_line_num'], ['line.num'], ),
-    sa.ForeignKeyConstraint(['last_line_num'], ['line.num'], ),
+    sa.Column('em_id', sa.Integer(), nullable=True),
+    sa.Column('toc_id', sa.Integer(), nullable=True),
+    sa.Column('attr_id', sa.Integer(), nullable=True),
+    sa.Column('line', sa.Text(), nullable=True),
+    sa.ForeignKeyConstraint(['attr_id'], ['lineattr.id'], ),
+    sa.ForeignKeyConstraint(['toc_id'], ['toc.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
-    op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
-    op.create_index(op.f('ix_edit_edition_id'), 'edit', ['edition_id'], unique=False)
-    op.create_index(op.f('ix_edit_entity_id'), 'edit', ['entity_id'], unique=False)
-    op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
-    op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
-    op.create_table('lineattribute',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('line_id', sa.Integer(), nullable=False),
-    sa.Column('enum_id', sa.Integer(), nullable=False),
-    sa.Column('num', sa.Integer(), nullable=True),
-    sa.Column('precedence', sa.Integer(), nullable=True),
-    sa.Column('primary', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['enum_id'], ['lineenum.id'], ),
-    sa.ForeignKeyConstraint(['line_id'], ['line.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_lineattribute_enum_id'), 'lineattribute', ['enum_id'], unique=False)
-    op.create_index(op.f('ix_lineattribute_line_id'), 'lineattribute', ['line_id'], unique=False)
-    op.create_index(op.f('ix_lineattribute_precedence'), 'lineattribute', ['precedence'], unique=False)
-    op.create_index(op.f('ix_lineattribute_primary'), 'lineattribute', ['primary'], unique=False)
+    op.create_index(op.f('ix_line_attr_id'), 'line', ['attr_id'], unique=False)
+    op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
+    op.create_index(op.f('ix_line_toc_id'), 'line', ['toc_id'], unique=False)
     op.create_table('commentflag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('entity_id', sa.Integer(), nullable=True),
@@ -470,6 +455,36 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_commentvote_entity_id'), 'commentvote', ['entity_id'], unique=False)
+    op.create_table('edit',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('num', sa.Integer(), nullable=True),
+    sa.Column('current', sa.Boolean(), nullable=True),
+    sa.Column('weight', sa.Integer(), nullable=True),
+    sa.Column('approved', sa.Boolean(), nullable=True),
+    sa.Column('rejected', sa.Boolean(), nullable=True),
+    sa.Column('reason', sa.String(length=191), nullable=True),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('entity_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('first_line_num', sa.Integer(), nullable=True),
+    sa.Column('last_line_num', sa.Integer(), nullable=True),
+    sa.Column('first_char_idx', sa.Integer(), nullable=True),
+    sa.Column('last_char_idx', sa.Integer(), nullable=True),
+    sa.Column('editor_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
+    sa.ForeignKeyConstraint(['editor_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['entity_id'], ['annotation.id'], ),
+    sa.ForeignKeyConstraint(['first_line_num'], ['line.num'], ),
+    sa.ForeignKeyConstraint(['last_line_num'], ['line.num'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_edit_approved'), 'edit', ['approved'], unique=False)
+    op.create_index(op.f('ix_edit_current'), 'edit', ['current'], unique=False)
+    op.create_index(op.f('ix_edit_edition_id'), 'edit', ['edition_id'], unique=False)
+    op.create_index(op.f('ix_edit_entity_id'), 'edit', ['entity_id'], unique=False)
+    op.create_index(op.f('ix_edit_last_line_num'), 'edit', ['last_line_num'], unique=False)
+    op.create_index(op.f('ix_edit_rejected'), 'edit', ['rejected'], unique=False)
     op.create_table('editvote',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('delta', sa.Integer(), nullable=True),
@@ -497,18 +512,6 @@ def downgrade():
     op.drop_table('tags')
     op.drop_index(op.f('ix_editvote_edit_id'), table_name='editvote')
     op.drop_table('editvote')
-    op.drop_index(op.f('ix_commentvote_entity_id'), table_name='commentvote')
-    op.drop_table('commentvote')
-    op.drop_index(op.f('ix_commentflag_thrower_id'), table_name='commentflag')
-    op.drop_index(op.f('ix_commentflag_resolver_id'), table_name='commentflag')
-    op.drop_index(op.f('ix_commentflag_enum_id'), table_name='commentflag')
-    op.drop_index(op.f('ix_commentflag_entity_id'), table_name='commentflag')
-    op.drop_table('commentflag')
-    op.drop_index(op.f('ix_lineattribute_primary'), table_name='lineattribute')
-    op.drop_index(op.f('ix_lineattribute_precedence'), table_name='lineattribute')
-    op.drop_index(op.f('ix_lineattribute_line_id'), table_name='lineattribute')
-    op.drop_index(op.f('ix_lineattribute_enum_id'), table_name='lineattribute')
-    op.drop_table('lineattribute')
     op.drop_index(op.f('ix_edit_rejected'), table_name='edit')
     op.drop_index(op.f('ix_edit_last_line_num'), table_name='edit')
     op.drop_index(op.f('ix_edit_entity_id'), table_name='edit')
@@ -516,6 +519,17 @@ def downgrade():
     op.drop_index(op.f('ix_edit_current'), table_name='edit')
     op.drop_index(op.f('ix_edit_approved'), table_name='edit')
     op.drop_table('edit')
+    op.drop_index(op.f('ix_commentvote_entity_id'), table_name='commentvote')
+    op.drop_table('commentvote')
+    op.drop_index(op.f('ix_commentflag_thrower_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_resolver_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_enum_id'), table_name='commentflag')
+    op.drop_index(op.f('ix_commentflag_entity_id'), table_name='commentflag')
+    op.drop_table('commentflag')
+    op.drop_index(op.f('ix_line_toc_id'), table_name='line')
+    op.drop_index(op.f('ix_line_num'), table_name='line')
+    op.drop_index(op.f('ix_line_attr_id'), table_name='line')
+    op.drop_table('line')
     op.drop_index(op.f('ix_comment_poster_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_annotation_id'), table_name='comment')
@@ -529,9 +543,13 @@ def downgrade():
     op.drop_table('annotationflag')
     op.drop_table('annotation_followers')
     op.drop_table('writerconnection')
-    op.drop_index(op.f('ix_line_num'), table_name='line')
-    op.drop_index(op.f('ix_line_edition_id'), table_name='line')
-    op.drop_table('line')
+    op.drop_index(op.f('ix_toc_precedence'), table_name='toc')
+    op.drop_index(op.f('ix_toc_parent_id'), table_name='toc')
+    op.drop_index(op.f('ix_toc_num'), table_name='toc')
+    op.drop_index(op.f('ix_toc_enum_id'), table_name='toc')
+    op.drop_index(op.f('ix_toc_edition_id'), table_name='toc')
+    op.drop_index(op.f('ix_toc_body'), table_name='toc')
+    op.drop_table('toc')
     op.drop_table('edition_followers')
     op.drop_index(op.f('ix_annotation_timestamp'), table_name='annotation')
     op.drop_index(op.f('ix_annotation_locked'), table_name='annotation')
@@ -596,10 +614,12 @@ def downgrade():
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_index(op.f('ix_user_displayname'), table_name='user')
     op.drop_table('user')
+    op.drop_index(op.f('ix_tocenum_enum'), table_name='tocenum')
+    op.drop_table('tocenum')
     op.drop_index(op.f('ix_reputationenum_enum'), table_name='reputationenum')
     op.drop_table('reputationenum')
-    op.drop_index(op.f('ix_lineenum_enum'), table_name='lineenum')
-    op.drop_table('lineenum')
+    op.drop_index(op.f('ix_lineattr_enum'), table_name='lineattr')
+    op.drop_table('lineattr')
     op.drop_index(op.f('ix_commentflagenum_enum'), table_name='commentflagenum')
     op.drop_table('commentflagenum')
     op.drop_index(op.f('ix_annotationflagenum_enum'), table_name='annotationflagenum')

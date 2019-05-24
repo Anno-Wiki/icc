@@ -187,27 +187,22 @@ class Edition(Base, FollowableMixin):
     ----------
     num : int
         The edition number of the edition. I.e., edition 1, 2, etc.
-    text_id : int
-        The id of the parent text object for the edition.
     primary : bool
         A boolean switch to represent whether or not the specific edition is the
         primary edition for it's parent text. Only one *should* be primary. If
         more than one is primary, this is an error and needs to be corrected.
-    wiki_id : int
-        The id of the descriptive wiki for the edition.
     published : DateTime
         The publication date of the specific edition.
     timestamp : DateTime
         Simple timestamp for when the Edition was created.
     connections : BaseQuery
         A filterable BaseQuery of WriterConnections.
-    wiki : :class:`Wiki`
-        The descriptive wiki object for the specific edition.
-    text : :class:`Text`
-        The parent text object.
     text_title : str
         A proxy for the title of the text. Mostly used so that the Annotation
         can query it easily with it's own association_proxy.
+    tochide : boolean
+        A flag for disabling the showing of the toc dispay enum because the toc
+        body is complete on it's own.
     verse : boolean
         A flag for disabling the line concatenation that happens on cell phones.
         It will eventually become (either) more useful, or less. Unsure yet.
@@ -221,13 +216,15 @@ class Edition(Base, FollowableMixin):
             raise TypeError("The section tuple must consist of only integers.")
 
     _title = db.Column(db.String(235), default=None)
-    verse = db.Column(db.Boolean, default=False)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
     primary = db.Column(db.Boolean, default=False)
     wiki_id = db.Column(db.Integer, db.ForeignKey('wiki.id'), nullable=False)
     published = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+
+    tochide = db.Column(db.Boolean, default=True)
+    verse = db.Column(db.Boolean, default=False)
 
     annotations = db.relationship('Annotation', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
@@ -484,49 +481,38 @@ class WriterConnection(Base):
         return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
 
 
-class LineEnum(Base, EnumMixin):
-    """An enumerated type used to classify line attributes.
-
-    Attributes
-    ----------
-    enum : str
-        A string representing the enum type. Mostly for internal use.
-    display : str
-        A string for the public display of the attribute. Usually used for
-        headings in the toc on edition.html.
-    """
+class TOCEnum(Base, EnumMixin):
+    """An enumerated type used to classify table of contents entries."""
     display = db.Column(db.String(64))
 
     def __repr__(self):
-        return f'<LineEnum {self.display}>'
+        return f'<{self.enum}>'
 
-
-class LineAttribute(Base):
-    """An association class between LineEnum and Line."""
-    line_id = db.Column(db.Integer, db.ForeignKey('line.id'), nullable=False,
-                        index=True)
-    enum_id = db.Column(db.Integer, db.ForeignKey('lineenum.id'),
-                        nullable=False, index=True)
-    num = db.Column(db.Integer, default=1)
+class TOC(Base):
+    num = db.Column(db.Integer, index=True)
     precedence = db.Column(db.Integer, default=1, index=True)
-    primary = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
+    enum_id = db.Column(db.Integer, db.ForeignKey('tocenum.id'), index=True)
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
+    body = db.Column(db.String(200), index=True)
 
-    enum_obj = db.relationship('LineEnum', backref=backref('attrs',
-                                                           lazy='dynamic'))
-    # the backref is a dictionary
-    line = db.relationship(
-        'Line', backref=backref(
-            'attrs',
-            collection_class=attribute_mapped_collection('precedence')))
-
-    enum = association_proxy('enum_obj', 'enum')
-    display = association_proxy('enum_obj', 'display')
+    parent = db.relationship('TOC')
+    enum = db.relationship('TOCEnum')
+    edition = db.relationship('Edition', backref='toc')
+    text = association_proxy('edition', 'text')
 
     def __repr__(self):
-        if self.num:
-            return f'<Attr {self.display} {self.num}>'
-        else:
-            return f'<Attr {self.display}>'
+        return f'<{self.enum} {self.num} of {self.edition}>'
+
+    def __str__(self):
+        return self.body
+
+
+class LineAttr(Base, EnumMixin):
+    """An enumerated type used to classify line attributes."""
+
+    def __repr__(self):
+        return f'<Lineattr {self.enum}>'
 
 
 class Line(SearchableMixin, Base):
@@ -541,8 +527,6 @@ class Line(SearchableMixin, Base):
         A list of strings that correspond to the attributes that should be
         indexed in elasticsearch. It's defined by :class:`SearchableMixin` so
         see that for more information.
-    edition_id : int
-        The id of the edition the line is in.
     num : int
         The line number within the edition.
     em_id : int
@@ -562,30 +546,35 @@ class Line(SearchableMixin, Base):
     """
     __searchable__ = ['line', 'text_title']
 
-    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     num = db.Column(db.Integer, index=True)
     em_id = db.Column(db.Integer)
+    toc_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
+    attr_id = db.Column(db.Integer, db.ForeignKey('lineattr.id'), index=True)
     line = db.Column(db.Text)
 
-    edition = db.relationship('Edition', backref=backref('lines',
-                                                         lazy='dynamic'))
-    text = association_proxy('edition', 'text')
-    text_title = association_proxy('edition', 'text_title')
+    toc = db.relationship('TOC')
+    edition = association_proxy('toc', 'edition')
 
-    context = db.relationship(
-        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
-        'remote(Line.num)>=Line.num-1,'
-        'remote(Line.edition_id)==Line.edition_id)',
-        foreign_keys=[num, edition_id], remote_side=[num, edition_id],
-        uselist=True, viewonly=True)
-    annotations = db.relationship(
-        'Annotation', secondary='edit',
-        primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
-        'Edit.last_line_num>=foreign(Line.num),'
-        'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
-        secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
-        'Annotation.active==True)', foreign_keys=[num, edition_id],
-        uselist=True, lazy='dynamic')
+#    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
+#    edition = db.relationship('Edition', backref=backref('lines',
+#                                                         lazy='dynamic'))
+#    text = association_proxy('edition', 'text')
+#    text_title = association_proxy('edition', 'text_title')
+#
+#    context = db.relationship(
+#        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
+#        'remote(Line.num)>=Line.num-1,'
+#        'remote(Line.edition_id)==Line.edition_id)',
+#        foreign_keys=[num, edition_id], remote_side=[num, edition_id],
+#        uselist=True, viewonly=True)
+#    annotations = db.relationship(
+#        'Annotation', secondary='edit',
+#        primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
+#        'Edit.last_line_num>=foreign(Line.num),'
+#        'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
+#        secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
+#        'Annotation.active==True)', foreign_keys=[num, edition_id],
+#        uselist=True, lazy='dynamic')
 
     @property
     def url(self):
@@ -604,9 +593,6 @@ class Line(SearchableMixin, Base):
     def __init_on_load__(self):
         """Resolves the em_id to the line's emphasis status."""
         self.emphasis = EMPHASIS[self.em_id]
-        for attr in self.attrs.values():
-            if attr.primary:
-                self.primary = attr
 
     def __repr__(self):
         return (f"<l{self.num} {self.edition.text.title}"

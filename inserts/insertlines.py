@@ -13,7 +13,7 @@ idx = iccvenv.rfind('/')
 sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
-from icc.models.content import (Text, Edition, Line, LineEnum, LineAttribute,
+from icc.models.content import (Text, Edition, Line, LineAttr, TOC, TOCEnum,
                                 WriterConnection, Writer, EMPHASIS_REVERSE,
                                 WRITERS_REVERSE)
 
@@ -84,10 +84,10 @@ def add_writer_connections(meta, edition):
                 print(f"Added {writer_obj.name} as {value}.")
 
 
-def get_enums_dict():
-    enums_list = LineEnum.query.all()
-    enums_dict = {f'{e.enum}>{e.display}': e for e in enums_list}
-    return enums_dict
+def get_lineattr_dict():
+    lineattr_list = LineAttr.query.all()
+    lineattr_dict = {f'{e.enum}>{e.display}': e for e in lineattr_list}
+    return lineattr_dict
 
 
 def process_attributes(attrs_dict, enums_dict):
@@ -113,9 +113,9 @@ def populate_lines(lines, edition):
     count of lines added to the database.
     """
 
-    enums = get_enums_dict()
-    i = 0
-    for line in lines:
+    lineattrs = get_lineattr_dict()
+    for i, line in enumerate(lines):
+        if line['
         attrs, enums = process_attributes(line['attributes'], enums)
         line_obj = Line(edition=edition, num=line['num'],
                         em_id=EMPHASIS_REVERSE[line['emphasis']],
