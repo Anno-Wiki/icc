@@ -280,6 +280,16 @@ class Edition(Base, FollowableMixin):
             .filter(LineAttribute.precedence>0,
                     LineAttribute.primary==True)
 
+    def toc_by_precedence(self, precedence):
+        """Returns a base query for all of the toc headings of the edition of a
+        particular precedence (e.g., if the precedence is 2, only return
+        headings of second level precedence).
+        """
+        return self.lines\
+            .join(LineAttribute)\
+            .filter(LineAttribute.precedence==precedence,
+                    LineAttribute.primary==True)
+
     def __init__(self, *args, **kwargs):
         """Creates a wiki for the edition with the provided description."""
         description = kwargs.pop('description', None)
@@ -297,7 +307,7 @@ class Edition(Base, FollowableMixin):
             self.writers[conn.enum].append(conn.writer)
 
     def __repr__(self):
-        return self.edition_title
+        return f'<{self.title}>'
 
     def __str__(self):
         return self.title
@@ -318,6 +328,12 @@ class Edition(Base, FollowableMixin):
 
         return query
 
+    def toc_section(self, section):
+        """Returns a base query of all the edition's lines in the particular
+        hierarchical toc section.
+        """
+        return self.toc.intersect(self.section(section)).all()[1:]
+
     def prev_section(self, section):
         """Returns the header for the previous section else None."""
         Edition._check_section_argument(section)
@@ -334,16 +350,6 @@ class Edition(Base, FollowableMixin):
         next_section = self.toc_by_precedence(len(section))\
             .filter(Line.num>header.num).first()
         return next_section
-
-    def toc_by_precedence(self, precedence):
-        """Returns a base query for all of the toc headings of the edition of a
-        particular precedence (e.g., if the precedence is 2, only return
-        headings of second level precedence).
-        """
-        return self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence==precedence,
-                    LineAttribute.primary==True)
 
     def get_lines(self, nums):
         if len(nums) >= 2:

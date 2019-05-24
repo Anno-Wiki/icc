@@ -96,7 +96,8 @@ def follow():
     db.session.commit()
     return jsonify({'success': True, 'status': status})
 
-@ajax.route('edition/<edition_id>/line')
+
+@ajax.route('/edition/<edition_id>/line')
 def line(edition_id):
     edition = Edition.query.get(edition_id)
     if not edition:
