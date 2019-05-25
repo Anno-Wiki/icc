@@ -13,9 +13,8 @@ idx = iccvenv.rfind('/')
 sys.path.append(os.environ['ICCVENV'][:idx])
 
 from icc import db, create_app
-from icc.models.content import (Text, Edition, Line, LineAttr, TOC, TOCEnum,
-                                WriterConnection, Writer, EMPHASIS_REVERSE,
-                                WRITERS_REVERSE)
+from icc.models.content import (Text, Edition, Line, TOC, WriterConnection,
+                                Writer, WRITERS_REVERSE)
 
 
 def get_text(meta):
@@ -83,48 +82,53 @@ def add_writer_connections(meta, edition):
             if __name__ == '__main__':
                 print(f"Added {writer_obj.name} as {value}.")
 
+def addtoc(line, prevtoc, tocenums, edition):
+    """Process a toc."""
+    enum = line.pop('enum')
+    enum = tocenums[enum] if enum in tocenums else TOC.enum_cls(enum=enum)
 
-def get_lineattr_dict():
-    lineattr_list = LineAttr.query.all()
-    lineattr_dict = {f'{e.enum}>{e.display}': e for e in lineattr_list}
-    return lineattr_dict
-
-
-def process_attributes(attrs_dict, enums_dict):
-    """Process the attribute dictionary from a line, creating LineEnums as we
-    need them, and return both a list of attrs to be applied to the line and the
-    updated enums dictionary with the newly created enums.
-    """
-    attrs = {}
-    for attr in attrs_dict:
-        enum = enums_dict.get(f"{attr['enum']}>{attr['display']}")
-        if not enum:
-            enum = LineEnum(enum=attr['enum'], display=attr['display'])
-            enums_dict[f'{enum.enum}>{enum.display}'] = enum
-        a = LineAttribute(enum_obj=enum, num=attr['num'],
-                          precedence=attr['precedence'],
-                          primary=attr['primary'])
-        attrs[a.precedence] = a
-    return attrs, enums_dict
-
+    if prevtoc:
+        if line['precedence'] == prevtoc.precedence:
+            # the new toc is the same level as the prevtoc
+            parent = prevtoc.parent
+        elif line['precedence'] >= prevtoc.precedence:
+            # the new toc is deeper in precedence than the prevtoc
+            parent = prevtoc
+        else:
+            # the new toc is higher than the prevtoc
+            hierarchy = []
+            while prevtoc.precedence > line['precedence']:
+                prevtoc = prevtoc.parent
+                hierarchy.append(prevtoc)
+            parent = min(hierarchy, key=lambda x: x.precedence)
+            parent = None if parent.precedence == 1 else parent
+    else:
+        parent = None
+    toc = TOC(**line, enum=enum, edition=edition, parent=parent)
+    return toc
 
 def populate_lines(lines, edition):
     """Populate the database with the lines and their attributes. Return the
     count of lines added to the database.
     """
+    lineenums = {enum.enum: enum for enum in Line.enum_cls.query.all()}
+    tocenums = {enum.enum: enum for enum in TOC.enum_cls.query.all()}
+    prevtoc = None
 
-    lineattrs = get_lineattr_dict()
     for i, line in enumerate(lines):
-        if line['
-        attrs, enums = process_attributes(line['attributes'], enums)
-        line_obj = Line(edition=edition, num=line['num'],
-                        em_id=EMPHASIS_REVERSE[line['emphasis']],
-                        line=line['line'], attrs=attrs)
-        db.session.add(line_obj)
+        if 'precedence' in line:
+            print(line)
+            prevtoc = addtoc(line, prevtoc, tocenums, edition)
+            db.session.add(prevtoc)
+        else:
+            enum = line.pop('enum')
+            enum = (lineenums[enum] if enum in lineenums else
+                    Line.enum_cls(enum=enum))
+            db.session.add(Line(**line, enum=enum, toc=prevtoc,
+                                edition=edition))
 
         if i % 1000 == 0:
             print(i)
-        i+=1
 
     return i
 
@@ -139,15 +143,10 @@ def parse_files(path):
 
 def main(path, dryrun=False):
     meta, lines = parse_files(path)
-
     text = get_text(meta)
-
     edition = get_edition(meta['edition'], text)
-
     add_writer_connections(meta, edition)
-
     i = populate_lines(lines, edition)
-
     print(f"After an arduous {i} lines, we are done.")
 
     if dryrun:
