@@ -26,8 +26,7 @@ ctx = app.app_context()
 ctx.push()
 
 for key, value in enums.items():
-    i = 0
-    for entry in value:
+    for i, entry in enumerate(value):
         db.session.add(classes[key](**entry))
         i += 1
     print(f"Added {i} {key}s")
