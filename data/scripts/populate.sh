@@ -26,6 +26,8 @@ $PYTHON $ROOT/inserts/insertusers.py -p $password -c $DATA/users.yml
 echo "- populating tags..."
 $PYTHON $ROOT/inserts/inserttags.py -c $DATA/tags.yml
 
+#######################################
+
 echo "- populating lines for Heart of Darkness by Joseph Conrad..."
 $PYTHON $ROOT/inserts/insertlines.py $LIBRARY/conrad_joseph/hod
 
