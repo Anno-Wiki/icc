@@ -19,7 +19,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
-from icc.models.mixins import (Base, EnumMixin, SearchableMixin,
+from icc.models.mixins import (Base, EnumeratedMixin, SearchableMixin,
                                FollowableMixin, LinkableMixin)
 from icc.models.wiki import Wiki
 
@@ -28,10 +28,9 @@ from icc.models.wiki import Wiki
 # an entire enum class in the database (for which it would be a waste of
 # resources, etc)
 EMPHASIS = ('nem', 'oem', 'em', 'cem')
-EMPHASIS_REVERSE = {val: ind for ind, val in enumerate(EMPHASIS)}
 
 WRITERS = ('author', 'editor', 'translator')
-WRITERS_REVERSE = {val: ind for ind, val in enumerate(WRITERS)}
+WRITERS_REVERSE = {val: idx for idx, val in enumerate(WRITERS)}
 
 
 class Text(Base, FollowableMixin, LinkableMixin):
@@ -258,35 +257,6 @@ class Edition(Base, FollowableMixin):
         return (f"Edition #{self.num} - Primary" if self.primary else
                 f"Edition #{self.num}")
 
-    @property
-    def deepest_precedence(self):
-        """Returns an integer representing the deepest precedence level of the
-        edition's toc hierarchy.
-        """
-        line = self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence==0,
-                    LineAttribute.primary==True).first()
-        return len(line.section)
-
-    @property
-    def toc(self):
-        """Returns a base query for all of the toc headings of the edition."""
-        return self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence>0,
-                    LineAttribute.primary==True)
-
-    def toc_by_precedence(self, precedence):
-        """Returns a base query for all of the toc headings of the edition of a
-        particular precedence (e.g., if the precedence is 2, only return
-        headings of second level precedence).
-        """
-        return self.lines\
-            .join(LineAttribute)\
-            .filter(LineAttribute.precedence==precedence,
-                    LineAttribute.primary==True)
-
     def __init__(self, *args, **kwargs):
         """Creates a wiki for the edition with the provided description."""
         description = kwargs.pop('description', None)
@@ -308,28 +278,6 @@ class Edition(Base, FollowableMixin):
 
     def __str__(self):
         return self.title
-
-    def section(self, section):
-        """Returns a base query of all the edition's lines in the particular
-        hierarchical toc section.
-        """
-        Edition._check_section_argument(section)
-
-        queries = []
-        for precedence, num in enumerate(section):
-            queries.append(self.lines
-                           .join(LineAttribute)
-                           .filter(LineAttribute.precedence==precedence+1,
-                                   LineAttribute.num==num))
-        query = queries[0].intersect(*queries[1:])
-
-        return query
-
-    def toc_section(self, section):
-        """Returns a base query of all the edition's lines in the particular
-        hierarchical toc section.
-        """
-        return self.toc.intersect(self.section(section)).all()[1:]
 
     def prev_section(self, section):
         """Returns the header for the previous section else None."""
@@ -358,8 +306,6 @@ class Edition(Base, FollowableMixin):
 
 
 class Writer(Base, FollowableMixin, LinkableMixin):
-    __linkable__ = 'name'
-
     """The writer model. This used to be a lot more complicated but has become
     fairly elegant. All historical contributors to the text are writers, be they
     editors, translators, authors, or whatever the heck else we end up coming up
@@ -392,6 +338,8 @@ class Writer(Base, FollowableMixin, LinkableMixin):
         An SQLA BaseQuery for all of the annotations on all of the editions the
         writer is responsible for.
     """
+    __linkable__ = 'name'
+
     name = db.Column(db.String(128), index=True)
     family_name = db.Column(db.String(128), index=True)
     birth_date = db.Column(db.Date, index=True)
@@ -481,24 +429,17 @@ class WriterConnection(Base):
         return f'<{self.writer.name} was the {self.enum} of {self.edition}>'
 
 
-class TOCEnum(Base, EnumMixin):
-    """An enumerated type used to classify table of contents entries."""
-    display = db.Column(db.String(64))
-
-    def __repr__(self):
-        return f'<{self.enum}>'
-
-class TOC(Base):
+class TOC(EnumeratedMixin, Base):
     num = db.Column(db.Integer, index=True)
     precedence = db.Column(db.Integer, default=1, index=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
-    enum_id = db.Column(db.Integer, db.ForeignKey('tocenum.id'), index=True)
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     body = db.Column(db.String(200), index=True)
 
-    parent = db.relationship('TOC')
-    enum = db.relationship('TOCEnum')
-    edition = db.relationship('Edition', backref='toc')
+    parent = db.relationship('TOC', uselist=False, remote_side='TOC.id',
+                             backref=backref('children',
+                                             remote_side='TOC.parent_id'))
+    edition = db.relationship('Edition', backref=backref('toc', lazy='dynamic'))
     text = association_proxy('edition', 'text')
 
     def __repr__(self):
@@ -508,14 +449,7 @@ class TOC(Base):
         return self.body
 
 
-class LineAttr(Base, EnumMixin):
-    """An enumerated type used to classify line attributes."""
-
-    def __repr__(self):
-        return f'<Lineattr {self.enum}>'
-
-
-class Line(SearchableMixin, Base):
+class Line(EnumeratedMixin, SearchableMixin, Base):
     """A line. This is actually a very important class. It is the only
     searchable type so far. Eventually this won't be the case. Then I'll have to
     remember to update this comment. I probably will forget... So if this
@@ -529,38 +463,45 @@ class Line(SearchableMixin, Base):
         see that for more information.
     num : int
         The line number within the edition.
-    em_id : int
-        The enumerated id number of the emphasis status of the line. See the
-        tuple EMPHASIS for more clarity. Also see the wiki on emphasis.
-    line : str
+    em : str
+        A string corresponding to an enumerated type describing emphasis status.
+        See On Emphasis in the wiki
+    toc : TOC
+        The section the line is in in the TOC. See On the TOC in the Wiki.
+    body : str
         The actual text of the line. Processed in my processor.
-    text : class:`Text`
+    text : Text
         An association proxy to the text for ease of reference.
     text_title : str
         The title of the parent text of the edition the line is in.
+    edition : Edition
+        The edition of the parent text.
     context : list
         A list of all line's surrounding lines (+/- 5 lines)
     annotations : BaseQuery
         An SQLA BaseQuery for all the annotations that contain this line in
         their target. It's a nasty relationship.
     """
-    __searchable__ = ['line', 'text_title']
+    __searchable__ = ['body', 'text_title']
 
     num = db.Column(db.Integer, index=True)
+    body = db.Column(db.Text)
     em_id = db.Column(db.Integer)
+
     toc_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
-    attr_id = db.Column(db.Integer, db.ForeignKey('lineattr.id'), index=True)
-    line = db.Column(db.Text)
-
     toc = db.relationship('TOC')
-    edition = association_proxy('toc', 'edition')
 
-#    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
-#    edition = db.relationship('Edition', backref=backref('lines',
-#                                                         lazy='dynamic'))
-#    text = association_proxy('edition', 'text')
-#    text_title = association_proxy('edition', 'text_title')
-#
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
+    edition = db.relationship('Edition', backref=backref('lines',
+                                                         lazy='dynamic'))
+
+    text = association_proxy('edition', 'text')
+    text_title = association_proxy('edition', 'text_title')
+
+    def __init__(self, *args, **kwargs):
+        self.em_id = EMPHASIS.index(kwargs.pop('em'))
+        super().__init__(*args, **kwargs)
+
 #    context = db.relationship(
 #        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
 #        'remote(Line.num)>=Line.num-1,'
@@ -595,8 +536,7 @@ class Line(SearchableMixin, Base):
         self.emphasis = EMPHASIS[self.em_id]
 
     def __repr__(self):
-        return (f"<l{self.num} {self.edition.text.title}"
-                f"[{self.primary.display}]>")
+        return (f"<l{self.num} {self.edition}>")
 
 
 classes = dict(inspect.getmembers(sys.modules[__name__], inspect.isclass))

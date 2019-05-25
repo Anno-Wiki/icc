@@ -34,6 +34,34 @@ class Base(db.Model):
         return cls.__name__.lower()
 
 
+class EnumeratedMixin:
+    """A simple mixin to create an enumerated mixin on any class immediately."""
+    @declared_attr
+    def enum_cls(cls):
+        """Literally a class. It is the enum class for the flags. Generally,
+        after defining a Flag class, (which may end up becoming `FlaggableMixin`
+        composable if I'm crazy enough) you should hoist the enum_cls value up
+        into the namespace by declaring (after declaring the class that inherits
+        FlagMixin) `<cls>Enum = <cls>.enum_cls`. That solves a lot of problems.
+        """
+        return type(
+            f'{cls.__name__}Enum', (Base, EnumMixin),
+            {'__repr__': lambda self: f'<{type(self).__name__} {self.enum}>'}
+        )
+
+    @declared_attr
+    def enum_id(cls):
+        """The id of the enum that this particular flag is typed."""
+        return db.Column(db.Integer,
+                         db.ForeignKey(f'{cls.__name__.lower()}enum.id'),
+                         index=True)
+
+    @declared_attr
+    def enum(cls):
+        """The actual enum object that this relationship is typed to."""
+        return db.relationship(f'{cls.__name__}Enum')
+
+
 class EnumMixin:
     """Any enumerated class that has more than 4 types should be use this
     EnumMixin. LineEnum and Right seem to be the biggest examples.
@@ -55,36 +83,10 @@ class EnumMixin:
             return self.enum
 
 
-class FlagMixin:
+class FlagMixin(EnumeratedMixin):
     """FlagMixin is a complex mixin. It defines a new class for enums for flags.
     I *like* it.
     """
-
-    @declared_attr
-    def enum_cls(cls):
-        """Literally a class. It is the enum class for the flags. Generally,
-        after defining a Flag class, (which may end up becoming `FlaggableMixin`
-        composable if I'm crazy enough) you should hoist the enum_cls value up
-        into the namespace by declaring (after declaring the class that inherits
-        FlagMixin) `<cls>Enum = <cls>.enum_cls`. That solves a lot of problems.
-        """
-        return type(
-            f'{cls.__name__}Enum', (Base, EnumMixin),
-            {'__repr__': lambda self: f'<{type(self).__name__} {self.enum}'}
-        )
-
-    @declared_attr
-    def enum_id(cls):
-        """The id of the enum that this particular flag is typed."""
-        return db.Column(db.Integer,
-                         db.ForeignKey(f'{cls.__name__.lower()}enum.id'),
-                         index=True)
-
-    @declared_attr
-    def enum(cls):
-        """The actual enum object that this relationship is typed to."""
-        return db.relationship(f'{cls.__name__}Enum')
-
     @declared_attr
     def thrower_id(cls):
         """The id of the user who threw the flag."""

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 93c87d42b279
+Revision ID: 61c3c22b445d
 Revises: 
-Create Date: 2019-05-24 13:36:09.489974
+Create Date: 2019-05-25 12:39:13.983336
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '93c87d42b279'
+revision = '61c3c22b445d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,13 +37,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_commentflagenum_enum'), 'commentflagenum', ['enum'], unique=False)
-    op.create_table('lineattr',
+    op.create_table('lineenum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
-    sa.Column('display', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_lineattr_enum'), 'lineattr', ['enum'], unique=False)
+    op.create_index(op.f('ix_lineenum_enum'), 'lineenum', ['enum'], unique=False)
     op.create_table('reputationenum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
@@ -56,7 +55,6 @@ def upgrade():
     op.create_table('tocenum',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('enum', sa.String(length=128), nullable=True),
-    sa.Column('display', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tocenum_enum'), 'tocenum', ['enum'], unique=False)
@@ -171,11 +169,11 @@ def upgrade():
     op.create_table('userflag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('thrower_id', sa.Integer(), nullable=True),
     sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['enum_id'], ['userflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['thrower_id'], ['user.id'], ),
@@ -333,9 +331,9 @@ def upgrade():
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('precedence', sa.Integer(), nullable=True),
     sa.Column('parent_id', sa.Integer(), nullable=True),
-    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('edition_id', sa.Integer(), nullable=True),
     sa.Column('body', sa.String(length=200), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['tocenum.id'], ),
     sa.ForeignKeyConstraint(['parent_id'], ['toc.id'], ),
@@ -365,11 +363,11 @@ def upgrade():
     op.create_table('annotationflag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('annotation_id', sa.Integer(), nullable=True),
-    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('thrower_id', sa.Integer(), nullable=True),
     sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['annotation_id'], ['annotation.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['annotationflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
@@ -413,25 +411,28 @@ def upgrade():
     op.create_table('line',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('num', sa.Integer(), nullable=True),
+    sa.Column('body', sa.Text(), nullable=True),
     sa.Column('em_id', sa.Integer(), nullable=True),
     sa.Column('toc_id', sa.Integer(), nullable=True),
-    sa.Column('attr_id', sa.Integer(), nullable=True),
-    sa.Column('line', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['attr_id'], ['lineattr.id'], ),
+    sa.Column('edition_id', sa.Integer(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
+    sa.ForeignKeyConstraint(['enum_id'], ['lineenum.id'], ),
     sa.ForeignKeyConstraint(['toc_id'], ['toc.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_line_attr_id'), 'line', ['attr_id'], unique=False)
+    op.create_index(op.f('ix_line_edition_id'), 'line', ['edition_id'], unique=False)
+    op.create_index(op.f('ix_line_enum_id'), 'line', ['enum_id'], unique=False)
     op.create_index(op.f('ix_line_num'), 'line', ['num'], unique=False)
     op.create_index(op.f('ix_line_toc_id'), 'line', ['toc_id'], unique=False)
     op.create_table('commentflag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('entity_id', sa.Integer(), nullable=True),
-    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.Column('thrower_id', sa.Integer(), nullable=True),
     sa.Column('resolver_id', sa.Integer(), nullable=True),
     sa.Column('time_thrown', sa.DateTime(), nullable=True),
     sa.Column('time_resolved', sa.DateTime(), nullable=True),
+    sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['entity_id'], ['comment.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['commentflagenum.id'], ),
     sa.ForeignKeyConstraint(['resolver_id'], ['user.id'], ),
@@ -528,7 +529,8 @@ def downgrade():
     op.drop_table('commentflag')
     op.drop_index(op.f('ix_line_toc_id'), table_name='line')
     op.drop_index(op.f('ix_line_num'), table_name='line')
-    op.drop_index(op.f('ix_line_attr_id'), table_name='line')
+    op.drop_index(op.f('ix_line_enum_id'), table_name='line')
+    op.drop_index(op.f('ix_line_edition_id'), table_name='line')
     op.drop_table('line')
     op.drop_index(op.f('ix_comment_poster_id'), table_name='comment')
     op.drop_index(op.f('ix_comment_parent_id'), table_name='comment')
@@ -618,8 +620,8 @@ def downgrade():
     op.drop_table('tocenum')
     op.drop_index(op.f('ix_reputationenum_enum'), table_name='reputationenum')
     op.drop_table('reputationenum')
-    op.drop_index(op.f('ix_lineattr_enum'), table_name='lineattr')
-    op.drop_table('lineattr')
+    op.drop_index(op.f('ix_lineenum_enum'), table_name='lineenum')
+    op.drop_table('lineenum')
     op.drop_index(op.f('ix_commentflagenum_enum'), table_name='commentflagenum')
     op.drop_table('commentflagenum')
     op.drop_index(op.f('ix_annotationflagenum_enum'), table_name='annotationflagenum')
