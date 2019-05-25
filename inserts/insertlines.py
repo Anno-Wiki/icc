@@ -117,7 +117,6 @@ def populate_lines(lines, edition):
 
     for i, line in enumerate(lines):
         if 'precedence' in line:
-            print(line)
             prevtoc = addtoc(line, prevtoc, tocenums, edition)
             db.session.add(prevtoc)
         else:
