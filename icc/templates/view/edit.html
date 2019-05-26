@@ -45,7 +45,7 @@
     <div id="text-content">
         <div class="backlight">
             {% for line in context %}
-                <div class="line {{ line.primary.enum }}{% if line in edit.lines and line in edit.previous.lines %} selection{% elif line in edit.lines %} plus{% elif line in edit.previous.lines %} delta{% endif %}">
+                <div class="line {{ line.enum }}{% if line in edit.lines and line in edit.previous.lines %} selection{% elif line in edit.lines %} plus{% elif line in edit.previous.lines %} delta{% endif %}">
                     <span class="line-num">
                         {% if line in edit.lines and line in edit.previous.lines %}
                             {{ line.num }}
@@ -57,7 +57,7 @@
                             {{ line.num }}
                         {% endif %}
                     </span>
-                    <span class="text">{{ line.line }}</span>
+                    <span class="text">{{ line.body }}</span>
                 </div>
             {% endfor %}
         </div>

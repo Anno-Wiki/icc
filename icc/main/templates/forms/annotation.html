@@ -16,9 +16,9 @@
         <div class="backlight">
             {% include "includes/js/_expand_selection.js" %}
             {% for line in context %}
-                <div class="line {{ line.primary.enum }}{% if line in lines %} selection{% endif %}" id="{{ line.num }}">
+                <div class="line {{ line.enum }}{% if line in lines %} selection{% endif %}" id="{{ line.num }}">
                     <span class="line-num">{{ line.num }}</span>
-                    <span class="text">{{ line.line }}</span>
+                    <span class="text">{{ line.body }}</span>
                 </div>
             {% endfor %}
         </div>

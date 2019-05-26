@@ -97,8 +97,8 @@ def follow():
     return jsonify({'success': True, 'status': status})
 
 
-@ajax.route('/edition/<edition_id>/line')
-def line(edition_id):
+@ajax.route('/edition/<edition_id>/<toc_id>/line')
+def line(edition_id, toc_id):
     edition = Edition.query.get(edition_id)
     if not edition:
         return jsonify({'success': False})
@@ -106,8 +106,11 @@ def line(edition_id):
     line = edition.lines.filter_by(num=num).first()
     if not line:
         return jsonify({'success': False})
-    return jsonify({'success': True, 'line': line.line,
-                    'enum': line.primary.enum })
+    if not line.toc_id == int(toc_id):
+        print(line.toc_id)
+        return jsonify({'success': False})
+    return jsonify({'success': True, 'line': line.body,
+                    'enum': str(line.enum) })
 
 
 server_start_time = time.time()

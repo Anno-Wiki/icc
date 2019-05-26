@@ -12,9 +12,9 @@
     <div id="text-content">
         <div class="backlight">
             {% for line in edit.context %}
-                <div class="line {{ line.primary.enum }}{% if line in edit.lines %} selection{% endif %}" id="{{ line.num }}">
+                <div class="line {{ line.enum }}{% if line in edit.lines %} selection{% endif %}" id="{{ line.num }}">
                     <span class="line-num">{{ line.num }}</span>
-                    <span class="text">{{ line.line }}</span>
+                    <span class="text">{{ line.body }}</span>
                 </div>
             {% endfor %}
         </div>

@@ -438,14 +438,36 @@ class TOC(EnumeratedMixin, Base):
 
     parent = db.relationship('TOC', uselist=False, remote_side='TOC.id',
                              backref=backref('children',
-                                             remote_side='TOC.parent_id'))
+                                             remote_side='TOC.parent_id',
+                                             lazy='dynamic'))
     edition = db.relationship('Edition', backref=backref('toc', lazy='dynamic'))
     text = association_proxy('edition', 'text')
 
     @property
+    def next(self):
+        possible = self.parent.children.filter_by(num=self.num+1).first()
+        if possible:
+            return possible
+
+    @property
+    def prev(self):
+        possible = self.parent.children.filter_by(num=self.num-1).first()
+        if possible:
+            return possible
+
+    @property
     def url(self):
-        return url_for('main.read', text_url=self.text.url,
+        if not self.lines.count():
+            return None
+        return url_for('main.read', text_url=self.text.url_name,
                        edition_num=self.edition.num, toc_id=self.id)
+
+    @property
+    def section(self):
+        parents = self.parents
+        nums = [str(p.num) for p in parents]
+        nums.append(str(self.num))
+        return '.'.join(nums)
 
     @property
     def parents(self):

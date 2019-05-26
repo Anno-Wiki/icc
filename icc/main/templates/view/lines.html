@@ -15,12 +15,12 @@
     <br>
     <div class="selection">
         {% for line in lines %}
-            <line class="{{ line.primary.enum }}" id="{{ line.num }}">
+            <line class="{{ line.enum }}" id="{{ line.num }}">
                 <span class="linenum">{{ line.num }}</span>
-                {%- if line.primary.enum == 'hr' -%}
+                {%- if line.enum == 'hr' -%}
                     <hr class="text_separator">
                 {%- else -%}
-                    {{ line.line|safe }}
+                    {{ line.body|safe }}
                 {%- endif -%}
             </line>
         {% endfor %}

@@ -7,9 +7,7 @@
         {% for line in lines %}
             <h3>
                 Line
-                <a href='{{ line.url }}#{{ line.line_num }}'>
-                    {{ line.num }}
-                </a>
+                <a href='{{ line.url }}#{{ line.num }}'>{{ line.num }}</a>
                 of
                 <a href='{{ url_for('main.text', text_url=line.text.url) }}'>
                     {{ line.text.title }}
@@ -22,7 +20,7 @@
                 <div class="backlight">
                     {% for l in line.context %}
                         <a href='{{ url_for('main.line_annotations', text_url=l.edition.text.url_name, edition_num=l.edition.num, nums=l.num) }}'>
-                            <div class="line {{ l.primary.enum }}{% if l == line %} selection{% endif %}" id="{{ l.num }}">
+                            <div class="line {{ l.enum }}{% if l == line %} selection{% endif %}" id="{{ l.num }}">
                                 <span class="line-num">{{ l.num }}</span>
                                 <span class="text">{{ l.line|safe }}</span>
                                 <span class="annotation-count">&times; {{ l.annotations.count() }}</span>

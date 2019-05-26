@@ -43,21 +43,31 @@
     {% include "includes/js/_annotation_display.js" %}
 
     <div id="text-content">
+        {% for s in toc.parents %}
+            <div class="line lvl{{ s.precedence }}">
+                <span class="line-num hidden"></span>
+                <span class="text">{{ s.body }}</span>
+            </div>
+        {% endfor %}
+        <div class="line lvl{{ toc.precedence }}">
+            <span class="line-num hidden"></span>
+            <span class="text">{{ toc.body }}</span>
+        </div>
         {%- for line in lines %}
             {# I don't remember why I had to do this for the break between
             paragraphs but I did. Worth investigating to see if we can just get
             fl to work with the increased top margin still. I remember it not
             working unless I did this before. Now I remember, it's because --
             No, that's not it. IDFK, man. #}
-            {% if line.primary.enum == "fl" %}<div class="break"></div>{% endif %}
+            {% if line.enum == "fl" %}<div class="break"></div>{% endif %}
 
-            <div class="line {{ line.primary.enum }}" id="{{ line.num }}">
+            <div class="line {{ line.enum }}" id="{{ line.num }}">
                 <span class="line-num{% if line.num % 5 != 0 %} hidden{% endif %}">{{ line.num }}</span>
                 <span class="text">
-                    {%- if line.primary.enum == 'hr' -%}
+                    {%- if line.enum == 'hr' -%}
                         <hr>
                     {%- else -%}
-                        {{ line.line|safe }}
+                        {{ line.body|safe }}
                     {% endif %}
                 </span>
                 {% if line.num in annotations_idx %}

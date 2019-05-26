@@ -24,7 +24,7 @@ from icc.funky import line_check, generate_next
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, AnnotationFlag, Comment
-from icc.models.content import Text, Edition, Line
+from icc.models.content import Text, Edition, Line, TOC
 from icc.models.user import User
 
 from icc.forms import SearchForm
@@ -242,10 +242,10 @@ def line_annotations(text_url, edition_num, nums):
                            annotations=annotations.items)
 
 
-@main.route('/read/<text_url>/edition/<edition_num>', methods=['GET', 'POST'])
-@main.route('/read/<text_url>', methods=['GET', 'POST'],
+@main.route('/read/<text_url>/edition/<edition_num>/<toc_id>', methods=['GET', 'POST'])
+@main.route('/read/<text_url>/<toc_id>', methods=['GET', 'POST'],
             defaults={'edition_num': None})
-def read(text_url, edition_num):
+def read(text_url, edition_num, toc_id):
     """The main read route for viewing the text of any edition."""
     def underscores_to_ems(lines):
         """Convert all of the underscores to em tags and prepend and
@@ -269,7 +269,9 @@ def read(text_url, edition_num):
                   'em': lambda line: f'<em>{line}</em>',
                   'nem': lambda line: line}
         for i, line in enumerate(lines):
-            linetext = line.line
+            # I would like to find a method to eliminate this looping crap. I
+            # think it's possible, but I'm not at all sure.
+            linetext = line.body
             if '_' in linetext:
                 newline = []
                 for c in linetext:
@@ -279,13 +281,14 @@ def read(text_url, edition_num):
                     else:
                         newline.append(c)
                 linetext = ''.join(newline)
-                lines[i].line = emdict[line.emphasis](linetext)
+                lines[i].line = emdict[line.em](linetext)
 
     text = Text.get_by_url(text_url).first_or_404()
     edition = text.primary if not edition_num else \
         text.editions.filter_by(num=edition_num).first_or_404()
-    form = LineNumberForm()
+    toc = TOC.query.get_or_404(toc_id)
 
+    form = LineNumberForm()
     if form.validate_on_submit():
         first_line, last_line = line_check(form.first_line.data,
                                            form.last_line.data)
@@ -293,29 +296,15 @@ def read(text_url, edition_num):
                                 edition_num=edition.num, first_line=first_line,
                                 last_line=last_line, next=request.full_path))
 
-    section_strings = tuple(request.args.getlist('section'))
-    # Get the section tuple or else all 1's for the deepest possible precedence.
-    section = (tuple(int(i) for i in section_strings) if section_strings
-               else tuple(1 for i in range(edition.deepest_precedence)))
-
-    lines = edition.section(section).all()
+    lines = toc.lines.all()
     if not lines:
         abort(404)
-
-    next_section = edition.next_section(section)
-    next_page = url_for(
-        'main.read', text_url=text_url, edition_num=edition.num,
-        section=next_section.section) if next_section else None
-
-    prev_section = edition.prev_section(section)
-    prev_page = url_for(
-        'main.read', text_url=text_url, edition_num=edition.num,
-        section=prev_section.section) if prev_section else None
 
     annotations = edition.annotations\
         .join(Edit)\
         .filter(Edit.last_line_num<=lines[-1].num,
-                Edit.first_line_num>=lines[0].num, Edit.current==True,
+                Edit.first_line_num>=lines[0].num,
+                Edit.current==True,
                 Annotation.active==True).all()
 
     # index the annotations in a dictionary by the line number.
@@ -326,12 +315,16 @@ def read(text_url, edition_num):
 
     # This is faster than the markdown plugin
     underscores_to_ems(lines)
+    n = toc.next
+    p = toc.prev
+    next_page = n.url if n else None
+    prev_page = p.url if p else None
 
-    return render_template('read.html', title=text.title, form=form,
+    return render_template('read.html', title=edition.title, form=form,
                            next_page=next_page, prev_page=prev_page,
+                           section=toc.section,
                            text=text, edition=edition, lines=lines,
-                           section='.'.join(map(str, section)),
-                           annotations_idx=annotations_idx)
+                           toc=toc, annotations_idx=annotations_idx)
 
 
 @main.route('/vote')

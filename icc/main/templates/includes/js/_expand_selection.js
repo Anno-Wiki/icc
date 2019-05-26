@@ -114,7 +114,7 @@
             }
 
         }
-        let url = `{{ url_for('ajax.line', edition_id=edition.id) }}?num=${lineToGet}`;
+        let url = `{{ url_for('ajax.line', edition_id=edition.id, toc_id=lines[0].toc.id) }}?num=${lineToGet}`;
         xhttp.open('GET', url, true);
         xhttp.send();
     }
