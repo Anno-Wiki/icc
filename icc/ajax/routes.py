@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 
 from icc import db, classes
 from icc.models.annotation import Tag
-from icc.models.content import Edition
+from icc.models.content import Edition, TOC
 from icc.ajax import ajax
 
 
@@ -123,5 +123,4 @@ def heartbeat():
     """
     if current_app.config["DEBUG"]:
         return jsonify({'start_time': server_start_time})
-    else:
-        return jsonify({'start_time': "No way, José."})
+    return jsonify({'start_time': "No way, José."})
