@@ -281,7 +281,7 @@ def read(text_url, edition_num, toc_id):
                     else:
                         newline.append(c)
                 linetext = ''.join(newline)
-                lines[i].line = emdict[line.em](linetext)
+                lines[i].body = emdict[line.em](linetext)
 
     text = Text.get_by_url(text_url).first_or_404()
     edition = text.primary if not edition_num else \
