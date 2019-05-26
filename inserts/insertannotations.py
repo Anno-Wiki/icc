@@ -52,7 +52,7 @@ def populate_annotations(title, edition_num, annotator, annotations):
 
     cnt = 0
     for annotation in annotations:
-        line = Line.query.filter_by(line=annotation['line']).first()
+        line = Line.query.filter_by(body=annotation['line']).first()
 
         if not line:
             db.session.rollback()
