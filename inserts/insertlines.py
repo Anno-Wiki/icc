@@ -82,6 +82,7 @@ def add_writer_connections(meta, edition):
             if __name__ == '__main__':
                 print(f"Added {writer_obj.name} as {value}.")
 
+
 def addtoc(line, prevtoc, tocenums, edition):
     """Process a toc."""
     enum = line.pop('enum')
@@ -91,21 +92,19 @@ def addtoc(line, prevtoc, tocenums, edition):
         if line['precedence'] == prevtoc.precedence:
             # the new toc is the same level as the prevtoc
             parent = prevtoc.parent
-        elif line['precedence'] >= prevtoc.precedence:
+        elif line['precedence'] > prevtoc.precedence:
             # the new toc is deeper in precedence than the prevtoc
             parent = prevtoc
         else:
             # the new toc is higher than the prevtoc
-            hierarchy = []
             while prevtoc.precedence > line['precedence']:
                 prevtoc = prevtoc.parent
-                hierarchy.append(prevtoc)
-            parent = min(hierarchy, key=lambda x: x.precedence)
-            parent = None if parent.precedence == 1 else parent
+            parent = None if prevtoc.precedence == 1 else prevtoc.parent
     else:
         parent = None
     toc = TOC(**line, enum=enum, edition=edition, parent=parent)
     return toc
+
 
 def populate_lines(lines, edition):
     """Populate the database with the lines and their attributes. Return the
