@@ -48,11 +48,16 @@ def deactivate_previous_primary(text):
 
 def get_edition(meta, text):
     """Create the new edition, add it to the databsae, and return it."""
-    _title = meta.get('title', None)
-    edition = Edition(num=meta['number'], verse=meta.get('verse', False),
-                      _title=_title, text=text, primary=meta['primary'],
+    # this method is ridiculous and I need to work on making it just
+    # dereferencing meta. Don't know why it didn't work.
+    edition = Edition(num=meta['num'],
+                      deepest=meta.get('deepest', 1),
+                      verse=meta.get('verse', False),
+                      tochide=meta.get('tochide', True),
+                      _title=meta.get('title', None), text=text,
+                      primary=meta['primary'],
                       description=meta['description'],
-                      published=meta['publication_date'])
+                      published=meta['published'])
     db.session.add(edition)
     if __name__ == '__main__':
         if edition._title:
