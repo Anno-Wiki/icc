@@ -442,8 +442,31 @@ class TOC(EnumeratedMixin, Base):
     edition = db.relationship('Edition', backref=backref('toc', lazy='dynamic'))
     text = association_proxy('edition', 'text')
 
+    @property
+    def url(self):
+        return url_for('main.read', text_url=self.text.url,
+                       edition_num=self.edition.num, toc_id=self.id)
+
+    @property
+    def parents(self):
+        def _parents(toc, struct):
+            """Recursive function for the purpose of this method."""
+            struct.insert(0, toc)
+            if toc.parent:
+                return _parents(toc.parent, struct)
+            else:
+                return struct
+        if self.parent:
+            return _parents(self.parent, [])
+        else:
+            return []
+
     def __repr__(self):
-        return f'<{self.enum} {self.num} of {self.edition}>'
+        s = ['<']
+        for parent in self.parents:
+            s.append(f'{parent.enum} {parent.num} ')
+        s.append(f'{self.enum} {self.num} of {self.edition}>')
+        return ''.join(s)
 
     def __str__(self):
         return self.body
@@ -489,7 +512,7 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
     em_id = db.Column(db.Integer)
 
     toc_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
-    toc = db.relationship('TOC')
+    toc = db.relationship('TOC', backref=backref('lines', lazy='dynamic'))
 
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     edition = db.relationship('Edition', backref=backref('lines',
@@ -498,37 +521,31 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
     text = association_proxy('edition', 'text')
     text_title = association_proxy('edition', 'text_title')
 
-    def __init__(self, *args, **kwargs):
-        self.em_id = EMPHASIS.index(kwargs.pop('em'))
-        super().__init__(*args, **kwargs)
-
-#    context = db.relationship(
-#        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
-#        'remote(Line.num)>=Line.num-1,'
-#        'remote(Line.edition_id)==Line.edition_id)',
-#        foreign_keys=[num, edition_id], remote_side=[num, edition_id],
-#        uselist=True, viewonly=True)
-#    annotations = db.relationship(
-#        'Annotation', secondary='edit',
-#        primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
-#        'Edit.last_line_num>=foreign(Line.num),'
-#        'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
-#        secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
-#        'Annotation.active==True)', foreign_keys=[num, edition_id],
-#        uselist=True, lazy='dynamic')
+    context = db.relationship(
+        'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
+        'remote(Line.num)>=Line.num-1,'
+        'remote(Line.edition_id)==Line.edition_id)',
+        foreign_keys=[num, edition_id], remote_side=[num, edition_id],
+        uselist=True, viewonly=True)
+    annotations = db.relationship(
+        'Annotation', secondary='edit',
+        primaryjoin='and_(Edit.first_line_num<=foreign(Line.num),'
+        'Edit.last_line_num>=foreign(Line.num),'
+        'Edit.edition_id==foreign(Line.edition_id),Edit.current==True)',
+        secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
+        'Annotation.active==True)', foreign_keys=[num, edition_id],
+        uselist=True, lazy='dynamic')
 
     @property
     def url(self):
         """The url for the smallest precedence section to read, in is the
         line.
         """
-        return url_for('main.read', text_url=self.text.url_name,
-                       edition_num=self.edition.num, section=self.section)
+        return self.toc.url
 
-    @property
-    def section(self):
-        """A tuple of the section numbers."""
-        return tuple(i.num for i in self.attrs.values() if i.precedence > 0)
+    def __init__(self, *args, **kwargs):
+        self.em_id = EMPHASIS.index(kwargs.pop('em'))
+        super().__init__(*args, **kwargs)
 
     @orm.reconstructor
     def __init_on_load__(self):
