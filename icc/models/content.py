@@ -415,30 +415,25 @@ class WriterConnection(Base):
 class TOC(EnumeratedMixin, Base):
     num = db.Column(db.Integer, index=True)
     precedence = db.Column(db.Integer, default=1, index=True)
-    parent_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
-    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     body = db.Column(db.String(200), index=True)
 
+    prev_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
+    prev = db.relationship('TOC', uselist=False, remote_side='TOC.id',
+                           foreign_keys=[prev_id],
+                           backref=backref('next',
+                                           uselist=False,
+                                           remote_side='TOC.prev_id'))
+
+    parent_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
     parent = db.relationship('TOC', uselist=False, remote_side='TOC.id',
+                             foreign_keys=[parent_id],
                              backref=backref('children',
                                              remote_side='TOC.parent_id',
                                              lazy='dynamic'))
+
+    edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
     edition = db.relationship('Edition', backref=backref('toc', lazy='dynamic'))
     text = association_proxy('edition', 'text')
-
-    @property
-    def next(self):
-        if self.parent:
-            possible = self.parent.children.filter_by(num=self.num+1).first()
-            if possible:
-                return possible
-
-    @property
-    def prev(self):
-        if self.parent:
-            possible = self.parent.children.filter_by(num=self.num-1).first()
-            if possible:
-                return possible
 
     @property
     def url(self):

@@ -315,10 +315,8 @@ def read(text_url, edition_num, toc_id):
 
     # This is faster than the markdown plugin
     underscores_to_ems(lines)
-    n = toc.next
-    p = toc.prev
-    next_page = n.url if n else None
-    prev_page = p.url if p else None
+    next_page = toc.next.url if toc.next else None
+    prev_page = toc.prev.url if toc.prev else None
 
     return render_template('read.html', title=edition.title, form=form,
                            next_page=next_page, prev_page=prev_page,

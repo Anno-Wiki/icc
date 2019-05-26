@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 65932873c121
+Revision ID: ab76c47170af
 Revises: 
-Create Date: 2019-05-26 15:11:00.614735
+Create Date: 2019-05-26 16:27:47.789094
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '65932873c121'
+revision = 'ab76c47170af'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -331,13 +331,15 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('precedence', sa.Integer(), nullable=True),
+    sa.Column('body', sa.String(length=200), nullable=True),
+    sa.Column('prev_id', sa.Integer(), nullable=True),
     sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.Column('edition_id', sa.Integer(), nullable=True),
-    sa.Column('body', sa.String(length=200), nullable=True),
     sa.Column('enum_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['edition_id'], ['edition.id'], ),
     sa.ForeignKeyConstraint(['enum_id'], ['tocenum.id'], ),
     sa.ForeignKeyConstraint(['parent_id'], ['toc.id'], ),
+    sa.ForeignKeyConstraint(['prev_id'], ['toc.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_toc_body'), 'toc', ['body'], unique=False)
@@ -346,6 +348,7 @@ def upgrade():
     op.create_index(op.f('ix_toc_num'), 'toc', ['num'], unique=False)
     op.create_index(op.f('ix_toc_parent_id'), 'toc', ['parent_id'], unique=False)
     op.create_index(op.f('ix_toc_precedence'), 'toc', ['precedence'], unique=False)
+    op.create_index(op.f('ix_toc_prev_id'), 'toc', ['prev_id'], unique=False)
     op.create_table('writerconnection',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('writer_id', sa.Integer(), nullable=True),
@@ -546,6 +549,7 @@ def downgrade():
     op.drop_table('annotationflag')
     op.drop_table('annotation_followers')
     op.drop_table('writerconnection')
+    op.drop_index(op.f('ix_toc_prev_id'), table_name='toc')
     op.drop_index(op.f('ix_toc_precedence'), table_name='toc')
     op.drop_index(op.f('ix_toc_parent_id'), table_name='toc')
     op.drop_index(op.f('ix_toc_num'), table_name='toc')
