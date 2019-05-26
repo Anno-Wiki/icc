@@ -206,14 +206,6 @@ class Edition(Base, FollowableMixin):
         A flag for disabling the line concatenation that happens on cell phones.
         It will eventually become (either) more useful, or less. Unsure yet.
     """
-    @staticmethod
-    def _check_section_argument(section):
-        """Static helper method for throwing section errors."""
-        if not isinstance(section, tuple):
-            raise TypeError("The argument must a tuple of integers.")
-        if not all(isinstance(n, int) for n in section):
-            raise TypeError("The section tuple must consist of only integers.")
-
     _title = db.Column(db.String(235), default=None)
     num = db.Column(db.Integer, default=1)
     text_id = db.Column(db.Integer, db.ForeignKey('text.id'))
@@ -224,6 +216,7 @@ class Edition(Base, FollowableMixin):
 
     tochide = db.Column(db.Boolean, default=True)
     verse = db.Column(db.Boolean, default=False)
+    deepest = db.Column(db.Integer, default=1)
 
     annotations = db.relationship('Annotation', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
@@ -257,6 +250,13 @@ class Edition(Base, FollowableMixin):
         return (f"Edition #{self.num} - Primary" if self.primary else
                 f"Edition #{self.num}")
 
+    @property
+    def tocstruct(self):
+        byparentid = defaultdict(list)
+        for toc in self.toc:
+            byparentid[toc.parent_id].append(toc)
+        return byparentid
+
     def __init__(self, *args, **kwargs):
         """Creates a wiki for the edition with the provided description."""
         description = kwargs.pop('description', None)
@@ -278,23 +278,6 @@ class Edition(Base, FollowableMixin):
 
     def __str__(self):
         return self.title
-
-    def prev_section(self, section):
-        """Returns the header for the previous section else None."""
-        Edition._check_section_argument(section)
-        header = self.section(section).first()
-        prev_section = self.toc_by_precedence(len(section))\
-            .filter(Line.num<header.num)\
-            .order_by(Line.id.desc()).first()
-        return prev_section
-
-    def next_section(self, section):
-        """Returns the header line for the next section else None."""
-        Edition._check_section_argument(section)
-        header = self.section(section).first()
-        next_section = self.toc_by_precedence(len(section))\
-            .filter(Line.num>header.num).first()
-        return next_section
 
     def get_lines(self, nums):
         if len(nums) >= 2:
@@ -445,19 +428,21 @@ class TOC(EnumeratedMixin, Base):
 
     @property
     def next(self):
-        possible = self.parent.children.filter_by(num=self.num+1).first()
-        if possible:
-            return possible
+        if self.parent:
+            possible = self.parent.children.filter_by(num=self.num+1).first()
+            if possible:
+                return possible
 
     @property
     def prev(self):
-        possible = self.parent.children.filter_by(num=self.num-1).first()
-        if possible:
-            return possible
+        if self.parent:
+            possible = self.parent.children.filter_by(num=self.num-1).first()
+            if possible:
+                return possible
 
     @property
     def url(self):
-        if not self.lines.count():
+        if self.precedence < self.edition.deepest:
             return None
         return url_for('main.read', text_url=self.text.url_name,
                        edition_num=self.edition.num, toc_id=self.id)
@@ -572,7 +557,7 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
     @orm.reconstructor
     def __init_on_load__(self):
         """Resolves the em_id to the line's emphasis status."""
-        self.emphasis = EMPHASIS[self.em_id]
+        self.em = EMPHASIS[self.em_id]
 
     def __repr__(self):
         return (f"<l{self.num} {self.edition}>")

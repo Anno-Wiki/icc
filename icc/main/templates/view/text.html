@@ -40,7 +40,7 @@
         {% endfor %}
     </div>
 
-    {% set hierarchy = text.primary.toc %}
-    {% set deepest = text.primary.deepest_precedence %}
+    {% set tocstruct = text.primary.tocstruct %}
+    {% set edition = text.primary %}
     {% include "includes/_toc.html" %}
 {% endblock %}

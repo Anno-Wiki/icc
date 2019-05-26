@@ -1,25 +1,17 @@
 <script>
     function toggle(x) {
-        cls = x.parentNode.parentNode.classList[1];
-        elements = allof(cls);
-
-        if (elements[1].style.display == 'none') {
-            for (let i = 1; i < elements.length; i++)
-                elements[i].style.display = '';
-            x.innerHTML = '[ - ]'
-        } else {
-            for (let i = 1; i < elements.length; i++)
-                elements[i].style.display = 'none';
-            x.innerHTML = '[ + ]'
-        }
+        let level = x.parentNode.className.replace(/[a-z]*/g, '');
+        let subgroups = [...byCls(x.parentNode, `grouping${Number(level)+1}`)];
+        console.log(subgroups);
+        subgroups.forEach((grp) => grp.style.display = grp.style.display == 'none' ? '' : 'none');
     }
 
     atload(function () {
-        levels = [];
+        let groups = [];
         for (let i = 2; i <= 5; i++)
-            levels.push([...allof(`lvl${i}`)]);
-        levels = levels.flat();
-        for (let i = 0; i < levels.length; i++)
-            levels[i].style.display = 'none';
+            groups.push([...allof(`grouping${i}`)]);
+        groups = [].concat.apply([], groups);
+        for (let i = 0; i < groups.length; i++)
+            groups[i].style.display = 'none';
     });
 </script>

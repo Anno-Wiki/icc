@@ -1,49 +1,31 @@
 // The styling for the table of contents (toc)
 .toc {
-    margin: 1em auto;
+    max-width: 50rem;
+    margin: 0 auto;
+    border-top: 3px solid $base00;
+    padding: 1rem;
     font-family: $display;
-    width: 75%;
-    border-top: 2px solid $base1;
-    border-collapse: collapse;
-    tr {
-        td {
-            margin: 0.25em;
-            padding: 0.5em;
-            &:first-of-type {
-                min-width: 8em;
-                @media only screen and (max-width: $break2) { min-width: 0; }
-            }
+    .lvl {
+        &1 { font-size: 1.5rem; }
+        &2 {
+            font-size: 1.3rem;
+            margin-left: 1rem;
         }
-        .collapse-td {
-            min-width: 2em;
+        &3 {
+            font-size: 1.1rem;
+            margin-left: 2rem;
         }
-        .content {
-            @media only screen and (max-width: $break4) { text-align: left; }
+        &4 {
+            font-size: 0.9rem;
+            margin-left: 3rem;
         }
-        &.lvl {
-            &1, &2, &3, &4, &5 { cursor: pointer; }
-            &1:hover, &2:hover, &3:hover &4:hover &5:hover { border: 1px solid $accent; }
-
-            &2 td {
-                font-size: 0.9em;
-                padding: 0.3em;
-                &:first-of-type { text-indent: 1em; }
-            }
-            &3 td {
-                font-size: 0.8em;
-                padding: 0.15em;
-                &:first-of-type { text-indent: 2em; }
-            }
-            &4 td {
-                font-size: 0.7em;
-                padding: 0.05em;
-                &:first-of-type { text-indent: 3em; }
-            }
-            &5 td {
-                font-size: 0.6em;
-                padding: 0;
-                &:first-of-type { text-indent: 4em; }
-            }
-        }
+    }
+    .inner {
+        transition: $shortdelay;
+        &:hover { background-color: $lightbghl; }
+        padding: 0.25rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
     }
 }
