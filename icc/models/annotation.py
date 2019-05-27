@@ -470,7 +470,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
 
         This is currently set to 10log10 of the user's reputation, floored at 1.
         """
-        if not current_app['LOG_POWER']:
+        if not current_app.config['LOG_POWER']:
             return 1
         if voter.reputation <= 1:
             return 1
