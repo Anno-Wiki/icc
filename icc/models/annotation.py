@@ -481,7 +481,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         """An int of the user's down power. This is simply half of the user's up
         power, but at least one.
         """
-        if not current_app['LOG_POWER']:
+        if not current_app.config['LOG_POWER']:
             return -1
         power = self.up_power(voter)
         if power / 2 <= 1:
