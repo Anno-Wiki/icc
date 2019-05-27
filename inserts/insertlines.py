@@ -52,7 +52,6 @@ def get_edition(meta, text):
     # this method is ridiculous and I need to work on making it just
     # dereferencing meta. Don't know why it didn't work.
     edition = Edition(num=meta['num'],
-                      deepest=meta.get('deepest', 1),
                       verse=meta.get('verse', False),
                       tochide=meta.get('tochide', True),
                       _title=meta.get('title', None), text=text,
@@ -119,25 +118,18 @@ def populate_lines(lines, edition):
     lineenums = {enum.enum: enum for enum in Line.enum_cls.query.all()}
     tocenums = {enum.enum: enum for enum in TOC.enum_cls.query.all()}
     lasttoc = None
-    prevtoc = None
-
-    deepest = max(lines,
-                  key=lambda line: line.get('precedence', 1))['precedence']
 
     for i, line in enumerate(lines):
         if 'precedence' in line:
             lasttoc = addtoc(line, lasttoc, tocenums, edition)
-            if lasttoc.precedence == deepest:
-                if prevtoc:
-                    lasttoc.prev = prevtoc
-                prevtoc = lasttoc
             db.session.add(lasttoc)
         else:
             enum = line.pop('enum')
             enum = (lineenums[enum] if enum in lineenums else
                     Line.enum_cls(enum=enum))
-            db.session.add(Line(**line, enum=enum, toc=lasttoc,
-                                edition=edition))
+            lasttoc.haslines = True
+            lineobj = Line(**line, enum=enum, toc=lasttoc, edition=edition)
+            db.session.add(lineobj)
 
         if i % 1000 == 0:
             print(i)

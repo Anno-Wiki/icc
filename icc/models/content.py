@@ -216,7 +216,6 @@ class Edition(Base, FollowableMixin):
 
     tochide = db.Column(db.Boolean, default=True)
     verse = db.Column(db.Boolean, default=False)
-    deepest = db.Column(db.Integer, default=1)
 
     annotations = db.relationship('Annotation', lazy='dynamic')
     connections = db.relationship('WriterConnection', lazy='dynamic')
@@ -416,6 +415,7 @@ class TOC(EnumeratedMixin, Base):
     num = db.Column(db.Integer, index=True)
     precedence = db.Column(db.Integer, default=1, index=True)
     body = db.Column(db.String(200), index=True)
+    haslines = db.Column(db.Boolean, index=True, default=False)
 
     prev_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
     prev = db.relationship('TOC', uselist=False, remote_side='TOC.id',
@@ -437,10 +437,10 @@ class TOC(EnumeratedMixin, Base):
 
     @property
     def url(self):
-        if self.precedence < self.edition.deepest:
-            return None
-        return url_for('main.read', text_url=self.text.url_name,
-                       edition_num=self.edition.num, toc_id=self.id)
+        if self.haslines:
+            return url_for('main.read', text_url=self.text.url_name,
+                           edition_num=self.edition.num, toc_id=self.id)
+        return None
 
     @property
     def section(self):

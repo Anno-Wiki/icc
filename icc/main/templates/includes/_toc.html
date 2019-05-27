@@ -3,20 +3,22 @@
     {% set looper = tocstruct[None] %}
     {% for toc in looper recursive %}
         <div id="t{{ toc.id }}" class="grouping{{ toc.precedence }}">
-            <div class="outer lvl{{ toc.precedence }}"{% if toc.precedence < edition.deepest %} onclick="toggle(this);"{% endif %}>
-                {% if toc.precedence == edition.deepest %}<a href="{{ toc.url }}">{% endif %}
-                <div class="inner">
-                    <span class="section">&#167; {{ toc.section }}</span>
-                    <span class="tocname">
-                        {% if not edition.tochide %}
-                            {{ toc.enum }} {{ toc.num }}
-                        {% else %}
-                            {{ toc.body }}
-                        {% endif %}
-                        {% if toc.precedence < edition.deepest %}&times; {{ toc.children.count() }} {{ toc.children.first().enum }}s{% endif %}
-                    </span>
-                </div>
-                {% if toc.precedence == edition.deepest %}</a>{% endif %}
+            <div class="outer lvl{{ toc.precedence }}"{% if not toc.haslines %} onclick="toggle(this);"{% endif %}>
+                {% if toc.haslines %}<a href="{{ toc.url }}">{% endif %}
+                    <div class="inner">
+                        <span class="section">&#167; {{ toc.section }}</span>
+                        <span class="tocname">
+                            {% if not edition.tochide %}
+                                {{ toc.enum }} {{ toc.num }}
+                            {% else %}
+                                {{ toc.body }}
+                            {% endif %}
+                            {% if not toc.haslines %}
+                                &times; {{ toc.children.count() }} {{ toc.children.first().enum }}s
+                            {% endif %}
+                        </span>
+                    </div>
+                {% if toc.haslines %}</a>{% endif %}
             </div>
             {{ loop(tocstruct.get(toc.id, [])) }}
         </div>

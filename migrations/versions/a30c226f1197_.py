@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ab76c47170af
+Revision ID: a30c226f1197
 Revises: 
-Create Date: 2019-05-26 16:27:47.789094
+Create Date: 2019-05-27 09:05:10.357633
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ab76c47170af'
+revision = 'a30c226f1197'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -231,7 +231,6 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('tochide', sa.Boolean(), nullable=True),
     sa.Column('verse', sa.Boolean(), nullable=True),
-    sa.Column('deepest', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['text_id'], ['text.id'], ),
     sa.ForeignKeyConstraint(['wiki_id'], ['wiki.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -332,6 +331,7 @@ def upgrade():
     sa.Column('num', sa.Integer(), nullable=True),
     sa.Column('precedence', sa.Integer(), nullable=True),
     sa.Column('body', sa.String(length=200), nullable=True),
+    sa.Column('haslines', sa.Boolean(), nullable=True),
     sa.Column('prev_id', sa.Integer(), nullable=True),
     sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.Column('edition_id', sa.Integer(), nullable=True),
@@ -345,6 +345,7 @@ def upgrade():
     op.create_index(op.f('ix_toc_body'), 'toc', ['body'], unique=False)
     op.create_index(op.f('ix_toc_edition_id'), 'toc', ['edition_id'], unique=False)
     op.create_index(op.f('ix_toc_enum_id'), 'toc', ['enum_id'], unique=False)
+    op.create_index(op.f('ix_toc_haslines'), 'toc', ['haslines'], unique=False)
     op.create_index(op.f('ix_toc_num'), 'toc', ['num'], unique=False)
     op.create_index(op.f('ix_toc_parent_id'), 'toc', ['parent_id'], unique=False)
     op.create_index(op.f('ix_toc_precedence'), 'toc', ['precedence'], unique=False)
@@ -553,6 +554,7 @@ def downgrade():
     op.drop_index(op.f('ix_toc_precedence'), table_name='toc')
     op.drop_index(op.f('ix_toc_parent_id'), table_name='toc')
     op.drop_index(op.f('ix_toc_num'), table_name='toc')
+    op.drop_index(op.f('ix_toc_haslines'), table_name='toc')
     op.drop_index(op.f('ix_toc_enum_id'), table_name='toc')
     op.drop_index(op.f('ix_toc_edition_id'), table_name='toc')
     op.drop_index(op.f('ix_toc_body'), table_name='toc')
