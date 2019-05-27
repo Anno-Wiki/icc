@@ -112,7 +112,7 @@ def search():
     page = request.args.get('page', 1, type=int)
     lines, line_total = Line.search(g.search_form.q.data, page,
                                     current_app.config['LINES_PER_SEARCH_PAGE'])
-    val = line_total.get('value', 1)
+    val = line_total
     next_page = (url_for('main.search', q=g.search_form.q.data, page=page + 1)
                  if val > page *
                  current_app.config['LINES_PER_SEARCH_PAGE'] else None)
