@@ -48,3 +48,12 @@ for file in $LIBRARY/shakespeare_william/mit/processed/*; do
     echo "- populationg lines for $file"
     $PYTHON $ROOT/inserts/insertlines.py $file;
 done
+
+echo "- populating lines for Shakespeare's Sonnets"
+$PYTHON $ROOT/inserts/insertlines.py $LIBRARY/shakespeare_william/mit/sonnets
+
+echo "- populating lines for Shakespeare's Pericles"
+$PYTHON $ROOT/inserts/insertlines.py $LIBRARY/shakespeare_william/mit/pericles
+
+echo "- populating lines for Shakespeare's Taming of the Shrew"
+$PYTHON $ROOT/inserts/insertlines.py $LIBRARY/shakespeare_william/mit/taming_shrew
