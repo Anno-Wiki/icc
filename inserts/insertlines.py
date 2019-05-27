@@ -148,8 +148,8 @@ def populate_lines(lines, edition):
 def parse_files(path):
     path = path.rstrip('/')
     meta = yaml.load(open(f'{path}/meta.yml', 'rt'), Loader=yaml.FullLoader)
-    FIN = io.open(f'{path}/lines.json', 'r', encoding='utf-8-sig')
-    lines = json.load(FIN)
+    fin = io.open(f'{path}/lines.json', 'r', encoding='utf-8-sig')
+    lines = json.load(fin)
     return meta, lines
 
 
