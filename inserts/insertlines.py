@@ -118,6 +118,7 @@ def populate_lines(lines, edition):
     lineenums = {enum.enum: enum for enum in Line.enum_cls.query.all()}
     tocenums = {enum.enum: enum for enum in TOC.enum_cls.query.all()}
     lasttoc = None
+    tocs = []
 
     for i, line in enumerate(lines):
         if 'precedence' in line:
@@ -127,9 +128,15 @@ def populate_lines(lines, edition):
             enum = line.pop('enum')
             enum = (lineenums[enum] if enum in lineenums else
                     Line.enum_cls(enum=enum))
-            lasttoc.haslines = True
+            if not lasttoc.haslines:
+                lasttoc.haslines = True
             lineobj = Line(**line, enum=enum, toc=lasttoc, edition=edition)
             db.session.add(lineobj)
+
+        if lasttoc.haslines and not lasttoc.prev:
+            if tocs and lasttoc is not tocs[-1]:
+                lasttoc.prev = tocs[-1]
+            tocs.append(lasttoc)
 
         if i % 1000 == 0:
             print(i)
