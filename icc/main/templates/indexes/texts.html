@@ -27,7 +27,7 @@
                 editions &times; {{ text.editions.count() }}
 
 
-                <div{% if len(text.wiki.current.body) >= 127 %} class="card-cutoff"{%endif%}>
+                <div class="cardbody{% if len(text.wiki.current.body) >= 127 %} card-cutoff{%endif%}">
                     {{ text.wiki.current.body[:127]|proc_links|markdown }}
                 </div>
 

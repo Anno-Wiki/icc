@@ -28,8 +28,7 @@
                 <br>
                 [n] &times; {{ tag.annotations.count() }}
 
-                <div{% if len(tag.wiki.current.body) > 127 %}
-                    class="card_text_cutoff"{% endif %}>
+                <div class="cardbody{% if len(tag.wiki.current.body) > 127 %} card-cutoff{% endif %}">
                     {{ tag.wiki.current.body[:127]|proc_links|markdown }}
                 </div>
                 <div class="viewmore">

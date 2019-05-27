@@ -254,6 +254,14 @@ a {
             font-size: 1.01em;
         }
 
+        &body {
+            margin-top: 0.15rem;
+            h1, h2, h3, h4, h5 {
+                margin-bottom: 0;
+                font-size: 100%;
+                text-align: left;
+            }
+        }
         &-cutoff { p:last-of-type::after { content: "..." } }
         .viewmore {
             margin: 0.5em;

@@ -29,7 +29,7 @@
                     <em>ll.</em> &times; {{ edition.lines.count() }}
                 </div>
 
-                <div{% if len(edition.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
+                <div class="cardbody{% if len(edition.wiki.current.body) >= 127 %} card-cutoff{% endif %}">
                     {{ edition.wiki.current.body[:127]|markdown }}
                 </div>
 

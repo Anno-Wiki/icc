@@ -657,6 +657,12 @@ a {
       text-align: center;
       margin: 0.25em auto;
       font-size: 1.01em; }
+    .index .cardbody {
+      margin-top: 0.15rem; }
+      .index .cardbody h1, .index .cardbody h2, .index .cardbody h3, .index .cardbody h4, .index .cardbody h5 {
+        margin-bottom: 0;
+        font-size: 100%;
+        text-align: left; }
     .index .card-cutoff p:last-of-type::after {
       content: "..."; }
     .index .card .viewmore {

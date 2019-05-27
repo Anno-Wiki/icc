@@ -38,8 +38,7 @@
                         {% else %}
                             {% set wiki = edition.wiki %}
                         {% endif %}
-                        <div{% if len(wiki.current.body) >= 127 %}
-                            class="card_text_cutoff"{% endif %}>
+                        <div class="cardbody{% if len(wiki.current.body) >= 127 %} card-cutoff{% endif %}">
                             {{ wiki.current.body[:127]|markdown }}</div>
 
                         <div class="viewmore">

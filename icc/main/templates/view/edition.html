@@ -45,7 +45,7 @@
                         {% include "includes/_follow.html" %}
                         <br>
 
-                        <div{% if len(writer.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
+                        <div class="cardbody{% if len(writer.wiki.current.body) >= 127 %} card-cutoff{% endif %}">
                             {{ writer.wiki.current.body[:127]|proc_links|markdown }}
                         </div>
 

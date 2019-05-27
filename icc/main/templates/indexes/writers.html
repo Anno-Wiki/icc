@@ -33,7 +33,7 @@
                 <em>editor</em>     &times; {% if 'editor' in writer.works %}{{ len(writer.works['editor']) }}{% else %}0{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;
                 <em>translator</em> &times; {% if 'translator' in writer.works %}{{ len(writer.works['translator']) }}{% else %}0{% endif %}
 
-                <div{% if len(writer.wiki.current.body) >= 127 %} class="card-cutoff"{% endif %}>
+                <div class="cardbody{% if len(writer.wiki.current.body) >= 127 %} card-cutoff{% endif %}">
                     {{ writer.wiki.current.body[:127]|proc_links|markdown }}
                 </div>
 
