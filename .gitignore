@@ -45,4 +45,4 @@ data/library
 **/.sass-cache
 **/.sass-cache/*
 *.map
-
+.flaskenv
