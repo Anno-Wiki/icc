@@ -30,6 +30,7 @@ def send_password_reset_email(user):
                html_body=render_template('email/reset_password.html', user=user,
                                          token=token)
                )
+    print(f'Sent password reset email for {user.displayname}')
 
 
 def send_beta_invite_email(email, token):
