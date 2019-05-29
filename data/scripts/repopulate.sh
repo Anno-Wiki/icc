@@ -1,9 +1,5 @@
 #!/bin/bash
 
-echo -n Default User Password:
-read -s password
-printf '\n'
-
 echo -n MySQL password:
 read -s mysqlpw
 printf '\n'
@@ -15,4 +11,4 @@ echo "drop database icc; create database icc;" |\
     sudo mysql -u root --password=$mysqlpw icc
 echo "- recreating table structure..."
 $ICCVENV/bin/flask db upgrade
-$DIR/populate.sh $password
+$DIR/populate.sh

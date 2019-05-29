@@ -1,12 +1,8 @@
 #!/bin/bash
 
-password=$1
-
-if [[ -z ${password+x} ]]; then
-    echo -n Default User Password:
-    read -s password
-    printf '\n'
-fi
+echo -n Default User Password:
+read -s password
+printf '\n'
 
 set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
