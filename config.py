@@ -12,6 +12,7 @@ class Config:
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['support@anno.wiki', 'malan@anno.wiki']
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
+    ENABLE_ASYNC = os.environ.get('ASYNC')
 
     LOG_POWER = False
 
