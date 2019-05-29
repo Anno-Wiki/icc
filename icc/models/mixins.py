@@ -455,7 +455,8 @@ class SearchableMixin(object):
     def search(cls, expression, page, per_page):
         """Search with a given string."""
         ids, total = query_index(cls.__tablename__, expression, page, per_page)
-        total = total.get('value', 0)
+        if isinstance(total, dict):
+            total = total.get('value', 0)
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []
