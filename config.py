@@ -10,7 +10,7 @@ class Config:
     DEBUG = os.environ.get('ICC_DEBUG') or False
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
-    ADMINS = ['emails@futuretld.org']
+    ADMINS = ['support@anno.wiki', 'malan@anno.wiki']
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
 
     LOG_POWER = False
