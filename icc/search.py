@@ -6,6 +6,8 @@ def add_to_index(index, model):
     """Add an object to the index for that object."""
     if not current_app.elasticsearch:
         return
+    if not current_app.elasticsearch.indices.exists(index):
+        current_app.elasticsearch.indices.create(index)
     payload = {}
     for field in model.__searchable__:
         payload[field] = getattr(model, field)
@@ -17,6 +19,8 @@ def remove_from_index(index, model):
     """Remove the object from the index."""
     if not current_app.elasticsearch:
         return
+    if not current_app.elasticsearch.indices.exists(index):
+        current_app.elasticsearch.indices.create(index)
     current_app.elasticsearch.delete(index=index, doc_type=index, id=model.id)
 
 
