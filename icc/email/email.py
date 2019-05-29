@@ -17,6 +17,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
     msg.body = text_body
     msg.html = html_body
     if current_app.config['ENABLE_ASYNC']:
+        print(('enable async value', current_app.config['ENABLE_ASYNC']))
         Thread(target=send_async_email,
                args=(current_app._get_current_object(), msg)).start()
     else:
