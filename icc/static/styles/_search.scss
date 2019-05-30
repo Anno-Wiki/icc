@@ -1,7 +1,9 @@
 .search {
     text-align: center;
+    border-radius: $bevel;
     input {
-        width: 20em;
+        width: 20rem;
+        padding: 0.5rem;
         background-color: $darkbghl;
         color: $base01;
         @media only screen and (max-width: $break8) { width: 15em; }

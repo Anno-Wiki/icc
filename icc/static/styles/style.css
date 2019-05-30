@@ -206,9 +206,11 @@ nav {
       background-color: #b58900; }
 
 .search {
-  text-align: center; }
+  text-align: center;
+  border-radius: 20px; }
   .search input {
-    width: 20em;
+    width: 20rem;
+    padding: 0.5rem;
     background-color: #073642;
     color: #586e75;
     border-width: auto;
