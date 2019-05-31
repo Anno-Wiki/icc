@@ -30,36 +30,20 @@
         lc = ranges[ranges.length-1].endOffset;
     }
 
-    function submit() {
+    function submit(evt) {
+        evt.preventDefault();
         var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", fl, "/", ll, "?fc=", fc, "&lc=", lc];
         location.href = url.join("");
     }
 
-
     atload(function () {
-        var textBlock = document.getElementById("text-content");
-        // these don't work and idk why
-        textBlock.addEventListener("selectionstart", showBtn);
-        textBlock.addEventListener("selectionchange", showBtn);
-
-        // for web
-        textBlock.addEventListener("mousedown", showBtn);
-        textBlock.addEventListener("mouseup", showBtn);
-        textBlock.addEventListener("dblclick", showBtn);
-
-        // for mobile
-        textBlock.addEventListener("touchcancel", showBtn);
-        textBlock.addEventListener("touchend", showBtn);
-        textBlock.addEventListener("touchenter", showBtn);
-        textBlock.addEventListener("touchleave", showBtn);
-        textBlock.addEventListener("touchmove", showBtn);
-        textBlock.addEventListener("touchstart", showBtn);
-
         var btn = byID("annotate-button");
         btn.addEventListener("pointerenter", procSel);
         btn.addEventListener("pointerover", procSel);
-        // do not set an interval on this sucker! because it will re evaluate
-        // the highlight and showBtn before the button can be properly clicked.
-        // This whole thing will hopefully eventually be much nicer.
+
+        // prevent deselection when click button
+        btn.addEventListener("mousedown", (evt) => evt.preventDefault());
+        btn.addEventListener("click", submit);
+        setInterval(showBtn, 100);
     });
 </script>
