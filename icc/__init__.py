@@ -4,6 +4,7 @@ from elasticsearch import Elasticsearch
 from config import Config
 
 from flask import Flask
+from flask_talisman import Talisman
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -21,6 +22,7 @@ login = LoginManager()
 login.login_view = 'main.login'
 mail = Mail()
 moment = Moment()
+talisman = Talisman()
 
 
 def create_app(config_class=Config):
@@ -28,6 +30,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     db.init_app(app)
+    talisman.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
