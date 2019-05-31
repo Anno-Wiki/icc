@@ -7,15 +7,11 @@ class Config:
     """The default config object."""
     HASH_REGISTRATION = os.environ.get('BETA') or True
     CSP = {
-        'default-src': [
-            '\'self\'',
-            'code.jquery.com',
-            'cdnjs.cloudflare.com',
-            'fonts.googleapis.com'
-        ]
     }
 
     DEBUG = os.environ.get('ICC_DEBUG') or False
+    TESTING = os.environ.get('ICC_TESTING') or False
+
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['malan@anno.wiki', 'support@anno.wiki']
