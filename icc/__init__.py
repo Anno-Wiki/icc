@@ -30,7 +30,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     db.init_app(app)
-    talisman.init_app(app)
+    talisman.init_app(app, content_security_policy=app.config['CSP'])
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
