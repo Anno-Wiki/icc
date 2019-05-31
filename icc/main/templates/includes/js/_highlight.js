@@ -30,16 +30,16 @@
         lc = ranges[ranges.length-1].endOffset;
     }
 
-    function submit(evt) {
-        evt.preventDefault();
-        var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/", fl, "/", ll, "?fc=", fc, "&lc=", lc];
+    function submit() {
+        procSel();
+        var url = ["/annotate/{{ text.url_name }}/edition/{{ edition.num }}/{{ toc.id }}/", fl, "/", ll, "?fc=", fc, "&lc=", lc];
         location.href = url.join("");
     }
 
     atload(function () {
         var btn = byID("annotate-button");
-        btn.addEventListener("pointerenter", procSel);
-        btn.addEventListener("pointerover", procSel);
+        //btn.addEventListener("pointerenter", procSel);
+        //btn.addEventListener("pointerover", procSel);
 
         // prevent deselection when click button
         btn.addEventListener("mousedown", (evt) => evt.preventDefault());

@@ -87,6 +87,7 @@ def create_app(config_class=Config):
     app.jinja_env.globals['zip'] = zip
     app.jinja_env.globals['enumerate'] = enumerate
     app.jinja_env.globals['mmt_fmt'] = 'MMM Do YY'
+    app.jinja_env.globals['filter'] = filter
     from datetime import datetime
     app.jinja_env.globals['utcnow'] = datetime.utcnow
     from icc.funky import proc_links

@@ -97,17 +97,14 @@ def follow():
     return jsonify({'success': True, 'status': status})
 
 
-@ajax.route('/edition/<edition_id>/<toc_id>/line')
-def line(edition_id, toc_id):
-    edition = Edition.query.get(edition_id)
-    if not edition:
+@ajax.route('/<toc_id>/line')
+def line(toc_id):
+    toc = TOC.query.get(toc_id)
+    if not toc:
         return jsonify({'success': False})
     num = request.args.get('num')
-    line = edition.lines.filter_by(num=num).first()
+    line = toc.lines.filter_by(num=num).first()
     if not line:
-        return jsonify({'success': False})
-    if not line.toc_id == int(toc_id):
-        print(line.toc_id)
         return jsonify({'success': False})
     return jsonify({'success': True, 'line': line.body,
                     'enum': str(line.enum) })

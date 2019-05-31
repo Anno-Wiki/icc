@@ -1,7 +1,7 @@
 import os
 
 ACCT='root'
-PW=''
+PW='d?l\J?4=iIZ;@WI(w)_Xp]<jc'
 
 class Config:
     """The default config object."""

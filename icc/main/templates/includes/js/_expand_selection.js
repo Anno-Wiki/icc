@@ -10,7 +10,7 @@
         // caching, but for now (and a while going forward) this is good enough.
         let first_line = byID('first_line_cache');
         let last_line = byID('last_line_cache');
-        if (first_line != null & last_line != null) {
+        if (first_line != null && last_line != null) {
             flInput.value = first_line.innerHTML;
             llInput.value = last_line.innerHTML;
         }
@@ -23,6 +23,19 @@
         genExpander(false);
     });
 
+    function newLine(cls, num, line) {
+        let lineEl = newEl('div', `line ${cls}`);
+        lineEl.id = num;
+        let numEl = newEl('span', 'line-num');
+        numEl.innerHTML = num;
+        lineEl.appendChild(numEl);
+        let textEl = newEl('span', 'text');
+        // make sure you post an hr if it's an hr
+        textEl.innerHTML = cls == 'hr' ? '<hr>' : line;
+        lineEl.appendChild(textEl);
+        return lineEl;
+    }
+
     function contract(evt) {
         if (flInput.value == llInput.value) { return; }
         let expander = evt.target.parentNode; // the expander element
@@ -30,6 +43,7 @@
         let input = topExpander ? flInput : llInput;
         let change = topExpander ? 1 : -1;
         let block = expander.parentNode; // the block in which is everything
+
         let lines = allof('line');
         let line = byID(input.value);
 
@@ -53,19 +67,6 @@
             if (countBelow >= 3) block.removeChild(lines[lines.length-1]);
         }
         input.value = Number(input.value) + change;
-    }
-
-    function newLine(cls, num, line) {
-        let lineEl = newEl('div', `line ${cls}`);
-        lineEl.id = num;
-        let numEl = newEl('span', 'line-num');
-        numEl.innerHTML = num;
-        lineEl.appendChild(numEl);
-        let textEl = newEl('span', 'text');
-        // make sure you post an hr if it's an hr
-        textEl.innerHTML = cls == 'hr' ? '<hr>' : line;
-        lineEl.appendChild(textEl);
-        return lineEl;
     }
 
     function expand(evt) {
@@ -101,20 +102,20 @@
                 }
                 input.value = lineToHighlight;
             } else if (lineToHighlight > 1 || lineToHighlight <= totalLines){
+                // no new line, but need to expand
                 let lineElToHighlight = byID(lineToHighlight);
                 lineElToHighlight.classList.add('selection');
-                if (topExpander && lineToHighlight <= 3) {
+                if (topExpander) {
                     block.removeChild(expander);
                     block.insertBefore(expander, lineElToHighlight);
-                } else if (lineToHighlight >= totalLines - 3) {
+                } else if (lineToHighlight) {
                     block.removeChild(lineElToHighlight);
                     block.insertBefore(lineElToHighlight, expander);
                 }
                 input.value = lineToHighlight;
             }
-
         }
-        let url = `{{ url_for('ajax.line', edition_id=edition.id, toc_id=lines[0].toc.id) }}?num=${lineToGet}`;
+        let url = `{{ url_for('ajax.line', toc_id=lines[0].toc.id) }}?num=${lineToGet}`;
         xhttp.open('GET', url, true);
         xhttp.send();
     }

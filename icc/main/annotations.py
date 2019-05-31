@@ -12,7 +12,7 @@ from icc.main import main
 
 from icc.models.annotation import (Annotation, Comment, Edit, Tag,
                                    AnnotationFlag, CommentFlag)
-from icc.models.content import Text, Edition, Line
+from icc.models.content import Text, Edition, Line, TOC
 from icc.models.user import User
 
 from icc.main.forms import AnnotationForm, CommentForm
@@ -39,12 +39,12 @@ def process_tags(tagstring):
     return allgood, tags
 
 
-@main.route('/annotate/<text_url>/<first_line>/<last_line>',
+@main.route('/annotate/<text_url>/<toc_id>/<first_line>/<last_line>',
             methods=['GET', 'POST'], defaults={'edition_num': None})
-@main.route('/annotate/<text_url>/edition/<edition_num>'
+@main.route('/annotate/<text_url>/edition/<edition_num>/<toc_id>'
             '/<first_line>/<last_line>', methods=['GET', 'POST'])
 @login_required
-def annotate(text_url, edition_num, first_line, last_line):
+def annotate(text_url, edition_num, toc_id, first_line, last_line):
     """Create an annotation."""
     fl, ll = line_check(int(first_line), int(last_line))
     form = AnnotationForm()
@@ -52,12 +52,12 @@ def annotate(text_url, edition_num, first_line, last_line):
     edition = (text.primary if not edition_num else
                Edition.query.filter(Edition.text_id==text.id,
                                     Edition.num==edition_num).first_or_404())
-    lines = edition.lines.filter(Line.num>=fl, Line.num<=ll).all()
+    toc = TOC.query.get_or_404(toc_id)
+    lines = toc.lines.filter(Line.num>=fl, Line.num<=ll).all()
     if lines is None:
         abort(404)
     redirect_url = generate_next(lines[0].url)
-    context = edition.lines.filter(Line.num>=int(fl)-3,
-                                   Line.num<=int(ll)+3).all()
+    context = toc.lines.filter(Line.num>=int(fl)-3, Line.num<=int(ll)+3).all()
 
     if form.validate_on_submit():
         fl, ll = line_check(form.first_line.data, form.last_line.data)
@@ -82,7 +82,8 @@ def annotate(text_url, edition_num, first_line, last_line):
         form.last_char_idx.data = -1
     return render_template('forms/annotation.html',
                            title=f"Annotating {text.title}", form=form,
-                           edition=edition, lines=lines, context=context)
+                           toc=toc, edition=edition, lines=lines,
+                           context=context)
 
 
 @main.route('/edit/<annotation_id>', methods=['GET', 'POST'])
@@ -103,7 +104,9 @@ def edit(annotation_id):
         current_user.authorize('edit_deactivated_annotations')
 
     lines = annotation.HEAD.lines
-    context = annotation.HEAD.context
+    toc_id = lines[0].toc_id
+    context = filter(lambda line: line.toc_id == toc_id,
+                     annotation.HEAD.context)
     if form.validate_on_submit():
         fl, ll = line_check(form.first_line.data, form.last_line.data)
 
