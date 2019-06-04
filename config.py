@@ -9,6 +9,9 @@ class Config:
     CSP = {
     }
 
+    DESCRIPTION = (
+        os.environ.get('ICC_DESCRIPTION') or "anno.wiki is a wiki for "
+        "annotations, footnotes, and explanations of literature and texts.")
     DEBUG = os.environ.get('ICC_DEBUG') or False
     TESTING = os.environ.get('ICC_TESTING') or False
 
