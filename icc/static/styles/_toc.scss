@@ -27,5 +27,9 @@
         cursor: pointer;
         display: flex;
         justify-content: space-between;
+        .section {
+            margin-right: 0.25rem;
+            min-width: max-content;
+        }
     }
 }

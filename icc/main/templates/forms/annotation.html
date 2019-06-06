@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="text-content">
+    <div id="text-content" class="{% if edition.verse %}no{% endif %}concat">
         {% if annotation %}
             <h1>Editing Annotation <a href="{{ annotation.url }}">[{{ annotation.id }}]</a> on <a href="{{ edition.url }}">{{ edition.title }}</a></h1>
         {% else %}

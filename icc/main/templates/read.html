@@ -42,7 +42,7 @@
     {% include "includes/js/_highlight.js" %}
     {% include "includes/js/_annotation_display.js" %}
 
-    <div id="text-content">
+    <div id="text-content" class="{% if edition.verse %}no{% endif %}concat">
         {% for s in toc.parents %}
             <div class="line lvl{{ s.precedence }}">
                 <span class="line-num hidden"></span>

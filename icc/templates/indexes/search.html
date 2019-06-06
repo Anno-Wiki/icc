@@ -16,7 +16,7 @@
                 {% set writers = line.edition.writers['author'] %}
                 {% include "includes/_writers_list.html" %}
             </h3>
-            <div class="text-content">
+            <div class="text-content {% if line.edition.verse %}no{%endif%}concat">
                 <div class="backlight">
                     {% for l in line.context %}
                         <a href='{{ url_for('main.line_annotations', text_url=l.edition.text.url_name, edition_num=l.edition.num, nums=l.num) }}'>

@@ -135,6 +135,9 @@
     justify-content: space-between; }
     .toc .inner:hover {
       background-color: #eee8d5; }
+    .toc .inner .section {
+      margin-right: 0.25rem;
+      min-width: max-content; }
 
 nav {
   padding: 0.1em 0.5em 0.1em 0.5em;
@@ -228,7 +231,8 @@ nav {
 
 .text-content, #text-content {
   margin: 0 auto;
-  max-width: 40em; }
+  max-width: 40em;
+  /* Line general */ }
   .text-content ::selection, #text-content ::selection {
     background-color: #eee8d5;
     color: #b58900; }
@@ -237,13 +241,13 @@ nav {
     color: #b58900; }
   .text-content .backlight, #text-content .backlight {
     background-color: #eee8d5;
-    padding: 1em;
-    margin: 2em auto;
-    box-shadow: 0.15em 0.15em 10px 10px #93a1a1; }
+    padding: 1rem;
+    margin: 2rem auto;
+    box-shadow: 0.15rem 0.15rem 10px 10px #93a1a1; }
     .text-content .backlight .selection .line-num, .text-content .backlight .plus .line-num, .text-content .backlight .delta .line-num, #text-content .backlight .selection .line-num, #text-content .backlight .plus .line-num, #text-content .backlight .delta .line-num {
       visibility: visible; }
     .text-content .backlight .selection .text, .text-content .backlight .plus .text, .text-content .backlight .delta .text, #text-content .backlight .selection .text, #text-content .backlight .plus .text, #text-content .backlight .delta .text {
-      padding: 0 0.2em 0 0.1em; }
+      padding: 0 0.2rem 0 0.1rem; }
     .text-content .backlight .selection .text, #text-content .backlight .selection .text {
       background-color: #ddd7c4; }
     .text-content .backlight .delta .text, #text-content .backlight .delta .text {
@@ -259,23 +263,23 @@ nav {
     .text-content .backlight .line-num, #text-content .backlight .line-num {
       visibility: hidden; }
     .text-content .backlight .expander, #text-content .backlight .expander {
-      margin: 0.15em;
+      margin: 0.15rem;
       text-align: center;
       font-family: "Helvetica", "Arial", sans-serif;
-      font-size: 1.5em;
+      font-size: 1.5rem;
       color: #268bd2; }
       .text-content .backlight .expander .uparr, #text-content .backlight .expander .uparr {
-        border-left: 0.5em solid transparent;
-        border-right: 0.5em solid transparent;
-        border-bottom: 1em solid #268bd2; }
+        border-left: 1rem solid transparent;
+        border-right: 1rem solid transparent;
+        border-bottom: 2rem solid #268bd2; }
         .text-content .backlight .expander .uparr:hover, #text-content .backlight .expander .uparr:hover {
-          border-bottom: 1em solid #b58900; }
+          border-bottom: 2rem solid #b58900; }
       .text-content .backlight .expander .downarr, #text-content .backlight .expander .downarr {
-        border-left: 0.5em solid transparent;
-        border-right: 0.5em solid transparent;
-        border-top: 1em solid #268bd2; }
+        border-left: 1rem solid transparent;
+        border-right: 1rem solid transparent;
+        border-top: 2rem solid #268bd2; }
         .text-content .backlight .expander .downarr:hover, #text-content .backlight .expander .downarr:hover {
-          border-top: 1em solid #b58900; }
+          border-top: 2rem solid #b58900; }
       .text-content .backlight .expander .uparr, .text-content .backlight .expander .downarr, #text-content .backlight .expander .uparr, #text-content .backlight .expander .downarr {
         margin: 0 auto;
         width: 0;
@@ -286,39 +290,86 @@ nav {
           color: #b58900; }
       .text-content .backlight .expander hr, #text-content .backlight .expander hr {
         margin: 0 auto;
-        max-width: 4em;
+        max-width: 40rem;
         border: 0;
         height: 1px;
         background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0)); }
         .text-content .backlight .expander hr:after, #text-content .backlight .expander hr:after {
           content: none; }
   .text-content .annotation, #text-content .annotation {
-    right: 2em;
-    left: 2em;
+    right: 2rem;
+    left: 2rem;
     position: absolute;
     z-index: 100;
     width: inherit; }
     .text-content .annotation a.collapse, #text-content .annotation a.collapse {
       font-family: "Helvetica", "Arial", sans-serif;
       font-weight: bold;
-      font-size: 1.5em; }
+      font-size: 1.5rem; }
       .text-content .annotation a.collapse:hover, .text-content .annotation a.collapse:focus, #text-content .annotation a.collapse:hover, #text-content .annotation a.collapse:focus {
         color: #586e75; }
-  .text-content .break, #text-content .break {
-    display: none;
-    height: 1em; }
-    @media only screen and (max-width: 800px) {
-      .text-content .break, #text-content .break {
-        display: block; } }
+  @media only screen and (max-width: 800px) {
+    .text-content.concat .line.fl, .text-content.concat .line.l, #text-content.concat .line.fl, #text-content.concat .line.l {
+      display: inline; } }
+  @media only screen and (max-width: 800px) {
+    .text-content.concat .line-num, #text-content.concat .line-num {
+      display: none; } }
+  .text-content.noconcat .line-num, #text-content.noconcat .line-num {
+    display: none; }
+  .text-content.noconcat .fl, .text-content.noconcat .l, #text-content.noconcat .fl, #text-content.noconcat .l {
+    text-indent: -2rem;
+    padding-left: 2rem; }
+  .text-content .lvl, #text-content .lvl {
+    display: block !important; }
+    .text-content .lvl1, .text-content .lvl2, .text-content .lvl3, .text-content .lvl4, .text-content .lvl5, #text-content .lvl1, #text-content .lvl2, #text-content .lvl3, #text-content .lvl4, #text-content .lvl5 {
+      margin-top: 1em; }
+      .text-content .lvl1 span.line-num, .text-content .lvl2 span.line-num, .text-content .lvl3 span.line-num, .text-content .lvl4 span.line-num, .text-content .lvl5 span.line-num, #text-content .lvl1 span.line-num, #text-content .lvl2 span.line-num, #text-content .lvl3 span.line-num, #text-content .lvl4 span.line-num, #text-content .lvl5 span.line-num {
+        visibility: hidden; }
+      .text-content .lvl1 span.text, .text-content .lvl2 span.text, .text-content .lvl3 span.text, .text-content .lvl4 span.text, .text-content .lvl5 span.text, #text-content .lvl1 span.text, #text-content .lvl2 span.text, #text-content .lvl3 span.text, #text-content .lvl4 span.text, #text-content .lvl5 span.text {
+        font-family: "Playfair Display", "Georgia", serif;
+        margin-left: 1rem; }
+    .text-content .lvl5 span.text, #text-content .lvl5 span.text {
+      font-size: 1.0em; }
+    .text-content .lvl4 span.text, #text-content .lvl4 span.text {
+      font-size: 1.1em; }
+    .text-content .lvl3 span.text, #text-content .lvl3 span.text {
+      font-size: 1.2em; }
+    .text-content .lvl2 span.text, #text-content .lvl2 span.text {
+      font-size: 1.3em; }
+    .text-content .lvl1 span.text, #text-content .lvl1 span.text {
+      font-size: 2.0em; }
+  .text-content .char, #text-content .char {
+    font-family: "Playfair Display", "Georgia", serif; }
+  .text-content .fl, .text-content .char, #text-content .fl, #text-content .char {
+    margin-top: 1rem; }
+    .text-content .fl::before, .text-content .char::before, #text-content .fl::before, #text-content .char::before {
+      content: ' ';
+      display: block;
+      margin-top: 1rem; }
+  .text-content .char + .fl, #text-content .char + .fl {
+    margin-top: 0; }
+  .text-content .ind1 .text, #text-content .ind1 .text {
+    text-indent: 1rem; }
+  .text-content .ind2 .text, #text-content .ind2 .text {
+    text-indent: 2rem; }
+  .text-content .ind3 .text, #text-content .ind3 .text {
+    text-indent: 3rem; }
+  .text-content .ind4 .text, #text-content .ind4 .text {
+    text-indent: 4rem; }
+  .text-content .quo .text, #text-content .quo .text {
+    text-indent: 1rem;
+    font-style: italic;
+    font-size: 1.30rem; }
+  .text-content .verse, #text-content .verse {
+    margin-top: 1rem; }
   .text-content .line, #text-content .line {
     display: flex;
     align-items: baseline;
-    justify-content: flex-start;
-    /* Below are all of the special designations for lines */ }
+    justify-content: flex-start; }
     .text-content .line .line-num, #text-content .line .line-num {
-      font-size: 0.75em;
-      min-width: 3em;
-      margin-right: 1em;
+      font-size: 0.75rem;
+      min-width: 1rem;
+      margin-right: 1rem;
       text-align: right;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -326,49 +377,13 @@ nav {
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none; }
-      @media only screen and (max-width: 800px) {
-        .text-content .line .line-num, #text-content .line .line-num {
-          display: none; } }
       .text-content .line .line-num.hidden, #text-content .line .line-num.hidden {
         visibility: hidden; }
+      @media only screen and (max-width: 800px) {
+        .text-content .line .line-num, #text-content .line .line-num {
+          min-width: 1em; } }
     .text-content .line-annotations a, #text-content .line-annotations a {
       color: #b58900; }
-    .text-content .line.fl, .text-content .line.char, #text-content .line.fl, #text-content .line.char {
-      margin-top: 1em; }
-    @media only screen and (max-width: 800px) {
-      .text-content .line.fl, .text-content .line.l, #text-content .line.fl, #text-content .line.l {
-        display: inline; } }
-    .text-content .line.ind1 .text, #text-content .line.ind1 .text {
-      text-indent: 1rem; }
-    .text-content .line.ind2 .text, #text-content .line.ind2 .text {
-      text-indent: 2rem; }
-    .text-content .line.ind3 .text, #text-content .line.ind3 .text {
-      text-indent: 3rem; }
-    .text-content .line.ind4 .text, #text-content .line.ind4 .text {
-      text-indent: 4rem; }
-    .text-content .line.quo .text, #text-content .line.quo .text {
-      text-indent: 1rem;
-      font-style: italic;
-      font-size: 1.30rem; }
-    .text-content .line.lvl, #text-content .line.lvl {
-      display: block !important; }
-      .text-content .line.lvl1, .text-content .line.lvl2, .text-content .line.lvl3, .text-content .line.lvl4, .text-content .line.lvl5, #text-content .line.lvl1, #text-content .line.lvl2, #text-content .line.lvl3, #text-content .line.lvl4, #text-content .line.lvl5 {
-        margin-top: 1em; }
-        .text-content .line.lvl1 span.line-num, .text-content .line.lvl2 span.line-num, .text-content .line.lvl3 span.line-num, .text-content .line.lvl4 span.line-num, .text-content .line.lvl5 span.line-num, #text-content .line.lvl1 span.line-num, #text-content .line.lvl2 span.line-num, #text-content .line.lvl3 span.line-num, #text-content .line.lvl4 span.line-num, #text-content .line.lvl5 span.line-num {
-          visibility: hidden; }
-        .text-content .line.lvl1 span.text, .text-content .line.lvl2 span.text, .text-content .line.lvl3 span.text, .text-content .line.lvl4 span.text, .text-content .line.lvl5 span.text, #text-content .line.lvl1 span.text, #text-content .line.lvl2 span.text, #text-content .line.lvl3 span.text, #text-content .line.lvl4 span.text, #text-content .line.lvl5 span.text {
-          font-family: "Playfair Display", "Georgia", serif;
-          margin-left: 1rem; }
-      .text-content .line.lvl5 span.text, #text-content .line.lvl5 span.text {
-        font-size: 1.0em; }
-      .text-content .line.lvl4 span.text, #text-content .line.lvl4 span.text {
-        font-size: 1.1em; }
-      .text-content .line.lvl3 span.text, #text-content .line.lvl3 span.text {
-        font-size: 1.2em; }
-      .text-content .line.lvl2 span.text, #text-content .line.lvl2 span.text {
-        font-size: 1.3em; }
-      .text-content .line.lvl1 span.text, #text-content .line.lvl1 span.text {
-        font-size: 2.0em; }
 
 @media only screen and (max-width: 940px) {
   .disappear-1 {

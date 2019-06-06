@@ -7,12 +7,12 @@
 
     .backlight {
         background-color: $lightbghl;
-        padding: 1em;
-        margin: 2em auto;
-        box-shadow: 0.15em 0.15em 10px 10px $base1;
+        padding: 1rem;
+        margin: 2rem auto;
+        box-shadow: 0.15rem 0.15rem 10px 10px $base1;
         .selection, .plus, .delta {
             .line-num { visibility: visible; }
-            .text { padding: 0 0.2em 0 0.1em; }
+            .text { padding: 0 0.2rem 0 0.1rem; }
         }
         .selection .text {
             background-color: $base2-1;
@@ -35,23 +35,23 @@
         .line-num { visibility: hidden; }
 
         .expander {
-            margin: 0.15em;
+            margin: 0.15rem;
             text-align: center;
             font-family: $sans;
-            font-size: 1.5em;
+            font-size: 1.5rem;
             color: $blue;
-            $trianglewidth: 0.5em;
+            $trianglewidth: 1rem;
             .uparr {
                 border-left: $trianglewidth solid transparent;
                 border-right: $trianglewidth solid transparent;
-                border-bottom: 1em solid $blue;
-                &:hover { border-bottom: 1em solid $accent; }
+                border-bottom: 2rem solid $blue;
+                &:hover { border-bottom: 2rem solid $accent; }
             }
             .downarr {
                 border-left: $trianglewidth solid transparent;
                 border-right: $trianglewidth solid transparent;
-                border-top: 1em solid $blue;
-                &:hover { border-top: 1em solid $accent; }
+                border-top: 2rem solid $blue;
+                &:hover { border-top: 2rem solid $accent; }
             }
             .uparr, .downarr {
                 margin: 0 auto;
@@ -64,7 +64,7 @@
             hr {
                 &:after { content: none; }
                 margin: 0 auto;
-                max-width: 4em;
+                max-width: 40rem;
                 border: 0;
                 height: 1px;
                 background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
@@ -72,36 +72,83 @@
         }
     }
     .annotation {
-        right: 2em;
-        left: 2em;
+        right: 2rem;
+        left: 2rem;
         position: absolute;
         z-index: 100;
         width: inherit;
         a.collapse {
             font-family: $sans;
             font-weight: bold;
-            font-size: 1.5em;
-            &:hover, &:focus {
-                color: $base01;
-            }
+            font-size: 1.5rem;
+            &:hover, &:focus { color: $base01; }
         }
     }
-    .break {
-        display: none;
-        height: 1em;
-        @media only screen and (max-width: $break3-1) { display: block; }
+    &.concat {
+        .line { &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } } }
+        .line-num { @media only screen and (max-width: $break3-1) { display: none; } }
     }
+
+    &.noconcat {
+        .line-num { display: none; }
+        .fl, .l {
+            text-indent: -2rem;
+            padding-left: 2rem;
+        }
+    }
+
+    .lvl {
+        display: block !important;
+        &1, &2, &3, &4, &5 {
+            margin-top: 1em;
+            span.line-num { visibility: hidden; }
+            span.text {
+                font-family: $display;
+                margin-left: 1rem;
+            }
+        }
+        &5 span.text { font-size: 1.0em; }
+        &4 span.text { font-size: 1.1em; }
+        &3 span.text { font-size: 1.2em; }
+        &2 span.text { font-size: 1.3em; }
+        &1 span.text { font-size: 2.0em; }
+    }
+    .char { font-family: $display; }
+    .fl, .char {
+        &::before {
+            content: ' ';
+            display: block;
+            margin-top: 1rem;
+        }
+        margin-top: 1rem;
+    }
+    .char + .fl { margin-top: 0; }
+
+    .ind {
+        &1 .text { text-indent: 1rem; }
+        &2 .text { text-indent: 2rem; }
+        &3 .text { text-indent: 3rem; }
+        &4 .text { text-indent: 4rem; }
+    }
+    .quo .text {
+        text-indent: 1rem;
+        font-style: italic;
+        font-size: 1.30rem;
+    }
+    .verse { margin-top: 1rem; }
+
+    /* Line general */
     .line {
         display: flex;
         align-items: baseline;
         justify-content: flex-start;
         .line-num {
-            @media only screen and (max-width: $break3-1) { display: none; }
             &.hidden { visibility: hidden; }
 
-            font-size: 0.75em;
-            min-width: 3em;
-            margin-right: 1em;
+            font-size: 0.75rem;
+            min-width: 1rem;
+            @media only screen and (max-width: $break3-1) { min-width: 1em;}
+            margin-right: 1rem;
             text-align: right;
 
             -webkit-touch-callout: none; // iOS Safari
@@ -113,40 +160,5 @@
         }
 
         &-annotations { a { color: $yellow; } }
-
-        /* Below are all of the special designations for lines */
-
-        &.fl, &.char { margin-top: 1em; }
-        &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } }
-
-        &.ind {
-            &1 .text { text-indent: 1rem; }
-            &2 .text { text-indent: 2rem; }
-            &3 .text { text-indent: 3rem; }
-            &4 .text { text-indent: 4rem; }
-        }
-
-        &.quo .text {
-            text-indent: 1rem;
-            font-style: italic;
-            font-size: 1.30rem;
-        }
-
-        &.lvl {
-            display: block !important;
-            &1, &2, &3, &4, &5 {
-                margin-top: 1em;
-                span.line-num { visibility: hidden; }
-                span.text {
-                    font-family: $display;
-                    margin-left: 1rem;
-                }
-            }
-            &5 span.text { font-size: 1.0em; }
-            &4 span.text { font-size: 1.1em; }
-            &3 span.text { font-size: 1.2em; }
-            &2 span.text { font-size: 1.3em; }
-            &1 span.text { font-size: 2.0em; }
-        }
     }
 }

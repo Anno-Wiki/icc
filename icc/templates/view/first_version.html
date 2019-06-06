@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Initial version of Annotation {{ edit.annotation }} of {{ edit.edition.text.title }}</h1>
+    {% set edition = edit.edition %}
+    <h1>Initial version of Annotation {{ edit.annotation }} of {{ edition.text.title }}</h1>
     <div class="toolbar">
         <div class="tools">
             <a href="{{ url_for("main.edit_history", annotation_id=edit.annotation.id) }}">version history</a>
@@ -9,7 +10,7 @@
         </div>
     </div>
 
-    <div id="text-content">
+    <div id="text-content" class="{% if edition.verse %}no{% endif %}concat">
         <div class="backlight">
             {% for line in edit.context %}
                 <div class="line {{ line.enum }}{% if line in edit.lines %} selection{% endif %}" id="{{ line.num }}">

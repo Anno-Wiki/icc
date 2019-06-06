@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% set edition = edit.edition %}
     {% if edit.rejected %}
         <h1 class="rejected">&#10007; Edit Rejected<h1>
     {% elif edit.approved %}
@@ -9,7 +10,7 @@
     <h1>
         Edit #{{ edit.num }} of
         Annotation <a href="{{ edit.annotation.url }}">{{ edit.annotation }}</a>
-        on <a href="{{ edit.edition.url }}">{{ edit.edition }}</a>
+        on <a href="{{ edition.url }}">{{ edition }}</a>
     </h1>
 
     <div class="toolbar">
@@ -42,7 +43,7 @@
         </div>
     {% endif %}
 
-    <div id="text-content">
+    <div id="text-content" class="{% if edition.verse %}no{% endif %}concat">
         <div class="backlight">
             {% for line in context %}
                 <div class="line {{ line.enum }}{% if line in edit.lines and line in edit.previous.lines %} selection{% elif line in edit.lines %} plus{% elif line in edit.previous.lines %} delta{% endif %}">
