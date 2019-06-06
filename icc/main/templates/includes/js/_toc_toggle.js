@@ -1,8 +1,7 @@
-<script>
-    function toggle(x) {
-        let level = x.parentNode.className.replace(/[a-z]*/g, '');
-        let subgroups = [...byCls(x.parentNode, `grouping${Number(level)+1}`)];
-        console.log(subgroups);
+<script nonce="{{ csp_nonce() }}">
+    function toggle(evt) {
+        let level = this.parentNode.className.replace(/[a-z]*/g, '');
+        let subgroups = [...byCls(this.parentNode, `grouping${Number(level)+1}`)];
         subgroups.forEach((grp) => grp.style.display = grp.style.display == 'none' ? '' : 'none');
     }
 
@@ -13,5 +12,6 @@
         groups = [].concat.apply([], groups);
         for (let i = 0; i < groups.length; i++)
             groups[i].style.display = 'none';
+        [...allof('outer')].forEach(el => { if (el.dataset.haslines == 'False') el.onclick = toggle });
     });
 </script>

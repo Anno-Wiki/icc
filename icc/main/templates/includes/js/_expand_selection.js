@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     atload(function () {
         // get the  inputs make them global
         totalLines = {{ edition.lines.count() }};

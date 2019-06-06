@@ -1,7 +1,7 @@
-<script>
-    function showAnnotation(x) {
+<script nonce="{{ csp_nonce() }}">
+    function showAnnotation(evt) {
         // The id for the annotation is within the <sup> in the childNodes
-        let aid = `a${byTag(x, 'sup')[0].innerHTML.replace(/[\[\]]/g, '')}`;
+        let aid = `a${byTag(this, 'sup')[0].innerHTML.replace(/[\[\]]/g, '')}`;
         let newID = `js${aid}`;
         let annotation = byID(aid);
 
@@ -35,7 +35,7 @@
         }
 
         // insert new annotation into the dom after the line
-        byID('text-content').insertBefore(newAnnotation, parentNum(x).nextSibling);
+        byID('text-content').insertBefore(newAnnotation, parentNum(this).nextSibling);
     }
     atload(function () {
         // convert the links to buttons for the script
@@ -43,6 +43,7 @@
         for (let i = 0; i < links.length; i++) {
             links[i].removeAttribute('href');
             links[i].style.cursor = 'pointer';
+            links[i].onclick = showAnnotation;
         }
     });
 </script>

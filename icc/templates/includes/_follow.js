@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     atload(function () {
         let follows = allof('follow');
         for (let i = 0; i < follows.length; i++)

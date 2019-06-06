@@ -7,6 +7,13 @@ class Config:
     """The default config object."""
     HASH_REGISTRATION = os.environ.get('BETA') or True
     CSP = {
+        'script-src':
+            [
+                "'self'",
+                'code.jquery.com',
+                'cdnjs.cloudflare.com',
+                "'unsafe-eval'",
+            ]
     }
 
     DESCRIPTION = (

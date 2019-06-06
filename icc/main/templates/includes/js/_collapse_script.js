@@ -1,15 +1,16 @@
-<script>
-    function collapse(x) {
-        var annotation = parentByCls(x, '^annotation$')
+<script nonce="{{ csp_nonce() }}">
+    function collapse(evt) {
+        var annotation = parentByCls(this, '^annotation$')
         var collapsible = byCls(annotation, 'annotation-collapsible')[0];
         if (collapsible.style.display == 'none') {
             collapsible.style.display = '';
             annotation.style.borderRadius = '';
-            x.innerHTML = '[ - ]';
+            this.innerHTML = '[ - ]';
         } else {
-            x.innerHTML = '[ + ]';
+            this.innerHTML = '[ + ]';
             collapsible.style.display = 'none';
             annotation.style.borderRadius = '20px';
         }
     }
+    atload(function() { [...allof('collapse')].forEach(el => el.onclick = collapse)});
 </script>

@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     atload(function () {
         let arrows = allof('arrows');
         for (let i = 0; i < arrows.length; i++) {

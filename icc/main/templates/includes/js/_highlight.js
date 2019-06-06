@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     function showBtn() {
         var sel = window.getSelection();
         var btn = byID("annotate-button");

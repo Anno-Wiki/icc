@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     atload(function () {
         tagsInput = byID('tags');
         autoBox = byID('autocomplete');

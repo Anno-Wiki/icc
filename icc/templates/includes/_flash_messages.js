@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     function newFlash(category, message) {
         let li = newEl("li", category);
         let text = newEl("span", "text");

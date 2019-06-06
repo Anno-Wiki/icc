@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ csp_nonce() }}">
     var lastServerTime;
 
     function checkTime() {
