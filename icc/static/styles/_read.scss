@@ -85,15 +85,26 @@
         }
     }
     &.concat {
-        .line { &.fl, &.l { @media only screen and (max-width: $break3-1) { display: inline; } } }
-        .line-num { @media only screen and (max-width: $break3-1) { display: none; } }
+        .line {
+            &.fl, &.l {
+                @media only screen and (max-width: $break3-1) {
+                    display: inline;
+                }
+            }
+        }
+        .line-num {
+            @media only screen and (max-width: $break3-1) {
+                margin-left: -2rem;
+                position: absolute;
+                display: block;
+            }
+        }
     }
 
     &.noconcat {
-        .line-num { display: none; }
-        .fl, .l {
+        .fl .text, .l .text {
             text-indent: -2rem;
-            padding-left: 2rem;
+            padding-left: 3rem;
         }
     }
 
@@ -146,10 +157,9 @@
             &.hidden { visibility: hidden; }
 
             font-size: 0.75rem;
-            min-width: 1rem;
-            @media only screen and (max-width: $break3-1) { min-width: 1em;}
-            margin-right: 1rem;
-            text-align: right;
+            min-width: 2rem;
+            margin-right: 0.5rem;
+            text-align: left;
 
             -webkit-touch-callout: none; // iOS Safari
             -webkit-user-select: none; // Safari

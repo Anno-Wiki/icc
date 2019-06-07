@@ -313,12 +313,12 @@ nav {
       display: inline; } }
   @media only screen and (max-width: 800px) {
     .text-content.concat .line-num, #text-content.concat .line-num {
-      display: none; } }
-  .text-content.noconcat .line-num, #text-content.noconcat .line-num {
-    display: none; }
-  .text-content.noconcat .fl, .text-content.noconcat .l, #text-content.noconcat .fl, #text-content.noconcat .l {
+      margin-left: -2rem;
+      position: absolute;
+      display: block; } }
+  .text-content.noconcat .fl .text, .text-content.noconcat .l .text, #text-content.noconcat .fl .text, #text-content.noconcat .l .text {
     text-indent: -2rem;
-    padding-left: 2rem; }
+    padding-left: 3rem; }
   .text-content .lvl, #text-content .lvl {
     display: block !important; }
     .text-content .lvl1, .text-content .lvl2, .text-content .lvl3, .text-content .lvl4, .text-content .lvl5, #text-content .lvl1, #text-content .lvl2, #text-content .lvl3, #text-content .lvl4, #text-content .lvl5 {
@@ -368,9 +368,9 @@ nav {
     justify-content: flex-start; }
     .text-content .line .line-num, #text-content .line .line-num {
       font-size: 0.75rem;
-      min-width: 1rem;
-      margin-right: 1rem;
-      text-align: right;
+      min-width: 2rem;
+      margin-right: 0.5rem;
+      text-align: left;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
@@ -379,9 +379,6 @@ nav {
       user-select: none; }
       .text-content .line .line-num.hidden, #text-content .line .line-num.hidden {
         visibility: hidden; }
-      @media only screen and (max-width: 800px) {
-        .text-content .line .line-num, #text-content .line .line-num {
-          min-width: 1em; } }
     .text-content .line-annotations a, #text-content .line-annotations a {
       color: #b58900; }
 
