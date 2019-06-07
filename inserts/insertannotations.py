@@ -27,7 +27,7 @@ def get_tags(annotator):
     if annotator_tag is None:
         annotator_tag = Tag(tag=annotator.lower().replace(' ', '-'),
                             description="Original annotations from "
-                            f"[[Writer:{annotator}]]", locked=True)
+                            f"[[Writer:{annotator}]]")
         db.session.add(annotator_tag)
     return [original_tag, annotator_tag]
 
@@ -60,8 +60,7 @@ def populate_annotations(title, edition_num, annotator, annotations):
 
         annotation = Annotation(edition=edition, annotator=community,
                                 fl=line.num, ll=line.num, fc=0, lc=-1,
-                                locked=True, body=annotation['annotation'],
-                                tags=tags)
+                                body=annotation['annotation'], tags=tags)
         db.session.add(annotation)
 
         cnt += 1
