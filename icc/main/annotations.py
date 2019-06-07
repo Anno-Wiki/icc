@@ -105,7 +105,6 @@ def edit(annotation_id):
         current_user.authorize('edit_deactivated_annotations')
 
     lines = annotation.HEAD.lines
-    toc_id = annotation.HEAD.toc
     context = annotation.HEAD.context
     if form.validate_on_submit():
         fl, ll = line_check(form.first_line.data, form.last_line.data)

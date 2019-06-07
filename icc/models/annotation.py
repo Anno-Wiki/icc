@@ -447,9 +447,11 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         elif not all(isinstance(tag, Tag) for tag in tags):
             raise TypeError("Tags must be a list of tag objects.")
         edit = Edit(
-            edition=self.edition, editor=editor, num=self.HEAD.num+1,
-            reason=reason, annotation=self, first_line_num=fl, last_line_num=ll,
-            first_char_idx=fc, last_char_idx=lc, body=body, tags=tags)
+            toc=self.toc, edition=self.edition, editor=editor,
+            num=self.HEAD.num+1, reason=reason, annotation=self,
+            first_line_num=fl, last_line_num=ll,
+            first_char_idx=fc, last_char_idx=lc,
+            body=body, tags=tags)
         if edit.hash_id == self.HEAD.hash_id:
             flash("Your suggested edit is no different from the previous "
                   "version.")
