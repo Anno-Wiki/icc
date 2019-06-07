@@ -33,8 +33,8 @@ $PYTHON $ROOT/inserts/insertlines.py $LIBRARY/tolstoy_leo/wap
 echo "- populating annotations for War and Peace by Leo Tolstoy"
 $PYTHON $ROOT/inserts/insertannotations.py \
     -i $LIBRARY/tolstoy_leo/wap/initial_annotations.json\
-    -a 'community' -t 'War and Peace' -e 1
-#$PYTHON $ROOT/annotations.py -i $LIBRARY/tolstoy_leo/wap/annotations.json
+    -a 'constance-garnett' -t 'War and Peace' -e 1
+$PYTHON $ROOT/annotations.py -i $LIBRARY/tolstoy_leo/wap/annotations.json
 
 echo "- populating lines for War and Peace by Leo Tolstoy"
 $PYTHON $ROOT/inserts/insertlines.py $LIBRARY/bible/kjv/kjbo
