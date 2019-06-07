@@ -60,7 +60,8 @@ def populate_annotations(title, edition_num, annotator, annotations):
 
         annotation = Annotation(edition=edition, annotator=community,
                                 fl=line.num, ll=line.num, fc=0, lc=-1,
-                                body=annotation['annotation'], tags=tags)
+                                toc=line.toc, body=annotation['annotation'],
+                                tags=tags)
         db.session.add(annotation)
 
         cnt += 1

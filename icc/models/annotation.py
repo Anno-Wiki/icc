@@ -412,8 +412,8 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
     def url(self):
         return url_for('main.annotation', annotation_id=self.id)
 
-    def __init__(self, *ignore, edition, annotator, locked=False, fl, ll, fc,
-                 lc, body, tags):
+    def __init__(self, *ignore, edition, annotator, toc, locked=False, fl, ll,
+                 fc, lc, body, tags):
         """This init method creates the initial :class:`Edit` object. This
         reduces friction in creating annotations.
         """
@@ -427,7 +427,7 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
         super().__init__(edition=edition, annotator=annotator, locked=locked)
         current = Edit(
             annotation=self, approved=True, current=True, editor=annotator,
-            edition=edition, first_line_num=fl, last_line_num=ll,
+            edition=edition, first_line_num=fl, last_line_num=ll, toc=toc,
             first_char_idx=fc, last_char_idx=lc, body=body, tags=tags, num=0,
             reason="initial version")
         db.session.add(current)
@@ -583,6 +583,9 @@ class Edit(Base, EditMixin, VotableMixin):
     __margin_rejectable__ = 'VOTES_FOR_REJECTION'
 
     edition_id = db.Column(db.Integer, db.ForeignKey('edition.id'), index=True)
+    edition = db.relationship('Edition')
+    toc_id = db.Column(db.Integer, db.ForeignKey('toc.id'), index=True)
+    toc = db.relationship('TOC')
     entity_id = db.Column(db.Integer, db.ForeignKey('annotation.id'),
                           index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
@@ -592,20 +595,18 @@ class Edit(Base, EditMixin, VotableMixin):
     first_char_idx = db.Column(db.Integer)
     last_char_idx = db.Column(db.Integer)
 
-    edition = db.relationship('Edition')
-
     annotation = db.relationship('Annotation')
     tags = db.relationship('Tag', secondary='tags')
     lines = db.relationship(
         'Line', primaryjoin='and_(Line.num>=Edit.first_line_num,'
-        'Line.num<=Edit.last_line_num, Line.edition_id==Edit.edition_id)',
-        uselist=True, foreign_keys=[edition_id, first_line_num, last_line_num])
+        'Line.num<=Edit.last_line_num, Line.toc_id==Edit.toc_id)',
+        uselist=True, foreign_keys=[toc_id, first_line_num, last_line_num])
     context = db.relationship(
         'Line', primaryjoin=f'and_(Line.num>=Edit.first_line_num-{CONTEXT},'
         f'Line.num<=Edit.last_line_num+{CONTEXT},'
-        'Line.edition_id==Edit.edition_id)',
+        'Line.toc_id==Edit.toc_id)',
         uselist=True, viewonly=True,
-        foreign_keys=[edition_id, first_line_num, last_line_num])
+        foreign_keys=[toc_id, first_line_num, last_line_num])
 
     @orm.reconstructor
     def __init_on_load__(self):

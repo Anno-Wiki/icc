@@ -66,7 +66,8 @@ def annotate(text_url, edition_num, toc_id, first_line, last_line):
             return render_template('forms/annotation.html', title=text.title,
                                    form=form, text=text, edition=edition,
                                    lines=lines, context=context)
-        annotation = Annotation(edition=edition, annotator=current_user,
+        annotation = Annotation(edition=edition, toc=toc,
+                                annotator=current_user,
                                 fl=fl, ll=ll,
                                 fc=form.first_char_idx.data,
                                 lc=form.last_char_idx.data,
@@ -104,9 +105,8 @@ def edit(annotation_id):
         current_user.authorize('edit_deactivated_annotations')
 
     lines = annotation.HEAD.lines
-    toc_id = lines[0].toc_id
-    context = filter(lambda line: line.toc_id == toc_id,
-                     annotation.HEAD.context)
+    toc_id = annotation.HEAD.toc
+    context = annotation.HEAD.context
     if form.validate_on_submit():
         fl, ll = line_check(form.first_line.data, form.last_line.data)
 
