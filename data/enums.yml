@@ -5,6 +5,8 @@ AnnotationFlagEnum:
     - enum: unhelpful
     - enum: offensive
     - enum: illegal
+    - enum: needs protection
+    - enum: needs deletion
 CommentFlagEnum:
     - enum: spam
     - enum: innappropriate language
@@ -12,6 +14,7 @@ CommentFlagEnum:
     - enum: unhelpful
     - enum: offensive
     - enum: illegal
+    - enum: needs deletion
 UserFlagEnum:
     - enum: innappropriate behavior
     - enum: bot
