@@ -16,4 +16,4 @@ while True:
                 call(['sass', '-C', 'style.scss', 'style.css'])
                 last_seen = stat(name).st_mtime
                 print(f"Recompiled {asctime(localtime(time()))}")
-            sleep(0.1)
+            sleep(0.01)

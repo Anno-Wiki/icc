@@ -14,12 +14,11 @@ from icc import classes
 
 
 parser = argparse.ArgumentParser("Parse yaml enum files into the database")
-parser.add_argument(
-    '-c', '--config', action='store', type=str, required=True,
-    help="Path to the enum yaml file.")
+parser.add_argument('file', action='store', type=str,
+                    help="Path to the enum yaml file.")
 args = parser.parse_args()
 
-enums = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
+enums = yaml.load(open(args.file, 'rt'), Loader=yaml.FullLoader)
 
 app = create_app()
 ctx = app.app_context()

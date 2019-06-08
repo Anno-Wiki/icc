@@ -5,7 +5,7 @@ PW='d?l\J?4=iIZ;@WI(w)_Xp]<jc'
 
 class Config:
     """The default config object."""
-    HASH_REGISTRATION = os.environ.get('BETA') or True
+    HASH_REGISTRATION = os.environ.get('BETA') or False
     CSP = {
     }
 

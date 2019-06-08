@@ -11,15 +11,15 @@ from icc import db, create_app
 from icc.models.annotation import Tag
 
 parser = argparse.ArgumentParser("Insert tags into icc database")
-parser.add_argument(
-    '-c', '--config', action='store', type=str, required=True,
-    help="The location of the yaml configuration file for the tags")
+parser.add_argument('file', action='store', type=str,
+                    help="The location of the yaml configuration file for the "
+                    "tags")
 parser.add_argument(
     '-d', '--dryrun', action='store_true',
     help="Flag for a dry run test.")
 
 args = parser.parse_args()
-config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
+config = yaml.load(open(args.file, 'rt'), Loader=yaml.FullLoader)
 app = create_app()
 ctx = app.app_context()
 ctx.push()

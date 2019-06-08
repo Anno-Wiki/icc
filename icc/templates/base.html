@@ -11,6 +11,7 @@
             <title>Welcome to anno.wiki</title>
         {% endif %}
         <script type="text/javascript" src="{{ url_for("static", filename="scripts/utils.js") }}"></script>
+        <script type="text/javascript" src="{{ url_for("static", filename="scripts/search.js") }}"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3">
         <link href="https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,700,700i|Playfair+Display:400,700" rel="stylesheet">
@@ -22,30 +23,22 @@
         {% if vars["DEBUG"] and vars["HEARTBEAT"] %}
             {% include "includes/_reload_heartbeat.js" %}
         {% endif %}
-        <nav class="mobile">
-            <div class="left">
-                <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
-                    <img src="{{ url_for('static', filename='images/n.png') }}">
-                    anno.wiki
-                </a>
-            </div>
-
-            <div class="right">
-                <div class="hamburger" onclick="xout(this)">
+        <div class="body">
+            <nav>
+                <div id="hamburger">
                     <div class="bar1"></div>
                     <div class="bar2"></div>
                     <div class="bar3"></div>
                 </div>
                 <script>
-                    function xout(x) {
-                        x.classList.toggle("change");
-                        byID("mainmenu").classList.toggle("show");
-                    }
+                    atload(function () {
+                        byID('hamburger').onclick = function xout(x) {
+                            this.classList.toggle("change");
+                            byID('mainmenu').classList.toggle("show");
+                            byTag(document, 'body')[0].classList.toggle("nav-open");
+                        }
+                    });
                 </script>
-            </div>
-        </nav>
-        <div class="body">
-            <nav class="web">
                 <div class="left">
                     <a href="{{ url_for('main.index') }}" class="logo{% if active_page == 'index' %} active{% endif %}">
                         <span class="footnote">[n]</span>
@@ -57,19 +50,20 @@
                         (url_for('main.tag_index'), 'tags', 'Tags'),
                         (url_for('user.index'), 'users', 'Users')]
                     %}
-                    {% for href, id, caption in navigation_bar %}
-                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
-                    {% endfor %}
+                    <span id="mainlinks">
+                        {% for href, id, caption in navigation_bar %}
+                            <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>{{ caption }}</a>
+                        {% endfor %}
+                    </span>
                 </div>
-
                 <div class="center">
                     {% if g.search_form %}
-                        <form method="get" action="{{ url_for('main.search') }}" class="search">
+                        <form method="get" action="{{ url_for('main.search') }}" id="search" class="search">
                             {{ g.search_form.q(placeholder="Search lines...") }}
+                            {% include "includes/_magglass.svg" %}
                         </form>
                     {% endif %}
                 </div>
-
                 <div class="right">
                     {% set adminrights = [
                         'view_deactivated_annotations',
@@ -92,27 +86,47 @@
                         <a href="{{ url_for('main.register', next=request.full_path) }}">register</a>
                         <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
                     {% else %}
-                        {# admin #}
-                        {%- if current_user.is_auth_any(adminrights) %}
-                            <span class="dark">
-                                <div class="dropdown">
-                                    <a class="dropbtn">admin&#x25BE;</a> |
-                                    <div class="dropdown-content">
-                                        {% for right, link in zip(adminrights, adminlinks) %}
-                                            {% if current_user.is_authorized(right) %}
-                                                <a href="{{ link[1] }}">{{ link[0] }}</a>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
+                        <span class="dark">
+                            <div class="dropdown">
+                                <a class="dropbtn" href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }}{% if current_user.is_auth_any(adminrights) %}&#x25BE;{% endif %}</a>
+                                <div class="dropdown-content">
+                                    {% for right, link in zip(adminrights, adminlinks) %}
+                                        {% if current_user.is_authorized(right) %}
+                                            <a href="{{ link[1] }}">{{ link[0] }}</a>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
-                            </span>
-                        {% endif %}
+                            </div>
+                        </span>
 
-                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a> |
                         <a href="{{ url_for('main.logout', next=request.full_path) }}">logout</a>
                     {%- endif %}
                 </div>
             </nav>
+            <div id="mainmenu">
+                {% for href, id, caption in navigation_bar %}
+                    <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
+                        {{ caption }}
+                    </a>
+                {% endfor %}
+
+                <hr>
+                {%- if current_user.is_anonymous -%}
+                    <a href="{{ url_for('main.register') }}">register</a>
+                    <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
+                {% else %}
+                    {%- if current_user.is_auth_any(adminrights) %}
+                        {% for right, link in zip(adminrights, adminlinks) %}
+                            {% if current_user.is_authorized(right) %}
+                                <a href="{{ link[1] }}">{{ link[0] }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <hr>
+                    <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }}</a>
+                    <a href="{{ url_for('main.logout') }}">logout</a>
+                {%- endif %}
+            </div>
 
             {% include "includes/_flash_messages.js" %}
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -129,44 +143,6 @@
             {% endwith %}
 
             <div id="container">
-                <div id="mainmenu">
-                    <hr>
-
-                    {% for href, id, caption in navigation_bar %}
-                        <a href="{{ href }}"{% if id == active_page %} class="active"{% endif %}>
-                            {{ caption }}
-                        </a>
-                    {% endfor %}
-
-                    <hr>
-
-                    {% if g.search_form %}
-                        <form method="get" action="{{ url_for('main.search') }}" class="search">
-                            {{ g.search_form.q(placeholder="Search lines...") }}
-                        </form>
-                    {% endif %}
-
-                    <hr>
-
-                    {%- if current_user.is_anonymous -%}
-                        <a href="{{ url_for('main.register') }}">register</a>
-                        <a href="{{ url_for('main.login', next=request.full_path) }}">login</a>
-                    {% else %}
-                        {# admin #}
-                        {%- if current_user.is_auth_any(adminrights) %}
-                            {% for right, link in zip(adminrights, adminlinks) %}
-                                {% if current_user.is_authorized(right) %}
-                                    <a href="{{ link[1] }}">{{ link[0] }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        <hr>
-                        <a href="{{ url_for('user.profile', user_id=current_user.id) }}">{{ current_user.displayname }} {{ current_user.readable_reputation }}</a>
-                        <a href="{{ url_for('main.logout') }}">logout</a>
-                    {%- endif %}
-
-                    <hr>
-                </div>
 
                 <div id="container-content">
                     {% block content %} {% endblock %}
