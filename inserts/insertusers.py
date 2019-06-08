@@ -11,9 +11,8 @@ from icc import db, create_app
 from icc.models.user import User, AdminRight
 
 parser = argparse.ArgumentParser("Insert users into icc database for testing.")
-parser.add_argument(
-    '-c', '--config', action='store', type=str, required=True,
-    help="The location of the yaml configuration file for the tags")
+parser.add_argument('file', action='store', type=str,
+                    help="The location of the yaml configuration file for the tags")
 parser.add_argument(
     '-p', '--password', action='store', type=str, required=True,
     help="The default password for all the users.")
@@ -21,7 +20,7 @@ parser.add_argument(
     '-d', '--dryrun', action='store_true', help="Flag for a dry run test.")
 
 args = parser.parse_args()
-config = yaml.load(open(args.config, 'rt'), Loader=yaml.FullLoader)
+config = yaml.load(open(args.file, 'rt'), Loader=yaml.FullLoader)
 app = create_app()
 ctx = app.app_context()
 ctx.push()
