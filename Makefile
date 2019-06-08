@@ -24,3 +24,7 @@ populate:
 	for file in data/library/shakespeare_william/mit/processed/*; do \
 		python inserts/insertlines.py $$file; \
 	done
+run:
+	source venv/bin/activate; flask run --host=0.0.0.0
+run-local:
+	source venv/bin/activate; flask run
