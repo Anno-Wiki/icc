@@ -1,82 +1,119 @@
 nav {
-    padding: 0.1em 0.5em 0.1em 0.5em;
+    padding: 0.5rem;
+
     background-color: $darkbg;
-    border-radius: $bevel;
-    text-align: center;
+    min-height: 5vh;
+
     font-family: $serifs;
-    .logo {
-        .footnote {
-            color: $accent;
-            border: 1px solid;
-            padding: 0 0.1em 0.1em 0.1em;
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    .right { a { margin: 0 0.5rem; } }
+
+    @media only screen and (max-width: $tablet) {
+        justify-content: space-between;
+        .right { order: 2; }
+        .center { order: 3; }
+    }
+    @media only screen and (max-width: $phablet) {
+        justify-content: space-around;
+    }
+
+    .left, .right {
+        transition: font-size 0.4s;
+    }
+
+    &.searching {
+        .left, .right {
+            visibility: collapse; font-size: 0;
         }
     }
-    & img {
-        display: inline-block;
-        vertical-align: middle;
-        width: 1.5em;
-        height: 1.5em;
-    }
-    // The divs within the nav bar should display inline greater than 1020px,
-    // then drop to block in a 3 tiered display, then go back to inline when we
-    // switch to using a hamburger
-    .left, .center, .right {
-        display: inline-block;
-        margin: 0.5em;
-        @media only screen and (max-width: $break1) { display: block; }
-        @media only screen and (max-width: $break6) { display: inline-block; }
-    }
-    &.web {
-        @media only screen and (max-width: $break6) { display: none }
 
-        & * { padding: 0.1em 0.25em 0.1em 0.25em; }
-        .active {
+    .search {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        background-color: $darkbghl;
+        border-radius: $bevel;
+        padding: 0.25rem;
+        transition: $shortdelay;
+        border: 1px solid $darkbghl;
+        &:hover { border: 1px solid $accent; }
+
+        input {
+            transition: visibility 0s, width 0.4s linear;
+            &.hide { visibility: collapse; width: 0; }
+            width: 20rem;
+            transition: width $shortdelay;
+            margin-left: 1rem;
+            border: none;
             border-radius: $bevel;
             background-color: $darkbghl;
-            color: $accent;
+            color: $base00;
+            outline: none;
+            font: {
+                family: $display;
+                size: 1.25rem;
+            }
+            &:invalid { box-shadow: none; }
         }
-        a {
-            color: $base1;
-            transition: $middelay;
-            &:hover { color: $accent; }
+        svg {
+            cursor: pointer;
+            fill: $base00;
+            height: 2rem;
+            width: 2rem;
+            vertical-align: middle;
         }
     }
 
-    &.mobile {
-        // only display under 471
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        border-radius: 0;
-        z-index: 1;
-        @media only screen and (min-width: $break6+1) { display: none; }
-        .hamburger {
-            display: inline-block;
-            vertical-align: middle;
-            cursor: pointer;
-            .bar {
-                &1, &2, &3 {
-                    width: 35px;
-                    height: 5px;
-                    background-color: $base00;
-                    margin: 6px 0;
-                    transition: $shortdelay;
-                }
+    .logo .footnote {
+        color: $accent;
+        border: 1px solid;
+        padding: 0.1rem;
+        padding-bottom: 0.2rem;
+    }
+    a {
+        color: $base1;
+        transition: color $middelay;
+        margin: 0 0.15rem;
+        &:hover { color: $accent; }
+    }
+
+    .active {
+        border-radius: $bevel;
+        color: $accent;
+    }
+    @media only screen and (max-width: $phablet) {
+        #mainlinks, .right { display: none; }
+    }
+    #hamburger {
+        display: none;
+        @media only screen and (max-width: $phablet) {
+            display: block;
+        }
+        vertical-align: middle;
+        cursor: pointer;
+        .bar {
+            &1, &2, &3 {
+                width: 35px;
+                height: 5px;
+                background-color: $base00;
+                margin: 6px 0;
+                transition: $shortdelay;
             }
         }
-        .change {
+        &.change {
             .bar {
+                &1, &2, &3 { background-color: $accent; }
                 &1 {
                     -webkit-transform: rotate(-45deg) translate(-9px, 6px);
                     transform: rotate(-45deg) translate(-9px, 6px);
-                    background-color: $accent;
                 }
                 &2 { opacity: 0; }
                 &3 {
                     -webkit-transform: rotate(45deg) translate(-8px, -8px);
                     transform: rotate(45deg) translate(-8px, -8px);
-                    background-color: $accent;
                 }
             }
         }

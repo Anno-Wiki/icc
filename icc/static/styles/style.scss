@@ -42,6 +42,13 @@ $darkbghl:          $base02;
 $lightbg:           $base3;
 $lightbghl:         $base2;
 
+
+// clean breaks
+$tablet:            1024px;
+$phablet:            768px;
+$phone:              640px;
+
+
 // breaks and disappear classes
 $break1:           1120px;
 $break2:            940px;
@@ -77,6 +84,7 @@ $annotationwidth:   50em;
 @import 'nav';
 @import 'search';
 @import 'read';
+@import 'mobilemenu';
 
 
 // these just serve as mixin breakpoints for html styling
@@ -101,11 +109,18 @@ body {
     max-width: $bodywidth;
     line-height: 1.5;
     padding: 1em;
-    @media only screen and (max-width: $break6+1) { padding: 3.25em 0 0 0; }
+    @media only screen and (max-width: $phablet) { padding: 0; }
     color: $base00;
     font: {
         family: $serifs;
         size: 1.15em;
+    }
+    &.nav-open {
+        position: fixed;
+        .body {
+            background-color: $darkbghl;
+            @media only screen and (min-width: $phablet) { background-color: $lightbg;}
+        }
     }
 }
 
@@ -114,7 +129,7 @@ body {
 .body {
     background-color: $lightbg;
     border-radius: $bevel; // To prevent the corners sticking up past the navbar
-    @import 'bodyforms'; // the general stylin gof forms in the body
+    @import 'bodyforms'; // the general styling of forms in the body
 }
 
 
@@ -141,8 +156,7 @@ a {
 
 
 #container {
-    padding: 1em;
-    @import 'mobilemenu'
+    padding: 1rem;
 }
 
 

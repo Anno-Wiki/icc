@@ -140,95 +140,127 @@
       min-width: max-content; }
 
 nav {
-  padding: 0.1em 0.5em 0.1em 0.5em;
+  padding: 0.5rem;
   background-color: #002b36;
-  border-radius: 20px;
-  text-align: center;
-  font-family: "EB Garamond", "Georgia", serif; }
+  min-height: 5vh;
+  font-family: "EB Garamond", "Georgia", serif;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center; }
+  nav .right a {
+    margin: 0 0.5rem; }
+  @media only screen and (max-width: 1024px) {
+    nav {
+      justify-content: space-between; }
+      nav .right {
+        order: 2; }
+      nav .center {
+        order: 3; } }
+  @media only screen and (max-width: 768px) {
+    nav {
+      justify-content: space-around; } }
+  nav .left, nav .right {
+    transition: font-size 0.4s; }
+  nav.searching .left, nav.searching .right {
+    visibility: collapse;
+    font-size: 0; }
+  nav .search {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #073642;
+    border-radius: 20px;
+    padding: 0.25rem;
+    transition: 0.3s;
+    border: 1px solid #073642; }
+    nav .search:hover {
+      border: 1px solid #b58900; }
+    nav .search input {
+      transition: visibility 0s, width 0.4s linear;
+      width: 20rem;
+      transition: width 0.3s;
+      margin-left: 1rem;
+      border: none;
+      border-radius: 20px;
+      background-color: #073642;
+      color: #657b83;
+      outline: none;
+      font-family: "Playfair Display", "Georgia", serif;
+      font-size: 1.25rem; }
+      nav .search input.hide {
+        visibility: collapse;
+        width: 0; }
+      nav .search input:invalid {
+        box-shadow: none; }
+    nav .search svg {
+      cursor: pointer;
+      fill: #657b83;
+      height: 2rem;
+      width: 2rem;
+      vertical-align: middle; }
   nav .logo .footnote {
     color: #b58900;
     border: 1px solid;
-    padding: 0 0.1em 0.1em 0.1em; }
-  nav img {
-    display: inline-block;
-    vertical-align: middle;
-    width: 1.5em;
-    height: 1.5em; }
-  nav .left, nav .center, nav .right {
-    display: inline-block;
-    margin: 0.5em; }
-    @media only screen and (max-width: 1120px) {
-      nav .left, nav .center, nav .right {
-        display: block; } }
-    @media only screen and (max-width: 470px) {
-      nav .left, nav .center, nav .right {
-        display: inline-block; } }
-  @media only screen and (max-width: 470px) {
-    nav.web {
-      display: none; } }
-  nav.web * {
-    padding: 0.1em 0.25em 0.1em 0.25em; }
-  nav.web .active {
-    border-radius: 20px;
-    background-color: #073642;
-    color: #b58900; }
-  nav.web a {
+    padding: 0.1rem;
+    padding-bottom: 0.2rem; }
+  nav a {
     color: #93a1a1;
-    transition: 0.5s; }
-    nav.web a:hover {
+    transition: color 0.5s;
+    margin: 0 0.15rem; }
+    nav a:hover {
       color: #b58900; }
-  nav.mobile {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 0;
-    z-index: 1; }
-    @media only screen and (min-width: 471px) {
-      nav.mobile {
-        display: none; } }
-    nav.mobile .hamburger {
-      display: inline-block;
-      vertical-align: middle;
-      cursor: pointer; }
-      nav.mobile .hamburger .bar1, nav.mobile .hamburger .bar2, nav.mobile .hamburger .bar3 {
-        width: 35px;
-        height: 5px;
-        background-color: #657b83;
-        margin: 6px 0;
-        transition: 0.3s; }
-    nav.mobile .change .bar1 {
-      -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-      transform: rotate(-45deg) translate(-9px, 6px);
-      background-color: #b58900; }
-    nav.mobile .change .bar2 {
-      opacity: 0; }
-    nav.mobile .change .bar3 {
-      -webkit-transform: rotate(45deg) translate(-8px, -8px);
-      transform: rotate(45deg) translate(-8px, -8px);
-      background-color: #b58900; }
-
-.search {
-  text-align: center;
-  border-radius: 20px; }
-  .search input {
-    width: 20rem;
-    padding: 0.5rem;
-    background-color: #073642;
-    color: #586e75;
-    border-width: auto;
-    border-style: auto;
-    border-color: #b58900;
+  nav .active {
     border-radius: 20px;
-    font-family: "Playfair Display", "Georgia", serif;
-    font-size: 1em; }
-    @media only screen and (max-width: 440px) {
-      .search input {
-        width: 15em; } }
-    @media only screen and (max-width: 350px) {
-      .search input {
-        width: 13em; } }
+    color: #b58900; }
+  @media only screen and (max-width: 768px) {
+    nav #mainlinks, nav .right {
+      display: none; } }
+  nav #hamburger {
+    display: none;
+    vertical-align: middle;
+    cursor: pointer; }
+    @media only screen and (max-width: 768px) {
+      nav #hamburger {
+        display: block; } }
+    nav #hamburger .bar1, nav #hamburger .bar2, nav #hamburger .bar3 {
+      width: 35px;
+      height: 5px;
+      background-color: #657b83;
+      margin: 6px 0;
+      transition: 0.3s; }
+    nav #hamburger.change .bar1, nav #hamburger.change .bar2, nav #hamburger.change .bar3 {
+      background-color: #b58900; }
+    nav #hamburger.change .bar1 {
+      -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+      transform: rotate(-45deg) translate(-9px, 6px); }
+    nav #hamburger.change .bar2 {
+      opacity: 0; }
+    nav #hamburger.change .bar3 {
+      -webkit-transform: rotate(45deg) translate(-8px, -8px);
+      transform: rotate(45deg) translate(-8px, -8px); }
 
+/*.search {
+    text-align: center;
+    border-radius: $bevel;
+    input {
+        width: 20rem;
+        padding: 0.5rem;
+        background-color: $darkbghl;
+        color: $base01;
+        @media only screen and (max-width: $break8) { width: 15em; }
+        @media only screen and (max-width: $break9) { width: 13em; }
+        border: {
+            width: auto;
+            style: auto;
+            color: $accent;
+            radius: $bevel;
+        }
+        font: {
+            family: $display;
+            size: 1em;
+        }
+    }
+}*/
 .text-content, #text-content {
   margin: 0 auto;
   max-width: 40em;
@@ -382,6 +414,36 @@ nav {
     .text-content .line-annotations a, #text-content .line-annotations a {
       color: #b58900; }
 
+#mainmenu {
+  flex-direction: column;
+  z-index: 5;
+  width: 100%;
+  height: 90vh;
+  background-color: #073642;
+  overflow-y: scroll;
+  display: none; }
+  #mainmenu.show {
+    display: flex; }
+    @media only screen and (min-width: 768px) {
+      #mainmenu.show {
+        display: none; } }
+  #mainmenu a {
+    margin: 0 auto;
+    transition: color 0.3s;
+    color: #657b83;
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 2rem;
+    text-align: center;
+    text-decoration: none; }
+    #mainmenu a:hover {
+      color: #b58900; }
+  #mainmenu hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, #073642, #b58900, #073642); }
+    #mainmenu hr::after {
+      content: ""; }
+
 @media only screen and (max-width: 940px) {
   .disappear-1 {
     display: none; } }
@@ -422,9 +484,16 @@ body {
   color: #657b83;
   font-family: "EB Garamond", "Georgia", serif;
   font-size: 1.15em; }
-  @media only screen and (max-width: 471px) {
+  @media only screen and (max-width: 768px) {
     body {
-      padding: 3.25em 0 0 0; } }
+      padding: 0; } }
+  body.nav-open {
+    position: fixed; }
+    body.nav-open .body {
+      background-color: #073642; }
+      @media only screen and (min-width: 768px) {
+        body.nav-open .body {
+          background-color: #fdf6e3; } }
 
 .body {
   background-color: #fdf6e3;
@@ -540,46 +609,7 @@ a {
     color: #b58900; }
 
 #container {
-  padding: 1em; }
-  #container #mainmenu {
-    padding: 1em 0 1em 0;
-    position: fixed;
-    margin: 0 0.5em 0 0.5em;
-    z-index: 5;
-    top: 3.3em;
-    left: 0;
-    right: 0;
-    background-color: #073642;
-    opacity: 0;
-    border-radius: 20px;
-    visibility: hidden;
-    transition: 0.3s; }
-    #container #mainmenu input {
-      margin: 1em 0 1em 0;
-      background-color: #002b36;
-      padding: 0.1em; }
-    #container #mainmenu.show {
-      visibility: visible;
-      opacity: 1; }
-    #container #mainmenu a {
-      display: block;
-      margin: 0 auto;
-      transition: 0.5s;
-      border-radius: 20px;
-      width: 75%;
-      color: #657b83;
-      font-family: "Playfair Display", "Georgia", serif;
-      font-size: 2em;
-      text-align: center;
-      text-decoration: none; }
-      #container #mainmenu a:hover {
-        color: #b58900; }
-    #container #mainmenu hr {
-      border: 0;
-      height: 1px;
-      background-image: linear-gradient(to right, #073642, #b58900, #073642); }
-      #container #mainmenu hr::after {
-        content: ""; }
+  padding: 1rem; }
 
 #footer {
   padding: 1em;

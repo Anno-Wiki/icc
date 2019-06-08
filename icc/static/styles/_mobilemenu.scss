@@ -1,47 +1,33 @@
 #mainmenu {
-    padding: 1em 0 1em 0;
-
-    position: fixed;
-    margin: 0 0.5em 0 0.5em;
+    flex-direction: column;
     z-index: 5;
-
-    top: 3.3em;
-    left: 0;
-    right: 0;
+    width: 100%;
+    height: 90vh;
 
     background-color: $darkbghl;
-    opacity: 0;
-    border-radius: $bevel;
-    visibility: hidden;
-    transition: $shortdelay;
-    input {
-        margin: 1em 0 1em 0;
-        background-color: $darkbg;
-        padding: 0.1em;
-    }
+    overflow-y: scroll;
 
+
+    display: none;
     &.show {
-        visibility: visible;
-        opacity: 1;
+        display: flex;
+        @media only screen and (min-width: $phablet) { display: none; }
     }
 
     a {
-        display: block;
         margin: 0 auto;
-        transition: $middelay;
-        border-radius: $bevel;
-        width: 75%;
+
+        transition: color $shortdelay;
         color: $base00;
+        &:hover { color: $accent; }
+
         font: {
             family: $display;
-            size: 2em;
+            size: 2rem;
         }
         text: {
             align: center;
             decoration: none;
-        }
-        &:hover {
-            color: $accent;
         }
     }
     hr {
