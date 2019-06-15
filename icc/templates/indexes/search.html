@@ -23,7 +23,8 @@
                             <div class="line {{ l.enum }}{% if l == line %} selection{% endif %}" id="{{ l.num }}">
                                 <span class="line-num">{{ l.num }}</span>
                                 <span class="text">{{ l.body|safe }}</span>
-                                <span class="annotation-count">&times; {{ l.annotations.count() }}</span>
+                                {% set cnt = l.annotations.count() %}
+                                {% if cnt %}<span class="annotation-count">&times; {{ cnt }}</span>{% endif %}
                             </div>
                         </a>
                     {% endfor %}
