@@ -47,6 +47,8 @@ $lightbghl:         $base2;
 $tablet:            1024px;
 $phablet:            768px;
 $phone:              640px;
+$smallphone:         480px;
+$tinyphone:          360px;
 
 
 // breaks and disappear classes
@@ -82,10 +84,12 @@ $annotationwidth:   50em;
 @import 'tag';
 @import 'toc';
 @import 'nav';
-@import 'search';
 @import 'read';
 @import 'mobilemenu';
 
+
+// eliminate chrome outline
+form input { outline: none; }
 
 // these just serve as mixin breakpoints for html styling
 .disappear {

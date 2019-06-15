@@ -184,12 +184,17 @@ nav {
       border-radius: 20px;
       background-color: #073642;
       color: #657b83;
-      outline: none;
       font-family: "Playfair Display", "Georgia", serif;
       font-size: 1.25rem; }
       nav .search input.hide {
         visibility: collapse;
         width: 0; }
+      @media only screen and (max-width: 480px) {
+        nav .search input {
+          width: 15rem; } }
+      @media only screen and (max-width: 360px) {
+        nav .search input {
+          width: 12rem; } }
       nav .search input:invalid {
         box-shadow: none; }
     nav .search svg {
@@ -239,28 +244,6 @@ nav {
       -webkit-transform: rotate(45deg) translate(-8px, -8px);
       transform: rotate(45deg) translate(-8px, -8px); }
 
-/*.search {
-    text-align: center;
-    border-radius: $bevel;
-    input {
-        width: 20rem;
-        padding: 0.5rem;
-        background-color: $darkbghl;
-        color: $base01;
-        @media only screen and (max-width: $break8) { width: 15em; }
-        @media only screen and (max-width: $break9) { width: 13em; }
-        border: {
-            width: auto;
-            style: auto;
-            color: $accent;
-            radius: $bevel;
-        }
-        font: {
-            family: $display;
-            size: 1em;
-        }
-    }
-}*/
 .text-content, #text-content {
   margin: 0 auto;
   max-width: 40em;
@@ -443,6 +426,9 @@ nav {
     background-image: linear-gradient(to right, #073642, #b58900, #073642); }
     #mainmenu hr::after {
       content: ""; }
+
+form input {
+  outline: none; }
 
 @media only screen and (max-width: 940px) {
   .disappear-1 {
