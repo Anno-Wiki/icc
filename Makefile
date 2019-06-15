@@ -18,6 +18,7 @@ populate:
 	python inserts/insertannotations.py \
 		-i data/library/tolstoy_leo/wap/initial_annotations.json\
 		-a 'constance-garnett' -t 'War and Peace' -e 1; \
+	python inserts/insertlines.py data/library/bible/kjv/kjbo; \
 	python inserts/insertlines.py data/library/shakespeare_william/mit/pericles; \
 	python inserts/insertlines.py data/library/shakespeare_william/mit/sonnets; \
 	python inserts/insertlines.py data/library/shakespeare_william/mit/taming_shrew; \
