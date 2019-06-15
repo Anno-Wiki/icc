@@ -30,7 +30,8 @@ atload(function () {
     glass.onclick = function () {
         // submit if search is open, otherwise show it
         if (!input.classList.contains('hide') && nav.classList.contains('searching') || windowSize() > tabletBreak){
-            box.submit();
+            if (input.value != '')
+                box.submit();
         } else {
             nav.classList.toggle('searching');
             input.classList.toggle('hide');
