@@ -51,7 +51,7 @@ def index():
 @user.route('/<user_id>/profile')
 def profile(user_id):
     """A user profile."""
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     userflags = UserFlag.enum_cls.query.all()
     return render_template('view/user.html', title=f"User {user.displayname}",
                            userflags=userflags, user=user)
