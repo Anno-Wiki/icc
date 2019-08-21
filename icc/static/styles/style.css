@@ -375,6 +375,12 @@ nav {
     text-indent: 1rem;
     font-style: italic;
     font-size: 1.30rem; }
+  .text-content .l + .quo, .text-content .fl + .quo, #text-content .l + .quo, #text-content .fl + .quo {
+    margin-top: 1rem; }
+    .text-content .l + .quo::before, .text-content .fl + .quo::before, #text-content .l + .quo::before, #text-content .fl + .quo::before {
+      content: ' ';
+      display: block;
+      margin-top: 1rem; }
   .text-content .verse, #text-content .verse {
     margin-top: 1rem; }
   .text-content .line, #text-content .line {

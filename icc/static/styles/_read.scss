@@ -146,6 +146,15 @@
         font-style: italic;
         font-size: 1.30rem;
     }
+
+    .l + .quo, .fl + .quo {
+        &::before {
+            content: ' ';
+            display: block;
+            margin-top: 1rem;
+        }
+        margin-top: 1rem;
+    }
     .verse { margin-top: 1rem; }
 
     /* Line general */
