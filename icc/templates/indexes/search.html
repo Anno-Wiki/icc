@@ -9,7 +9,7 @@
                 Line
                 <a href='{{ line.url }}#{{ line.num }}'>{{ line.num }}</a>
                 of
-                <a href='{{ url_for('main.text', text_url=line.text.url) }}'>
+                <a href='{{ line.text.url }}'>
                     {{ line.text.title }}
                 </a>
                 by
