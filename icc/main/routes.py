@@ -103,7 +103,12 @@ def logout():
 
 @main.route('/robots.txt')
 def robots():
-    return render_template("robots.txt")
+    return render_template('robots.txt')
+
+
+@main.route('/how-to-link')
+def linking():
+    return render_template('markup.html')
 
 
 @main.route('/search')

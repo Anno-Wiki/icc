@@ -53,6 +53,18 @@
 
         <div class="body-form-annotation">
             <strong>{{ form.annotation.label }}</strong>
+            <div>
+                <a href="https://www.markdownguide.org/basic-syntax">
+                    This site uses markdown for formatting. Please see this guide for details.
+                </a>
+                <br>
+                <a href="{{ url_for("main.linking") }}">
+                    To link to texts, writers, editions, or specific lines,
+                    please see this guide.
+                </a>
+            </div>
+
+
             <br>
             {{ form.annotation }}
         </div>

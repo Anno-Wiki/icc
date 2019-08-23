@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Linking on anno.wiki</h1>
+
+<p>Linking on anno.wiki is not difficult, but it requires that you know exactly how
+to do it.</p>
+
+<p>All internal anno.wiki linking should utilize the double bracket style of
+Wikipedia.</p>
+
+<ul>
+    <li>To link a writer: [[Writer:Leo Tolstoy]]
+    <li>To link a text: [[Text:War and Peace]].
+    <li>To link an edition: [[Text:War and Peace:1]] where 1 is the edition
+        number.
+    <li>To link specific lines: [[Text:War and Peace:l2-3]]. Without specifying
+        the edition the default edition will be selected.
+    <li>To link specific lines in a specific edition: [[Text:War and
+        Peace:1:l2-3]]
+</ul>
+
+
+{% endblock %}

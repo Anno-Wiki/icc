@@ -115,7 +115,8 @@ def edit(annotation_id):
                 editor=current_user, reason=form.reason.data, fl=fl, ll=ll,
                 fc=form.first_char_idx.data, lc=form.last_char_idx.data,
                 body=form.annotation.data, tags=tags)
-        except:
+        except Exception as e:
+            print(e)
             editsuccess = False
 
         # rerender the template with the work already filled
