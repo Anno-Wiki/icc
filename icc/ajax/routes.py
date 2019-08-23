@@ -49,6 +49,8 @@ def flashed():
 def vote():
     """All ajax voting routes in one!"""
     entity_cls = classes.get(request.args.get('entity'), None)
+    if not entity_cls:
+        return 'You messed up, bro.'
     entity_id = request.args.get('id').strip(lowercase)
     if not entity_cls:
         return jsonify({'success': False, 'rollback': False,
