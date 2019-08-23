@@ -85,6 +85,7 @@ class RegistrationForm(FlaskForm):
     password = PasswordField("Password", validators=[InputRequired()])
     password2 = PasswordField("Repeat Password",
                               validators=[InputRequired(), EqualTo("password")])
+    honeypot = StringField("Website", render_kw={'style': 'display: none;'})
     submit = SubmitField("Register")
 
     def validate_email(self, email):

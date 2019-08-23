@@ -53,6 +53,8 @@ def register():
         token = request.args.get('token')
         email = jwt.decode(token, current_app.config['SECRET_KEY'],
                         algorithms=['HS256'])['email'] if token else None
+        if form.honeypot != '':
+            return redirect(redirect_url)
         if current_app.config['HASH_REGISTRATION'] and email != form.email.data:
             flash("Registration is currently invite only. Either you have "
                   "submitted an invalid invite token, or no invite token at "
@@ -97,6 +99,11 @@ def logout():
     redirect_url = generate_next(url_for('main.index'))
     logout_user()
     return redirect(redirect_url)
+
+
+@main.route('/robots.txt')
+def robots():
+    return render_template("robots.txt")
 
 
 @main.route('/search')
