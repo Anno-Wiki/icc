@@ -353,11 +353,10 @@ class Annotation(Base, FollowableMixin, LinkableMixin, VotableMixin):
 
     ballots = db.relationship('AnnotationVote', lazy='dynamic')
     annotator = db.relationship('User')
-    first_line = db.relationship(
-        'Line', secondary='edit',
-        primaryjoin='and_(Edit.entity_id==Annotation.id, Edit.current==True)',
-        secondaryjoin='and_(Line.edition_id==Annotation.edition_id,'
-        'Edit.first_line_num==Line.num)', uselist=False)
+
+    @property
+    def first_line(self):
+        return self.HEAD.first_line
 
     edition = db.relationship('Edition')
     text = db.relationship('Text', secondary='edition',
@@ -609,6 +608,11 @@ class Edit(Base, EditMixin, VotableMixin):
         'Line.toc_id==Edit.toc_id)',
         uselist=True, viewonly=True,
         foreign_keys=[toc_id, first_line_num, last_line_num])
+
+
+    @property
+    def first_line(self):
+        return self.lines[0]
 
     @orm.reconstructor
     def __init_on_load__(self):
