@@ -53,7 +53,7 @@ def register():
         token = request.args.get('token')
         email = jwt.decode(token, current_app.config['SECRET_KEY'],
                         algorithms=['HS256'])['email'] if token else None
-        if form.website != '':
+        if form.website.data.strip() != '':
             return redirect(redirect_url)
         if current_app.config['HASH_REGISTRATION'] and email != form.email.data:
             flash("Registration is currently invite only. Either you have "
