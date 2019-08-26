@@ -166,7 +166,7 @@ def index():
                  annotations.has_next else None)
     prev_page = (url_for('main.index', page=annotations.prev_num, sort=sort) if
                  annotations.has_prev else None)
-    return render_template('indexes/annotation_list.html', title="Home",
+    return render_template('indexes/annotation_list.html',
                            active_page='index',
                            sort=sort, sorts=sorturls,
                            next_page=next_page, prev_page=prev_page,
