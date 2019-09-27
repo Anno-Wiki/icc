@@ -4,7 +4,7 @@ install:
 	pip install --upgrade pip; \
 	pip install -r requirements.txt
 db:
-	mysql -e "drop database icc; create database icc;" # recreate db
+	mysql -u root --password=$$PW -e "drop database icc; create database icc;" # recreate db
 	source venv/bin/activate; flask db upgrade # recreate db structure
 	# populate default values
 	source venv/bin/activate; \
@@ -22,6 +22,8 @@ populate:
 	python inserts/insertlines.py data/library/shakespeare_william/mit/pericles; \
 	python inserts/insertlines.py data/library/shakespeare_william/mit/sonnets; \
 	python inserts/insertlines.py data/library/shakespeare_william/mit/taming_shrew; \
+	python inserts/insertlines.py data/library/austen_jane/pride; \
+	python inserts/insertlines.py data/library/austen_jane/sense; \
 	for file in data/library/shakespeare_william/mit/processed/*; do \
 		python inserts/insertlines.py $$file; \
 	done
