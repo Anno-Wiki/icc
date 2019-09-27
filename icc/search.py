@@ -1,5 +1,23 @@
 """A module devoted to my search system."""
 from flask import current_app
+from elasticsearch import helpers
+
+
+def bulk_index(index, objs):
+    """Add objects to the index in bulk."""
+    if not current_app.elasticsearch:
+        return
+    if not current_app.elasticsearch.indices.exists(index):
+        current_app.elasticsearch.indices.create(index)
+    actions = []
+    for obj in objs:
+        payload = {}
+        for field in obj.__searchable__:
+            payload[field] = getattr(obj, field)
+        actions.append(
+            {'_index': index, '_type': index,
+             '_id': obj.id, '_source': payload})
+    helpers.bulk(current_app.elasticsearch, actions)
 
 
 def add_to_index(index, model):

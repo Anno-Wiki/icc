@@ -8,7 +8,7 @@ from flask import flash, current_app
 from flask_login import current_user
 
 from icc import db
-from icc.search import add_to_index, remove_from_index, query_index
+from icc.search import add_to_index, remove_from_index, query_index, bulk_index
 
 
 class Base(db.Model):
@@ -500,8 +500,7 @@ class SearchableMixin(object):
     def reindex(cls, **kwargs):
         """This reindexes all the objects in a searchable class."""
         qry = cls.query if not kwargs else cls.query.filter_by(**kwargs)
-        for obj in qry:
-            add_to_index(cls.__tablename__, obj)
+        bulk_index(cls.__tablename__, qry.all())
 
 
 # register before and after commits.
