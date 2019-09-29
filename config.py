@@ -1,7 +1,7 @@
 import os
 
 ACCT='root'
-PW=os.environ.get('ROOTPW') or 'password'
+PW=os.environ.get('PW') or 'password'
 
 class Config:
     """The default config object."""
