@@ -20,7 +20,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from icc import db
 from icc.models.mixins import (Base, EnumeratedMixin, SearchableMixin,
-                               FollowableMixin, LinkableMixin)
+                               FollowableMixin, LinkableMixin, SearchLinesMixin)
 from icc.models.wiki import Wiki
 
 
@@ -33,7 +33,7 @@ WRITERS = ('author', 'editor', 'translator')
 WRITERS_REVERSE = {val: idx for idx, val in enumerate(WRITERS)}
 
 
-class Text(Base, FollowableMixin, LinkableMixin):
+class Text(Base, FollowableMixin, LinkableMixin, SearchLinesMixin):
     __linkable__ = 'title'
     """The text-object. A text is more a categorical, or philosophical concept.
     In essence, a book can have any number of editions, ranging from different
@@ -177,7 +177,7 @@ class Text(Base, FollowableMixin, LinkableMixin):
         return self.title
 
 
-class Edition(Base, FollowableMixin):
+class Edition(Base, FollowableMixin, SearchLinesMixin):
     """The Edition model. This is actually more central to the app than the Text
     object. The edition has all of the writer connections, annotations, and
     lines connected to it.
@@ -287,7 +287,7 @@ class Edition(Base, FollowableMixin):
         return line_query
 
 
-class Writer(Base, FollowableMixin, LinkableMixin):
+class Writer(Base, FollowableMixin, LinkableMixin, SearchLinesMixin):
     """The writer model. This used to be a lot more complicated but has become
     fairly elegant. All historical contributors to the text are writers, be they
     editors, translators, authors, or whatever the heck else we end up coming up
@@ -507,7 +507,7 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
         An SQLA BaseQuery for all the annotations that contain this line in
         their target. It's a nasty relationship.
     """
-    __searchable__ = ['body', 'text_title']
+    __searchable__ = ['body', 'text_id', 'edition_id', 'writer_id']
 
     num = db.Column(db.Integer, index=True)
     body = db.Column(db.Text)
@@ -521,7 +521,8 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
                                                          lazy='dynamic'))
 
     text = association_proxy('edition', 'text')
-    text_title = association_proxy('edition', 'text_title')
+    text_id = association_proxy('edition', 'text_id')
+    writers = association_proxy('edition', 'writers')
 
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
@@ -537,6 +538,14 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
         secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
         'Annotation.active==True)', foreign_keys=[num, edition_id],
         uselist=True, lazy='dynamic')
+
+    @property
+    def writer_id(self):
+        out = []
+        for tp in self.writers.values():
+            for writer in tp:
+                out.append(writer.id)
+        return out
 
     @property
     def url(self):

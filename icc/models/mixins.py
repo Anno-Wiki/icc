@@ -8,7 +8,8 @@ from flask import flash, current_app
 from flask_login import current_user
 
 from icc import db
-from icc.search import add_to_index, remove_from_index, query_index, bulk_index
+from icc.search import (add_to_index, remove_from_index, query_index,
+                        bulk_index, query_lines)
 
 
 class Base(db.Model):
@@ -440,6 +441,15 @@ class FollowableMixin:
                                lazy='dynamic')
 
 
+class SearchLinesMixin:
+    """For searching Lines within a given object class. This is meant to make it
+    easier to limit line searches to specific Texts, Writers, or Editions."""
+    def searchlines(self, expression, page, per_page):
+        """Search with a given string."""
+        lines, total = query_lines(self, expression, page, per_page)
+        return lines, total
+
+
 # If you encounter an error while committing to the effect that `NoneType has no
 # attribute <x>` what you have done is specify an id# instead of an object. Use
 # the ORM. if that is not the case, it is because, for example, in the case of
@@ -447,7 +457,7 @@ class FollowableMixin:
 # to, but because of the complex relationship to form HEAD, HEAD is still empty.
 # Simply add the expression `<annotation>.HEAD = <edit>` and you'll be gold,
 # even if it _is_ unecessary.
-class SearchableMixin(object):
+class SearchableMixin:
     """The Mixin for a searchable class. This might need to be expanded with a
     classmethod for searching across indexes (i.e., an omni search).
     """
