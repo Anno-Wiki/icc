@@ -51,7 +51,8 @@ class Config:
 
     # technicals
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'securitybreach'
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL') or\
+        'localhost:9200'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or\
         f'mysql+pymysql://{ACCT}:{PW}@localhost/'\
         'icc?charset=utf8mb4'
