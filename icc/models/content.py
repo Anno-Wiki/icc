@@ -369,6 +369,13 @@ class Writer(Base, FollowableMixin, LinkableMixin, SearchLinesMixin):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_by_url(cls, name):
+        """This is a helper function that takes the output of url_name and
+        uses it to get the object that matches it.
+        """
+        return cls.query.filter_by(name=url.replace('_', ' '))
+
 
 class WriterConnection(Base):
     """This is a proxy object that connects writers to editions. It resolves
