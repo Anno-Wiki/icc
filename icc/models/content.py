@@ -268,9 +268,27 @@ class Edition(Base, FollowableMixin, SearchLinesMixin):
         """Creates a defaultdict of lists of writers based on their connection
         type (e.g., author, editor, translator, etc.)
         """
-        self.writers = defaultdict(list)
+        self._create_writers()
+
+    def _create_writers(self):
+        """This creates the _writers attr. It's abstracted for use by writers()
+        and __init_on_load__().
+        """
+        self._writers = defaultdict(list)
         for conn in self.connections.all():
-            self.writers[conn.enum].append(conn.writer)
+            self._writers[conn.enum].append(conn.writer)
+
+    @property
+    def writers(self):
+        """This by using a property to access the writerslist I ensure that it
+        will always exist before it is accessed. This prevents the error I get
+        when first creating this thing where I try to access writers and it
+        doesn't exist when indexing on a first run through.
+        """
+        if not hasattr(self, '_writers'):
+            self._create_writers()
+        return self._writers
+
 
     def __repr__(self):
         return f'<{self.title}>'
@@ -529,7 +547,6 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
 
     text = association_proxy('edition', 'text')
     text_id = association_proxy('edition', 'text_id')
-    writers = association_proxy('edition', 'writers')
 
     context = db.relationship(
         'Line', primaryjoin='and_(remote(Line.num)<=Line.num+1,'
@@ -545,6 +562,10 @@ class Line(EnumeratedMixin, SearchableMixin, Base):
         secondaryjoin='and_(foreign(Edit.entity_id)==Annotation.id,'
         'Annotation.active==True)', foreign_keys=[num, edition_id],
         uselist=True, lazy='dynamic')
+
+    @property
+    def writers(self):
+        return self.edition.writers
 
     @property
     def writer_id(self):
