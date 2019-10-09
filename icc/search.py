@@ -1,4 +1,6 @@
 """A module devoted to my search system."""
+import string
+
 from flask import current_app
 from elasticsearch import helpers
 from icc import models, db
@@ -14,7 +16,10 @@ def bulk_index(index, objs):
     for obj in objs:
         payload = {}
         for field in obj.__searchable__:
-            payload[field] = getattr(obj, field)
+            data = getattr(obj, field)
+            payload[field] = (data.translate(
+                str.maketrans('', '', string.punctuation))
+                              if isinstance(data, str) else data)
         actions.append(
             {'_index': index, '_type': index,
              '_id': obj.id, '_source': payload})
