@@ -152,7 +152,7 @@ def parse_files(path):
     return meta, lines
 
 
-def main(path, dryrun=False):
+def main(path, dryrun=False, noindex=False):
     meta, lines = parse_files(path)
     text = get_text(meta)
     edition = get_edition(meta['edition'], text)
@@ -162,14 +162,17 @@ def main(path, dryrun=False):
 
     if dryrun:
         db.session.rollback()
-        print(f"Nothing committed.")
+        print("Nothing committed.")
     else:
-        print(f"Now committing...")
+        print("Now committing...")
         db.session.commit()
         print(f"Done.")
-        print(f"Reindexing...")
-        Line.reindex(edition=edition)
-        print(f"Done.")
+        if not args.noindex:
+            print("Reindexing...")
+            Line.reindex(edition=edition)
+            print("Done.")
+        else:
+            print("Skipping indexing.")
 
 
 if __name__ == '__main__':
@@ -179,6 +182,8 @@ if __name__ == '__main__':
                         "meta.yml in the proper format.")
     parser.add_argument('-d', '--dryrun', action='store_true', default=False,
                         help="Flag for a dry run test.")
+    parser.add_argument('--noindex', action='store_true', default=False,
+                        help="Don't index the lines.")
 
     args = parser.parse_args()
 
@@ -186,4 +191,4 @@ if __name__ == '__main__':
     app = create_app()
 
     with app.app_context():
-        main(args.path, args.dryrun)
+        main(args.path, args.dryrun, args.noindex)
