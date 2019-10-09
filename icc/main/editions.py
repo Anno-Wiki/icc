@@ -4,6 +4,7 @@ from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, Comment
 from icc.models.content import Text, Edition
+from icc.forms import SearchForm
 
 
 @main.route('/text/<text_url>/edition/<edition_num>')
@@ -12,9 +13,10 @@ def edition(text_url, edition_num):
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
     edition = Edition.query.filter(Edition.text_id==text.id,
                                    Edition.num==edition_num).first_or_404()
+    form = SearchForm()
     return render_template('view/edition.html',
                            title=f"{text.title} #{edition.num}",
-                           edition=edition)
+                           edition=edition, form=form)
 
 
 @main.route('/text/<text_url>/edition/<edition_num>/annotations')

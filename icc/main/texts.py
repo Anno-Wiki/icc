@@ -7,6 +7,7 @@ from icc.main import main
 
 from icc.models.annotation import Annotation,  Edit, Comment
 from icc.models.content import Text, Edition, WriterConnection, Line, WRITERS
+from icc.forms import SearchForm
 
 
 @main.route('/text/list')
@@ -60,7 +61,9 @@ def text_index():
 def text(text_url):
     """The main view page for a text."""
     text = Text.query.filter_by(title=text_url.replace('_', ' ')).first_or_404()
-    return render_template('view/text.html', title=text.title, text=text)
+    form = SearchForm()
+    return render_template('view/text.html', title=text.title, text=text,
+                           form=form)
 
 
 @main.route('/text/<text_url>/annotations')

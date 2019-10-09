@@ -24,7 +24,7 @@ from icc.funky import line_check, generate_next
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, AnnotationFlag, Comment
-from icc.models.content import Text, Edition, Line, TOC
+from icc.models.content import Text, Edition, Line, TOC, Writer
 from icc.models.user import User
 
 from icc.forms import SearchForm
@@ -133,6 +133,26 @@ def search():
                            next_page=next_page, prev_page=prev_page,
                            lines=lines, line_total=line_total)
 
+
+HELPERDICT = {'Writer': Writer, 'Text': Text, 'Edition': Edition}
+@main.route('/searchlines/<item>/<ident>')
+def searchlines(item, ident):
+    """A search route specifically meant for searching lines belonging to a
+    given item (e.g. a text, writer, or edition).
+    """
+    page = request.args.get('page', 1, type=int)
+    query = request.args.get('q', 'to-morrow', type=str)
+    obj = HELPERDICT[item].query.get_or_404(ident)
+    lines, line_total = obj.searchlines(query, page,
+                                   current_app.config['LINES_PER_SEARCH_PAGE'])
+    next_page = (url_for('main.searchlines', item=item, ident=ident, q=query,
+                         page=page + 1) if line_total > page *
+                 current_app.config['LINES_PER_SEARCH_PAGE'] else None)
+    prev_page = (url_for('main.searchlines', item=item, ident=ident, q=query,
+                         page=page - 1) if page > 1 else None)
+    return render_template('indexes/search.html', title=f"Search {obj}",
+                           next_page=next_page, prev_page=prev_page,
+                           lines=lines, line_total=line_total)
 
 @main.route('/')
 @main.route('/index')

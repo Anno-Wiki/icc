@@ -3,6 +3,7 @@
 from flask import render_template, url_for, request, abort, current_app
 
 from icc import db
+from icc.forms import SearchForm
 from icc.main import main
 
 from icc.models.annotation import Annotation, Edit, Comment
@@ -55,9 +56,11 @@ def writer_index():
 @main.route('/writer/<writer_url>')
 def writer(writer_url):
     """The writer view."""
+    form = SearchForm()
     writer = Writer.query\
         .filter_by(name=writer_url.replace('_', ' ')).first_or_404()
-    return render_template('view/writer.html', title=writer.name, writer=writer)
+    return render_template('view/writer.html', title=writer.name, writer=writer,
+                           form=form)
 
 
 @main.route('/writer/<writer_url>/annotations')

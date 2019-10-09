@@ -6,6 +6,9 @@
         {% set writers = text.primary.writers['author'] %}
         <h2>by {% include "includes/_all_writers_list.html" %}</h2>
     {% endif %}
+    <form class='body-form validate' method="get" action="{{ url_for('main.searchlines', item="Text", ident=text.id) }}" id="search" class="search">
+        {{ form.q(placeholder='Search {}'.format(text.title)) }}
+    </form>
     {% include "includes/_follow.js" %}
     <div class="toolbar">
         <div class="tools">
