@@ -16,7 +16,12 @@ def bulk_index(index, objs):
     for obj in objs:
         payload = {}
         for field in obj.__searchable__:
-            data = getattr(obj, field)
+            try:
+                data = getattr(obj, field)
+            except AttributeError:
+                print(obj)
+                print(obj.id)
+                raise AttributeError
             payload[field] = (data.translate(
                 str.maketrans('', '', string.punctuation))
                               if isinstance(data, str) else data)
