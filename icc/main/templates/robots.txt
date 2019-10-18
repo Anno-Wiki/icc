@@ -1,4 +1,3 @@
 User-agent: *
-Disallow: /register
 Disallow: /vote
 Disallow: /search
