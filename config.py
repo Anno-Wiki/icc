@@ -15,6 +15,8 @@ class Config:
     DEBUG = os.environ.get('ICC_DEBUG') or False
     TESTING = os.environ.get('ICC_TESTING') or False
 
+    SEARCH_ON = os.environ.get('SEARCH_ON') or False
+
     HEARTBEAT = False
     TEMPLATES_AUTO_RELOAD = True
     ADMINS = ['malan@anno.wiki', 'support@anno.wiki']
