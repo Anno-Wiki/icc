@@ -533,3 +533,10 @@ hr {
 .approved { color: $green; }
 .rejected { color: $red; }
 .follow { cursor: pointer; }
+
+.help {
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: $lightbghl;
+    width: 50%;
+}

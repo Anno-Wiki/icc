@@ -906,4 +906,10 @@ hr {
 .follow {
   cursor: pointer; }
 
+.help {
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: #eee8d5;
+  width: 50%; }
+
 /*# sourceMappingURL=style.css.map */
