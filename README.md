@@ -1,7 +1,8 @@
 # ICC
 
 The ICC (Intertextual Canon Cloud) is a web app designed for a collaborative
-annotations wiki of public domain literature.
+annotations wiki of public domain literature. The only current instance of this
+app can be found at [anno.wiki](https://anno.wiki)
 
 It is currently in development. Documentation will be radically expanded closer
 to completion.
