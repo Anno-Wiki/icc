@@ -31,6 +31,3 @@ run:
 	source venv/bin/activate; flask run --host=0.0.0.0
 run-local:
 	source venv/bin/activate; flask run
-connect-production:
-	export DATABASE_URL='mysql+pymysql://i11qc27cgerk4345:pkgs4zngtm4sfpyw@ui0tj7jn8pyv9lp6.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/f3gujvr9sir9425p';
-	export ELASTICSEARCH_URL='https://paas:5cd2d7d67a0321394d2b56548dcc0c6e@thorin-us-east-1.searchly.com'
