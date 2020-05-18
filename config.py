@@ -1,6 +1,6 @@
 import os
 
-ACCT='root'
+ACCT='python'
 PW=os.environ.get('PW') or 'password'
 
 class Config:
