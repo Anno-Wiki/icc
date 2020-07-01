@@ -4,9 +4,7 @@ import argparse
 import json
 import os
 
-iccvenv = os.environ['ICCVENV']
-idx = iccvenv.rfind('/')
-sys.path.append(os.environ['ICCVENV'][:idx])
+sys.path.insert(1, '../icc')
 
 from icc import db, create_app
 from icc.models.content import Line, Text

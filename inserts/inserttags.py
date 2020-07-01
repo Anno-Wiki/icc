@@ -3,9 +3,7 @@ import yaml
 import sys
 import os
 
-iccvenv = os.environ['ICCVENV']
-idx = iccvenv.rfind('/')
-sys.path.append(os.environ['ICCVENV'][:idx])
+sys.path.insert(1, '../icc')
 
 from icc import db, create_app
 from icc.models.annotation import Tag

@@ -9,9 +9,7 @@ import argparse
 import yaml
 import json
 
-iccvenv = os.environ['ICCVENV']
-idx = iccvenv.rfind('/')
-sys.path.append(os.environ['ICCVENV'][:idx])
+sys.path.insert(1, '../icc')
 
 from icc import db, create_app
 from icc.models.content import (Text, Edition, Line, TOC, WriterConnection,
