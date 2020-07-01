@@ -8,8 +8,9 @@ services:
             - .:/code
         environment:
             FLASK_ENV: development
-            ICC_DEBUG: "TRUE"
-            ICC_TESTING: "TRUE"
+            ICC_DEBUG: 1
+            ICC_TESTING: 1
+            DATABASE_URL: "mysql+pymysql://python:password@172.19.0.2/icc?charset=utf8mb4"
     mariadb:
         image: "mariadb"
         restart: always
@@ -17,12 +18,3 @@ services:
             MYSQL_ROOT_PASSWORD: "password"
             MYSQL_USER: "python"
             MYSQL_PASSWORD: "password"
-    elasticsearch:
-        image: "elasticsearch:7.8.0"
-        ports:
-            - 9200:9200
-        networks:
-            - elastic
-networks:
-    elastic:
-        driver: bridge
