@@ -11,6 +11,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
 from flask_moment import Moment
+from flask_cors import CORS
 
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -39,6 +40,8 @@ def create_app(config_class=Config):
     moment.init_app(app)
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
+
+    CORS(app, resources={r'/api/*': {'origins': '*'}})
 
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
