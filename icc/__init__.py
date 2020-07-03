@@ -46,6 +46,8 @@ def create_app(config_class=Config):
     app.register_blueprint(requests_bp)
     from icc.ajax import ajax as ajax_bp
     app.register_blueprint(ajax_bp)
+    from icc.api import api as api_bp
+    app.register_blueprint(api_bp)
     from icc.user import user as user_bp
     app.register_blueprint(user_bp)
     from icc.main import main as main_bp
