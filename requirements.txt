@@ -12,7 +12,7 @@ coverage==4.5.2
 cryptography==2.6.1
 decorator==4.3.2
 elasticsearch==6.3.1
-Flask==1.0.2
+Flask==1.1.2
 Flask-Elasticsearch==0.2.5
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
