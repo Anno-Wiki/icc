@@ -41,7 +41,8 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 
-    CORS(app, resources={r'/api/*': {'origins': '*'}})
+    CORS(app, resources={r'/api/*': {'origins': 'new.anno.wiki'}},
+         support_credentials=True)
 
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
