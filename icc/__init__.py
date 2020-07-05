@@ -41,21 +41,20 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 
-    CORS(app, resources={r'/api/*': {'origins': 'new.anno.wiki'}},
-         supports_credentials=True)
-
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
     from icc.requests import requests as requests_bp
     app.register_blueprint(requests_bp)
     from icc.ajax import ajax as ajax_bp
     app.register_blueprint(ajax_bp)
-    from icc.api import api as api_bp
-    app.register_blueprint(api_bp)
     from icc.user import user as user_bp
     app.register_blueprint(user_bp)
     from icc.main import main as main_bp
     app.register_blueprint(main_bp)
+
+    from icc.api import api as api_bp
+    CORS(api_bp, supports_credentials=True)
+    app.register_blueprint(api_bp)
 
     if not app.debug and not app.testing:
         if app.config['MAIL_SERVER']:
