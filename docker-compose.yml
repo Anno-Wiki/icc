@@ -18,3 +18,4 @@ services:
             MYSQL_ROOT_PASSWORD: "password"
             MYSQL_USER: "python"
             MYSQL_PASSWORD: "password"
+            MYSQL_DATABASE: "icc"
