@@ -9,11 +9,11 @@ Raw texts in various states of processing and the text processors themselves can
 ## Environment Variables
 Some of these are a little redundant but allow me to run the makefile, etc.
 
-| Variable          | Value                                                                 |
-|-------------------|-----------------------------------------------------------------------|
-| ICC_DEBUG         | 1 or 0                                                                |
-| ICC_TEST          | 1 or 0                                                                |
-| ICCVENV           | venv/bin/activate absolute path                                       |
-| ICCDB             | IP address for mysql db                                               |
-| PW                | password for mysql db                                                 |
-| DATABASE_URL      | uri "mysql+pymysql://<username>:<password>@<ip>/<db>?charset=utf8mb4" |
+| Variable            | Value                                                                 |
+|---------------------|-----------------------------------------------------------------------|
+| `ICC_DEBUG`         | 1 or 0                                                                |
+| `ICC_TEST`          | 1 or 0                                                                |
+| `ICCVENV`           | `venv/bin/activate` absolute path                                     |
+| `ICCDB`             | IP address for mysql db                                               |
+| `PW`                | password for mysql db                                                 |
+| `DATABASE_URL`      | uri `mysql+pymysql://<username>:<password>@<ip>/<db>?charset=utf8mb4` |
