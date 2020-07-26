@@ -41,6 +41,7 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config["ELASTICSEARCH_URL"]]) \
         if app.config["ELASTICSEARCH_URL"] else None
 
+
     from icc.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
     from icc.requests import requests as requests_bp

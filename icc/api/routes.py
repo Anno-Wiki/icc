@@ -3,6 +3,9 @@ import time
 from flask import request
 from flask_login import current_user, login_user
 
+from flask_graphql import GraphQLView
+from icc.models.schema import schema
+
 from icc.api import api
 
 from icc.models.user import User
@@ -28,3 +31,12 @@ def get_current_user():
         return {'user': current_user.displayname}
     else:
         return {'user': None}
+
+api.add_url_rule(
+    '/graphql',
+    view_func=GraphQLView.as_view(
+        'graphql',
+        schema=schema,
+        graphiql=True
+    )
+)
