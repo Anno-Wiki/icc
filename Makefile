@@ -3,8 +3,9 @@ install:
 	source venv/bin/activate; \
 	pip install --upgrade pip; \
 	pip install -r requirements.txt
+recreatedb:
+	mysql -h ${ICCDB} -u python --password=${PW} -e "drop database icc; create database icc;"
 db:
-	mysql -h ${ICCDB} -u python --password=$$PW -e "drop database icc; create database icc;" # recreate db
 	source venv/bin/activate; flask db upgrade # recreate db structure
 	# populate default values
 	source venv/bin/activate; \

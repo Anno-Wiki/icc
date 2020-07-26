@@ -10,7 +10,7 @@ services:
             FLASK_ENV: development
             ICC_DEBUG: 1
             ICC_TESTING: 1
-            DATABASE_URL: "mysql+pymysql://python:password@172.19.0.2/icc?charset=utf8mb4"
+            DATABASE_URL: "mysql+pymysql://python:password@mariadb/icc?charset=utf8mb4"
     mariadb:
         image: "mariadb"
         restart: always
@@ -18,3 +18,4 @@ services:
             MYSQL_ROOT_PASSWORD: "password"
             MYSQL_USER: "python"
             MYSQL_PASSWORD: "password"
+            MYSQL_DATABASE: "icc"
