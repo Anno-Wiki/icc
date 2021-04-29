@@ -46,3 +46,5 @@ data/library
 **/.sass-cache/*
 *.map
 .flaskenv
+.venv
+.vim
