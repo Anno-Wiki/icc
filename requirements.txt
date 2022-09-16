@@ -31,7 +31,7 @@ ipython-genutils==0.2.0
 itsdangerous==1.1.0
 jedi==0.13.3
 Jinja2==2.10.1
-Mako==1.0.7
+Mako==1.2.2
 Markdown==3.0.1
 MarkupSafe==1.1.1
 more-itertools==6.0.0
